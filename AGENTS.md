@@ -6,6 +6,7 @@
 
 ## Safety & Governance Rules (STRICT)
 - **Secrets & Security**: NEVER commit/push `.env` files or credentials. Ensure secrets stay in `.env` (git-ignored).
+- **MCP Config Files**: NEVER commit/push any MCP (Model Context Protocol) config files — these often contain API keys. Blocked patterns: `mcp.json`, `.mcp/`, `mcp_config.json`, `claude_desktop_config.json`, `.cursor/mcp.json`, `.gemini/mcp*.json`, `windsurf_mcp.json`, `codeium_mcp.json`, or any JSON/YAML with `"mcpServers"` key containing credentials.
 - **DB Destructive Ops**: NEVER run `DROP DATABASE`, `DROP TABLE`, `TRUNCATE`, or `schema sync` (synchronize: true).
 - **Schema & Migrations**: BEFORE modifying, renaming, or dropping existing DB columns/entities, analyze data impact, notify the user, and get explicit approval before generating/running migrations.
 - **Git Safety**: NEVER run `git push --force` or push code without explicit user request.

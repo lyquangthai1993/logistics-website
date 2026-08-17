@@ -112,6 +112,15 @@ Sub-Agent A MUST scan the staged diff against ALL items below.
 - [ ] No `*.pem`, `*.key`, `*.p12` files staged
 - [ ] No `id_rsa`, `id_ed25519` files staged
 
+#### MCP Config Files (from AGENTS.md)
+- [ ] No `mcp.json`, `mcp_config.json/yaml` staged
+- [ ] No `.mcp/` directory contents staged
+- [ ] No `claude_desktop_config.json` staged
+- [ ] No `.cursor/mcp.json` or `.cursor/mcp.yaml` staged
+- [ ] No `.gemini/mcp*.json` staged
+- [ ] No `windsurf_mcp.json`, `codeium_mcp.json`, `copilot-mcp.json` staged
+- [ ] No JSON/YAML file with top-level `"mcpServers"` key staged (scan diff content, not just filename)
+
 #### Database Safety (from AGENTS.md)
 - [ ] No `DROP DATABASE` or `DROP TABLE` in any staged file
 - [ ] No `TRUNCATE TABLE` statements (unless in `seeds/` folder and user confirms)

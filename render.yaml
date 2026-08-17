@@ -1,0 +1,59 @@
+services:
+  # ─── NestJS Backend API ──────────────────────────────────────────────────
+  - type: web
+    name: logistics-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile.prod
+    dockerContext: ./backend
+    plan: free
+    region: singapore
+    branch: main
+    healthCheckPath: /api/v1
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: API_PREFIX
+        value: api
+      - key: APP_FALLBACK_LANGUAGE
+        value: en
+      - key: APP_HEADER_LANGUAGE
+        value: x-custom-lang
+      - key: AUTH_JWT_TOKEN_EXPIRES_IN
+        value: 15m
+      - key: AUTH_REFRESH_TOKEN_EXPIRES_IN
+        value: 30d
+      - key: AUTH_FORGOT_TOKEN_EXPIRES_IN
+        value: 30m
+      - key: AUTH_CONFIRM_EMAIL_TOKEN_EXPIRES_IN
+        value: 1d
+      - key: AUTH_UNIFORM_ERRORS
+        value: "true"
+      - key: DATABASE_SYNCHRONIZE
+        value: "false"
+      - key: DATABASE_MAX_CONNECTIONS
+        value: "10"
+      - key: DATABASE_SSL_ENABLED
+        value: "true"
+      - key: DATABASE_REJECT_UNAUTHORIZED
+        value: "false"
+      - key: FILE_DRIVER
+        value: s3
+      - key: AWS_S3_REGION
+        value: ap-southeast-1
+
+      # ── Secrets: điền thủ công trên Render Dashboard ──────────────────────
+      # BACKEND_DOMAIN          → https://logistics-backend.onrender.com
+      # FRONTEND_DOMAIN         → https://your-app.vercel.app
+      # APP_CORS_ORIGINS        → https://your-app.vercel.app
+      # DATABASE_URL            → Neon connection string
+      # ACCESS_KEY_ID           → Supabase S3 key
+      # SECRET_ACCESS_KEY       → Supabase S3 secret
+      # AWS_DEFAULT_S3_BUCKET   → logistics-media
+      # AWS_S3_ENDPOINT         → https://<ref>.supabase.co/storage/v1/s3
+      # AWS_S3_PUBLIC_URL       → https://<ref>.supabase.co/storage/v1/object/public/logistics-media
+      # WORKER_HOST             → Upstash Redis URL (rediss://...)
+      # AUTH_JWT_SECRET         → random strong string
+      # AUTH_REFRESH_SECRET     → random strong string
+      # AUTH_FORGOT_SECRET      → random strong string
+      # AUTH_CONFIRM_EMAIL_SECRET → random strong string
