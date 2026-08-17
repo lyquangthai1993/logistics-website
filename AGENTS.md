@@ -20,6 +20,7 @@
 - [`ui-ux-flow-designer`](file:///d:/Projects/logistics-website/.agents/skills/ui-ux-flow-designer/SKILL.md): User flow analysis, wireframing, role-based interaction design (DISPATCHER, FLEET_MANAGER, WAREHOUSE_MANAGER, SUPER_ADMIN), UI layout architecture.
 - [`e2e-test-runner`](file:///d:/Projects/logistics-website/.agents/skills/e2e-test-runner/SKILL.md): Playwright E2E orchestration – spawns 3 sub-agents: Console Health Inspector, Login Flow Tester, RBAC Route Guard Validator.
 - [`git-commit-reviewer`](file:///d:/Projects/logistics-website/.agents/skills/git-commit-reviewer/SKILL.md): Safe commit flow – spawns 2 sub-agents: Security & Rule Auditor (blocks on violations), Commit Message Crafter (Conventional Commits). Commit only executes after audit gate passes.
+- [`codebase-auditor`](file:///d:/Projects/logistics-website/.agents/skills/codebase-auditor/SKILL.md): Audit toàn bộ source base và cập nhật có phiên bản vào [`CODEBASE_AUDIT.md`](file:///d:/Projects/logistics-website/CODEBASE_AUDIT.md). Dùng khi: khảo sát hệ thống, vừa hoàn thiện feature mới, chuẩn bị triển khai nghiệp vụ mới.
 
 ### Dedicated Subagents
 - `ui-ux-designer`: Specialized subagent for analyzing user journeys, designing frontend UI component hierarchies, and mapping operational workflows.
