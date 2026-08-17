@@ -15,8 +15,10 @@ out/
 build/
 *.log
 
-# Temp / Scratch
+# Temp / Scratch / Test Output
 scratch/
+test-results/
+playwright-report/
 
 # MCP (Model Context Protocol) config files – may contain API keys
 mcp.json
