@@ -1,0 +1,24 @@
+# Workspace Guidelines & Rules (Logistics TMS Fullstack)
+
+## Architecture Overview
+- **Backend**: NestJS 11+ located in [`backend/`](file:///d:/Projects/logistics-website/backend) (PostgreSQL on Neon, TypeORM, Custom JWT Auth, Swagger).
+- **Frontend**: Next.js 15+ located in [`frontend/`](file:///d:/Projects/logistics-website/frontend) (App Router, React 19, Tailwind CSS, TanStack Query, Zustand).
+
+## Safety & Governance Rules (STRICT)
+- **Secrets & Security**: NEVER commit/push `.env` files or credentials. Ensure secrets stay in `.env` (git-ignored).
+- **DB Destructive Ops**: NEVER run `DROP DATABASE`, `DROP TABLE`, `TRUNCATE`, or `schema sync` (synchronize: true).
+- **Schema & Migrations**: BEFORE modifying, renaming, or dropping existing DB columns/entities, analyze data impact, notify the user, and get explicit approval before generating/running migrations.
+- **Git Safety**: NEVER run `git push --force` or push code without explicit user request.
+- **Codebase Integrity**: DO NOT delete critical source folders or bypass error checks with silent fallbacks.
+
+## Registered Skills & Agents
+
+### Specialized Skills
+- [`nestjs-best-practices`](file:///d:/Projects/logistics-website/.agents/skills/nestjs-best-practices/SKILL.md): Backend architecture, NestJS patterns, TypeORM migrations, DTOs, controllers, services.
+- [`nextjs-best-practices`](file:///d:/Projects/logistics-website/.agents/skills/nextjs-best-practices/SKILL.md): Frontend App Router structure, React 19, Zustand stores, TanStack Query v5 API integration.
+- [`ui-ux-flow-designer`](file:///d:/Projects/logistics-website/.agents/skills/ui-ux-flow-designer/SKILL.md): User flow analysis, wireframing, role-based interaction design (DISPATCHER, FLEET_MANAGER, WAREHOUSE_MANAGER, SUPER_ADMIN), UI layout architecture.
+- [`e2e-test-runner`](file:///d:/Projects/logistics-website/.agents/skills/e2e-test-runner/SKILL.md): Playwright E2E orchestration – spawns 3 sub-agents: Console Health Inspector, Login Flow Tester, RBAC Route Guard Validator.
+
+### Dedicated Subagents
+- `ui-ux-designer`: Specialized subagent for analyzing user journeys, designing frontend UI component hierarchies, and mapping operational workflows.
+- `e2e-orchestrator`: Spawns 3 parallel sub-agents to run Playwright E2E tests (console health, login flow, RBAC routing). Read [`e2e-test-runner`](file:///d:/Projects/logistics-website/.agents/skills/e2e-test-runner/SKILL.md) SKILL.md before orchestrating.
