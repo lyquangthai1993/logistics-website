@@ -9,7 +9,7 @@
 
 | Trường | Giá trị |
 |---|---|
-| **Phiên bản** | v0.3.1 |
+| **Phiên bản** | v0.4.0 |
 | **Ngày audit** | 2026-08-17 |
 | **Người thực hiện** | Antigravity Agent |
 | **Môi trường** | Development / Staging |
@@ -17,6 +17,15 @@
 ---
 
 ## 🗂️ CHANGELOG PHIÊN BẢN
+
+### v0.4.0 — 2026-08-17
+- ✅ Backend: Module `notifications` (Entity `Notification`, DB Table `notification`, REST API 5 endpoints: Tạo mới, danh sách phân trang, đếm chưa đọc, đánh dấu đọc 1/tất cả)
+- ✅ Realtime WebSocket: `NotificationsGateway` (Socket.IO namespace `notifications`, JWT handshake auth, per-user room routing `user:${userId}`, push event `notification:new`)
+- ✅ Migration: `1786938200000-CreateNotificationTable` (Tạo bảng `notification` + composite indexes `IDX_notification_userId`, `IDX_notification_userId_isRead`)
+- ✅ Frontend Realtime: Hook `useNotificationSocket` kết nối Socket.IO qua JWT auth, tự động invalidate TanStack Query cache & hiển thị toast Sonner
+- ✅ Frontend API Layer: Bộ hooks TanStack Query v5 (`useNotificationsQuery`, `useUnreadCountQuery`, `useMarkAsReadMutation`, `useMarkAllAsReadMutation`)
+- ✅ Component: `NotificationCenter` (badge realtime + dropdown danh sách) & `NotificationsPage`
+- ✅ Skills & Rules: Bổ sung bộ agent skills chuyên sâu (BullMQ/Redis, JWT/RBAC, TanStack Query, Zustand, Shadcn UI, Security rules, Codebase Auditor)
 
 ### v0.3.1 — 2026-08-17
 - ✅ Backend: Mở rộng module `mail` thêm REST endpoints (`/api/v1/mail/send/dispatcher`, `fleet`, `warehouse`, `generic`) bảo mật RBAC với DTO validation & Swagger
@@ -57,8 +66,8 @@
 
 | Layer | Stack |
 |---|---|
-| **Backend** | NestJS 11, TypeORM, PostgreSQL (Neon), Custom JWT, Swagger, Nodemailer |
-| **Frontend** | Next.js 16.2, React 19, Tailwind CSS v4, TanStack Query v5, Zustand v5 |
+| **Backend** | NestJS 11, TypeORM, PostgreSQL (Neon), Custom JWT, Socket.IO WebSockets, Swagger, Nodemailer |
+| **Frontend** | Next.js 16.2, React 19, Tailwind CSS v4, TanStack Query v5, Zustand v5, Socket.IO Client |
 | **Auth** | JWT Access + Refresh Token (HTTP-only cookie), Middleware RBAC 2 lớp |
 | **Deploy** | Frontend → Vercel, Backend → Render |
 | **Monitoring** | Sentry (Frontend) |
@@ -96,6 +105,7 @@
 | `users` | `user` | CRUD + Pagination | `SUPER_ADMIN` |
 | `vehicles` | `vehicle` | CRUD full | `SUPER_ADMIN`, `FLEET_MANAGER` |
 | `drivers` | `driver` | CRUD full | `SUPER_ADMIN`, `FLEET_MANAGER` |
+| `notifications` | `notification` | 5 endpoints (CRUD, unread count, mark read) + WebSocket Gateway (`/notifications`) | JWT required (All roles) |
 | `files` | `file` | Upload (Local/S3/Presigned) + Serve | JWT required |
 | `session` | `session` | Internal (auth only) | — |
 | `roles` | `role` | DB Seed only | — |
@@ -111,6 +121,7 @@
 | 2 | `1753407715000-AddRoleDescriptionAndDisplayName` | Thêm `displayName`, `description` vào `role` |
 | 3 | `1753410000000-AddAuditColumnsToFile` | Thêm audit columns + `createdBy` vào `file` |
 | 4 | `1786938138008-CreateFleetTables` | Tạo bảng `vehicle` và `driver` |
+| 5 | `1786938200000-CreateNotificationTable` | Tạo bảng `notification` + indexes trên `userId` và `(userId, isRead)` |
 
 ### 🔑 Enums đang dùng
 
@@ -121,6 +132,7 @@ VehicleStatus:              'AVAILABLE' | 'IN_USE' | 'MAINTENANCE'
 DriverStatus:               'AVAILABLE' | 'ON_TRIP' | 'OFF_DUTY'
 FileDriver:                 LOCAL | S3 | S3_PRESIGNED
 AuthProvider:               email | google | facebook | apple
+NotificationType:           'WAREHOUSE' | 'FLEET' | 'DISPATCHER' | 'GENERIC'
 DispatcherNotificationType: 'NEW_ORDER' | 'ORDER_CANCELLED' | 'VEHICLE_ASSIGNED' | 'DELAY_ALERT'
 FleetNotificationType:      'TRIP_ASSIGNED' | 'VEHICLE_MAINTENANCE' | 'OVERLOAD_ALERT' | 'DRIVER_STATUS_CHANGE'
 WarehouseNotificationType:  'INBOUND_SHIPMENT' | 'OUTBOUND_SHIPMENT' | 'INVENTORY_ALERT' | 'CAPACITY_WARNING'
@@ -143,7 +155,7 @@ WarehouseNotificationType:  'INBOUND_SHIPMENT' | 'OUTBOUND_SHIPMENT' | 'INVENTOR
 | `/dashboard/kanban` | Kanban Board (kéo thả dnd-kit) | All |
 | `/dashboard/chat` | Chat nội bộ | All |
 | `/dashboard/ai-chat` | AI Assistant | All |
-| `/dashboard/notifications` | Trung tâm thông báo | All |
+| `/dashboard/notifications` | Trung tâm thông báo (Realtime WebSocket + REST) | All |
 | `/dashboard/profile` | Hồ sơ cá nhân | All |
 | `/dashboard/forms/*` | Showcase forms (basic, multi-step, sheet, advanced) | All |
 
@@ -159,6 +171,7 @@ WarehouseNotificationType:  'INBOUND_SHIPMENT' | 'OUTBOUND_SHIPMENT' | 'INVENTOR
 ### 🔌 API Layer
 
 - **Axios client** (`src/lib/api-client.ts`): Auto refresh token (queue + retry on 401)
+- **Notifications API & Socket**: `useNotificationSocket` (Socket.IO client), `useNotificationsQuery`, `useUnreadCountQuery`, `useMarkAsReadMutation`, `useMarkAllAsReadMutation`
 - **Fleet API**: getVehicles, createVehicle, updateVehicle, deleteVehicle, getDrivers, ...
 - **Products API**: query options, mutations (create/update/delete + invalidate)
 - **Users API**: query options, mutations (create/update/delete + invalidate)
@@ -169,12 +182,11 @@ WarehouseNotificationType:  'INBOUND_SHIPMENT' | 'OUTBOUND_SHIPMENT' | 'INVENTOR
 
 | # | Nghiệp vụ | Backend | Frontend | Priority |
 |---|---|---|---|---|
-| 1 | **Orders** — Quản lý đơn hàng | ❌ Chưa có | ❌ Chưa có page (guard ✅) | 🔴 Cao |
-| 2 | **Trips** — Quản lý chuyến xe | ❌ Chưa có | ❌ Chưa có page (guard ✅) | 🔴 Cao |
-| 3 | **Warehouse/Hub** — Quản lý kho | ❌ Chưa có | ❌ Chưa có page (guard ✅) | 🟡 Trung bình |
+| 1 | **Orders** — Quản lý đơn hàng (Mã NDA2607-xxxx) | ❌ Chưa có | ❌ Chưa có page (guard ✅) | 🔴 Cao |
+| 2 | **Trips** — Quản lý chuyến xe (Gom đơn, tải trọng) | ❌ Chưa có | ❌ Chưa có page (guard ✅) | 🔴 Cao |
+| 3 | **Warehouse/Hub** — Quản lý kho (Andromeda, Hubble, Magellan, Vela) | ❌ Chưa có | ❌ Chưa có page (guard ✅) | 🟡 Trung bình |
 | 4 | **Cargo/Goods** — Hàng hóa TMS | ❌ Chưa có | Partial (Product mock) | 🟡 Trung bình |
 | 5 | **Reports** — Báo cáo thống kê | ❌ Chưa có | ❌ Chưa có | 🟢 Thấp |
-| 6 | **Realtime** — WebSocket notify | ❌ Chưa có | ❌ Chưa có | 🟡 Trung bình |
 
 ---
 
@@ -196,3 +208,4 @@ WarehouseNotificationType:  'INBOUND_SHIPMENT' | 'OUTBOUND_SHIPMENT' | 'INVENTOR
 - [ ] Tạo API hooks (queryOptions + mutations)
 - [ ] Cập nhật middleware `roleRouteMap` nếu cần phân quyền mới
 - [ ] Cập nhật file này (CODEBASE_AUDIT.md)
+

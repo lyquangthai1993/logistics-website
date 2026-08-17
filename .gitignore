@@ -32,3 +32,10 @@ windsurf_mcp.json
 codeium_mcp.json
 .codeium/
 copilot-mcp.json
+
+# Archives & Drafts
+*.rar
+*.zip
+*.7z
+*.tar.gz
+PROJECT_NOTE.md
