@@ -28,6 +28,21 @@ Orchestrator (this skill)
 
 ---
 
+## 🔧 Automated Pre-commit Pipeline (Husky + lint-staged)
+
+The following run **automatically** on every `git commit` via Husky **before** the agent audit:
+
+| Stage | Tool | Scope | Action |
+|-------|------|-------|--------|
+| Format | `oxfmt --write` | `*.{js,jsx,ts,tsx,css,...}` | Auto-fix formatting in-place |
+| Lint | `oxlint --fix` | `*.{js,jsx,ts,tsx}` | Auto-fix lint errors; **fails commit** on unfixable errors |
+
+> `oxlint` is the project's ESLint-compatible linter (Rust-based, ~50× faster than ESLint).
+> Rules are defined in [`frontend/.oxlintrc.json`](file:///d:/Projects/logistics-website/frontend/.oxlintrc.json).
+> If `oxlint --fix` cannot auto-fix an error, the commit is **aborted** and the agent reports the violation.
+
+---
+
 ## 🚀 Orchestrator Workflow (Step-by-Step)
 
 ### Step 0 – Collect Staged Diff
