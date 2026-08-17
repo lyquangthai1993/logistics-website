@@ -18,7 +18,9 @@
 - [`nextjs-best-practices`](file:///d:/Projects/logistics-website/.agents/skills/nextjs-best-practices/SKILL.md): Frontend App Router structure, React 19, Zustand stores, TanStack Query v5 API integration.
 - [`ui-ux-flow-designer`](file:///d:/Projects/logistics-website/.agents/skills/ui-ux-flow-designer/SKILL.md): User flow analysis, wireframing, role-based interaction design (DISPATCHER, FLEET_MANAGER, WAREHOUSE_MANAGER, SUPER_ADMIN), UI layout architecture.
 - [`e2e-test-runner`](file:///d:/Projects/logistics-website/.agents/skills/e2e-test-runner/SKILL.md): Playwright E2E orchestration – spawns 3 sub-agents: Console Health Inspector, Login Flow Tester, RBAC Route Guard Validator.
+- [`git-commit-reviewer`](file:///d:/Projects/logistics-website/.agents/skills/git-commit-reviewer/SKILL.md): Safe commit flow – spawns 2 sub-agents: Security & Rule Auditor (blocks on violations), Commit Message Crafter (Conventional Commits). Commit only executes after audit gate passes.
 
 ### Dedicated Subagents
 - `ui-ux-designer`: Specialized subagent for analyzing user journeys, designing frontend UI component hierarchies, and mapping operational workflows.
 - `e2e-orchestrator`: Spawns 3 parallel sub-agents to run Playwright E2E tests (console health, login flow, RBAC routing). Read [`e2e-test-runner`](file:///d:/Projects/logistics-website/.agents/skills/e2e-test-runner/SKILL.md) SKILL.md before orchestrating.
+- `git-commit-agent`: Audits staged changes (security, secrets, conventions, DB safety) via 2 sub-agents, then commits with a Conventional Commit message. Read [`git-commit-reviewer`](file:///d:/Projects/logistics-website/.agents/skills/git-commit-reviewer/SKILL.md) SKILL.md before running.

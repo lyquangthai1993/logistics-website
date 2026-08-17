@@ -41,6 +41,11 @@ This skill provides a structured methodology for analyzing user roles, designing
    - Modals and slide-over drawers for rapid order inspection without losing page context.
 4. **Responsive & Fluid Layout**:
    - Optimized for desktop operational displays (1920x1080 / 1440x900) while supporting tablet field inspections.
+5. **Interactive Element Cursor & Hover Guidelines**:
+   - **Universal Pointer Rule**: EVERY element that is interactive or clickable (`<button>`, `[role="button"]`, `DropdownMenuTrigger`, `SelectTrigger`, `AccordionTrigger`, clickable table rows/cards, badges, tabs, pagination links, switches, checkboxes, dialog triggers/closes) MUST display `cursor: pointer` (`cursor-pointer`) on hover.
+   - **Disabled State Rule**: Disabled elements (`disabled`, `aria-disabled="true"`, `data-disabled`) MUST show `cursor: not-allowed` and visual mute feedback.
+   - **Hover & Focus Feedback**: All clickable elements MUST have clean, modern visual feedback on hover (`hover:bg-accent/80`, `hover:text-primary`, `transition-all duration-150`) and accessible focus rings (`focus-visible:ring-2 focus-visible:ring-primary/50`).
+   - **Click Target Area**: Ensure minimum interactive target size (at least 32px / `h-8` for action buttons & icons) for seamless user interaction.
 
 ---
 
