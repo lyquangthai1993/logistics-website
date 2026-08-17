@@ -116,20 +116,45 @@
 
 ---
 
+### Q9 – Hủy Lệnh Điều Vận Trước Khi Gửi Đội Xe ✅ ĐÃ CONFIRM
 
+**Quyết định**: Người điều phối (Dispatcher) có toàn quyền **hủy hoặc xóa lệnh điều vận trước khi gửi cho Đội xe** (khi đơn hàng ở trạng thái `DRAFT` - Nháp).
+
+**Chi tiết nghiệp vụ & kỹ thuật**:
+- **Thời điểm cho phép**: Khi đơn hàng vừa tạo xong và đang ở trạng thái `DRAFT` (chưa bấm nút gửi duyệt sang Đội xe `PENDING_FLEET`).
+- **Giao diện thao tác**:
+  - Tại bảng danh sách đơn hàng (`/dashboard/orders`): Cung cấp nút thao tác nhanh `Xóa / Hủy đơn` (nút icon thùng rác màu đỏ) chỉ hiển thị cho các dòng đơn `DRAFT`.
+  - Tại trang chi tiết đơn hàng (`/dashboard/orders/[id]`): Cung cấp nút `Hủy lệnh điều vận` khi đơn đang ở trạng thái `DRAFT`.
+- **Hiệu lực dữ liệu & phân quyền**:
+  - Thực hiện soft-delete hoặc chuyển trạng thái sang `CANCELLED`.
+  - Đơn bị hủy sẽ không chuyển tiếp sang bảng chờ tiếp nhận phân xe của Đội xe (`FLEET_MANAGER`).
+  - Giải phóng mã đơn hàng và không làm phát sinh chuyến xe (trip).
+
+---
 
 ### Luồng Chính (Happy Path)
 
 ```
 [DISPATCHER]                    [FLEET_MANAGER]              [WAREHOUSE_MANAGER]
      │                                │                              │
-     ├─ Tạo Order mới ──────────────►│                              │
+     ├─ Tạo Order mới (DRAFT)         │                              │
+     ├─ Gửi lên Fleet (PENDING) ─────►│                              │
      │   (mã, tuyến, KL/m³, hàng)    │                              │
      │                                ├─ Xem Orders cần phân công   │
      │                                ├─ Chọn xe + tài xế           │
      │                                ├─ Đặt ngày/giờ lấy hàng     │
      │                                ├─ Xác nhận Trip ────────────►│
      │◄── Notify: Trip confirmed ──── │               Inbound Board │
+```
+
+### Ngoại Lệ 0 – Người điều phối hủy lệnh trước khi gửi Đội xe
+
+```
+[DISPATCHER] Tạo đơn hàng mới (DRAFT)
+    → Phát hiện sai thông tin / Khách hàng thay đổi yêu cầu
+    → Bấm "Hủy / Xóa đơn nháp" (trước khi gửi Fleet)
+    → Đơn bị hủy / xóa khỏi hệ thống
+    → Hoàn toàn không chuyển sang Đội xe (Fleet Manager không thấy đơn này)
 ```
 
 ### Ngoại Lệ 1 – Không có xe nội bộ
@@ -156,7 +181,8 @@ FLEET_MANAGER tạo nhiều Trip cho cùng 1 Order
 ## Order Status State Machine
 
 ```
-DRAFT
+DRAFT ──(Dispatcher hủy lệnh trước khi gửi Fleet)──► CANCELLED / DELETED
+  │
   └─► PENDING_FLEET
             ├─► ASSIGNED (tất cả trips đã confirmed)
             │       └─► IN_TRANSIT
@@ -167,6 +193,7 @@ DRAFT
 
 Mọi trạng thái ──► CANCELLED
 ```
+
 
 ---
 
@@ -366,6 +393,7 @@ cancelTrip(id)
 | 7 | DISPATCHER | Đơn không có xe → tạo External Vehicle | Assign thành công |
 | 8 | FLEET_MANAGER | Split 2 xe cho 1 đơn | 2 trips tồn tại, order hiển thị "Split 2x" |
 | 9 | FLEET_MANAGER | Confirm cả 2 trips | Order → `ASSIGNED` |
+| 10 | DISPATCHER | Hủy đơn hàng ở trạng thái `DRAFT` | Đơn bị xóa/hủy, không gửi sang Đội xe |
 
 ---
 
