@@ -9,7 +9,7 @@
 
 | Trường | Giá trị |
 |---|---|
-| **Phiên bản** | v0.3.0 |
+| **Phiên bản** | v0.3.1 |
 | **Ngày audit** | 2026-08-17 |
 | **Người thực hiện** | Antigravity Agent |
 | **Môi trường** | Development / Staging |
@@ -17,6 +17,14 @@
 ---
 
 ## 🗂️ CHANGELOG PHIÊN BẢN
+
+### v0.3.1 — 2026-08-17
+- ✅ Backend: Mở rộng module `mail` thêm REST endpoints (`/api/v1/mail/send/dispatcher`, `fleet`, `warehouse`, `generic`) bảo mật RBAC với DTO validation & Swagger
+- ✅ Handlebars templates: Bổ sung 4 mẫu email thông báo chuyên biệt cho Dispatcher, Fleet Manager, Warehouse Manager và Generic alert
+- ✅ Development Fallback: Cấu hình `MailerService` tự động chuyển sang chế độ Dev Simulation khi mất kết nối SMTP, tránh lỗi HTTP 500 khi dev local
+- ✅ Unit tests: Bổ sung `mail.controller.spec.ts` và `mail.service.spec.ts`
+- ✅ Kiến trúc & Workflow: Tạo `docs/order-dispatch-workflow-plan.md` thiết kế chi tiết quy trình Order & Dispatch Management (Phân công xe, Split shipment, Inbound warehouse board)
+- ✅ Agent Skills: Đăng ký skill `codebase-auditor` tự động rà soát và cập nhật biên bản kiểm tra source base
 
 ### v0.3.0 — 2026-08-17
 - ✅ Hoàn thiện module `vehicles` + `drivers` (Fleet Management)
@@ -92,7 +100,7 @@
 | `session` | `session` | Internal (auth only) | — |
 | `roles` | `role` | DB Seed only | — |
 | `statuses` | `status` | DB Seed only | — |
-| `mail`/`mailer` | — | Internal (send email) | — |
+| `mail`/`mailer` | — | 4 REST endpoints (`/api/v1/mail/send/*`) | `SUPER_ADMIN`, `DISPATCHER`, `FLEET_MANAGER`, `WAREHOUSE_MANAGER` |
 | `home` | — | `GET /` app info | Public |
 
 ### 📊 Migrations đã chạy (theo thứ tự)
@@ -107,12 +115,15 @@
 ### 🔑 Enums đang dùng
 
 ```typescript
-RoleEnum:      SUPER_ADMIN=1, DISPATCHER=2, FLEET_MANAGER=3, WAREHOUSE_MANAGER=4
-StatusEnum:    active=1, inactive=2
-VehicleStatus: 'AVAILABLE' | 'IN_USE' | 'MAINTENANCE'
-DriverStatus:  'AVAILABLE' | 'ON_TRIP' | 'OFF_DUTY'
-FileDriver:    LOCAL | S3 | S3_PRESIGNED
-AuthProvider:  email | google | facebook | apple
+RoleEnum:                   SUPER_ADMIN=1, DISPATCHER=2, FLEET_MANAGER=3, WAREHOUSE_MANAGER=4
+StatusEnum:                 active=1, inactive=2
+VehicleStatus:              'AVAILABLE' | 'IN_USE' | 'MAINTENANCE'
+DriverStatus:               'AVAILABLE' | 'ON_TRIP' | 'OFF_DUTY'
+FileDriver:                 LOCAL | S3 | S3_PRESIGNED
+AuthProvider:               email | google | facebook | apple
+DispatcherNotificationType: 'NEW_ORDER' | 'ORDER_CANCELLED' | 'VEHICLE_ASSIGNED' | 'DELAY_ALERT'
+FleetNotificationType:      'TRIP_ASSIGNED' | 'VEHICLE_MAINTENANCE' | 'OVERLOAD_ALERT' | 'DRIVER_STATUS_CHANGE'
+WarehouseNotificationType:  'INBOUND_SHIPMENT' | 'OUTBOUND_SHIPMENT' | 'INVENTORY_ALERT' | 'CAPACITY_WARNING'
 ```
 
 ---
