@@ -12,6 +12,10 @@
 - **Git Safety**: NEVER run `git push --force` or push code without explicit user request.
 - **Codebase Integrity**: DO NOT delete critical source folders or bypass error checks with silent fallbacks.
 
+## Model Selection Strategy & Guidelines
+- 💻 **Triển khai Code (Development & Bug Fixing)**: Ưu tiên sử dụng model của **Claude** (Claude 3.7 / 3.5 Sonnet) cho các tác vụ viết code tính năng, refactor, xử lý logic phức tạp ở cả Backend và Frontend.
+- 📝 **Triển khai Test, Viết Docs & Audit**: Ưu tiên sử dụng model của **Gemini** (Gemini 2.5 Pro / Flash) cho các tác vụ viết E2E / Unit tests, tài liệu hóa (documentation/README), audit codebase và tổng hợp logs.
+
 ## Registered Skills & Agents
 
 ### Specialized Skills

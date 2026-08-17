@@ -9,7 +9,7 @@
 
 | Trường | Giá trị |
 |---|---|
-| **Phiên bản** | v0.4.0 |
+| **Phiên bản** | v0.5.0 |
 | **Ngày audit** | 2026-08-17 |
 | **Người thực hiện** | Antigravity Agent |
 | **Môi trường** | Development / Staging |
@@ -17,6 +17,29 @@
 ---
 
 ## 🗂️ CHANGELOG PHIÊN BẢN
+
+### v0.5.0 — 2026-08-17
+- ✅ Backend Module `orders`: Entity `Order`, 7 endpoints (Tạo mới, danh sách lọc tuyến/trạng thái, chi tiết, cập nhật, submit lên Fleet, báo hết xe, xóa), bắt buộc `externalNote` khi yêu cầu xe ngoài
+- ✅ Backend Module `trips`: Entity `Trip`, 6 endpoints (Gán xe đơn lẻ, chia chuyến Split Shipment, danh sách lọc hub/trạng thái, xác nhận chuyến Trip, cập nhật, xóa)
+- ✅ TypeORM Migrations: `1786938300000-CreateOrderAndTripTables` & `1786938400000-AddExternalNoteToOrder` đã chạy trên database
+- ✅ Backend Realtime & Mail: Tự động gửi In-app Notifications và Email (`trip-confirmed.hbs`) đến các bên liên quan khi Fleet Manager xác nhận chuyến xe
+- ✅ Frontend Pages:
+  - `/dashboard/orders`: Lập lệnh điều vận, nhập mô tả/ghi chú đa dòng (`Textarea`), modal yêu cầu xe ngoài bắt buộc ghi nhận lý do, gửi lệnh lên Đội xe
+  - `/dashboard/orders/[id]`: Trang chi tiết đơn hàng trực quan
+  - `/dashboard/trips`: Bảng điều phối chuyến xe, đồng hồ đo tải trọng trọng lượng/thể tích, chia đơn đa chuyến (Split shipment), xác nhận chuyến xe
+  - `/dashboard/warehouse`: Inbound Hub & Kho Tiếp Nhận lọc chuyến xe theo hub đến
+- ✅ Frontend Navigation: Cập nhật `nav-config.ts` gắn badge và phân quyền menu theo vai trò DISPATCHER, FLEET_MANAGER, WAREHOUSE_MANAGER
+- ✅ E2E Testing & User Manual:
+  - `frontend/e2e/06-order-dispatch-workflow.spec.ts`: Kiểm thử toàn trình liên tục qua 3 vai trò thành công 100%
+  - `frontend/e2e/07-capture-user-guide-screenshots.spec.ts`: Tự động chụp 13 ảnh HD theo luồng thao tác thực tế
+  - `docs/user-guide/USER_MANUAL_HUONG_DAN_SU_DUNG.md`: Tài liệu hướng dẫn sử dụng chi tiết có hình ảnh minh họa
+
+### v0.4.1 — 2026-08-17
+- ✅ Backend: Thêm cột `username` (`UNIQUE`, `INDEX`) vào bảng `user` qua TypeORM Migration `1786938500000-AddUsernameToUser`
+- ✅ Backend Auth & Users: Cập nhật `AuthService.validateLogin` & `UserRepository` cho phép đăng nhập linh hoạt bằng cả **Email** hoặc **Username**
+- ✅ Backend Seed Data: Cập nhật `UserSeedService` sang dạng email số `lyquangthai1993+<x>@gmail.com` (`lyquangthai1993+1@gmail.com`..`+4`) cùng `username` tương ứng cho 4 vai trò
+- ✅ Frontend: Cập nhật `LoginForm` nhận Email hoặc Username (input text, autocomplete `username`), cập nhật bảng Demo Accounts hiển thị & copy linh hoạt cả username lẫn email
+- ✅ Testing: Cập nhật `TEST_USERS` trong E2E test suite và sửa lỗi mock testing cho `MailService`
 
 ### v0.4.0 — 2026-08-17
 - ✅ Backend: Module `notifications` (Entity `Notification`, DB Table `notification`, REST API 5 endpoints: Tạo mới, danh sách phân trang, đếm chưa đọc, đánh dấu đọc 1/tất cả)
@@ -100,6 +123,8 @@
 
 | Module | DB Table | Endpoints | Roles |
 |---|---|---|---|
+| `orders` | `order` | 7 endpoints (Tạo mới, danh sách, chi tiết, cập nhật, gửi Fleet, báo hết xe, xóa) | `SUPER_ADMIN`, `DISPATCHER`, `FLEET_MANAGER` |
+| `trips` | `trip` | 6 endpoints (Gán xe, chia chuyến split, danh sách, chi tiết, cập nhật, xác nhận, xóa) | `SUPER_ADMIN`, `FLEET_MANAGER`, `DISPATCHER` |
 | `auth` | `session` | 10 endpoints (login, register, confirm, forgot/reset, me, refresh, logout) | All |
 | `auth-google/facebook/apple` | — | 3 endpoints social login | Public |
 | `users` | `user` | CRUD + Pagination | `SUPER_ADMIN` |
@@ -122,12 +147,17 @@
 | 3 | `1753410000000-AddAuditColumnsToFile` | Thêm audit columns + `createdBy` vào `file` |
 | 4 | `1786938138008-CreateFleetTables` | Tạo bảng `vehicle` và `driver` |
 | 5 | `1786938200000-CreateNotificationTable` | Tạo bảng `notification` + indexes trên `userId` và `(userId, isRead)` |
+| 6 | `1786938300000-CreateOrderAndTripTables` | Tạo bảng `order` và `trip` + foreign keys và composite indexes |
+| 7 | `1786938400000-AddExternalNoteToOrder` | Thêm cột `externalNote` (text) vào bảng `order` |
+| 8 | `1786938500000-AddUsernameToUser` | Thêm cột `username` (varchar unique) vào bảng `user` |
 
 ### 🔑 Enums đang dùng
 
 ```typescript
 RoleEnum:                   SUPER_ADMIN=1, DISPATCHER=2, FLEET_MANAGER=3, WAREHOUSE_MANAGER=4
 StatusEnum:                 active=1, inactive=2
+OrderStatus:                'DRAFT' | 'PENDING_FLEET' | 'ASSIGNED' | 'IN_TRANSIT' | 'COMPLETED' | 'CANCELLED' | 'NO_VEHICLE'
+TripStatus:                 'PENDING' | 'CONFIRMED' | 'IN_TRANSIT' | 'COMPLETED' | 'CANCELLED'
 VehicleStatus:              'AVAILABLE' | 'IN_USE' | 'MAINTENANCE'
 DriverStatus:               'AVAILABLE' | 'ON_TRIP' | 'OFF_DUTY'
 FileDriver:                 LOCAL | S3 | S3_PRESIGNED
@@ -146,8 +176,12 @@ WarehouseNotificationType:  'INBOUND_SHIPMENT' | 'OUTBOUND_SHIPMENT' | 'INVENTOR
 
 | Route | Mô tả | RBAC |
 |---|---|---|
-| `/auth/sign-in` | Đăng nhập (Quick Fill 4 vai trò) | Public |
+| `/auth/sign-in` | Đăng nhập (Quick Fill 4 vai trò + Email/Username) | Public |
 | `/dashboard/overview` | KPI Dashboard (Area/Bar/Pie chart) | All |
+| `/dashboard/orders` | Lập Lệnh Điều Vận (CRUD, textarea, xe ngoài) | `SUPER_ADMIN`, `DISPATCHER` |
+| `/dashboard/orders/[id]` | Chi tiết Đơn Hàng Điều Vận | `SUPER_ADMIN`, `DISPATCHER` |
+| `/dashboard/trips` | Phân Công Xe & Chia Chuyến Vận Tải | `SUPER_ADMIN`, `DISPATCHER`, `FLEET_MANAGER` |
+| `/dashboard/warehouse` | Inbound Hub & Kho Tiếp Nhận | `SUPER_ADMIN`, `WAREHOUSE_MANAGER` |
 | `/dashboard/fleet` | Quản lý Xe & Tài xế (CRUD) | `SUPER_ADMIN`, `FLEET_MANAGER` |
 | `/dashboard/product` | Danh sách hàng hoá (TanStack Table) | All |
 | `/dashboard/product/[id]` | Chi tiết/form hàng hoá | All |
@@ -171,6 +205,8 @@ WarehouseNotificationType:  'INBOUND_SHIPMENT' | 'OUTBOUND_SHIPMENT' | 'INVENTOR
 ### 🔌 API Layer
 
 - **Axios client** (`src/lib/api-client.ts`): Auto refresh token (queue + retry on 401)
+- **Orders API** (`src/features/orders/api.ts`): getOrders, getOrderById, createOrder, updateOrder, submitOrder, markNoVehicle, deleteOrder
+- **Trips API** (`src/features/trips/api.ts`): getTrips, getTripById, createTrip, createSplitTrips, updateTrip, confirmTrip, deleteTrip
 - **Notifications API & Socket**: `useNotificationSocket` (Socket.IO client), `useNotificationsQuery`, `useUnreadCountQuery`, `useMarkAsReadMutation`, `useMarkAllAsReadMutation`
 - **Fleet API**: getVehicles, createVehicle, updateVehicle, deleteVehicle, getDrivers, ...
 - **Products API**: query options, mutations (create/update/delete + invalidate)
@@ -182,11 +218,9 @@ WarehouseNotificationType:  'INBOUND_SHIPMENT' | 'OUTBOUND_SHIPMENT' | 'INVENTOR
 
 | # | Nghiệp vụ | Backend | Frontend | Priority |
 |---|---|---|---|---|
-| 1 | **Orders** — Quản lý đơn hàng (Mã NDA2607-xxxx) | ❌ Chưa có | ❌ Chưa có page (guard ✅) | 🔴 Cao |
-| 2 | **Trips** — Quản lý chuyến xe (Gom đơn, tải trọng) | ❌ Chưa có | ❌ Chưa có page (guard ✅) | 🔴 Cao |
-| 3 | **Warehouse/Hub** — Quản lý kho (Andromeda, Hubble, Magellan, Vela) | ❌ Chưa có | ❌ Chưa có page (guard ✅) | 🟡 Trung bình |
-| 4 | **Cargo/Goods** — Hàng hóa TMS | ❌ Chưa có | Partial (Product mock) | 🟡 Trung bình |
-| 5 | **Reports** — Báo cáo thống kê | ❌ Chưa có | ❌ Chưa có | 🟢 Thấp |
+| 1 | **Cargo/Goods** — Quản lý danh mục hàng hóa TMS chi tiết | ❌ Chưa có | Partial (Product mock) | 🟡 Trung bình |
+| 2 | **Reports & Analytics** — Báo cáo thống kê hiệu suất đội xe và kho | ❌ Chưa có | ❌ Chưa có | 🟢 Thấp |
+| 3 | **Driver Mobile App / PWA** — Ứng dụng dành riêng cho tài xế nhận chuyến | ❌ Chưa có | ❌ Chưa có | 🟢 Thấp |
 
 ---
 
