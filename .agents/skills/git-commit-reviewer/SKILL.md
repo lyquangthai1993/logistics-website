@@ -45,11 +45,31 @@ The following run **automatically** on every `git commit` via Husky **before** t
 
 ## 🚀 Orchestrator Workflow (Step-by-Step)
 
-### Step 0 – Collect Staged Diff
+### Step 0 – Identify Target Repo & Collect Staged Diff
+
+> ⚠️ **Git Submodules Invariant**: `backend/` and `frontend/` are 2 independent git submodules.
+> Diffs MUST be collected, audited, and committed inside their respective submodule directories.
+
 ```bash
-# Run from repo root
-git diff --staged --stat          # summary of changed files
-git diff --staged                 # full diff for audit
+# 1. If changes are in Backend:
+cd backend
+git status
+git diff --staged --stat
+git diff --staged
+cd ..
+
+# 2. If changes are in Frontend:
+cd frontend
+git status
+git diff --staged --stat
+git diff --staged
+cd ..
+cd ..
+
+# 3. Nếu thay đổi nằm ở Root repo (docs, skills, configs):
+git status
+git diff --staged --stat
+git diff --staged
 ```
 If nothing is staged → ask the user which files to `git add`.
 

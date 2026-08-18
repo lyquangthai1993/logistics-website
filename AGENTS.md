@@ -1,10 +1,12 @@
 # Workspace Guidelines & Rules (Logistics TMS Fullstack)
 
 ## Architecture Overview
-- **Backend**: NestJS 11+ located in [`backend/`](file:///d:/Projects/logistics-website/backend) (PostgreSQL on Neon, TypeORM, Custom JWT Auth, Swagger).
-- **Frontend**: Next.js 15+ located in [`frontend/`](file:///d:/Projects/logistics-website/frontend) (App Router, React 19, Tailwind CSS, TanStack Query, Zustand).
+- **Backend**: NestJS 11+ located in [`backend/`](file:///d:/Projects/logistics-website/backend) (PostgreSQL on Neon, TypeORM, Custom JWT Auth, Swagger) — **Independent Git Submodule** (`logistics-website-backend`).
+- **Frontend**: Next.js 15+ located in [`frontend/`](file:///d:/Projects/logistics-website/frontend) (App Router, React 19, Tailwind CSS, TanStack Query, Zustand) — **Independent Git Submodule** (`logistics-website-frontend`).
+- **Git Submodules Rule**: Root repo (`logistics-website`), `backend/`, and `frontend/` are 3 independent Git repositories. When creating a feature branch or committing code, you MUST create branches and commit **directly inside the corresponding submodule** (`backend/` and/or `frontend/`), never only at the root repository.
 
 ## Safety & Governance Rules (STRICT)
+- **Language Policy**: Skill and agent guideline documentation MUST be written in English to minimize token consumption and maximize context efficiency.
 - **Secrets & Security**: NEVER commit/push `.env` files or credentials. Ensure secrets stay in `.env` (git-ignored).
 - **MCP Config Files**: NEVER commit/push any MCP (Model Context Protocol) config files — these often contain API keys. Blocked patterns: `mcp.json`, `.mcp/`, `mcp_config.json`, `claude_desktop_config.json`, `.cursor/mcp.json`, `.gemini/mcp*.json`, `windsurf_mcp.json`, `codeium_mcp.json`, or any JSON/YAML with `"mcpServers"` key containing credentials.
 - **DB Destructive Ops**: NEVER run `DROP DATABASE`, `DROP TABLE`, `TRUNCATE`, or `schema sync` (synchronize: true).
@@ -26,7 +28,7 @@
 - [`ui-ux-flow-designer`](file:///d:/Projects/logistics-website/.agents/skills/ui-ux-flow-designer/SKILL.md): User flow analysis, wireframing, role-based interaction design (DISPATCHER, FLEET_MANAGER, WAREHOUSE_MANAGER, SUPER_ADMIN), UI layout architecture.
 - [`e2e-test-runner`](file:///d:/Projects/logistics-website/.agents/skills/e2e-test-runner/SKILL.md): Playwright E2E orchestration – spawns 3 sub-agents: Console Health Inspector, Login Flow Tester, RBAC Route Guard Validator.
 - [`git-commit-reviewer`](file:///d:/Projects/logistics-website/.agents/skills/git-commit-reviewer/SKILL.md): Safe commit flow – spawns 2 sub-agents: Security & Rule Auditor (blocks on violations), Commit Message Crafter (Conventional Commits). Commit only executes after audit gate passes.
-- [`codebase-auditor`](file:///d:/Projects/logistics-website/.agents/skills/codebase-auditor/SKILL.md): Audits the full source base and updates versioned entries in [`CODEBASE_AUDIT.md`](file:///d:/Projects/logistics-website/CODEBASE_AUDIT.md). Use when: surveying the system, after completing a new feature, or before deploying new business functionality.
+- [`codebase-auditor`](file:///d:/Projects/logistics-website/.agents/skills/codebase-auditor/SKILL.md): Audits the full source base and updates versioned entries in [`CODEBASE_AUDIT.md`](file:///d:/Projects/logistics-website/CODEBASE_AUDIT.md). Use when surveying the system, after completing a new feature, or before deploying new business functionality.
 - [`feature-branch-advisor`](file:///d:/Projects/logistics-website/.agents/skills/feature-branch-advisor/SKILL.md): Evaluates new tasks and proposes a Git feature branch (`feature/scope-name`) when impact score >= 6. Triggers on: new module, new entity, API changes, RBAC changes, 3+ files affected, or breaking changes. Presents proposal and waits for user confirmation before creating the branch.
 
 ### Dedicated Subagents

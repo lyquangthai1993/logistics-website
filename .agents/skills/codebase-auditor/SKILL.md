@@ -1,170 +1,109 @@
 ---
 name: codebase-auditor
 description: >-
-  Kiểm tra, tổng hợp, và cập nhật biên bản CODEBASE_AUDIT.md khi có module mới,
-  tính năng mới, migration mới hoặc thay đổi nghiệp vụ trong dự án Logistics TMS.
-  Dùng khi: (1) vừa hoàn thiện một feature mới, (2) cần biết hệ thống đang có gì,
-  (3) chuẩn bị triển khai nghiệp vụ mới và cần cập nhật version biên bản.
+  Audits, synthesizes, and updates the versioned CODEBASE_AUDIT.md report whenever
+  new modules, features, migrations, or business domain changes are introduced in Logistics TMS.
+  Use when: (1) completing a new feature, (2) surveying existing system capabilities,
+  or (3) preparing a new business module and bumping the report version.
 ---
 
 # Codebase Auditor Skill — Logistics TMS
 
-Skill này hướng dẫn agent thực hiện **audit source base** và **cập nhật có phiên bản**
-vào file [`CODEBASE_AUDIT.md`](file:///d:/Projects/logistics-website/CODEBASE_AUDIT.md) tại root project.
+This skill guides agents in **auditing the source base** and maintaining a **versioned audit record** in [`CODEBASE_AUDIT.md`](file:///d:/Projects/logistics-website/CODEBASE_AUDIT.md) at the project root.
 
 ---
 
-## Khi nào dùng skill này?
+## 🎯 When to Use This Skill
 
-- Khi user yêu cầu "hệ thống đang có gì", "tổng hợp source base", "rà soát codebase"
-- Khi vừa hoàn thiện một module/feature mới và cần ghi nhận vào biên bản
-- Khi chuẩn bị xây dựng nghiệp vụ mới và cần nắm trạng thái hiện tại
-- Khi cần bump version trong CODEBASE_AUDIT.md sau một sprint / deployment
+- When the user asks "what does the system currently have?", "audit the codebase", or "summarize the source base"
+- When a new module, endpoint, or feature has just been completed and needs documentation
+- When preparing to build a new business flow and needing to verify current architecture state
+- When bumping version in `CODEBASE_AUDIT.md` after a sprint, milestone, or deployment
 
 ---
 
-## Quy trình thực hiện
+## 📋 Execution Workflow
 
-### Bước 1 — Xác định chế độ
+### Step 1 — Determine Audit Mode
 
-Xác định user muốn làm gì:
-
-| Yêu cầu | Chế độ |
+| User Request Type | Execution Mode |
 |---|---|
-| "Tổng hợp source base hiện tại" | **FULL AUDIT** |
-| "Cập nhật biên bản vì vừa thêm module X" | **INCREMENTAL UPDATE** |
-| "Xem hệ thống đang có gì trước khi làm Y" | **FULL AUDIT** |
-| "Bump version sau deploy" | **INCREMENTAL UPDATE** |
+| "Summarize current source base", "Full system survey" | **FULL AUDIT** |
+| "Update audit doc for module X", "Feature completed" | **INCREMENTAL UPDATE** |
+| "Check existing capabilities before implementing Y" | **FULL AUDIT** |
+| "Bump version after deployment" | **INCREMENTAL UPDATE** |
 
 ---
 
-### Bước 2 — Thu thập thông tin
+### Step 2 — Collect Source Information
 
-#### Chế độ FULL AUDIT:
-Spawn **2 research subagents song song** để quét nhanh:
+#### Mode A: FULL AUDIT
+Spawn **2 parallel research subagents**:
 
 **Subagent 1 — Backend Auditor:**
-```
-Quét d:/Projects/logistics-website/backend/src/ và trả về:
-1. Danh sách tất cả modules (tên thư mục)
-2. Với mỗi module: entities (DB tables + columns quan trọng), DTOs, controllers (endpoints + method + path), services (methods chính)
-3. Guards/decorators custom đang dùng
-4. Danh sách migrations (tên file + nội dung tóm tắt)
-5. Enums đang định nghĩa
-```
+- Scan `backend/src/` for:
+  1. All modules and folder structure
+  2. Entities, DB tables, key columns, DTOs, controllers, and services
+  3. Custom guards, decorators, and auth strategies
+  4. Migrations history (`src/database/migrations/`)
+  5. Enums and domain constants
 
 **Subagent 2 — Frontend Auditor:**
-```
-Quét d:/Projects/logistics-website/frontend/src/ và trả về:
-1. Tất cả pages trong App Router (src/app/**/page.tsx)
-2. Zustand stores (tên + state chính + có persist không)
-3. API hooks/queries đang có (src/features/**/api.ts)
-4. Middleware RBAC (src/middleware.ts): roleRouteMap hiện tại
-5. Các feature chưa có page nhưng có guard trong middleware
-```
+- Scan `frontend/src/` for:
+  1. All App Router pages (`src/app/**/page.tsx`)
+  2. Zustand stores (name, state, persistence)
+  3. TanStack Query API hooks (`src/features/**/api.ts`)
+  4. Middleware RBAC mapping (`src/proxy.ts` / `middleware.ts`)
+  5. Navigation configuration (`src/config/nav-config.ts`)
 
-#### Chế độ INCREMENTAL UPDATE:
-Chỉ đọc các file liên quan đến thay đổi mới:
-- Module mới: đọc entity, controller, migration tương ứng
-- Page mới: đọc page.tsx và feature/api.ts tương ứ
-- Đọc `CODEBASE_AUDIT.md` hiện tại để biết version cuối
+#### Mode B: INCREMENTAL UPDATE
+Inspect only the files related to the latest changes:
+- New backend module: entity, DTOs, controller, service, migration
+- New frontend feature: page component, API client, navigation entry
+- Current `CODEBASE_AUDIT.md` to identify latest version
 
 ---
 
-### Bước 3 — Xác định version mới
+### Step 3 — Determine the New Version
 
-Đọc phần `## 📌 Thông tin biên bản` trong `CODEBASE_AUDIT.md` hiện tại:
+Follow Semantic Versioning guidelines:
 
-**Quy tắc bump version (Semantic Versioning):**
-
-| Loại thay đổi | Bump |
+| Change Type | Version Bump |
 |---|---|
-| Thêm module backend mới (entity + endpoints) | `MINOR` (0.x.0 → 0.(x+1).0) |
-| Thêm page frontend mới (page + API layer) | `MINOR` |
-| Fix bug, cập nhật nhỏ, thêm field | `PATCH` (0.x.y → 0.x.(y+1)) |
-| Hoàn thiện nghiệp vụ lớn (Orders/Trips/Warehouse) | `MAJOR` (x.0.0 → (x+1).0.0) |
+| New backend module (entity + CRUD endpoints) | `MINOR` (`0.x.0` → `0.(x+1).0`) |
+| New frontend page (page + API integration) | `MINOR` |
+| Bug fixes, minor enhancements, field additions | `PATCH` (`0.x.y` → `0.x.(y+1)`) |
+| Major business milestone (Orders + Trips + Hubs + Dispatch flow) | `MAJOR` (`x.0.0` → `(x+1).0.0`) |
 
 ---
 
-### Bước 4 — Cập nhật CODEBASE_AUDIT.md
+### Step 4 — Update `CODEBASE_AUDIT.md`
 
-Cập nhật file `d:/Projects/logistics-website/CODEBASE_AUDIT.md` với các phần sau:
-
-#### 4a. Cập nhật phần "Thông tin biên bản":
-```markdown
-| **Phiên bản** | v{VERSION_MỚI} |
-| **Ngày audit** | {NGÀY_HÔM_NAY} |
-```
-
-#### 4b. Thêm entry vào CHANGELOG (thêm VÀO ĐẦU, không xóa entry cũ):
-```markdown
-### v{VERSION_MỚI} — {NGÀY_HÔM_NAY}
-- ✅ {Mô tả thay đổi 1}
-- ✅ {Mô tả thay đổi 2}
-- [Các thay đổi khác...]
-```
-
-#### 4c. Cập nhật các bảng trạng thái:
-- Bảng **"BACKEND — MODULES & DB TABLES"**: thêm row cho module mới
-- Bảng **"Migrations đã chạy"**: thêm migration mới
-- Bảng **"FRONTEND — PAGES"**: thêm page mới
-- Bảng **"NGHIỆP VỤ CHƯA TRIỂN KHAI"**: xóa nghiệp vụ vừa hoàn thiện
-- Cập nhật **Enums** nếu có thêm enum mới
-
-#### 4d. Cập nhật Checklist nếu quy trình thay đổi
+1. **Header Metadata**: Update `Phiên bản` and `Ngày audit` (ISO date).
+2. **Changelog**: Prepend new version entry to the top of `🗂️ CHANGELOG PHIÊN BẢN`.
+3. **Module & Migration Tables**:
+   - Add new backend modules to the **BACKEND — MODULES & DB TABLES** table.
+   - Add newly executed migrations to the **Migrations đã chạy** table.
+   - Add new frontend routes to the **FRONTEND — PAGES & FEATURES** table.
+   - Remove completed items from **NGHIỆP VỤ CHƯA TRIỂN KHAI**.
+4. **Enums**: Keep domain enum definitions up to date.
 
 ---
 
-### Bước 5 — Xác nhận với user
+### Step 5 — Report Summary to User
 
-Sau khi cập nhật xong, báo cáo ngắn gọn:
-
-```markdown
-## ✅ Đã cập nhật CODEBASE_AUDIT.md
-
-**Phiên bản:** v{CŨ} → v{MỚI}
-**Ngày:** {HÔM_NAY}
-
-### Thay đổi ghi nhận:
-- [Liệt kê các thay đổi]
-
-### Nghiệp vụ chưa có (còn lại):
-- [Danh sách còn thiếu]
-
-📄 Xem file: CODEBASE_AUDIT.md
-```
+Provide a concise update:
+- Version transition (`vOld` → `vNew`)
+- Summary of documented changes
+- Remaining pending features
+- Direct link to [`CODEBASE_AUDIT.md`](file:///d:/Projects/logistics-website/CODEBASE_AUDIT.md)
 
 ---
 
-## Quy tắc bất biến (KHÔNG được vi phạm)
+## ⚠️ Invariant Rules (STRICT)
 
-1. **KHÔNG xóa CHANGELOG cũ** — chỉ thêm entry mới vào đầu
-2. **KHÔNG giảm version** — chỉ tăng
-3. **Không ghi migration chưa chạy** vào bảng Migrations
-4. **Không đánh dấu ✅ nghiệp vụ chưa hoàn thiện**
-5. **Luôn cập nhật ngày audit** khi sửa file
-
----
-
-## Ví dụ thực tế
-
-### Tình huống: Vừa hoàn thiện module Orders
-
-**Thông tin thu thập:**
-- Backend: thêm `orders` module, bảng `order`, 6 endpoints, migration `CreateOrderTable`
-- Frontend: thêm `/dashboard/orders` page, `src/features/orders/api.ts`
-
-**Hành động:**
-1. Bump version: `v0.3.0` → `v0.4.0`
-2. Thêm CHANGELOG entry:
-   ```markdown
-   ### v0.4.0 — 2026-08-XX
-   - ✅ Backend: module `orders` (entity Order, 6 endpoints CRUD + filter)
-   - ✅ Migration `CreateOrderTable` đã chạy
-   - ✅ Frontend: `/dashboard/orders` page (TanStack Table, filter tuyến/trạng thái)
-   - ✅ API hooks: ordersQueryOptions, createOrderMutation, updateOrderMutation
-   ```
-3. Cập nhật bảng Backend Modules: thêm row `orders`
-4. Cập nhật bảng Migrations: thêm row migration mới
-5. Cập nhật bảng Frontend Pages: thêm row `/dashboard/orders`
-6. Xóa `Orders` khỏi bảng "NGHIỆP VỤ CHƯA TRIỂN KHAI"
+1. **NEVER delete past changelog entries** — always prepend to the top.
+2. **NEVER decrement version numbers** — strictly increment.
+3. **NEVER list unexecuted migrations** in the migrations table.
+4. **NEVER mark incomplete features as completed (✅)**.
+5. **Always update the audit date** on file modification.

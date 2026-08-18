@@ -1,163 +1,148 @@
 ---
 name: tms-domain-lead
 description: >-
-  Agent nghiệp vụ (Team Lead) cho hệ thống Logistics TMS. Hiểu toàn bộ quy trình điều vận,
-  phân công xe, phân quyền vai trò, và luồng thông báo. Kích hoạt BẮT BUỘC trước khi implement
-  bất kỳ tính năng nào liên quan đến: status transition, notification, phân quyền, nghiệp vụ mới,
-  hoặc khi cần cross-check code với spec. Triggers: "nghiệp vụ", "luồng", "ai được notify",
-  "điều vận", "phân công xe", "lệnh", "trạng thái", "order", "trip", "warehouse", "fleet".
+  Business Domain Team Lead for the Logistics TMS system. Understands full dispatch workflows,
+  fleet vehicle assignment, role-based permissions, and notification matrices.
+  MANDATORY activation before implementing status transitions, notifications, RBAC,
+  or new business features. Triggers on: "business logic", "workflow", "notifications",
+  "dispatch", "vehicle assignment", "order", "trip", "warehouse", "fleet".
 ---
 
-# TMS Domain Lead — Nghiệp Vụ Logistics TMS
+# TMS Domain Lead — Logistics TMS Business Architecture
 
-> **Vai trò**: Team Lead hiểu toàn bộ nghiệp vụ.
-> Mọi quyết định về **ai làm gì, ai được thông báo, khi nào** đều phải tra cứu skill này trước.
-> Skill này **không viết code** — nó quyết định **what & why**, còn `nestjs-best-practices` / `nextjs-best-practices` quyết định **how**.
-
----
-
-## 📚 Nguồn Sự Thật (Source of Truth)
-
-Trước khi implement bất kỳ tính năng nghiệp vụ nào, agent PHẢI đọc:
-
-| Tài liệu | Nội dung | Đường dẫn |
-|---------|---------|-----------|
-| Workflow Plan | Quyết định sản phẩm đã confirm, luồng chính, ngoại lệ | `docs/order-dispatch-workflow-plan.md` |
-| User Manual | Hướng dẫn sử dụng từ góc nhìn người dùng | `docs/user-guide/USER_MANUAL_HUONG_DAN_SU_DUNG.md` |
-| Codebase Audit | Trạng thái hiện tại của codebase | `CODEBASE_AUDIT.md` |
-| Service Registry | Danh sách API endpoints đang có | `SERVICE_REGISTRY.md` |
+> **Role**: Team Lead for all Transportation Management System (TMS) business logic, operational workflows, and dispatch governance.
+> All decisions regarding **who does what, lifecycle transitions, authorization boundaries, and notification triggers** MUST reference this skill first.
+> This skill defines **WHAT & WHY** (Business), while [`nestjs-best-practices`](file:///d:/Projects/logistics-website/.agents/skills/nestjs-best-practices/SKILL.md) and [`nextjs-best-practices`](file:///d:/Projects/logistics-website/.agents/skills/nextjs-best-practices/SKILL.md) define **HOW** (Technical Implementation).
 
 ---
 
-## 👥 Vai Trò & Quyền Hạn
+## 📚 Business Sources of Truth
 
-| Role | Enum | Quyền chính |
-|------|------|-------------|
-| **DISPATCHER** | `RoleEnum.DISPATCHER` | Tạo / sửa / hủy lệnh điều vận. Submit lên Fleet. Tạo xe ngoài khi không có xe nội bộ. |
-| **FLEET_MANAGER** | `RoleEnum.FLEET_MANAGER` | Nhận đơn cần phân công. Tạo trip, chọn xe/tài xế, xác nhận chuyến. Báo không có xe. |
-| **WAREHOUSE_MANAGER** | `RoleEnum.WAREHOUSE_MANAGER` | Xem Inbound Board (read-only Phase 1). Xác nhận nhận hàng (Phase 2). |
-| **SUPER_ADMIN** | `RoleEnum.SUPER_ADMIN` | Toàn quyền tất cả. Luôn nhận mọi notification. |
+Before implementing features or modifying workflows, agents MUST reference:
+
+| Document | Key Scope | File Path |
+|---|---|---|
+| **Notification Matrix** | Event triggers, channels, email templates, external vehicle rules | [`notifications.md`](file:///d:/Projects/logistics-website/.agents/skills/tms-domain-lead/notifications.md) |
+| **Workflow Plan** | Dispatch planning, product decisions, split shipment architecture | [`docs/order-dispatch-workflow-plan.md`](file:///d:/Projects/logistics-website/docs/order-dispatch-workflow-plan.md) |
+| **Split Shipment Guide** | 1 Order across multiple Trips & Vehicle capacity allocation | [`docs/SPLIT_SHIPMENT_BUSINESS_INTERVIEW_GUIDE.md`](file:///d:/Projects/logistics-website/docs/SPLIT_SHIPMENT_BUSINESS_INTERVIEW_GUIDE.md) |
+| **User Manual** | Operational user guide and workflow step-by-step | [`docs/user-guide/USER_MANUAL_HUONG_DAN_SU_DUNG.md`](file:///d:/Projects/logistics-website/docs/user-guide/USER_MANUAL_HUONG_DAN_SU_DUNG.md) |
+| **RBAC Matrix** | 3-Layer permission enforcement (Sidebar, Route Guard, API Guard) | [`.agents/rules/rbac-matrix.md`](file:///d:/Projects/logistics-website/.agents/rules/rbac-matrix.md) |
 
 ---
 
-## 🔄 Order Status State Machine
+## 👥 Role Responsibilities & Operational Matrix
+
+| Role | Enum | Business Scope & Responsibilities |
+|---|---|---|
+| **DISPATCHER** | `RoleEnum.DISPATCHER` | Creates draft orders (`DRAFT`), inputs cargo payload (weight, volume), origin/destination hubs, routes. Submits orders to Fleet queue (`PENDING_FLEET`). Handles external vehicle requests when internal fleet is overloaded. Cancels draft orders. |
+| **FLEET_MANAGER** | `RoleEnum.FLEET_MANAGER` | Receives `PENDING_FLEET` orders. Evaluates vehicle capacity and driver availability. Assigns vehicles (internal or 3PL partner) and drivers to form `Trips`. Reports vehicle shortage (`NO_VEHICLE`). Confirms finalized trips (`CONFIRMED`). |
+| **WAREHOUSE_MANAGER** | `RoleEnum.WAREHOUSE_MANAGER` | Monitors Inbound Hub Schedule Board. Supervises cargo arrival, verifies shipments, and confirms inbound/outbound receiving against confirmed trips. |
+| **SUPER_ADMIN** | `RoleEnum.SUPER_ADMIN` | Full administrative control: user management, branch hubs (CRUD & soft-delete), system configurations, audit oversight, and global notification monitoring. |
+
+---
+
+## 🔄 Order Lifecycle & State Machine
 
 ```
-DRAFT ──(Dispatcher hủy)──► CANCELLED / DELETED
-  │
-  └─► PENDING_FLEET
-            ├─► ASSIGNED        (tất cả trips đã CONFIRMED)
-            │       └─► IN_TRANSIT
-            │                └─► DELIVERED
-            │
-            └─► NO_VEHICLE      (Fleet báo không có xe)
-                    └─► PENDING_FLEET  (sau khi Dispatcher thuê xe ngoài)
+[Initialization]
+    │
+    ▼
+  DRAFT ─────────────(Dispatcher cancels)─────────────► CANCELLED / Soft-deleted
+    │
+    │ (Dispatcher submits)
+    ▼
+PENDING_FLEET ◄────────(Dispatcher resubmits with 3PL flag)──────┐
+    │                                                            │
+    ├────────────────► NO_VEHICLE ───────────────────────────────┘
+    │                   (Fleet reports no capacity)
+    │ (Fleet assigns vehicles & confirms all Trips)
+    ▼
+ ASSIGNED ─────(All associated Trips CONFIRMED)
+    │
+    │ (Vehicle begins transit)
+    ▼
+IN_TRANSIT
+    │
+    │ (All Trips delivered at destination hub)
+    ▼
+DELIVERED
 
-Mọi trạng thái ──► CANCELLED
-```
-
----
-
-## 🔔 Ma Trận Thông Báo (Notification Matrix)
-
-Đây là **nguồn sự thật duy nhất** cho câu hỏi "ai nhận notify khi nào".
-Mọi implementation phải tuân theo bảng này. Khi có thay đổi nghiệp vụ → cập nhật bảng này trước.
-
-### Orders
-
-| Sự kiện | Trigger API | Roles nhận thông báo | Kênh | Template / Method | Trạng thái |
-|---------|------------|----------------------|------|-------------------|-----------|
-| Order tạo mới | `POST /orders` | _(không ai)_ | — | — | ✅ Đúng spec |
-| Order submit lên Fleet | `PATCH /orders/:id/submit` | **FLEET_MANAGER**, SUPER_ADMIN | In-app + Email | `order-pending-fleet.hbs` | ✅ Đã implement |
-| Fleet báo không có xe | `PATCH /orders/:id/no-vehicle` | **DISPATCHER**, SUPER_ADMIN | In-app + Email | `order-no-vehicle.hbs` | ✅ Đã implement |
-| Order bị hủy | `DELETE /orders/:id` | _(không ai — bản nháp)_ | — | — | ✅ Đúng spec (DRAFT) |
-
-### Trips
-
-| Sự kiện | Trigger API | Roles nhận thông báo | Kênh | Template / Method | Trạng thái |
-|---------|------------|----------------------|------|-------------------|-----------|
-| Trip được confirm | `PATCH /trips/:id/confirm` | **WAREHOUSE_MANAGER**, DISPATCHER, FLEET_MANAGER, SUPER_ADMIN | In-app + Email | `trip-confirmed.hbs` | ✅ Đã implement |
-| Trip bị hủy | `DELETE /trips/:id` | _(chưa xác định)_ | — | _(chưa implement)_ | ❓ Cần confirm |
-
-### Quy tắc bất biến
-
-1. **SUPER_ADMIN** luôn nhận mọi notification — không bao giờ bỏ qua.
-2. **In-app + Email** luôn đi cùng nhau theo Q2 đã xác nhận.
-3. Notification **không được** làm fail business logic chính → bắt buộc `try/catch`.
-4. In-app và Email phải được tạo **riêng biệt** trong code, không để một method tạo cả hai (tránh duplicate).
-
----
-
-## 🏗️ Luồng Nghiệp Vụ Chính (Happy Path)
-
-```
-[DISPATCHER]                    [FLEET_MANAGER]              [WAREHOUSE_MANAGER]
-     │                                │                              │
-     ├─ Tạo Order mới (DRAFT)         │                              │
-     ├─ Submit lên Fleet ────────────►│ ← Nhận in-app + email       │
-     │   (orderCode, tuyến, KL/m³)   │                              │
-     │                                ├─ Xem Orders PENDING_FLEET   │
-     │                                ├─ Chọn xe + tài xế           │
-     │                                ├─ Confirm Trip ─────────────►│ ← Nhận in-app + email
-     │◄── Nhận in-app + email ────────┤                              │
-```
-
-## 🔀 Ngoại Lệ
-
-### Ngoại Lệ 0 — Dispatcher hủy lệnh (DRAFT)
-- Cho phép hủy/xóa khi đơn ở `DRAFT`
-- Không notify ai — Fleet chưa biết đơn này tồn tại
-- Thực hiện soft-delete
-
-### Ngoại Lệ 1 — Không có xe nội bộ
-```
-FLEET_MANAGER báo NO_VEHICLE
-    → Notify DISPATCHER + SUPER_ADMIN (In-app + Email: order-no-vehicle.hbs)
-    → DISPATCHER cập nhật thông tin đối tác xe ngoài (isExternalVehicleNeeded = true, externalNote)
-    → Submit lại → PENDING_FLEET (với cờ Xe ngoài)
-    → FLEET_MANAGER tiếp nhận và gán xe thuê ngoài
-```
-
-
-### Ngoại Lệ 2 — Split Shipment (1 đơn → nhiều xe)
-- Fleet Manager tạo nhiều Trip cho 1 Order
-- Tất cả Trips confirm → Order = `ASSIGNED`
-- Chỉ notify WAREHOUSE_MANAGER khi **tất cả** trips đã confirmed
-
----
-
-## 🚛 Xe Thuê Ngoài (External Vehicle)
-
-Khi `isExternalVehicleNeeded = true`:
-- Email subject phải prefix `🚨 [XE THUÊ NGOÀI]`
-- UI phải hiển thị badge amber "🚛 Xe thuê ngoài" tại mọi nơi liên quan
-- Gửi email đến **tất cả** bên liên quan (không được bỏ sót)
-
----
-
-## ✅ Checklist Trước Khi Implement Tính Năng Nghiệp Vụ
-
-Agent PHẢI tự hỏi và trả lời các câu sau trước khi viết code:
-
-```
-1. Sự kiện này thuộc transition nào trong State Machine?
-2. Theo Notification Matrix, ai cần được notify?
-3. Kênh nào (in-app / email / cả hai)?
-4. Template email đã tồn tại chưa? Nếu chưa → tạo mới riêng biệt.
-5. Có phải trường hợp xe ngoài không? → Nếu có, subject + nội dung phải highlight.
-6. SUPER_ADMIN có trong danh sách nhận notify chưa?
-7. Notification đã được bọc try/catch chưa?
-8. Có tạo duplicate in-app notification không?
+* Note: Any active state can transition to CANCELLED upon administrative or official cancellation.
 ```
 
 ---
 
-## 🗂️ Phân Chia Trách Nhiệm Skill
+## 🚚 Standard Operational Flow (Happy Path)
 
-| Câu hỏi | Skill trả lời |
-|---------|-------------|
-| **Ai** được notify? **Khi nào**? **Vì sao**? | ✅ **tms-domain-lead** (skill này) |
-| Code notify **thế nào**? Pattern gì? | `nestjs-best-practices` |
-| UI hiển thị **thế nào**? | `nextjs-best-practices`, `shadcn-ui-patterns` |
-| Auth / RBAC Guard **thế nào**? | `jwt-rbac-auth` |
-| Commit an toàn chưa? | `git-commit-reviewer` |
+```mermaid
+sequenceDiagram
+    autonumber
+    actor D as DISPATCHER
+    actor F as FLEET_MANAGER
+    actor W as WAREHOUSE_MANAGER
+
+    D->>D: 1. Create Draft Order (DRAFT)
+    D->>F: 2. Submit Order (status -> PENDING_FLEET) [In-app + Email]
+    Note over F: 3. Fleet checks vehicle capacity & drivers
+    F->>F: 4. Create Trip(s) & Assign Vehicle/Driver
+    F->>W: 5. Confirm Trip (Order -> ASSIGNED) [In-app + Email]
+    F->>D: 5. Notify Trip is ready [In-app + Email]
+    Note over W: 6. Warehouse sees inbound shipment on Board
+    F->>D: 7. Departure (IN_TRANSIT)
+    F->>W: 8. Delivery completed (DELIVERED) [In-app + Email]
+```
+
+---
+
+## 🔀 Core Business Exceptions
+
+### 1. Draft Order Cancellation
+- Dispatchers may cancel or soft-delete orders while in `DRAFT` state.
+- **Rule**: Do NOT trigger notifications to Fleet or Warehouse since the order was never submitted to the operational dispatch queue.
+
+### 2. Fleet Vehicle Shortage (`NO_VEHICLE`)
+- When an order is `PENDING_FLEET` and internal capacity is exhausted, Fleet Manager sets status to `NO_VEHICLE` with an explicit reason.
+- System sends an immediate alert to **DISPATCHER** and **SUPER_ADMIN**.
+- Dispatcher enables external 3PL vehicle flag (`isExternalVehicleNeeded = true`, `externalNote = 'Partner details...'`) and resubmits to `PENDING_FLEET`.
+- Fleet Manager assigns external partner vehicle.
+
+### 3. Split Shipment (Multi-Trip Allocation)
+- When cargo exceeds a single vehicle's payload capacity ($Kg$ / $m^3$), Fleet Manager creates **multiple Trips** for the same Order.
+- The Order status only advances to `ASSIGNED` when **all** associated trips are `CONFIRMED`.
+- Notifications to **WAREHOUSE_MANAGER** are dispatched only after the final trip configuration is locked.
+
+---
+
+## 🔔 Notification Governance
+
+For event triggers, recipient matrices, WebSocket vs. Email Handlebars templates, and external 3PL alert formatting:
+
+👉 **[See Notification Matrix in `notifications.md`](file:///d:/Projects/logistics-website/.agents/skills/tms-domain-lead/notifications.md)**
+
+---
+
+## ✅ Pre-Implementation Business Checklist
+
+Before writing or modifying any backend endpoint, frontend page, or data model, verify:
+
+1. **Valid State Transition**: Does the new status conform to the Order/Trip State Machine?
+2. **Authorization Enforcement**: Is the executing role permitted per the [RBAC Matrix](file:///d:/Projects/logistics-website/.agents/rules/rbac-matrix.md)?
+3. **Notification Matrix Reference**: Checked [`notifications.md`](file:///d:/Projects/logistics-website/.agents/skills/tms-domain-lead/notifications.md) for recipients (In-app + Email)?
+4. **SUPER_ADMIN Audit**: Is SUPER_ADMIN included in administrative event audit channels?
+5. **Non-blocking Notifications**: Wrapped all email/socket emissions in `try/catch` to prevent business transaction aborts?
+6. **External 3PL Handling**: For `isExternalVehicleNeeded = true`, are email subjects and UI badges prefixed with `🚨 [XE THUÊ NGOÀI]` / `[EXTERNAL VEHICLE]`?
+7. **Listing & Pagination Confirmation**: Asked and confirmed with the User regarding Pagination vs. Flat List mechanisms for listing APIs? Never assume without confirmation.
+
+---
+
+## 🗂️ Skill Responsibility Breakdown
+
+```text
+tms-domain-lead (WHAT & WHY)
+  ├── notifications.md ──► Notification matrices, templates, 3PL alert rules
+  ├── nestjs-best-practices ──► Backend Services, TypeORM, Controllers, BullMQ
+  ├── nextjs-best-practices ──► Frontend App Router, UI Components, React 19
+  ├── jwt-rbac-auth ──► Authentication guards, tokens, role authorization
+  ├── ui-ux-flow-designer ──► User experience design, wireframes, dashboard
+  └── git-commit-reviewer ──► Pre-commit safety auditing
+```

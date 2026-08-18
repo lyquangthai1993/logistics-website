@@ -11,24 +11,46 @@ description: >-
 # Feature Branch Advisor - Skill Instructions
 
 This skill guides the agent to **assess the impact** of a new task or feature
-and **propose creating a Git feature branch** before starting implementation.
+and **propose creating a Git feature branch** in the appropriate **Git Submodule(s)** before starting implementation.
+
+---
+
+## ⚠️ CORE INVARIANT: Git Submodules Architecture
+
+This project consists of **3 independent Git Repositories**:
+
+1. **Root Repository** (`d:\Projects\logistics-website`): Global configurations, `.agents/`, `docs/`, `CODEBASE_AUDIT.md`.
+2. **Backend Submodule** (`backend/`): Repo `logistics-website-backend` (Base branch: `dev`).
+3. **Frontend Submodule** (`frontend/`): Repo `logistics-website-frontend` (Base branch: `dev`).
+
+> 🚨 **MANDATORY**: Feature branch creation **MUST be performed directly inside the target submodule directory** (`backend/` and/or `frontend/`).
+> - Creating a branch at root does **NOT** switch branches in `backend/` or `frontend/`.
+> - If task is backend-only → Create branch inside `backend/`.
+> - If task is frontend-only → Create branch inside `frontend/`.
+> - If task is fullstack → Create identical branch names inside BOTH `backend/` and `frontend/`.
 
 ---
 
 ## Objective
 
-Prevent large features from being developed directly on `main`/`develop`,
-ensuring each feature has its own isolated branch for:
-- Easy code review (Pull Request)
+Prevent large features from being developed directly on `main`/`dev`,
+ensuring each feature has its own isolated branch in its respective submodule for:
+- Easy code review (Pull Request per repository)
 - Simple rollback if issues arise
 - No disruption to existing working features
 - Clean CI/CD pipeline
 
 ---
 
-## Step 1 - Analyze the Task
+## Step 1 - Analyze the Task & Identify Target Submodules
 
-When receiving a new task or feature, the agent MUST **score it against the criteria table** below:
+When receiving a new task or feature, the agent MUST:
+1. **Identify the affected Submodules**:
+   - `[BACKEND]` if modifying `backend/src/...`
+   - `[FRONTEND]` if modifying `frontend/src/...`
+   - `[FULLSTACK]` if modifying both `backend/` and `frontend/`
+   - `[ROOT]` if modifying root documentation, scripts, or agents
+2. **Score against the impact criteria table**:
 
 ### Impact Assessment Criteria
 
@@ -52,7 +74,7 @@ When receiving a new task or feature, the agent MUST **score it against the crit
 
 | Total Score | Decision |
 |-------------|----------|
-| < 3 | OK: Proceed on current branch - small task, no separate branch needed |
+| < 3 | OK: Proceed on current branch (`dev`) - small task, no separate branch needed |
 | 3 to 5 | WARN: Recommend creating a branch - medium task, isolation preferred |
 | >= 6 | BLOCK: MUST propose feature branch creation before writing any code |
 
@@ -94,22 +116,25 @@ When a branch is needed, the agent MUST display this block BEFORE making any cod
 
 ```
 +------------------------------------------------------------------+
-|  FEATURE BRANCH PROPOSAL                                         |
+|  FEATURE BRANCH PROPOSAL (GIT SUBMODULES)                        |
 +------------------------------------------------------------------+
-|  Branch   : feature/<scope>-<description>                        |
-|  Score    : X  (threshold >= 6 = mandatory proposal)            |
+|  Branch Name : feature/<scope>-<description>                     |
+|  Score       : X  (threshold >= 6 = mandatory proposal)          |
+|  Target Repo : [backend | frontend | fullstack (both)]           |
 |                                                                  |
-|  Reasons  :                                                      |
-|    - Reason 1 (e.g. 2 new DB entities added)                    |
-|    - Reason 2 (e.g. API contract changes)                        |
-|    - Reason 3 if applicable                                      |
+|  Reasons     :                                                   |
+|    - Reason 1 (e.g. 2 new DB entities added)                     |
+|    - Reason 2 (e.g. API contract changes)                         |
 |                                                                  |
-|  Estimated files affected: N files                               |
+|  Estimated files affected:                                       |
 |    backend/src/...                                               |
 |    frontend/src/...                                              |
 |                                                                  |
-|  Command  :                                                      |
-|    git checkout -b feature/<scope>-<description>                 |
+|  Execution Commands:                                             |
+|    # For Backend:                                                |
+|    cd backend && git checkout -b feature/<scope>-<description>   |
+|    # For Frontend (if applicable):                               |
+|    cd frontend && git checkout -b feature/<scope>-<description>  |
 +------------------------------------------------------------------+
 ```
 
@@ -120,14 +145,14 @@ When a branch is needed, the agent MUST display this block BEFORE making any cod
 After presenting the proposal, **STOP** and wait for the user to respond:
 
 ```
-Would you like to create branch "feature/xxx" before starting?
+Would you like to create branch "feature/xxx" in the target submodule(s) before starting?
 
-  [A] Create branch now and start implementation
+  [A] Create branch now in target submodule(s) and start implementation
   [B] Use a different branch name (user types name)
   [C] Skip - work directly on current branch (I understand the risk)
 ```
 
-> IMPORTANT: Do NOT start writing code or creating files until the user confirms their choice.
+> ⚠️ **IMPORTANT**: Do NOT start writing code or creating files until the user confirms their choice.
 
 ---
 
@@ -135,26 +160,49 @@ Would you like to create branch "feature/xxx" before starting?
 
 ### If user selects [A] or [B]:
 
-```bash
-# 1. Check current branch
-git status
-git branch --show-current
-
-# 2. Pull latest so the new branch starts from up-to-date code
-git pull origin main   # or develop, depending on project
-
-# 3. Create and switch to new branch
+#### Case 1: Backend Only Task
+```powershell
+cd backend
+git checkout dev
+git pull origin dev
 git checkout -b feature/<scope>-<description>
-
-# 4. Confirm switch was successful
 git branch --show-current
+cd ..
 ```
 
-After branch creation, report to the user:
+#### Case 2: Frontend Only Task
+```powershell
+cd frontend
+git checkout dev
+git pull origin dev
+git checkout -b feature/<scope>-<description>
+git branch --show-current
+cd ..
+```
+
+#### Case 3: Fullstack Task (Both Backend & Frontend)
+```powershell
+# 1. Backend submodule
+cd backend
+git checkout dev
+git pull origin dev
+git checkout -b feature/<scope>-<description>
+cd ..
+
+# 2. Frontend submodule
+cd frontend
+git checkout dev
+git pull origin dev
+git checkout -b feature/<scope>-<description>
+cd ..
+```
+
+After branch creation, report clearly to the user:
 
 ```
 OK  Branch created: feature/<scope>-<description>
->>  Currently on  : feature/<scope>-<description>
+>>  Backend submodule  : on branch feature/<scope>-<description>
+>>  Frontend submodule : on branch feature/<scope>-<description>
 >>  Starting implementation...
 ```
 
@@ -165,33 +213,8 @@ Then continue with the assigned task.
 Acknowledge and proceed directly, but add a warning:
 
 ```
-WARN: Working directly on branch: <current-branch>
+WARN: Working directly on branch: <current-branch> in submodules.
       Remember to commit frequently to enable easy rollback if needed.
-```
-
----
-
-## Special Cases
-
-### Hotfix - Urgent Production Bug Fix
-
-```bash
-git checkout -b hotfix/<issue-description>
-# Example: hotfix/login-crash-nullpointer
-```
-
-### Release Preparation
-
-```bash
-git checkout -b release/<version>
-# Example: release/v1.2.0
-```
-
-### Spike or Technical Experiment
-
-```bash
-git checkout -b spike/<topic>
-# Example: spike/websocket-realtime
 ```
 
 ---
@@ -200,24 +223,25 @@ git checkout -b spike/<topic>
 
 After completing implementation on the feature branch:
 
-1. **Run E2E tests** - use skill `e2e-test-runner`
-2. **Safe commit** - use skill `git-commit-reviewer`
-3. **Update audit log** - use skill `codebase-auditor`
+1. **Run E2E tests** - use skill [`e2e-test-runner`](file:///d:/Projects/logistics-website/.agents/skills/e2e-test-runner/SKILL.md)
+2. **Safe commit per submodule** - use skill [`git-commit-reviewer`](file:///d:/Projects/logistics-website/.agents/skills/git-commit-reviewer/SKILL.md) (commit inside `backend/` and/or `frontend/`)
+3. **Update audit log** - use skill [`codebase-auditor`](file:///d:/Projects/logistics-website/.agents/skills/codebase-auditor/SKILL.md)
 
 ---
 
-## Quick Reference
+## Quick Reference for Submodules
 
-```bash
-# Show current branch
-git branch --show-current
+```powershell
+# Check status across all submodules
+git status
+cd backend; git status; cd ..
+cd frontend; git status; cd ..
 
-# List all branches
-git branch -a
+# Check current branch in each submodule
+cd backend; git branch --show-current; cd ..
+cd frontend; git branch --show-current; cd ..
 
-# Create and switch to new branch
-git checkout -b feature/<name>
-
-# Push new branch to remote (when user explicitly requests)
-git push -u origin feature/<name>
+# Switch submodule back to dev
+cd backend; git checkout dev; git pull origin dev; cd ..
+cd frontend; git checkout dev; git pull origin dev; cd ..
 ```

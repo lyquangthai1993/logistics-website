@@ -298,8 +298,8 @@ export class HealthController {
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
-| Job không được process | Thiếu Processor class | Đảm bảo `@Processor('queue-name')` match |
-| Redis connection refused | Redis chưa start | `docker run -d -p 6379:6379 redis:7` |
-| Job retry vô hạn | Không set `attempts` | Thêm `attempts: 3` trong job options |
-| Memory leak | Không clean completed jobs | Set `removeOnComplete` và `removeOnFail` |
-| Event listener không fire | Listener chưa được inject | Thêm vào `providers` của module |
+| Job is not processed | Missing Processor class | Ensure `@Processor('queue-name')` matches queue name |
+| Redis connection refused | Redis is not running | Start Redis: `docker run -d -p 6379:6379 redis:7` |
+| Infinite job retries | `attempts` option not configured | Add `attempts: 3` in job options |
+| Memory growth / leak | Completed jobs not cleaned | Configure `removeOnComplete: true` and `removeOnFail: 100` |
+| Event listener does not fire | Listener provider not injected | Add listener class to module `providers` |
