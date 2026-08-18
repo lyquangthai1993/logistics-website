@@ -157,15 +157,19 @@
     → Hoàn toàn không chuyển sang Đội xe (Fleet Manager không thấy đơn này)
 ```
 
-### Ngoại Lệ 1 – Không có xe nội bộ
+### Ngoại Lệ 1 – Không có xe nội bộ (Fleet báo hết xe → Hoàn trả Điều phối)
 
 ```
-FLEET_MANAGER báo không có xe
-    → DISPATCHER tự thuê xe ngoài
-    → DISPATCHER tạo External Vehicle (isExternal = true)
-    → DISPATCHER tự assign vào Order
-    → Notify WAREHOUSE_MANAGER
+FLEET_MANAGER bấm "Báo không có xe" (kèm lý do: bận xe, quá tải, bảo dưỡng...)
+    → Order status chuyển sang NO_VEHICLE
+    → Hệ thống tự động gửi In-app Notification + Email tới DISPATCHER (và SUPER_ADMIN)
+    → Đơn hàng hiển thị cảnh báo hết xe tại trang chi tiết đơn (/dashboard/orders/:id)
+    → DISPATCHER liên hệ đối tác vận tải ngoài, bấm "Thuê xe bên ngoài"
+    → Cập nhật thông tin nhà xe, số điện thoại, ghi chú xe ngoài (isExternalVehicleNeeded = true)
+    → Gửi lại lệnh điều vận lên Đội xe (status → PENDING_FLEET với cờ "Yêu cầu xe ngoài")
+    → FLEET_MANAGER tiếp nhận và gán xe ngoài / xác nhận chuyến xe
 ```
+
 
 ### Ngoại Lệ 2 – Split Shipment (1 đơn → 2-3 xe)
 

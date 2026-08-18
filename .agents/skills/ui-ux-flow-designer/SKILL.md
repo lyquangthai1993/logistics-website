@@ -71,3 +71,92 @@ frontend/app/
 │       ├── users/page.tsx
 │       └── fleet/page.tsx
 ```
+
+---
+
+## ⚡ Async Button — Loading State & Double-Click Prevention
+
+### Vấn đề
+Button gọi API async không có loading/disabled state → user click nhiều lần → duplicate request → data corruption hoặc lỗi nghiệp vụ.
+
+### Pattern: Per-Row Loading (dùng `Set<id>`)
+
+Dùng `Set<number>` khi có **nhiều row**, mỗi row có button riêng. Chỉ disable button của row đang xử lý.
+
+```tsx
+// State
+const [submittingIds, setSubmittingIds] = useState<Set<number>>(new Set());
+
+// Handler
+const handleAction = async (id: number) => {
+  if (submittingIds.has(id)) return; // Guard double-click
+  setSubmittingIds((prev) => new Set(prev).add(id));
+  try {
+    await api.doSomething(id);
+    toast.success('Thành công!');
+    reload();
+  } catch (err: any) {
+    const apiMessage = err.response?.data?.message;
+    toast.error(apiMessage || 'Thao tác thất bại. Vui lòng thử lại.');
+  } finally {
+    setSubmittingIds((prev) => { const n = new Set(prev); n.delete(id); return n; });
+  }
+};
+
+// Button JSX
+<Button
+  onClick={() => handleAction(item.id)}
+  disabled={submittingIds.has(item.id)}
+  className='... disabled:cursor-not-allowed disabled:opacity-60'
+>
+  {submittingIds.has(item.id) ? (
+    <><IconLoader2 className='h-3.5 w-3.5 mr-1 animate-spin' />Đang gửi...</>
+  ) : (
+    <><IconSend className='h-3.5 w-3.5 mr-1' />Gửi Fleet</>
+  )}
+</Button>
+```
+
+### Pattern: Single Action (dùng `boolean`)
+
+```tsx
+const [submitting, setSubmitting] = useState(false);
+// Handler: if (submitting) return; → setSubmitting(true) → try/finally setSubmitting(false)
+// Button: disabled={submitting} + spinner + text "Đang xử lý..."
+```
+
+### Checklist trước khi ship
+- [ ] Button có `disabled` state khi request đang chạy
+- [ ] `IconLoader2 animate-spin` hiển thị trong lúc loading
+- [ ] Text thay đổi: "Đang gửi..." / "Đang xử lý..." / "Đang xóa..."
+- [ ] `disabled:cursor-not-allowed disabled:opacity-60` trong className
+- [ ] `finally` block luôn cleanup state
+
+---
+
+## 🔔 Toast Notification — Language & Message Standards
+
+### Nguyên tắc
+
+1. **Ngôn ngữ**: Mọi toast trong business domain (`orders/`, `trips/`, `warehouses/`, `admin/`, `profile/`) **PHẢI 100% tiếng Việt**.
+
+2. **API message first** với error toast từ API call:
+```tsx
+// ✅ Đúng
+const apiMessage = err.response?.data?.message;
+toast.error(apiMessage || 'Thao tác thất bại. Vui lòng thử lại.');
+
+// ❌ Sai — hard-code, dùng API msg làm description phụ
+toast.error('Không thể thực hiện', { description: err.response?.data?.message });
+```
+
+3. **Validation toast** (client-side): tiếng Việt, không cần API message.
+4. **Success toast**: custom tiếng Việt OK.
+
+### Template chuẩn
+
+| Tình huống | Pattern |
+|-----------|---------|
+| API error | `const msg = err.response?.data?.message; toast.error(msg \|\| 'Fallback tiếng Việt.');` |
+| Validation | `toast.error('Vui lòng nhập đầy đủ thông tin.');` |
+| Success | `toast.success('Thao tác thành công!');` |
