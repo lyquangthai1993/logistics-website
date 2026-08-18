@@ -1,31 +1,85 @@
 ---
 name: ui-ux-flow-designer
 description: >-
-  Specialized skill for analyzing user journeys, business workflow wireframing, page architecture, and UI/UX frontend design for the Logistics TMS application.
-  Use when designing frontend pages, layout wireframes, user flow diagrams, component hierarchies, or UI interactions for Next.js App Router & Tailwind CSS.
+  Specialized skill for analyzing user journeys, business workflow wireframing, page architecture,
+  and UI/UX frontend design for the Logistics TMS application.
+  Use when designing frontend pages, layout wireframes, user flow diagrams, component hierarchies,
+  or UI interactions for Next.js App Router & Tailwind CSS.
 ---
 
 # UI/UX Flow & Frontend Design Skill
 
 This skill provides a structured methodology for analyzing user roles, designing interactive business flows, and architecting modern frontend UI components for the Logistics TMS system.
 
-## 🎯 Target Roles & Interaction Flows (Spider Express)
+---
 
-1. **DISPATCHER (Điều hành - VD: Đức Anh)**:
-   - **Main Flow**: Tiếp nhận đơn hàng (`NDA2608-xxxx`) -> Phân loại tuyến miền (Bắc/Trung/Nam) -> Gom đơn theo Xe/Chuyến (`Trip`) -> Gán Kho trung chuyển nhập (`Inbound Hub`).
+## 🎯 Target Roles & Operational Journeys (Spider Express)
+
+1. **DISPATCHER (Operational Coordinator)**:
+   - **Main Flow**: Intake cargo orders (`NDA2608-xxxx`) -> Classify regional route (North/Central/South) -> Group orders into Trips -> Assign Inbound Hubs.
    - **Key Views**: Order Intake Table, Route Grouping Workspace, Trip Assembly Modal.
 
-2. **FLEET_MANAGER (Quản lý xe)**:
-   - **Main Flow**: Quản lý danh sách xe (`75H05121`, `43H21248`...) -> Phê duyệt chuyến xe -> So sánh Tải trọng ($Kg$) & Thể tích ($m^3$) thực tế vs Sức chứa tối đa -> Tính cước & chi phí chuyến.
+2. **FLEET_MANAGER (Fleet & Vehicle Manager)**:
+   - **Main Flow**: Manage fleet vehicles (`75H05121`, `43H21248`...) -> Approve/confirm trips -> Monitor actual payload weight ($Kg$) & volume ($m^3$) vs max vehicle capacity -> Calculate trip freight costs.
    - **Key Views**: Fleet Dashboard, Trip Payload Gauge Bar, Vehicle Capacity Monitor.
 
-3. **WAREHOUSE_MANAGER (Quản lý kho)**:
-   - **Main Flow**: Tiếp nhận lệnh nhập kho trước deadline -> Quét/Xác nhận Inbound tại kho (`Andromeda`, `Hubble`, `Magellan`, `Vela`) -> Kiểm tra kiện/tải -> Đóng gói Outbound lên xe đường dài.
+3. **WAREHOUSE_MANAGER (Hub Supervisor)**:
+   - **Main Flow**: Monitor inbound schedule board -> Scan/confirm inbound cargo at hubs (`Andromeda`, `Hubble`, `Magellan`, `Vela`) -> Inspect item integrity -> Dispatch outbound long-haul shipments.
    - **Key Views**: Inbound Receiving Board, Barcode/Order Checker, Outbound Dispatch Station.
 
-4. **SUPER_ADMIN**:
-   - **Main Flow**: Quản lý Users, Hubs/Kho, Đội xe, Cấu hình giá chuyến & Phụ phí.
-   - **Key Views**: System Admin Panel, User Role Matrix, Pricing Configuration Matrix.
+4. **SUPER_ADMIN (System Administrator)**:
+   - **Main Flow**: Manage Users, Hubs (CRUD & Soft Delete), Fleet master data, Pricing & Surcharge matrix.
+   - **Key Views**: System Admin Panel, User Role Matrix, Hubs Management Table.
+
+---
+
+## 📊 Standard Data Table & Pagination Architecture (Canonical Benchmark)
+
+> 🌟 **Canonical Benchmark**: All data listing tables in the system MUST align with the architecture implemented at [`/dashboard/product`](file:///d:/Projects/logistics-website/frontend/src/app/dashboard/product/page.tsx) and [`ProductTable`](file:///d:/Projects/logistics-website/frontend/src/features/products/components/product-tables/index.tsx).
+
+### 1. Architectural Stack & Shared Components
+- **Core Library**: TanStack React Table (`@tanstack/react-table` v8)
+- **URL Search Params Synchronization**: `nuqs` (`useQueryStates`, `parseAsInteger`, `parseAsString`, `getSortingStateParser`)
+- **Shared UI Components** (located in `src/components/ui/table/`):
+  - `DataTable`: Shared container with Sticky Header, Column Pinning, and integrated Pagination (`src/components/ui/table/data-table.tsx`)
+  - `DataTablePagination`: Standardized pagination bar with page size dropdown (`[10, 20, 30, 40, 50]`), total row counts, and First/Prev/Next/Last page navigation (`src/components/ui/table/data-table-pagination.tsx`)
+  - `DataTableToolbar`: Search inputs, faceted filters, and column view options (`src/components/ui/table/data-table-toolbar.tsx`)
+  - `DataTableColumnHeader`: Sortable header with ascending/descending/hide toggles (`src/components/ui/table/data-table-column-header.tsx`)
+  - `useDataTable`: Custom hook encapsulating table state, debounced search, shallow routing, and column pinning (`src/hooks/use-data-table.ts`)
+
+### 2. Standard Implementation Pattern
+```tsx
+'use client';
+
+import { DataTable } from '@/components/ui/table/data-table';
+import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
+import { useDataTable } from '@/hooks/use-data-table';
+import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
+
+export function FeatureTable({ data, totalCount, columns }: FeatureTableProps) {
+  const [params] = useQueryStates({
+    page: parseAsInteger.withDefault(1),
+    perPage: parseAsInteger.withDefault(10),
+    search: parseAsString.withDefault(''),
+  });
+
+  const pageCount = Math.ceil(totalCount / params.perPage);
+
+  const { table } = useDataTable({
+    data,
+    columns,
+    pageCount,
+    shallow: true,
+    debounceMs: 500,
+  });
+
+  return (
+    <DataTable table={table}>
+      <DataTableToolbar table={table} />
+    </DataTable>
+  );
+}
+```
 
 ---
 
@@ -42,121 +96,76 @@ This skill provides a structured methodology for analyzing user roles, designing
 4. **Responsive & Fluid Layout**:
    - Optimized for desktop operational displays (1920x1080 / 1440x900) while supporting tablet field inspections.
 5. **Interactive Element Cursor & Hover Guidelines**:
-   - **Universal Pointer Rule**: EVERY element that is interactive or clickable (`<button>`, `[role="button"]`, `DropdownMenuTrigger`, `SelectTrigger`, `AccordionTrigger`, clickable table rows/cards, badges, tabs, pagination links, switches, checkboxes, dialog triggers/closes) MUST display `cursor: pointer` (`cursor-pointer`) on hover.
-   - **Disabled State Rule**: Disabled elements (`disabled`, `aria-disabled="true"`, `data-disabled`) MUST show `cursor: not-allowed` and visual mute feedback.
-   - **Hover & Focus Feedback**: All clickable elements MUST have clean, modern visual feedback on hover (`hover:bg-accent/80`, `hover:text-primary`, `transition-all duration-150`) and accessible focus rings (`focus-visible:ring-2 focus-visible:ring-primary/50`).
-   - **Click Target Area**: Ensure minimum interactive target size (at least 32px / `h-8` for action buttons & icons) for seamless user interaction.
+   - **Universal Pointer Rule**: EVERY interactive/clickable element (`<button>`, `[role="button"]`, `DropdownMenuTrigger`, `SelectTrigger`, `AccordionTrigger`, clickable table rows/cards, badges, tabs, pagination links, switches, checkboxes, dialog triggers/closes) MUST display `cursor: pointer` (`cursor-pointer`) on hover.
+   - **Disabled State Rule**: Disabled elements (`disabled`, `aria-disabled="true"`, `data-disabled`) MUST display `cursor: not-allowed` and visual muted opacity.
+   - **Hover & Focus Feedback**: All clickable elements MUST provide crisp hover feedback (`hover:bg-accent/80`, `hover:text-primary`, `transition-all duration-150`) and accessible focus rings (`focus-visible:ring-2 focus-visible:ring-primary/50`).
+   - **Click Target Area**: Ensure minimum interactive target size (at least 32px / `h-8` for action buttons & icons).
 
 ---
 
 ## 🏗️ Next.js App Router Page Architecture
 
 ```text
-frontend/app/
+frontend/src/app/
 ├── (auth)/
-│   └── login/                       # Đăng nhập hệ thống
+│   └── auth/sign-in/page.tsx        # System Authentication
 ├── (dashboard)/
 │   ├── layout.tsx                   # Sidebar navigation, Header, User Profile
-│   ├── page.tsx                     # Overview Dashboard
-│   ├── orders/                      # Quản lý đơn hàng (DISPATCHER & ALL)
-│   │   ├── page.tsx                 # Danh sách đơn hàng & Lập lệnh
-│   │   └── [id]/page.tsx            # Chi tiết đơn hàng & Lịch sử trạng thái
-│   ├── trips/                       # Quản lý Chuyến xe (FLEET_MANAGER)
-│   │   ├── page.tsx                 # Danh sách Chuyến xe & Tải trọng
-│   │   └── [id]/page.tsx            # Phê duyệt Chuyến & Gom đơn
-│   ├── warehouses/                  # Nhập/Xuất Kho (WAREHOUSE_MANAGER)
-│   │   ├── inbound/page.tsx         # Xử lý Inbound Kho trung chuyển
-│   │   └── outbound/page.tsx        # Xuất kho đường dài
-│   └── admin/                       # Cấu hình hệ thống (SUPER_ADMIN)
-│       ├── users/page.tsx
-│       └── fleet/page.tsx
+│   ├── overview/page.tsx            # Executive KPI Overview
+│   ├── product/                     # Standard Reference Implementation (TanStack DataTable)
+│   ├── orders/                      # Order Management (DISPATCHER & ALL)
+│   │   ├── page.tsx                 # Order collection & dispatch intake
+│   │   └── [id]/page.tsx            # Order detail & lifecycle timeline
+│   ├── trips/                       # Trip & Dispatch Operations (FLEET_MANAGER)
+│   │   └── page.tsx                 # Trip collection & vehicle payload manager
+│   ├── fleet/                       # Vehicles & Drivers Management (FLEET_MANAGER)
+│   │   └── page.tsx                 # Fleet directory with Hub relational badge
+│   ├── warehouse/                   # Hub Inbound/Outbound Board (WAREHOUSE_MANAGER)
+│   │   └── page.tsx                 # Inbound receiving & schedule monitor
+│   └── admin/                       # System Administration (SUPER_ADMIN)
+│       ├── users/page.tsx           # User accounts & roles
+│       └── hubs/page.tsx            # Branch Warehouses (Hubs) CRUD & Soft-Delete
 ```
 
 ---
 
-## ⚡ Async Button — Loading State & Double-Click Prevention
+## ⚡ Async Action — Loading State & Double-Click Guard
 
-### Vấn đề
-Button gọi API async không có loading/disabled state → user click nhiều lần → duplicate request → data corruption hoặc lỗi nghiệp vụ.
+### Pattern: Per-Row Loading State (using `Set<number>`)
 
-### Pattern: Per-Row Loading (dùng `Set<id>`)
-
-Dùng `Set<number>` khi có **nhiều row**, mỗi row có button riêng. Chỉ disable button của row đang xử lý.
+Use `Set<number>` for multi-row data tables to avoid disabling unrelated rows:
 
 ```tsx
-// State
 const [submittingIds, setSubmittingIds] = useState<Set<number>>(new Set());
 
-// Handler
 const handleAction = async (id: number) => {
   if (submittingIds.has(id)) return; // Guard double-click
   setSubmittingIds((prev) => new Set(prev).add(id));
   try {
     await api.doSomething(id);
-    toast.success('Thành công!');
+    toast.success('Thao tác thành công!');
     reload();
   } catch (err: any) {
     const apiMessage = err.response?.data?.message;
     toast.error(apiMessage || 'Thao tác thất bại. Vui lòng thử lại.');
   } finally {
-    setSubmittingIds((prev) => { const n = new Set(prev); n.delete(id); return n; });
+    setSubmittingIds((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
   }
 };
-
-// Button JSX
-<Button
-  onClick={() => handleAction(item.id)}
-  disabled={submittingIds.has(item.id)}
-  className='... disabled:cursor-not-allowed disabled:opacity-60'
->
-  {submittingIds.has(item.id) ? (
-    <><IconLoader2 className='h-3.5 w-3.5 mr-1 animate-spin' />Đang gửi...</>
-  ) : (
-    <><IconSend className='h-3.5 w-3.5 mr-1' />Gửi Fleet</>
-  )}
-</Button>
 ```
-
-### Pattern: Single Action (dùng `boolean`)
-
-```tsx
-const [submitting, setSubmitting] = useState(false);
-// Handler: if (submitting) return; → setSubmitting(true) → try/finally setSubmitting(false)
-// Button: disabled={submitting} + spinner + text "Đang xử lý..."
-```
-
-### Checklist trước khi ship
-- [ ] Button có `disabled` state khi request đang chạy
-- [ ] `IconLoader2 animate-spin` hiển thị trong lúc loading
-- [ ] Text thay đổi: "Đang gửi..." / "Đang xử lý..." / "Đang xóa..."
-- [ ] `disabled:cursor-not-allowed disabled:opacity-60` trong className
-- [ ] `finally` block luôn cleanup state
 
 ---
 
-## 🔔 Toast Notification — Language & Message Standards
+## 🔔 Toast Notification Standards (Vietnamese UI Copy for End Users)
 
-### Nguyên tắc
-
-1. **Ngôn ngữ**: Mọi toast trong business domain (`orders/`, `trips/`, `warehouses/`, `admin/`, `profile/`) **PHẢI 100% tiếng Việt**.
-
-2. **API message first** với error toast từ API call:
+1. **User Facing Language**: User-facing Toast messages in business domains MUST be in natural Vietnamese for local operators.
+2. **API Error Precedence**:
 ```tsx
-// ✅ Đúng
+// ✅ Correct: Prioritize backend message
 const apiMessage = err.response?.data?.message;
 toast.error(apiMessage || 'Thao tác thất bại. Vui lòng thử lại.');
-
-// ❌ Sai — hard-code, dùng API msg làm description phụ
-toast.error('Không thể thực hiện', { description: err.response?.data?.message });
 ```
-
-3. **Validation toast** (client-side): tiếng Việt, không cần API message.
-4. **Success toast**: custom tiếng Việt OK.
-
-### Template chuẩn
-
-| Tình huống | Pattern |
-|-----------|---------|
-| API error | `const msg = err.response?.data?.message; toast.error(msg \|\| 'Fallback tiếng Việt.');` |
-| Validation | `toast.error('Vui lòng nhập đầy đủ thông tin.');` |
-| Success | `toast.success('Thao tác thành công!');` |

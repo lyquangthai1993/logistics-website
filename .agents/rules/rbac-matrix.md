@@ -10,9 +10,9 @@
 
 | Trường | Giá trị |
 |---|---|
-| **Phiên bản** | v1.1 |
+| **Phiên bản** | v1.3 |
 | **Cập nhật lần cuối** | 2026-08-18 |
-| **Cập nhật bởi** | Antigravity (audit — fix DISPATCHER vào Phân công xe) |
+| **Cập nhật bởi** | Antigravity (Tái cấu trúc gom nhóm Sidebar & bảo vệ route /dashboard/users) |
 
 ---
 
@@ -31,17 +31,20 @@
 
 > **File**: `frontend/src/config/nav-config.ts`
 
-| Menu | URL | SUPER_ADMIN | DISPATCHER | FLEET_MANAGER | WAREHOUSE_MANAGER |
-|------|-----|:-----------:|:----------:|:-------------:|:-----------------:|
-| Dashboard | `/dashboard/overview` | ✅ | ✅ | ✅ | ✅ |
-| Lệnh điều vận | `/dashboard/orders` | ✅ | ✅ | ❌ | ❌ |
-| Phân công xe | `/dashboard/trips` | ✅ | ❌ | ✅ | ❌ |
-| Quản lý đội xe | `/dashboard/fleet` | ✅ | ❌ | ✅ | ❌ |
-| Inbound Kho | `/dashboard/warehouse` | ✅ | ❌ | ❌ | ✅ |
-| Users | `/dashboard/users` | ✅ | ❌ | ❌ | ❌ |
-| Kanban | `/dashboard/kanban` | ✅ | ✅ | ✅ | ✅ |
-| Chat | `/dashboard/chat` | ✅ | ✅ | ✅ | ✅ |
-| AI Chat | `/dashboard/ai-chat` | ✅ | ✅ | ✅ | ✅ |
+| Nhóm | Menu | URL | SUPER_ADMIN | DISPATCHER | FLEET_MANAGER | WAREHOUSE_MANAGER |
+|---|---|---|:-----------:|:----------:|:-------------:|:-----------------:|
+| **Overview** | Dashboard | `/dashboard/overview` | ✅ | ✅ | ✅ | ✅ |
+| **Vận hành TMS** | Lệnh điều vận | `/dashboard/orders` | ✅ | ✅ | ❌ | ❌ |
+| **Vận hành TMS** | Phân công xe | `/dashboard/trips` | ✅ | ❌ | ✅ | ❌ |
+| **Vận hành TMS** | Quản lý đội xe | `/dashboard/fleet` | ✅ | ❌ | ✅ | ❌ |
+| **Vận hành TMS** | Inbound Kho | `/dashboard/warehouse` | ✅ | ❌ | ❌ | ✅ |
+| **Quản trị hệ thống** | Chi Nhánh Kho (Hubs) | `/dashboard/admin/hubs` | ✅ | ❌ | ❌ | ❌ |
+| **Quản trị hệ thống** | Người dùng | `/dashboard/users` | ✅ | ❌ | ❌ | ❌ |
+| **Không gian làm việc** | Kanban | `/dashboard/kanban` | ✅ | ✅ | ✅ | ✅ |
+| **Không gian làm việc** | Chat | `/dashboard/chat` | ✅ | ✅ | ✅ | ✅ |
+| **Không gian làm việc** | AI Chat | `/dashboard/ai-chat` | ✅ | ✅ | ✅ | ✅ |
+| **Elements** | Product Table | `/dashboard/product` | ✅ | ✅ | ✅ | ✅ |
+| **Elements** | Forms / React Query / Icons | `/dashboard/forms/*` | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -53,6 +56,7 @@
 | Route Prefix | SUPER_ADMIN | DISPATCHER | FLEET_MANAGER | WAREHOUSE_MANAGER |
 |---|:-----------:|:----------:|:-------------:|:-----------------:|
 | `/dashboard/admin` | ✅ | ❌ | ❌ | ❌ |
+| `/dashboard/users` | ✅ | ❌ | ❌ | ❌ |
 | `/dashboard/orders` | ✅ | ✅ | ❌ | ❌ |
 | `/dashboard/trips` | ✅ | ❌ | ✅ | ❌ |
 | `/dashboard/fleet` | ✅ | ❌ | ✅ | ❌ |
@@ -153,6 +157,22 @@
 
 ---
 
+### Hubs Controller
+> **File**: `backend/src/hubs/hubs.controller.ts`
+> Nghiệp vụ: Quản lý Chi Nhánh Kho chỉ dành cho SUPER_ADMIN. Các role khác có quyền Đọc để chọn kho.
+
+| Endpoint | Method | SUPER_ADMIN | DISPATCHER | FLEET_MANAGER | WAREHOUSE_MANAGER |
+|---|---|:-----------:|:----------:|:-------------:|:-----------------:|
+| `/v1/hubs` | GET | ✅ | ✅ | ✅ | ✅ |
+| `/v1/hubs/active` | GET | ✅ | ✅ | ✅ | ✅ |
+| `/v1/hubs/:id` | GET | ✅ | ✅ | ✅ | ✅ |
+| `/v1/hubs` | POST | ✅ | ❌ | ❌ | ❌ |
+| `/v1/hubs/:id` | PATCH | ✅ | ❌ | ❌ | ❌ |
+| `/v1/hubs/:id/toggle-active` | PATCH | ✅ | ❌ | ❌ | ❌ |
+| `/v1/hubs/:id` | DELETE | ✅ | ❌ | ❌ | ❌ |
+
+---
+
 ## Quy tắc triển khai (Implementation Rules)
 
 > **PHẢI tuân thủ** khi thêm endpoint hoặc menu mới:
@@ -221,6 +241,18 @@ Khi không chắc → tham chiếu skill `tms-domain-lead` trước khi implemen
 ---
 
 ## Changelog
+
+### v1.3 — 2026-08-18
+**Tái cấu trúc UX/UI & Phân nhóm Sidebar**:
+- `nav-config.ts`: Gom nhóm lại thành 5 nhóm chức năng (Overview, Vận hành TMS, Quản trị hệ thống, Không gian làm việc, Elements, Account). Chuyển `Product Table` vào nhóm `Elements`.
+- `proxy.ts`: Thêm route guard `/dashboard/users` bảo vệ cho `SUPER_ADMIN`.
+- Cập nhật tài liệu Ma trận Menu Sidebar theo nhóm mới.
+
+### v1.2 — 2026-08-18
+**Tính năng mới**: Module Hubs (Chi Nhánh Kho) cho Super Admin.
+- `nav-config.ts`: Thêm menu "Chi Nhánh Kho (Hubs)" (`/dashboard/admin/hubs`) cho `SUPER_ADMIN`.
+- `proxy.ts`: Xác nhận route guard `/dashboard/admin` bảo vệ cho `SUPER_ADMIN`.
+- `hubs.controller.ts`: Phân quyền `SUPER_ADMIN` cho Write, mở GET cho authenticated users.
 
 ### v1.1 — 2026-08-18
 **Sửa lỗi**: DISPATCHER bị cấp nhầm quyền vào module Trips.

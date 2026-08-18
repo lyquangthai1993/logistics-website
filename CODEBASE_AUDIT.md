@@ -9,14 +9,39 @@
 
 | Trường | Giá trị |
 |---|---|
-| **Phiên bản** | v0.5.0 |
-| **Ngày audit** | 2026-08-17 |
-| **Người thực hiện** | Antigravity Agent |
+| **Phiên bản** | v0.7.0 |
+| **Ngày audit** | 2026-08-18 |
+| **Người thực hiện** | Antigravity Multi-Agent Teamwork System |
 | **Môi trường** | Development / Staging |
 
 ---
 
 ## 🗂️ CHANGELOG PHIÊN BẢN
+
+### v0.7.0 — 2026-08-18
+- ✅ **Chuẩn Hóa Toàn Diện Data Table & Pagination (7 Pages)**:
+  - Tái cấu trúc toàn bộ 7 trang danh sách dữ liệu (`admin/hubs`, `fleet`, `orders`, `trips`, `users`, `warehouse`, `notifications`) theo kiến trúc chuẩn TanStack React Table v8 (`@tanstack/react-table`) + `@/components/ui/table/data-table` + `nuqs` URL search params sync (`page`, `perPage`, `search`, filters).
+  - Chuẩn hóa điều khiển phân trang (`DataTablePagination` với selector [10, 20, 30, 40, 50], direct page navigation).
+  - Chuẩn hóa UX con trỏ chuột (`cursor-pointer` trên mọi thành phần tương tác) và 100% tiếng Việt cho Toast UI notifications.
+  - Bảo toàn 100% tính toàn vẹn nghiệp vụ, RBAC 3 lớp và các modal CRUD/actions.
+- ✅ **Backend Resilience & Mail Simulation**:
+  - Khắc phục triệt để lỗi Circular Dependency (`ReferenceError: Cannot access 'OrderEntity' before initialization`) bằng `Relation<T>` trong TypeORM Entities.
+  - Bổ sung cờ cấu hình `MAIL_SIMULATE=true` trong Backend MailerService để giả lập gửi email an toàn trong môi trường Dev/E2E testing, tránh chạm trần quota của máy chủ SMTP.
+- ✅ **Victory Audit Confirmation**:
+  - Độc lập xác minh thành công 100% trên `npx tsc --noEmit` (0 lỗi), `npm run build` (28/28 routes compiled) và toàn bộ Playwright E2E test suites.
+
+### v0.6.0 — 2026-08-18
+- ✅ Backend Module `hubs`: Entity `HubEntity`, 7 endpoints (Tạo mới, danh sách lọc trạng thái, chi tiết, cập nhật, bật/tắt hoạt động, xóa mềm), phân quyền `SUPER_ADMIN` cho Write và mở GET cho tất cả authenticated roles.
+- ✅ Chuẩn hóa quan hệ Bảng Xe: Thêm `hubId` (khóa ngoại `@ManyToOne`) vào `VehicleEntity` liên kết sang `HubEntity`, cập nhật `VehiclesService` nạp quan hệ `hub` tự động.
+- ✅ TypeORM Migration `1786938700000-CreateHubTableAndRelateVehicle`: Tạo bảng `hub` với indexes và tạo foreign key `FK_vehicle_hub` trong bảng `vehicle`.
+- ✅ Seed Data & Data Migration: Seed 5 Hubs mặc định (Hà Nội, Đà Nẵng, TP.HCM, Cần Thơ, Hải Phòng) và tự động ánh xạ dữ liệu xe hiện có sang `hubId` tương ứng.
+- ✅ Phân quyền 3 lớp (RBAC Matrix v1.2):
+  - Sidebar Menu: Thêm mục "Chi Nhánh Kho (Hubs)" (`/dashboard/admin/hubs`) cho `SUPER_ADMIN`.
+  - Route Guard: Prefix `/dashboard/admin` bảo vệ cho `SUPER_ADMIN`.
+  - API Guard: `@Roles(RoleEnum.SUPER_ADMIN)` cho các thao tác ghi của Hubs.
+- ✅ Frontend Pages & UI:
+  - `/dashboard/admin/hubs`: Trang Quản trị Chi Nhánh Kho với KPI cards, bảng dữ liệu, tìm kiếm/lọc, modal thêm/sửa, switch bật/tắt hoạt động, dialog xác nhận xóa mềm an toàn.
+  - `/dashboard/fleet`: Nâng cấp form thêm/sửa xe dùng Select dropdown chọn Hub trực thuộc từ API, hiển thị tên Hub và thành phố trong bảng xe.
 
 ### v0.5.0 — 2026-08-17
 - ✅ Backend Module `orders`: Entity `Order`, 7 endpoints (Tạo mới, danh sách lọc tuyến/trạng thái, chi tiết, cập nhật, submit lên Fleet, báo hết xe, xóa), bắt buộc `externalNote` khi yêu cầu xe ngoài
@@ -123,12 +148,13 @@
 
 | Module | DB Table | Endpoints | Roles |
 |---|---|---|---|
+| `hubs` | `hub` | 7 endpoints (Tạo mới, danh sách, chi tiết, cập nhật, bật/tắt hoạt động, xóa mềm) | `SUPER_ADMIN` (Write), All (Read) |
 | `orders` | `order` | 7 endpoints (Tạo mới, danh sách, chi tiết, cập nhật, gửi Fleet, báo hết xe, xóa) | `SUPER_ADMIN`, `DISPATCHER`, `FLEET_MANAGER` |
 | `trips` | `trip` | 6 endpoints (Gán xe, chia chuyến split, danh sách, chi tiết, cập nhật, xác nhận, xóa) | `SUPER_ADMIN`, `FLEET_MANAGER`, `DISPATCHER` |
 | `auth` | `session` | 10 endpoints (login, register, confirm, forgot/reset, me, refresh, logout) | All |
 | `auth-google/facebook/apple` | — | 3 endpoints social login | Public |
 | `users` | `user` | CRUD + Pagination | `SUPER_ADMIN` |
-| `vehicles` | `vehicle` | CRUD full | `SUPER_ADMIN`, `FLEET_MANAGER` |
+| `vehicles` | `vehicle` | CRUD full (có FK `hubId` sang `hub`) | `SUPER_ADMIN`, `FLEET_MANAGER` |
 | `drivers` | `driver` | CRUD full | `SUPER_ADMIN`, `FLEET_MANAGER` |
 | `notifications` | `notification` | 5 endpoints (CRUD, unread count, mark read) + WebSocket Gateway (`/notifications`) | JWT required (All roles) |
 | `files` | `file` | Upload (Local/S3/Presigned) + Serve | JWT required |
@@ -150,6 +176,8 @@
 | 6 | `1786938300000-CreateOrderAndTripTables` | Tạo bảng `order` và `trip` + foreign keys và composite indexes |
 | 7 | `1786938400000-AddExternalNoteToOrder` | Thêm cột `externalNote` (text) vào bảng `order` |
 | 8 | `1786938500000-AddUsernameToUser` | Thêm cột `username` (varchar unique) vào bảng `user` |
+| 9 | `1786938600000-AddTotalQuantityToOrder` | Thêm cột `totalQuantity` vào bảng `order` |
+| 10 | `1786938700000-CreateHubTableAndRelateVehicle` | Tạo bảng `hub` và thêm khóa ngoại `hubId` vào bảng `vehicle` |
 
 ### 🔑 Enums đang dùng
 

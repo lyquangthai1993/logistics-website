@@ -1,0 +1,9 @@
+## 2026-08-18T07:33:55Z
+
+```json
+{
+  "sender": "7172e926-cfe8-4b9c-8361-0f7ee6c930b0",
+  "recipient": "reviewer_1",
+  "content": "You are Reviewer 1 for Milestone 2: Fleet Management Standardization.\nYour working directory is: d:\\Projects\\logistics-website\\.agents\\sub_orch_m2_fleet\\reviewer_1\nYour parent conversation ID is: 7172e926-cfe8-4b9c-8361-0f7ee6c930b0\n\nMANDATORY FIRST STEP: Read the original user request at:\nd:\\Projects\\logistics-website\\.agents\\ORIGINAL_REQUEST.md\n\nREAD CONTEXT & SPEC:\n- Scope: d:\\Projects\\logistics-website\\.agents\\sub_orch_m2_fleet\\SCOPE.md\n- Worker Handoff: d:\\Projects\\logistics-website\\.agents\\sub_orch_m2_fleet\\worker_1\\handoff.md\n- Canonical Reference: d:\\Projects\\logistics-website\\.agents\\survey_canonical\\survey_canonical.md\n\nYOUR TASK:\nPerform a comprehensive code review of all newly created and modified files in `frontend/src/features/fleet/` and `frontend/src/app/dashboard/fleet/`:\n1. Verify adherence to Canonical TanStack Table v8 patterns (`useDataTable`, `DataTable`, `DataTablePagination`, `DataTableColumnHeader`, `DataTableToolbar`).\n2. Verify Next.js 15 App Router Server Component + Client Component architecture (`page.tsx` with `searchParamsCache` + `FleetListingPage`).\n3. Verify `nuqs` URL search params synchronization (`tab`, `page`, `perPage`, `search`, `status`).\n4. Verify toast notification rules: 100% Vietnamese messages and API-message-first error pattern (`const apiMessage = err?.response?.data?.message; toast.error(apiMessage || '...')`).\n5. Run `npx tsc --noEmit` and `npm run build` in `frontend/` to verify type safety and build success.\n\nWrite your review report to:\n`d:\\Projects\\logistics-website\\.agents\\sub_orch_m2_fleet\\reviewer_1\\handoff.md`\n\nState your clear verdict: `APPROVE` or `REQUEST_CHANGES` with full rationale.\nWhen complete, call `send_message` to parent (ID: 7172e926-cfe8-4b9c-8361-0f7ee6c930b0)."
+}
+```
