@@ -45,3 +45,5 @@ src/
 - **Run Debug Server**: `npm run start:debug` (in `backend/`)
 - **Run Migrations**: `npm run migration:run`
 - **Generate Migration**: `npm run migration:generate -- src/database/migrations/<MigrationName>`
+
+
