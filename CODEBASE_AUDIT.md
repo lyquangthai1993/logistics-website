@@ -9,14 +9,29 @@
 
 | Trường | Giá trị |
 |---|---|
-| **Phiên bản** | v0.7.0 |
-| **Ngày audit** | 2026-08-18 |
+| **Phiên bản** | v0.8.0 |
+| **Ngày audit** | 2026-08-20 |
 | **Người thực hiện** | Antigravity Multi-Agent Teamwork System |
 | **Môi trường** | Development / Staging |
 
 ---
 
 ## 🗂️ CHANGELOG PHIÊN BẢN
+
+### v0.8.0 — 2026-08-20
+- ✅ **Chuẩn Hóa Toàn Diện API Response Envelope & Global Exception Filter (NestJS Backend)**:
+  - Triển khai `ResponseTransformInterceptor` (`src/common/interceptors/response-transform.interceptor.ts`) bọc toàn bộ phản hồi API theo chuẩn `ApiResponse<T>`: `{ statusCode, message, data, meta?, timestamp }`.
+  - Triển khai `GlobalExceptionFilter` (`src/common/filters/global-exception.filter.ts`) bắt tất cả HTTP & runtime exceptions, chuẩn hóa payload lỗi thành `ApiErrorResponse`: `{ statusCode, message, errors, timestamp, path }`.
+  - Chuẩn hóa factory `validationOptions.ts` trả về đầy đủ `statusCode`, `message` và cây validation errors chi tiết.
+  - Ban hành tài liệu quy chuẩn [`docs/API_RESPONSE_STANDARD.md`](file:///d:/Projects/logistics-website/docs/API_RESPONSE_STANDARD.md).
+- ✅ **Chuẩn Hóa Nhận Phản Hồi & Bắt Lỗi Tập Trung (Next.js Frontend)**:
+  - Xây dựng module tiện ích [`frontend/src/lib/api-error.ts`](file:///d:/Projects/logistics-website/frontend/src/lib/api-error.ts) với `formatApiError(err, fallback)` và `showApiErrorToast(err, fallback)`.
+  - Bóc tách tự động và chuẩn hóa 100% các API Service (`orders`, `fleet`, `hubs`, `trips`, `users`, `notifications`, `profile`, `auth`).
+  - Toàn bộ các form mutations, dialogs, sheets và action buttons hiển thị lỗi tiếng Việt chi tiết từ cây validation errors của máy chủ.
+- ✅ **Kiểm Chứng Độc Lập**:
+  - `backend`: `npx tsc --noEmit` đạt 0 lỗi.
+  - `frontend`: `npx tsc --noEmit` đạt 0 lỗi.
+  - `frontend`: `npm run build` biên dịch thành công 28/28 routes với Turbopack.
 
 ### v0.7.0 — 2026-08-18
 - ✅ **Chuẩn Hóa Toàn Diện Data Table & Pagination (7 Pages)**:
