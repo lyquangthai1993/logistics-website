@@ -34,6 +34,7 @@ export interface ApiResponse<T = any> {
   message: string;       // "Success" hoặc thông điệp tùy biến
   data: T;               // Dữ liệu chính (Object, Array, Primitive)
   meta?: PaginatedMeta;  // Thông tin phân trang (khi có)
+  silent?: boolean;      // Khi true: tác vụ chạy ngầm, FE không hiển thị toast thông báo thành công
   timestamp: string;     // Chuỗi ISO 8601 (VD: "2026-08-20T07:30:00.000Z")
 }
 ```
