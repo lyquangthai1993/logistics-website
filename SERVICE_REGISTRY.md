@@ -186,6 +186,7 @@
 | ⚠️ `AWS_S3_ENDPOINT` | **Chưa set** |
 | ⚠️ `AWS_S3_PUBLIC_URL` | **Chưa set** |
 | ⚠️ `WORKER_HOST` | **Chưa set** — Upstash Redis URL |
+| ⚠️ `RESEND_API_KEY` | **Chưa set** — Resend API Key (`re_...`) cho gửi email giao dịch |
 
 ---
 
