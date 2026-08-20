@@ -57,13 +57,15 @@
 |---|:-----------:|:----------:|:-------------:|:-----------------:|
 | `/dashboard/admin` | ✅ | ❌ | ❌ | ❌ |
 | `/dashboard/users` | ✅ | ❌ | ❌ | ❌ |
-| `/dashboard/orders` | ✅ | ✅ | ❌ | ❌ |
+| `/dashboard/orders` | ✅ | ✅ | ✅ *(Read-Only)* | ✅ *(Read-Only)* |
 | `/dashboard/trips` | ✅ | ❌ | ✅ | ❌ |
 | `/dashboard/fleet` | ✅ | ❌ | ✅ | ❌ |
 | `/dashboard/warehouse` | ✅ | ❌ | ❌ | ✅ |
 | Các route khác | ✅ | ✅ | ✅ | ✅ |
 
-> **Lưu ý**: Route guard dùng prefix matching (`startsWith`). Thêm route mới phải cập nhật `roleRouteMap` trong `proxy.ts`.
+> **Lưu ý**: 
+> - Route guard dùng prefix matching (`startsWith`). Thêm route mới phải cập nhật `roleRouteMap` trong `proxy.ts`.
+> - Route `/dashboard/orders` mở cho cả 4 vai trò để xem chi tiết đơn hàng (từ thông báo, liên kết deep-link). `FLEET_MANAGER` và `WAREHOUSE_MANAGER` xem ở chế độ **Read-Only**, các nút thao tác nghiệp vụ (sửa, xóa, gửi fleet, điều xe ngoài) tự động ẩn. Menu sidebar chỉ mở cho `SUPER_ADMIN` và `DISPATCHER`.
 
 ---
 
