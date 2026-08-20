@@ -2,9 +2,10 @@
 name: e2e-test-runner
 description: >-
   Orchestrates E2E Playwright test sessions for the Logistics TMS frontend.
-  Spawns 2–3 specialized sub-agents: Console Health Inspector, Login Flow Tester,
-  and RBAC Route Guard Validator. Use when checking browser errors, testing
-  login/logout flows for all 4 roles, or verifying middleware route enforcement.
+  Spawns 3–4 specialized sub-agents: Console Health Inspector, Login Flow Tester,
+  RBAC Route Guard Validator, and Runtime Terminal Log Tracer. Use when checking
+  browser errors, testing login/logout flows for all 4 roles, verifying middleware
+  route enforcement, or tracing server-side API/SSR errors.
 ---
 
 # E2E Test Runner – Orchestration Skill
@@ -12,7 +13,7 @@ description: >-
 ## Overview
 
 This skill orchestrates multi-agent E2E test sessions using Playwright.
-The **Orchestrator Agent** spawns **2–3 Sub-Agents** for parallelized, scoped testing.
+The **Orchestrator Agent** spawns **3–4 Sub-Agents** for parallelized, scoped testing.
 
 ---
 
@@ -20,10 +21,13 @@ The **Orchestrator Agent** spawns **2–3 Sub-Agents** for parallelized, scoped 
 
 ```
 Orchestrator Agent (this skill)
+├── Sub-Agent D: Runtime Log Tracer         → e2e/00-runtime-log-tracer.spec.ts  ← RUN FIRST
 ├── Sub-Agent A: Console Health Inspector   → e2e/01-console-health.spec.ts
 ├── Sub-Agent B: Login Flow Tester          → e2e/02-login-flow.spec.ts
 └── Sub-Agent C: RBAC Route Guard Validator → e2e/03-rbac-routing.spec.ts
 ```
+
+> **Sub-Agent D runs first** — if the backend is unreachable or login credentials are wrong, D will surface this early and prevent cascading timeouts in B and C.
 
 ---
 
@@ -31,15 +35,32 @@ Orchestrator Agent (this skill)
 
 ```
 frontend/
-├── playwright.config.ts          # E2E config (baseURL, reporter, timeout)
+├── playwright.config.ts             # E2E config (baseURL, reporter, timeout)
 ├── e2e/
 │   ├── helpers/
-│   │   └── auth.ts               # Shared login helpers, TEST_USERS, collectConsoleLogs()
-│   ├── 01-console-health.spec.ts # Sub-Agent A
-│   ├── 02-login-flow.spec.ts     # Sub-Agent B
-│   └── 03-rbac-routing.spec.ts   # Sub-Agent C
-└── playwright-report/            # HTML + JSON reports (after run)
+│   │   ├── auth.ts                  # Shared login helpers, TEST_USERS, collectConsoleLogs()
+│   │   └── runtime-logs.ts          # captureRuntimeLogs(), checkBackendHealth(), detectNextJsErrorOverlay()
+│   ├── 00-runtime-log-tracer.spec.ts # Sub-Agent D ← NEW: server-side runtime error tracing
+│   ├── 01-console-health.spec.ts    # Sub-Agent A
+│   ├── 02-login-flow.spec.ts        # Sub-Agent B
+│   └── 03-rbac-routing.spec.ts      # Sub-Agent C
+└── playwright-report/               # HTML + JSON reports (after run)
 ```
+
+---
+
+## 🔍 What Each Sub-Agent Captures
+
+| Sub-Agent | Source | What It Catches |
+|-----------|--------|-----------------|
+| **D — Runtime Log Tracer** | Network response interception | 4xx/5xx API errors, slow requests (>3s), Next.js SSR error overlays, NestJS backend health |
+| **A — Console Health** | `page.on('console')` | JS exceptions, browser-side warnings, font issues |
+| **B — Login Flow** | UI + navigation | Auth credential failures, redirect failures, JWT token storage |
+| **C — RBAC Routing** | Middleware redirect behavior | Route guard enforcement per role |
+
+> ⚠️ **Gap explained**: Browser console (`page.on('console')`) only captures client-side errors.
+> Server-side errors (Next.js SSR crashes, NestJS 500s, DB failures) are **silent** in the console.
+> Sub-Agent D fills this gap via **response status interception** + **DOM overlay detection**.
 
 ---
 
@@ -47,24 +68,29 @@ frontend/
 
 ### Prerequisite
 - Frontend dev server must be running on `http://localhost:3000`
+- Backend (NestJS) must be running on `http://localhost:3001` (or configured `NEXT_PUBLIC_API_URL`)
 - Run from `frontend/` directory
 
 ### Commands
 
 ```bash
-# Run all E2E tests (sequential, recommended)
-npx playwright test
+# Run all E2E tests (recommended order — D first to catch infra issues early)
+npx playwright test e2e/00-runtime-log-tracer.spec.ts
+npx playwright test e2e/01-console-health.spec.ts
+npx playwright test e2e/02-login-flow.spec.ts
+npx playwright test e2e/03-rbac-routing.spec.ts
 
-# Run a specific sub-agent scope
-npx playwright test e2e/01-console-health.spec.ts   # Console Health only
-npx playwright test e2e/02-login-flow.spec.ts        # Login Flow only
-npx playwright test e2e/03-rbac-routing.spec.ts      # RBAC Routing only
+# Run all at once
+npx playwright test e2e/00-runtime-log-tracer.spec.ts e2e/01-console-health.spec.ts e2e/02-login-flow.spec.ts e2e/03-rbac-routing.spec.ts
 
 # Show interactive HTML report
 npx playwright show-report playwright-report
 
 # Debug mode (headed browser)
 npx playwright test --headed --debug
+
+# Inspect a failure trace
+npx playwright show-trace "test-results/<folder>/trace.zip"
 ```
 
 ---
@@ -75,21 +101,21 @@ Credentials are resolved from environment variables (`.env.local`), falling back
 
 | Role | Env Var Prefix | Default Email |
 |------|---------------|---------------|
-| SUPER_ADMIN | `E2E_SUPER_ADMIN_*` | admin@spiderexpress.vn |
-| DISPATCHER | `E2E_DISPATCHER_*` | ducanh@spiderexpress.vn |
-| FLEET_MANAGER | `E2E_FLEET_MANAGER_*` | fleet@spiderexpress.vn |
-| WAREHOUSE_MANAGER | `E2E_WAREHOUSE_MANAGER_*` | warehouse@spiderexpress.vn |
+| SUPER_ADMIN | `E2E_SUPER_ADMIN_*` | lyquangthai1993+1@gmail.com |
+| DISPATCHER | `E2E_DISPATCHER_*` | lyquangthai1993+2@gmail.com |
+| FLEET_MANAGER | `E2E_FLEET_MANAGER_*` | lyquangthai1993+3@gmail.com |
+| WAREHOUSE_MANAGER | `E2E_WAREHOUSE_MANAGER_*` | lyquangthai1993+4@gmail.com |
 
 Add to `frontend/.env.local` (never commit to git):
 ```
-E2E_SUPER_ADMIN_EMAIL=admin@spiderexpress.vn
-E2E_SUPER_ADMIN_PASSWORD=Admin@123
-E2E_DISPATCHER_EMAIL=ducanh@spiderexpress.vn
-E2E_DISPATCHER_PASSWORD=Dispatcher@123
-E2E_FLEET_MANAGER_EMAIL=fleet@spiderexpress.vn
-E2E_FLEET_MANAGER_PASSWORD=Fleet@123
-E2E_WAREHOUSE_MANAGER_EMAIL=warehouse@spiderexpress.vn
-E2E_WAREHOUSE_MANAGER_PASSWORD=Warehouse@123
+E2E_SUPER_ADMIN_EMAIL=lyquangthai1993+1@gmail.com
+E2E_SUPER_ADMIN_PASSWORD=secret
+E2E_DISPATCHER_EMAIL=lyquangthai1993+2@gmail.com
+E2E_DISPATCHER_PASSWORD=secret
+E2E_FLEET_MANAGER_EMAIL=lyquangthai1993+3@gmail.com
+E2E_FLEET_MANAGER_PASSWORD=secret
+E2E_WAREHOUSE_MANAGER_EMAIL=lyquangthai1993+4@gmail.com
+E2E_WAREHOUSE_MANAGER_PASSWORD=secret
 ```
 
 ---
@@ -99,10 +125,15 @@ E2E_WAREHOUSE_MANAGER_PASSWORD=Warehouse@123
 When a user asks to "run E2E tests" or "check the app for errors":
 
 ### Step 1 – Pre-flight Check
-- Confirm `http://localhost:3000` is accessible (`curl -s -o /dev/null -w "%{http_code}" http://localhost:3000`)
+- Confirm `http://localhost:3000` is accessible
 - Confirm `frontend/playwright.config.ts` exists
+- Check that `e2e/helpers/runtime-logs.ts` exists (new helper)
 
 ### Step 2 – Spawn Sub-Agents Concurrently
+
+**Sub-Agent D (Runtime Log Tracer)** ← Run first or in parallel, report first
+- Prompt: "Run `npx playwright test e2e/00-runtime-log-tracer.spec.ts` in `frontend/` and report: (1) backend health check result + latency, (2) any 4xx/5xx API errors during login flows, (3) any Next.js SSR error overlays detected, (4) any API requests exceeding 3s. This is the server-side error tracer — distinct from browser console errors."
+- Role: Detects backend unavailability, API 500s, SSR crashes, slow endpoints
 
 **Sub-Agent A (Console Health Inspector)**
 - Prompt: "Run `npx playwright test e2e/01-console-health.spec.ts` in `frontend/` and report all browser console errors and warnings found. Identify which are known issues vs. new critical errors."
@@ -121,19 +152,21 @@ When a user asks to "run E2E tests" or "check the app for errors":
 Orchestrator compiles a unified status table:
 
 ```
-| Test Suite         | Status | Passed | Failed | Warnings |
-|--------------------|--------|--------|--------|----------|
-| Console Health     | ✅/❌  | N      | N      | N        |
-| Login Flow         | ✅/❌  | N      | N      | -        |
-| RBAC Routing       | ✅/❌  | N      | N      | -        |
+| Test Suite          | Status | Passed | Failed | Warnings |
+|---------------------|--------|--------|--------|----------|
+| Runtime Log Tracer  | ✅/❌  | N      | N      | N        |
+| Console Health      | ✅/❌  | N      | N      | N        |
+| Login Flow          | ✅/❌  | N      | N      | -        |
+| RBAC Routing        | ✅/❌  | N      | N      | -        |
 ```
 
 ### Step 4 – Triage & Fix
 
 For each failure found:
 1. Identify root cause (console output, screenshot, trace)
-2. Propose minimal fix
-3. Ask user for approval before applying
+2. **Check Sub-Agent D first** — if backend is unreachable, Login + RBAC failures are cascade effects
+3. Propose minimal fix
+4. Ask user for approval before applying
 
 ---
 
@@ -145,3 +178,21 @@ For each failure found:
 
 > To fix: Replace `Google Sans Flex` with `Google Sans` (or remove from `next/font/google` import).
 > `Google Sans Flex` is a variable font not yet supported by `next/font/google`.
+
+---
+
+## 🔬 Triage Guide: Login Timeout (Most Common Failure)
+
+If Sub-Agent B reports `page.waitForURL timeout` for all roles:
+
+**Step 1 — Check Sub-Agent D output first**
+- Is `NestJS backend reachable`? → If NO: start backend server
+- Are there 5xx errors on `POST /api/v1/auth/email/login`? → backend crash
+
+**Step 2 — Verify credentials**
+- Are the `E2E_*_EMAIL` / `E2E_*_PASSWORD` vars in `.env.local` matching seeded users?
+- Test manually: `curl -X POST http://localhost:3001/api/v1/auth/email/login -d '{"email":"...","password":"..."}' -H "Content-Type: application/json"`
+
+**Step 3 — Check Next.js API route**
+- Does `frontend/src/app/api/auth/[...nextauth]` or the custom sign-in action call the correct backend URL?
+- Is `NEXT_PUBLIC_API_URL` / `BACKEND_URL` set in `.env.local`?

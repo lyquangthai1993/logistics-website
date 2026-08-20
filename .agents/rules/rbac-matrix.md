@@ -10,9 +10,9 @@
 
 | Trường | Giá trị |
 |---|---|
-| **Phiên bản** | v1.3 |
-| **Cập nhật lần cuối** | 2026-08-18 |
-| **Cập nhật bởi** | Antigravity (Tái cấu trúc gom nhóm Sidebar & bảo vệ route /dashboard/users) |
+| **Phiên bản** | v1.4 |
+| **Cập nhật lần cuối** | 2026-08-20 |
+| **Cập nhật bởi** | Antigravity (Feature: Gán Hub cho WAREHOUSE_MANAGER) |
 
 ---
 
@@ -204,6 +204,14 @@ Tuy nhiên **bắt buộc** phải có `@UseGuards(AuthGuard('jwt'))`.
 Chỉ cấp quyền tối thiểu cần thiết cho nghiệp vụ.
 Khi không chắc → tham chiếu skill `tms-domain-lead` trước khi implement.
 
+### Rule 7 — WAREHOUSE_MANAGER Hub Assignment
+- Mỗi tài khoản `WAREHOUSE_MANAGER` **nên được gán vào đúng 1 Hub** (kho vận) cụ thể.
+- Gán hub thực hiện qua field `hub: { id: number }` khi tạo/cập nhật user trong `POST /v1/users` và `PATCH /v1/users/:id`.
+- Hub assignment là **optional** (nullable): WM không có hub vẫn hợp lệ — SUPER_ADMIN tự gán sau.
+- Một Hub có thể có **nhiều tài khoản WM** (quan hệ 1 Hub : N Users).
+- Các role khác (DISPATCHER, FLEET_MANAGER) **không được gán hub** — backend không validate nhưng form frontend ẩn field này.
+- Khi Hub bị xóa mềm: `hubId` của user **SET NULL** (ON DELETE SET NULL) — user không bị ảnh hưởng.
+
 ---
 
 ## Hướng dẫn cập nhật tài liệu
@@ -243,6 +251,16 @@ Khi không chắc → tham chiếu skill `tms-domain-lead` trước khi implemen
 ---
 
 ## Changelog
+
+### v1.4 — 2026-08-20
+**Feature: Gán Hub cho WAREHOUSE_MANAGER**:
+- `user.entity.ts`: Thêm cột `hubId` (nullable FK → `hub.id`) và quan hệ `ManyToOne → HubEntity`.
+- `create-user.dto.ts` / `update-user.dto.ts`: Thêm field `hub?: { id: number } | null` (optional).
+- `users.service.ts`: Validate hub tồn tại trước khi gán; cập nhật `create()` và `update()`.
+- `users.module.ts`: Đăng ký `TypeOrmModule.forFeature([HubEntity])`.
+- `user-form-sheet.tsx` (frontend): Hiển thị dropdown Hub khi role = WAREHOUSE_MANAGER (lazy fetch).
+- Migration DB: `1786938800000-AddHubIdToUser.ts` — thêm cột nullable, ON DELETE SET NULL.
+- Thêm **Rule 7**: Hub Assignment cho WAREHOUSE_MANAGER.
 
 ### v1.3 — 2026-08-18
 **Tái cấu trúc UX/UI & Phân nhóm Sidebar**:
