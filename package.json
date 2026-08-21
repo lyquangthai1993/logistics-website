@@ -1,7 +1,7 @@
 {
   "name": "logistics-website",
   "version": "1.0.0",
-  "description": "Logistics TMS – monorepo root scripts (backend + frontend)",
+  "description": "Logistics TMS - monorepo root scripts (backend + frontend)",
   "private": true,
   "scripts": {
     "dev": "node scripts/start-dev.js",
