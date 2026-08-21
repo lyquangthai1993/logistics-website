@@ -146,10 +146,11 @@ Default password: `secret` (configured in `.env.local`).
 
 ## 🤖 Orchestration & Triage Protocol
 
-1. **Pre-flight Port Gate (MANDATORY STEP 0)**:
+1. **Pre-flight Port Gate & Clean Restart Protocol (MANDATORY STEP 0)**:
+   - **Always clean restart dev servers** whenever middleware/proxy (`src/proxy.ts`), core auth stores, or server configs are changed to avoid stale Turbopack/Next.js memory caches.
    - **ALWAYS** run `node scripts/check-servers.mjs` (or `npm run e2e:check`) before executing any Playwright spec.
    - Probes `http://localhost:3000` (Frontend Next.js) and `http://localhost:3001` (Backend NestJS).
-   - If **either server is offline**, STOP immediately. Report which server is down and prompt to start both servers using root package.json:
+   - If **either server is offline**, START both servers using root package.json:
      - `npm run dev` (runs `start-dev.js` orchestrator from root folder `d:\Projects\logistics-website`)
 2. **Infra Gate**:
    - Run Sub-Agent D (`00-runtime-log-tracer.spec.ts`). If it fails, check backend API latency and SSR error overlays.
