@@ -9,14 +9,32 @@
 
 | Trường | Giá trị |
 |---|---|
-| **Phiên bản** | v0.8.0 |
-| **Ngày audit** | 2026-08-20 |
+| **Phiên bản** | v0.9.0 |
+| **Ngày audit** | 2026-08-21 |
 | **Người thực hiện** | Antigravity Multi-Agent Teamwork System |
-| **Môi trường** | Development / Staging |
+| **Môi trường** | Development / Staging / Production (Vercel + Render) |
 
 ---
 
 ## 🗂️ CHANGELOG PHIÊN BẢN
+
+### v0.9.0 — 2026-08-21
+- ✅ **Nâng Cấp Toàn Diện Cơ Chế Quản Lý Token & Session Frontend (TMS Enterprise)**:
+  - **Khởi tạo Engine `TokenManager` (`src/lib/token-manager.ts`)**:
+    - Tích hợp `BroadcastChannel('tms_auth_sync_channel')` + `window.onstorage` đảm bảo đồng bộ Token Rotation 0ms giữa tất cả các tab đang mở, triệt tiêu hoàn toàn race condition và false logout chéo giữa các tab.
+    - Triển khai **Proactive Silent Heartbeat**: Tự động trích xuất `exp` từ JWT và lên lịch làm mới ngầm ở 75% thời hạn token (hoặc trước 25s) mà không chờ đến khi request bị lỗi 401.
+    - Lắng nghe sự kiện `visibilitychange` & `window.onfocus` để tự động phục hồi session ngay khi tab thức giấc từ chế độ ngủ.
+  - **Chuyển `useAuthStore` sang `localStorage`**:
+    - Loại bỏ hoàn toàn `sessionStorage` giúp phiên đăng nhập tồn tại bền vững qua các tab mới, duplicate tabs và các lần mở lại trình duyệt.
+  - **Cải Tiến Next.js Edge Proxy (`src/proxy.ts`)**:
+    - Nâng cấp Edge Proxy theo cơ chế **Resilient**: Không bao giờ xóa `refreshToken` cookie khi backend chưa kịp phản hồi; chuẩn hóa fallback URL Production về `https://logistics-website-backend-1.onrender.com`.
+- ℹ️ **Kiến Trúc Hạ Tầng Backend (Render)**:
+  - Máy chủ Backend trên Render Free Tier được duy trì trạng thái **Warm 24/7** bằng cơ chế tự động ping `/api/v1/health` định kỳ qua **cron-job.org**, không bao giờ bị rơi vào trạng thái ngủ đông (cold-sleep).
+- ✅ **Kiểm Chứng Độc Lập**:
+  - `bun run typecheck` đạt 0 lỗi.
+  - `bun test src/lib/__tests__/api-client.test.ts` đạt 3/3 PASS (100%).
+  - `bun run build` biên dịch thành công 28/28 routes trên Next.js 16 (Turbopack).
+  - Playwright E2E 70s Session Persistence test trên Vercel Live (`https://logistics-website-frontend-kappa.vercel.app`) đạt 100% PASS (0 logouts).
 
 ### v0.8.0 — 2026-08-20
 - ✅ **Chuẩn Hóa Toàn Diện API Response Envelope & Global Exception Filter (NestJS Backend)**:
