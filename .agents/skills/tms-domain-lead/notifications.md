@@ -33,9 +33,9 @@
 | Business Event | Trigger API / Method | Recipient Roles | Channels | Email Template | In-app Title & Type | Notes & Logic |
 |---|---|---|---|---|---|---|
 | **Create Trip (Draft/Assigned)** | `POST /trips` | *(None)* | — | — | — | Fleet is assembling vehicle/driver pairings. |
-| **Confirm Trip** | `PATCH /trips/:id/confirm` | **WAREHOUSE_MANAGER**, **DISPATCHER**, **FLEET_MANAGER**, **SUPER_ADMIN** | In-app + Email | `trip-confirmed.hbs` | `Trip Confirmed` (`TRIP_CONFIRMED`) | **Critical**: Destination warehouse sees inbound schedule; Dispatcher confirms vehicle readiness. |
-| **Departure / In Transit** | `PATCH /trips/:id/in-transit` | **DISPATCHER**, **WAREHOUSE_MANAGER**, **SUPER_ADMIN** | In-app | *(Optional Email)* | `Trip In Transit` (`TRIP_IN_TRANSIT`) | Driver/Fleet confirms departure. |
-| **Trip Delivery Completed** | `PATCH /trips/:id/complete` | **DISPATCHER**, **WAREHOUSE_MANAGER**, **SUPER_ADMIN** | In-app + Email | `generic-notification.hbs` | `Trip Delivered Successfully` (`TRIP_DELIVERED`) | When all trips for an order complete, order transitions to `DELIVERED`. |
+| **Confirm Trip** | `PATCH /trips/:id/confirm` | **WAREHOUSE_MANAGER** *(targeted)*, **DISPATCHER**, **FLEET_MANAGER**, **SUPER_ADMIN** | In-app + Email | `trip-confirmed.hbs` | `Trip Confirmed` (`TRIP_CONFIRMED`) | **WM Targeting**: Only WMs whose `hubId` matches `order.originHubId` OR `order.destinationHubId`. If hub has no WM → DROP + alert SUPER_ADMIN (alertType: `HUB_UNASSIGNED_WM`). Legacy orders (FK null) → broadcast all WMs. |
+| **Departure / In Transit** | `PATCH /trips/:id/in-transit` | **DISPATCHER**, **WAREHOUSE_MANAGER** *(targeted)*, **SUPER_ADMIN** | In-app | *(Optional Email)* | `Trip In Transit` (`TRIP_IN_TRANSIT`) | Same WM targeting rule as TRIP_CONFIRMED. |
+| **Trip Delivery Completed** | `PATCH /trips/:id/complete` | **DISPATCHER**, **WAREHOUSE_MANAGER** *(targeted)*, **SUPER_ADMIN** | In-app + Email | `generic-notification.hbs` | `Trip Delivered Successfully` (`TRIP_DELIVERED`) | Same WM targeting rule. When all trips complete → order transitions to `DELIVERED`. |
 | **Cancel Trip** | `DELETE /trips/:id` or `PATCH /trips/:id/cancel` | **DISPATCHER**, **FLEET_MANAGER**, **SUPER_ADMIN** | In-app + Email | `generic-notification.hbs` | `Trip Cancelled` (`TRIP_CANCELLED`) | Fleet needs to reassign vehicle/driver for order. |
 
 ---
@@ -74,50 +74,67 @@ Template directory: [`backend/src/mail/mail-templates/`](file:///d:/Projects/log
 ## 💻 Standard Implementation Pattern (NestJS)
 
 ```typescript
-// 1. Fetch recipient users by Role
-const recipientUsers = await this.userRepository.find({
+// 1. Fetch recipient users by Role (non-WM roles: broadcast as usual)
+const otherUsers = await this.userRepository.find({
   where: [
     { role: { id: RoleEnum.FLEET_MANAGER } },
     { role: { id: RoleEnum.SUPER_ADMIN } },
   ],
 });
 
-// 2. Dispatch In-app Notifications (Non-blocking)
+// 2. Resolve WAREHOUSE_MANAGER recipients (targeted by hub FK — Phase 1+)
+//
+//   Rule A: order.originHubId is set     → include WMs where user.hubId = originHubId
+//   Rule B: order.destinationHubId is set → include WMs where user.hubId = destinationHubId
+//   Rule C: Hub FK set but no WM assigned → DROP WM notification, alert SUPER_ADMIN:
+//              notification type: GENERIC, alertType: 'HUB_UNASSIGNED_WM'
+//   Rule D: Both FKs are null (legacy order) → fallback: broadcast ALL WMs (backward compat)
+//              + console.warn log for visibility
+//
+const warehouseUsers = await this.resolveWarehouseManagerRecipients(
+  order,    // OrderEntity (must have originHubId, destinationHubId loaded)
+  tripId,
+  orderCode,
+);
+
+// 3. Dispatch In-app Notifications (Non-blocking)
 try {
-  for (const user of recipientUsers) {
+  for (const user of [...warehouseUsers, ...otherUsers]) {
     await this.notificationsService.create({
       userId: user.id,
-      title: 'New Order Pending Fleet Assignment',
-      content: `Order ${order.orderCode} has been submitted to Fleet.`,
-      type: 'ORDER_PENDING_FLEET',
-      metadata: { orderId: order.id, orderCode: order.orderCode },
+      title: 'Trip Confirmed',
+      body: `Order ${orderCode} — trip confirmed`,
+      type: user.role?.id === RoleEnum.WAREHOUSE_MANAGER ? 'WAREHOUSE' : 'GENERIC',
+      metadata: { tripId, orderId, orderCode, isExternal },
     });
   }
 } catch (err) {
   this.logger.error(`Failed to dispatch in-app notification: ${err.message}`, err.stack);
 }
 
-// 3. Dispatch Email Notifications (Non-blocking)
+// 4. Dispatch Email Notifications (Non-blocking)
 try {
-  for (const user of recipientUsers) {
+  for (const user of [...warehouseUsers, ...otherUsers]) {
     if (user.email) {
-      await this.mailService.sendFleetNotification({
-        to: user.email,
-        data: {
-          title: 'Order Awaiting Assignment',
-          orderCode: order.orderCode,
-          senderName: order.senderName || 'Dispatcher',
-          origin: order.originHub || 'Origin Hub',
-          destination: order.destinationHub || 'Destination Hub',
-          weight: order.totalWeight,
-          volume: order.totalVolume,
-          isExternal: order.isExternalVehicleNeeded,
-          actionUrl: `${this.appUrl}/dashboard/trips`,
-        },
-      });
+      await this.mailService.sendTripConfirmedNotification({ to: user.email, data: { ... } });
     }
   }
 } catch (err) {
   this.logger.error(`Failed to send email notification: ${err.message}`, err.stack);
 }
 ```
+
+### SUPER_ADMIN alert when hub has no WM (HUB_UNASSIGNED_WM)
+
+When `resolveWarehouseManagerRecipients` finds a hub with no assigned WM, it creates
+an in-app notification for **all SUPER_ADMINs** with:
+
+```typescript
+{
+  title: '⚠️ Hub chưa có Quản lý kho — <hubName>',
+  body: '<hubLabel> "<hubName>" chưa được gán tài khoản Quản lý kho. Thông báo chuyến xe bị bỏ qua.',
+  type: 'GENERIC',
+  metadata: { hubId, hubName, tripId, orderCode, alertType: 'HUB_UNASSIGNED_WM' }
+}
+```
+
