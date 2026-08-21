@@ -425,10 +425,10 @@ apiClient.interceptors.response.use(
 export { apiClient };
 ```
 
-### Next.js Middleware (Route Protection)
+### Next.js Proxy (Route Protection - Next.js 16)
 
 ```typescript
-// middleware.ts
+// proxy.ts (Next.js 16 replaces middleware.ts with proxy.ts)
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 

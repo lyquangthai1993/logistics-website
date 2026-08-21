@@ -1,4 +1,4 @@
-﻿---
+---
 name: e2e-test-runner
 description: >-
   Orchestrates E2E Playwright test sessions for the Logistics TMS frontend.
@@ -107,6 +107,10 @@ frontend/
 ## 🚀 Commands & Execution
 
 ```bash
+# 0. MUST RUN FIRST: Mandatory Pre-Flight Server Check (Verifies http://localhost:3000 & http://localhost:3001 are UP)
+node scripts/check-servers.mjs
+# or: npm run e2e:check
+
 # 1. Run server & network health check first
 npx playwright test e2e/00-runtime-log-tracer.spec.ts
 
@@ -118,8 +122,8 @@ npx playwright test e2e/03-rbac-routing.spec.ts
 # 3. Run Viewport & Table UX Matrix
 npx playwright test e2e/11-orders-table-no-hscroll.spec.ts
 
-# Run all suites
-npx playwright test
+# Run all suites (automatically executes pre-flight check first)
+npm run e2e
 
 # View interactive HTML report with failure traces & screenshots
 npx playwright show-report playwright-report
@@ -142,9 +146,15 @@ Default password: `secret` (configured in `.env.local`).
 
 ## 🤖 Orchestration & Triage Protocol
 
-1. **Infra Gate**: If Sub-Agent D fails, stop immediately. Check if NestJS backend (`http://localhost:3001`) or Next.js dev server (`http://localhost:3000`) is running.
-2. **Table UX Gate**:
+1. **Pre-flight Port Gate (MANDATORY STEP 0)**:
+   - **ALWAYS** run `node scripts/check-servers.mjs` (or `npm run e2e:check`) before executing any Playwright spec.
+   - Probes `http://localhost:3000` (Frontend Next.js) and `http://localhost:3001` (Backend NestJS).
+   - If **either server is offline**, STOP immediately. Report which server is down and prompt to start both servers using root package.json:
+     - `npm run dev` (runs `start-dev.js` orchestrator from root folder `d:\Projects\logistics-website`)
+2. **Infra Gate**:
+   - Run Sub-Agent D (`00-runtime-log-tracer.spec.ts`). If it fails, check backend API latency and SSR error overlays.
+3. **Table UX Gate**:
    - Verify `body.scrollWidth <= viewport.width` (no global page overflow).
    - Verify table renders cleanly without truncated text or clipped action buttons.
    - Verify horizontal scrolling is enabled within the table container when content exceeds width.
-3. **Capture Visual Evidence**: Always save screenshots at each breakpoint (`playwright-report/<page>-<width>px-sidebar-<state>.png`) for visual verification.
+4. **Capture Visual Evidence**: Always save screenshots at each breakpoint (`playwright-report/<page>-<width>px-sidebar-<state>.png`) for visual verification.
