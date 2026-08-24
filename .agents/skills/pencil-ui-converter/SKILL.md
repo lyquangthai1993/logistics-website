@@ -20,13 +20,18 @@ All Pencil design files and assets MUST be organized strictly inside the [`penci
 ```text
 pencil-workspace/
 ├── README.md               # Overview of canvas screens, component catalog, design tokens
-├── UI_UX.pen               # Primary master canvas file (Infinite Canvas)
 ├── assets/                 # Local images, SVG logos, textures, icons
+├── pens/                   # Dedicated directory for all .pen vector canvas files
+│   ├── UI_UX.pen           # Primary master canvas file (Infinite Canvas & Design System)
+│   ├── SHADCN_UI.pen       # Shadcn UI Design Kit
+│   ├── AUTH_FLOWS.pen      # Auth & password reset flows
+│   └── DASHBOARDS.pen      # Role-based dashboard wireframes
+├── scripts/                # Procedural generation scripts (clock.js, radar.js)
 └── exports/                # Exported assets (PNG, SVG, PDF, HTML Tailwind)
 ```
 
 > [!IMPORTANT]
-> NEVER create loose `.pen` files in the repository root. Always operate on [`pencil-workspace/UI_UX.pen`](file:///d:/Projects/logistics-website/pencil-workspace/UI_UX.pen) or dedicated `.pen` files inside `pencil-workspace/`.
+> NEVER create loose `.pen` files in the repository root or pencil root. Always operate inside [`pencil-workspace/pens/`](file:///d:/Projects/logistics-website/pencil-workspace/pens) on master canvas [`pencil-workspace/pens/UI_UX.pen`](file:///d:/Projects/logistics-website/pencil-workspace/pens/UI_UX.pen) or dedicated `.pen` files.
 
 ---
 
@@ -49,7 +54,7 @@ When asked to design a new feature, dashboard, table, or modal:
 
 ### 2. 🔄 Converting Live Web UI to Editable Pencil Layers
 When given a live URL (e.g. `http://localhost:3000/auth/sign-in`, `http://localhost:3000/dashboard/orders`):
-1. **Load Page**: Call Pencil MCP `browser` tool with `action: "load-page"`, `url: "<URL>"`, `filePath: "D:/Projects/logistics-website/pencil-workspace/UI_UX.pen"`.
+1. **Load Page**: Call Pencil MCP `browser` tool with `action: "load-page"`, `url: "<URL>"`, `filePath: "D:/Projects/logistics-website/pencil-workspace/pens/UI_UX.pen"`.
 2. **Import Layers**: Call Pencil MCP `browser` tool with `action: "import-to-canvas"`, `target: "full-page"` (or `"query"` for specific widgets).
 3. **Clean Up & Polish**:
    - Remove next dev overlay badges / buttons.
@@ -79,7 +84,7 @@ When given a live URL (e.g. `http://localhost:3000/auth/sign-in`, `http://localh
 ---
 
 ## 💾 Auto-Save & File Persistence Policy (STRICT)
-- **Automatic Disk Sync**: Every time an edit, insertion, conversion, or layout modification is executed, the agent MUST ensure changes are committed directly to `pencil-workspace/UI_UX.pen`.
+- **Automatic Disk Sync**: Every time an edit, insertion, conversion, or layout modification is executed, the agent MUST ensure changes are committed directly to `pencil-workspace/pens/UI_UX.pen`.
 - **Active Buffer Verification**: After all operations finish, verify the file timestamp and ensure all layers are flushed and saved without pending draft placeholders (`placeholder: false`).
 - **Zero Loss Guarantee**: The user never needs to manually trigger save dialogs. The agent guarantees that `UI_UX.pen` on disk is 100% up-to-date and consistent with all actions taken.
 
