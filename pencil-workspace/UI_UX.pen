@@ -6,12 +6,16 @@
       "id": "gh4zM",
       "x": 0,
       "y": 0,
-      "name": "Logistics TMS - Auth Sign In",
+      "name": "Logistics TMS - Auth Sign In (1440x900)",
       "context": "body",
+      "reusable": true,
       "clip": true,
       "width": 1440,
       "height": 960,
       "fill": "#fcfcfc",
+      "cornerRadius": 8,
+      "stroke": "#2563eb",
+      "strokeWidth": 2,
       "layout": "vertical",
       "children": [
         {
@@ -575,7 +579,7 @@
                   "id": "K5z1w",
                   "name": "div",
                   "context": "div",
-                  "width": 448,
+                  "width": 400,
                   "layout": "vertical",
                   "gap": 24,
                   "justifyContent": "center",
@@ -627,16 +631,17 @@
                       "id": "R5S327",
                       "name": "div",
                       "context": "div",
-                      "width": "fill_container",
+                      "width": 380,
                       "layout": "vertical",
                       "gap": 16,
+                      "alignItems": "center",
                       "children": [
                         {
                           "type": "frame",
                           "id": "jwFb9",
                           "name": "div",
                           "context": "div",
-                          "width": "fill_container",
+                          "width": 380,
                           "fill": "#fe9a000d",
                           "cornerRadius": 8,
                           "stroke": "#fe9a0033",
@@ -724,19 +729,20 @@
                           "id": "pFT3c",
                           "name": "form",
                           "context": "form",
-                          "width": "fill_container",
+                          "width": 380,
                           "layout": "vertical",
                           "gap": 16,
+                          "alignItems": "center",
                           "children": [
                             {
                               "type": "frame",
                               "id": "F6trdg",
                               "name": "div",
                               "context": "div",
-                              "width": "fill_container",
+                              "width": 380,
                               "height": 54,
                               "layout": "vertical",
-                              "gap": 8,
+                              "gap": 6,
                               "children": [
                                 {
                                   "type": "text",
@@ -752,31 +758,28 @@
                                 },
                                 {
                                   "type": "frame",
-                                  "id": "aNS7p",
-                                  "name": "Nhập email hoặc tên đăng nhập...",
-                                  "context": "FieldControl - input",
-                                  "clip": true,
-                                  "width": "fill_container",
-                                  "height": 32,
+                                  "id": "aAqo5",
+                                  "name": "Email Input Box",
+                                  "width": 380,
+                                  "height": 42,
+                                  "fill": "#ffffff",
                                   "cornerRadius": 8,
-                                  "stroke": "#ebebeb",
-                                  "strokeWidth": 2,
-                                  "strokeAlignment": "inner",
-                                  "layout": "vertical",
+                                  "stroke": "#cbd5e1",
+                                  "strokeWidth": 1,
                                   "padding": [
-                                    4,
-                                    10
+                                    0,
+                                    12
                                   ],
-                                  "justifyContent": "center",
+                                  "alignItems": "center",
                                   "children": [
                                     {
                                       "type": "text",
-                                      "id": "Nkmmt",
-                                      "fill": "#525252",
+                                      "id": "xYcrZ",
+                                      "name": "Placeholder Text",
+                                      "fill": "#94a3b8",
                                       "content": "Nhập email hoặc tên đăng nhập...",
-                                      "lineHeight": 1.43,
-                                      "fontFamily": "Geist",
-                                      "fontSize": 14,
+                                      "fontFamily": "Inter",
+                                      "fontSize": 13,
                                       "fontWeight": "normal"
                                     }
                                   ]
@@ -788,10 +791,10 @@
                               "id": "XVyfV",
                               "name": "div",
                               "context": "div",
-                              "width": "fill_container",
+                              "width": 380,
                               "height": 54,
                               "layout": "vertical",
-                              "gap": 8,
+                              "gap": 6,
                               "children": [
                                 {
                                   "type": "text",
@@ -807,94 +810,49 @@
                                 },
                                 {
                                   "type": "frame",
-                                  "id": "wpjd8",
-                                  "name": "div",
-                                  "context": "div",
-                                  "width": "fill_container",
-                                  "layout": "vertical",
+                                  "id": "VGb38",
+                                  "name": "Password Input Box",
+                                  "width": 380,
+                                  "height": 42,
+                                  "fill": "#ffffff",
+                                  "cornerRadius": 8,
+                                  "stroke": "#cbd5e1",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    0,
+                                    12
+                                  ],
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
                                   "children": [
                                     {
-                                      "type": "frame",
-                                      "id": "rZpQP",
-                                      "name": "••••••••",
-                                      "context": "FieldControl - input",
-                                      "clip": true,
-                                      "width": "fill_container",
-                                      "height": 32,
-                                      "cornerRadius": 8,
-                                      "stroke": "#ebebeb",
-                                      "strokeWidth": 2,
-                                      "strokeAlignment": "inner",
-                                      "layout": "vertical",
-                                      "padding": [
-                                        4,
-                                        40,
-                                        4,
-                                        10
-                                      ],
-                                      "justifyContent": "center",
-                                      "children": [
-                                        {
-                                          "type": "text",
-                                          "id": "M2mR1L",
-                                          "fill": "#525252",
-                                          "content": "••••••••",
-                                          "lineHeight": 1.43,
-                                          "fontFamily": "Geist",
-                                          "fontSize": 14,
-                                          "fontWeight": "normal"
-                                        }
-                                      ]
+                                      "type": "text",
+                                      "id": "H2B8Ou",
+                                      "name": "Password Dots",
+                                      "fill": "#0f172a",
+                                      "content": "••••••••",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 14,
+                                      "fontWeight": "normal"
                                     },
                                     {
                                       "type": "frame",
-                                      "id": "VS37F",
-                                      "layoutPosition": "absolute",
-                                      "x": 412,
-                                      "y": 4,
-                                      "name": "button",
-                                      "context": "button",
-                                      "cornerRadius": 6,
+                                      "id": "Fdzds",
+                                      "name": "Eye Icon Button",
+                                      "width": 24,
+                                      "height": 24,
                                       "layout": "vertical",
-                                      "padding": 4,
+                                      "justifyContent": "center",
+                                      "alignItems": "center",
                                       "children": [
                                         {
-                                          "type": "frame",
-                                          "id": "t9tRzJ",
-                                          "name": "svg",
-                                          "context": "Eye - svg",
-                                          "clip": true,
-                                          "width": 16,
-                                          "height": 16,
-                                          "layout": "none",
-                                          "children": [
-                                            {
-                                              "type": "path",
-                                              "id": "DYA5i",
-                                              "x": 6.666666666666666,
-                                              "y": 6.666666666666666,
-                                              "geometry": "M0 2c0 1.10457 0.89543 2 2 2 1.10457 0 2-0.89543 2-2 0-1.10457-0.89543-2-2-2-1.10457 0-2 0.89543-2 2",
-                                              "width": 2.6666666666666665,
-                                              "height": 2.6666666666666665,
-                                              "stroke": "#525252",
-                                              "strokeWidth": 1.3333333333333333,
-                                              "strokeLinejoin": "round",
-                                              "strokeLinecap": "round"
-                                            },
-                                            {
-                                              "type": "path",
-                                              "id": "T73L1H",
-                                              "x": 2,
-                                              "y": 4,
-                                              "geometry": "M18 6q-3.6 6-9 6-5.4 0-9-6 3.6-6 9-6 5.4 0 9 6",
-                                              "width": 12,
-                                              "height": 8,
-                                              "stroke": "#525252",
-                                              "strokeWidth": 1.3333333333333333,
-                                              "strokeLinejoin": "round",
-                                              "strokeLinecap": "round"
-                                            }
-                                          ]
+                                          "type": "text",
+                                          "id": "dt5hF",
+                                          "fill": "#64748b",
+                                          "content": "👁",
+                                          "fontFamily": "Inter",
+                                          "fontSize": 14,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     }
@@ -904,14 +862,100 @@
                             },
                             {
                               "type": "frame",
-                              "id": "Y5lnVB",
+                              "id": "gE10v",
+                              "name": "Auth Options Row",
+                              "width": 380,
+                              "height": 24,
+                              "padding": [
+                                4,
+                                0
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "HKQQP",
+                                  "name": "Remember Box",
+                                  "height": 24,
+                                  "gap": 6,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "tCyUt",
+                                      "name": "Checkbox",
+                                      "width": 14,
+                                      "height": 14,
+                                      "fill": "#ffffff",
+                                      "cornerRadius": 3,
+                                      "stroke": "#cbd5e1",
+                                      "strokeWidth": 1,
+                                      "layout": "vertical",
+                                      "justifyContent": "center",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "biYK7",
+                                          "fill": "#2563eb",
+                                          "content": "✓",
+                                          "fontFamily": "Inter",
+                                          "fontSize": 10,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "MniOu",
+                                      "fill": "#64748b",
+                                      "content": "Ghi nhớ tài khoản",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "YX66p",
+                                  "name": "Forgot Link CTA",
+                                  "height": 24,
+                                  "gap": 6,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "v29rmy",
+                                      "fill": "#2563eb",
+                                      "content": "Quên mật khẩu?",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 12,
+                                      "fontWeight": "500"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "SrjTa",
+                                      "fill": "#2563eb",
+                                      "content": "→",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "TV86s",
                               "name": "Đăng nhập",
                               "context": "Button - button",
-                              "width": "fill_container",
+                              "width": 380,
                               "height": 32,
                               "fill": "#000000",
                               "cornerRadius": 8,
-                              "layout": "vertical",
                               "padding": [
                                 0,
                                 10
@@ -921,7 +965,7 @@
                               "children": [
                                 {
                                   "type": "text",
-                                  "id": "ELovx",
+                                  "id": "y1HLRl",
                                   "fill": "#ffffff",
                                   "content": "Đăng nhập",
                                   "lineHeight": 1.43,
@@ -941,19 +985,176 @@
               ]
             }
           ]
+        },
+        {
+          "type": "frame",
+          "id": "McRuo",
+          "name": "Success Alert Card",
+          "width": "fill_container",
+          "fill": "#f0fdf4",
+          "cornerRadius": 16,
+          "layout": "vertical",
+          "gap": 14,
+          "padding": [
+            32,
+            24
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "wFyOo",
+              "name": "Check Icon Circle",
+              "fill": "#dcfce7",
+              "cornerRadius": 999,
+              "padding": [
+                10,
+                16
+              ],
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "mZyE5",
+                  "name": "Checkmark",
+                  "fill": "#16a34a",
+                  "content": "✓",
+                  "fontFamily": "Inter",
+                  "fontSize": 24,
+                  "fontWeight": "800"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "BeP6A",
+              "name": "Success Title",
+              "fill": "#0f172a",
+              "content": "Đã gửi yêu cầu khôi phục!",
+              "fontFamily": "Inter",
+              "fontSize": 20,
+              "fontWeight": "700"
+            },
+            {
+              "type": "text",
+              "id": "YBRXK",
+              "name": "Success Desc",
+              "fill": "#475569",
+              "textGrowth": "fixed-width",
+              "width": 380,
+              "content": "Chúng tôi đã gửi hướng dẫn và liên kết đặt lại mật khẩu đến địa chỉ email doanh nghiệp:",
+              "textAlign": "center",
+              "fontFamily": "Inter",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "RztT8",
+              "name": "Email Box",
+              "fill": "#ffffff",
+              "cornerRadius": 8,
+              "padding": [
+                8,
+                18
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "WAa1v",
+                  "name": "Email Value",
+                  "fill": "#065f46",
+                  "content": "dispatcher@spiderexpress.vn",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "uhY1r",
+              "name": "Expiry Tip Box",
+              "width": 380,
+              "fill": "#ffffff",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "padding": [
+                10,
+                14
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "x556Qh",
+                  "name": "Tip Text",
+                  "fill": "#64748b",
+                  "textGrowth": "fixed-width",
+                  "width": 352,
+                  "content": "💡 Vui lòng kiểm tra cả hộp thư rác (Spam/Junk) nếu không thấy email trong hộp thư đến. Liên kết có hiệu lực trong 15 phút.",
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "Y2oME",
+          "name": "Action Button Box",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 12,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "soFnb",
+              "name": "Back to Login Button",
+              "width": "fill_container",
+              "fill": "#0f172a",
+              "cornerRadius": 8,
+              "padding": [
+                12,
+                24
+              ],
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "rJ747",
+                  "name": "Button Label",
+                  "fill": "#ffffff",
+                  "content": "← Quay lại trang đăng nhập",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
         }
       ]
     },
     {
       "type": "frame",
       "id": "wM9FR",
-      "x": 1560,
-      "y": 0,
+      "x": 0,
+      "y": 1050,
       "name": "1. SUPER_ADMIN — Dashboard Overview (1440x900)",
       "clip": true,
       "width": 1440,
       "height": 960,
       "fill": "#F8FAFC",
+      "cornerRadius": 8,
+      "stroke": "#2563eb",
+      "strokeWidth": 2,
       "children": [
         {
           "type": "frame",
@@ -2505,13 +2706,16 @@
     {
       "type": "frame",
       "id": "q2JXz3",
-      "x": 3120,
-      "y": 0,
+      "x": 1550,
+      "y": 1050,
       "name": "2. DISPATCHER — Lập Lệnh Điều Vận (1440x900)",
       "clip": true,
       "width": 1440,
       "height": 960,
       "fill": "#F8FAFC",
+      "cornerRadius": 8,
+      "stroke": "#2563eb",
+      "strokeWidth": 2,
       "children": [
         {
           "type": "frame",
@@ -4414,13 +4618,16 @@
     {
       "type": "frame",
       "id": "Kpbq6",
-      "x": 4680,
-      "y": 0,
+      "x": 3100,
+      "y": 1050,
       "name": "3. FLEET_MANAGER — Phân Công Xe & Chuyến (1440x900)",
       "clip": true,
       "width": 1440,
       "height": 960,
       "fill": "#F8FAFC",
+      "cornerRadius": 8,
+      "stroke": "#2563eb",
+      "strokeWidth": 2,
       "children": [
         {
           "type": "frame",
@@ -6052,13 +6259,16 @@
     {
       "type": "frame",
       "id": "UiZGP",
-      "x": 6240,
-      "y": 0,
+      "x": 4650,
+      "y": 1050,
       "name": "4. WAREHOUSE_MANAGER — Inbound Hub Kho (1440x900)",
       "clip": true,
       "width": 1440,
       "height": 960,
       "fill": "#F8FAFC",
+      "cornerRadius": 8,
+      "stroke": "#2563eb",
+      "strokeWidth": 2,
       "children": [
         {
           "type": "frame",
@@ -7833,8 +8043,3517 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "KQv4r",
+      "x": 1550,
+      "y": 0,
+      "name": "Logistics TMS - Forgot Password (1440x900)",
+      "context": "body",
+      "clip": true,
+      "width": 1440,
+      "height": 960,
+      "fill": "#fcfcfc",
+      "cornerRadius": 8,
+      "stroke": "#2563eb",
+      "strokeWidth": 2,
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "e68Hv",
+          "name": "Auth 2-Col Layout Grid",
+          "context": "InnerLayoutRouter - div",
+          "clip": true,
+          "width": "fill_container",
+          "fill": "#fcfcfc",
+          "children": [
+            {
+              "type": "frame",
+              "id": "o6HsWF",
+              "name": "Left Visual Column (4)",
+              "context": "div",
+              "clip": true,
+              "width": "fill_container",
+              "height": 960,
+              "fill": "#020618",
+              "layout": "none",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "I2ofS1",
+                  "x": 0,
+                  "y": 0,
+                  "name": "div",
+                  "context": "div",
+                  "width": 720,
+                  "height": 960,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "rectangle",
+                      "id": "SlUTo",
+                      "x": -19.85,
+                      "y": -46.1,
+                      "name": "img",
+                      "context": "img",
+                      "opacity": 0.65,
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "assets/auth-hero.jpg",
+                        "mode": "fill"
+                      },
+                      "width": 833.7,
+                      "height": 1050
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "r7rVUz",
+                      "x": 0,
+                      "y": 0,
+                      "name": "div",
+                      "context": "div",
+                      "fill": {
+                        "type": "gradient",
+                        "gradientType": "linear",
+                        "enabled": true,
+                        "rotation": -180,
+                        "size": {
+                          "height": 1
+                        },
+                        "colors": [
+                          {
+                            "color": "#020618d9",
+                            "position": 0
+                          },
+                          {
+                            "color": "#02061866",
+                            "position": 0.5
+                          },
+                          {
+                            "color": "#020618e6",
+                            "position": 1
+                          }
+                        ]
+                      },
+                      "width": 1000,
+                      "height": 960
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "LKzBK",
+                      "x": 0,
+                      "y": 0,
+                      "name": "div",
+                      "context": "div",
+                      "fill": {
+                        "type": "gradient",
+                        "gradientType": "linear",
+                        "enabled": true,
+                        "rotation": -90,
+                        "size": {
+                          "height": 1
+                        },
+                        "colors": [
+                          {
+                            "color": "#02061899",
+                            "position": 0
+                          },
+                          {
+                            "color": "#00000000",
+                            "position": 1
+                          }
+                        ]
+                      },
+                      "width": 1000,
+                      "height": 960
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "UgdwZ",
+                  "x": 40,
+                  "y": 40,
+                  "name": "div",
+                  "context": "div",
+                  "width": 680,
+                  "height": 56,
+                  "padding": [
+                    0,
+                    16
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "QFHS5",
+                      "name": "div",
+                      "context": "div",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "jZsLz",
+                          "name": "div",
+                          "context": "div",
+                          "width": 36,
+                          "height": 36,
+                          "fill": "#2b7fff33",
+                          "cornerRadius": 12,
+                          "effect": [
+                            {
+                              "type": "shadow",
+                              "shadowType": "outer",
+                              "color": "#0000002e",
+                              "offset": {
+                                "x": 0,
+                                "y": 1
+                              },
+                              "blur": 2
+                            },
+                            {
+                              "type": "shadow",
+                              "shadowType": "outer",
+                              "color": "#0000002e",
+                              "offset": {
+                                "x": 0,
+                                "y": 4
+                              },
+                              "blur": 5
+                            },
+                            {
+                              "type": "background_blur",
+                              "radius": 12
+                            }
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "cLLxH",
+                              "name": "svg",
+                              "context": "svg",
+                              "clip": true,
+                              "width": 22,
+                              "height": 22,
+                              "layout": "none",
+                              "children": [
+                                {
+                                  "type": "path",
+                                  "id": "qYS1s",
+                                  "x": 3.4375,
+                                  "y": 2.40625,
+                                  "geometry": "M7.5625 0l7.5625 4.36563 0 8.45625-7.5625 4.36562-7.5625-4.36562 0-8.45625 7.5625-4.36563z",
+                                  "fill": {
+                                    "type": "gradient",
+                                    "gradientType": "linear",
+                                    "enabled": true,
+                                    "rotation": -131.34777721969368,
+                                    "size": {
+                                      "height": 1.4531629793757128
+                                    },
+                                    "colors": [
+                                      {
+                                        "color": "#38BDF8",
+                                        "position": 0
+                                      },
+                                      {
+                                        "color": "#2563EB",
+                                        "position": 0.5
+                                      },
+                                      {
+                                        "color": "#1E40AF",
+                                        "position": 1
+                                      }
+                                    ]
+                                  },
+                                  "width": 15.125,
+                                  "height": 17.1875
+                                },
+                                {
+                                  "type": "path",
+                                  "id": "BwtZW",
+                                  "x": 3.4375,
+                                  "y": 2.40625,
+                                  "geometry": "M7.5625 0l7.5625 4.36563-7.5625 4.22812-7.5625-4.22812 7.5625-4.36563z",
+                                  "fill": {
+                                    "type": "gradient",
+                                    "gradientType": "linear",
+                                    "enabled": true,
+                                    "rotation": -180,
+                                    "size": {
+                                      "height": 0.96
+                                    },
+                                    "colors": [
+                                      {
+                                        "color": "#ffffff73",
+                                        "position": 0
+                                      },
+                                      {
+                                        "color": "#ffffff0d",
+                                        "position": 1
+                                      }
+                                    ],
+                                    "center": {
+                                      "y": 0.52
+                                    }
+                                  },
+                                  "width": 15.125,
+                                  "height": 8.59375
+                                },
+                                {
+                                  "type": "path",
+                                  "id": "wolT6",
+                                  "x": 11,
+                                  "y": 6.771875381469727,
+                                  "geometry": "M0 4.22812l7.5625-4.22812 0 8.45625-7.5625 4.36562 0-8.59375z",
+                                  "fill": "#0000002e",
+                                  "width": 7.5625,
+                                  "height": 12.821874618530273
+                                },
+                                {
+                                  "type": "path",
+                                  "id": "W2KotJ",
+                                  "x": 7.21875,
+                                  "y": 6.53125,
+                                  "geometry": "M0 2.40625l3.78125-2.40625 3.78125 2.40625-3.78125 2.40625-3.78125-2.40625z",
+                                  "fill": {
+                                    "type": "gradient",
+                                    "gradientType": "linear",
+                                    "enabled": true,
+                                    "rotation": -147.52880770915152,
+                                    "size": {
+                                      "height": 2.709278921642659
+                                    },
+                                    "colors": [
+                                      {
+                                        "color": "#00F2FE",
+                                        "position": 0
+                                      },
+                                      {
+                                        "color": "#4FACFE",
+                                        "position": 1
+                                      }
+                                    ],
+                                    "center": {
+                                      "y": 0.9285714285714287
+                                    }
+                                  },
+                                  "width": 7.5625,
+                                  "height": 4.8125
+                                },
+                                {
+                                  "type": "path",
+                                  "id": "oZII8",
+                                  "x": 11,
+                                  "y": 11.34375,
+                                  "geometry": "M0 0l0 5.15625",
+                                  "width": 0,
+                                  "height": 5.15625,
+                                  "stroke": "#FFF",
+                                  "strokeWidth": 1.375,
+                                  "strokeLinecap": "round"
+                                },
+                                {
+                                  "type": "ellipse",
+                                  "id": "wMABT",
+                                  "x": 9.796875,
+                                  "y": 5.328125,
+                                  "fill": "#FFF",
+                                  "width": 2.40625,
+                                  "height": 2.40625
+                                },
+                                {
+                                  "type": "ellipse",
+                                  "id": "T1Wvdf",
+                                  "x": 13.75,
+                                  "y": 7.90625,
+                                  "fill": "#38BDF8",
+                                  "width": 2.0625,
+                                  "height": 2.0625
+                                },
+                                {
+                                  "type": "ellipse",
+                                  "id": "wlk7Q",
+                                  "x": 6.1875,
+                                  "y": 7.90625,
+                                  "fill": "#38BDF8",
+                                  "width": 2.0625,
+                                  "height": 2.0625
+                                },
+                                {
+                                  "type": "ellipse",
+                                  "id": "kbsy7",
+                                  "x": 9.625,
+                                  "y": 15.125,
+                                  "fill": "#67E8F9",
+                                  "width": 2.75,
+                                  "height": 2.75
+                                },
+                                {
+                                  "type": "ellipse",
+                                  "id": "gCc4f",
+                                  "x": 10.140625,
+                                  "y": 10.484375,
+                                  "fill": "#FFF",
+                                  "width": 1.71875,
+                                  "height": 1.71875
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "JjQj0",
+                          "name": "Logistics TMS",
+                          "context": "span",
+                          "fill": "#ffffff",
+                          "content": "Logistics TMS",
+                          "lineHeight": 1.56,
+                          "fontFamily": "Geist",
+                          "fontSize": 18,
+                          "fontWeight": "600",
+                          "letterSpacing": -0.45
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "x2Cwtm",
+                      "name": "Enterprise TMS",
+                      "context": "div",
+                      "fill": "#00b8db1a",
+                      "cornerRadius": 67108900,
+                      "effect": {
+                        "type": "background_blur",
+                        "radius": 12
+                      },
+                      "layout": "vertical",
+                      "padding": [
+                        4,
+                        12
+                      ],
+                      "justifyContent": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "GMIhN",
+                          "fill": "#53eafd",
+                          "content": "Security & Auth",
+                          "lineHeight": 1.33,
+                          "fontFamily": "Geist",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "agVn9",
+                  "x": 40,
+                  "y": 340,
+                  "name": "div",
+                  "context": "div",
+                  "width": "fill_container(680)",
+                  "height": 132,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Z0ijhr",
+                      "x": 0,
+                      "y": 0,
+                      "name": "div",
+                      "context": "div",
+                      "width": 448,
+                      "fill": "#0f172b99",
+                      "cornerRadius": 16,
+                      "effect": [
+                        {
+                          "type": "shadow",
+                          "shadowType": "outer",
+                          "color": "#00000073",
+                          "offset": {
+                            "x": 0,
+                            "y": 1
+                          },
+                          "blur": 2
+                        },
+                        {
+                          "type": "background_blur",
+                          "radius": 24
+                        }
+                      ],
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 20,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "dTYdp",
+                          "name": "div",
+                          "context": "div",
+                          "gap": 8,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "MWjAV",
+                              "name": "Status Dot (Emerald)",
+                              "fill": "#34D399",
+                              "width": 8,
+                              "height": 8
+                            },
+                            {
+                              "type": "text",
+                              "id": "UG6Ip",
+                              "name": "Hệ thống Quản trị Vận tải Số hóa",
+                              "context": "span",
+                              "fill": "#53eafd",
+                              "content": "Bảo mật & Khôi phục Tài khoản",
+                              "lineHeight": 1.33,
+                              "fontFamily": "Geist",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "gOjfu",
+                          "name": "Quản lý đơn hàng, điều phối vận chuyển, ",
+                          "context": "p",
+                          "fill": "#e2e8f0",
+                          "textGrowth": "fixed-width-height",
+                          "width": "fill_container",
+                          "height": 68.25,
+                          "content": "Hệ thống bảo mật xác thực hai lớp (2FA) bảo vệ toàn diện dữ liệu đơn hàng, điều phối xe và kho bãi tập trung.",
+                          "lineHeight": 1.63,
+                          "fontFamily": "Geist",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ht5wE",
+                  "x": 40,
+                  "y": 840,
+                  "name": "div",
+                  "context": "div",
+                  "width": 714,
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "N8VBT",
+                      "name": "blockquote",
+                      "context": "blockquote",
+                      "width": "fill_container",
+                      "height": 76,
+                      "fill": "#02061899",
+                      "cornerRadius": 12,
+                      "effect": {
+                        "type": "background_blur",
+                        "radius": 12
+                      },
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 16,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "GZFYI",
+                          "name": "“Hệ thống quản lý vận tải giúp tối ưu hó",
+                          "context": "p",
+                          "fill": "#e2e8f0",
+                          "content": "“Bảo mật thông tin và tính sẵn sàng cao là ưu tiên hàng đầu trong vận hành Logistics TMS.”",
+                          "lineHeight": 1.43,
+                          "fontFamily": "Geist",
+                          "fontSize": 14,
+                          "fontWeight": "normal",
+                          "fontStyle": "italic"
+                        },
+                        {
+                          "type": "text",
+                          "id": "h7Uldj",
+                          "name": "Logistics TMS Platform",
+                          "context": "footer",
+                          "fill": "#90a1b9",
+                          "content": "Logistics TMS Platform",
+                          "lineHeight": 1.33,
+                          "fontFamily": "Geist",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "LmYNX",
+              "name": "Right Form Column (1)",
+              "context": "div",
+              "width": 720,
+              "height": 900,
+              "fill": "#fcfcfc",
+              "layout": "vertical",
+              "padding": 32,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "VCKZr",
+                  "name": "FormBox (3 children)",
+                  "context": "div",
+                  "width": 400,
+                  "height": 600,
+                  "layout": "vertical",
+                  "gap": 20,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "DOm3I",
+                      "name": "Child_0 (subs: 2)",
+                      "context": "div",
+                      "width": 380,
+                      "height": 61,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "m7us0V",
+                          "name": "Sub_0_0_Đăng nhập",
+                          "context": "h1",
+                          "fill": "#0f172a",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Quên mật khẩu?",
+                          "lineHeight": 1.33,
+                          "textAlign": "center",
+                          "fontFamily": "Geist",
+                          "fontSize": 24,
+                          "fontWeight": "600",
+                          "letterSpacing": -0.6
+                        },
+                        {
+                          "type": "text",
+                          "id": "ySRmJ",
+                          "name": "Sub_0_1_Nhập email và mật khẩu được cung cấp bởi quản trị viên",
+                          "context": "p",
+                          "fill": "#64748b",
+                          "textGrowth": "fixed-width",
+                          "width": 380,
+                          "content": "Nhập địa chỉ email doanh nghiệp đã đăng ký để nhận mã OTP và liên kết đặt lại mật khẩu an toàn.",
+                          "lineHeight": 1.43,
+                          "textAlign": "center",
+                          "fontFamily": "Geist",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "WlOuH",
+                          "name": "Lock Icon Badge",
+                          "width": 48,
+                          "height": 48,
+                          "fill": "#f0f9ff",
+                          "cornerRadius": 24,
+                          "stroke": "#bae6fd",
+                          "strokeWidth": 1,
+                          "layout": "vertical",
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "ykOTi",
+                              "fill": "#0284c7",
+                              "content": "🔑",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "b4Tt2",
+                      "name": "Forgot Password Form Container",
+                      "context": "div",
+                      "width": 380,
+                      "layout": "vertical",
+                      "gap": 16,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "A9kWHk",
+                          "name": "Security Alert Banner",
+                          "context": "div",
+                          "width": 380,
+                          "fill": "#f0fdf4",
+                          "cornerRadius": 8,
+                          "stroke": "#bbf7d0",
+                          "strokeWidth": 2,
+                          "strokeAlignment": "inner",
+                          "padding": 12,
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "h8xYsf",
+                              "name": "💡 Thử nghiệm phiên bản Demo?",
+                              "context": "span",
+                              "fill": "#15803d",
+                              "content": "🔒 Nhận mã OTP qua Email",
+                              "lineHeight": 1.33,
+                              "fontFamily": "Geist",
+                              "fontSize": 12,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Qbcl4",
+                              "name": "button",
+                              "context": "Button - button",
+                              "width": 159.19,
+                              "height": 28,
+                              "fill": "#ffffff",
+                              "cornerRadius": 6,
+                              "stroke": "#86efac",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "gap": 6,
+                              "padding": [
+                                2,
+                                8
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "k8npc",
+                                  "name": "svg",
+                                  "context": "Key - svg",
+                                  "clip": true,
+                                  "width": 14,
+                                  "height": 14,
+                                  "layout": "none",
+                                  "children": [
+                                    {
+                                      "type": "path",
+                                      "id": "WzU3F",
+                                      "x": 1.75,
+                                      "y": 1.7501122355461123,
+                                      "geometry": "M13.555 0.84281l3.602 3.602c0.53964 0.53956 0.84281 1.2714 0.84281 2.0345 0 0.7631-0.30317 1.49495-0.84281 2.0345l-2.643 2.643c-0.53956 0.53964-1.2714 0.84281-2.0345 0.84281-0.7631 0-1.49495-0.30317-2.0345-0.84281l-0.301-0.301-6.558 6.558c-0.33228 0.33223-0.77093 0.53686-1.239 0.578l-0.175 0.008-1.172 0c-0.50697-0.00007-0.93368-0.37951-0.993-0.883l-0.007-0.117 0-1.172c0.00011-0.46955 0.16543-0.92409 0.467-1.284l0.119-0.13 0.414-0.414 2 0 0-2 2 0 0-2 2.144-2.144-0.301-0.301c-0.53964-0.53955-0.84281-1.2714-0.84281-2.0345 0-0.7631 0.30317-1.49495 0.84281-2.0345l2.643-2.643c0.53955-0.53964 1.2714-0.84281 2.0345-0.84281 0.7631 0 1.49495 0.30317 2.0345 0.84281m-1.555 5.157l0.01 0",
+                                      "width": 10.499887625376385,
+                                      "height": 10.499887764453888,
+                                      "stroke": "#fe9a00",
+                                      "strokeWidth": 1.1666666666666667,
+                                      "strokeLinejoin": "round",
+                                      "strokeLinecap": "round"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "K5BFt",
+                                  "name": "Xem tài khoản Demo",
+                                  "fill": "#166534",
+                                  "content": "Hiệu lực 15 phút",
+                                  "lineHeight": 1.33,
+                                  "textAlign": "center",
+                                  "fontFamily": "Geist",
+                                  "fontSize": 11,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Hwj2a",
+                          "name": "form",
+                          "context": "form",
+                          "width": 380,
+                          "layout": "vertical",
+                          "gap": 16,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "Oqr0Z",
+                              "name": "div",
+                              "context": "div",
+                              "width": 380,
+                              "height": 54,
+                              "layout": "vertical",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "VphSf",
+                                  "name": "Email hoặc Tên đăng nhập",
+                                  "context": "Label - label",
+                                  "fill": "#000000",
+                                  "content": "Địa chỉ Email doanh nghiệp *",
+                                  "lineHeight": 1,
+                                  "fontFamily": "Geist",
+                                  "fontSize": 14,
+                                  "fontWeight": "500"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "b7DTI",
+                                  "name": "Email Input Box",
+                                  "width": 380,
+                                  "height": 42,
+                                  "fill": "#ffffff",
+                                  "cornerRadius": 8,
+                                  "stroke": "#cbd5e1",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    0,
+                                    12
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "XNpwJ",
+                                      "name": "Placeholder Text",
+                                      "fill": "#94a3b8",
+                                      "content": "vd: dispatcher@logistics.vn, admin@logistics.vn",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 13,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "rrmYD",
+                              "name": "Đăng nhập",
+                              "context": "Button - button",
+                              "width": 380,
+                              "height": 32,
+                              "fill": "#000000",
+                              "cornerRadius": 8,
+                              "padding": [
+                                0,
+                                10
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "Gj5JM",
+                                  "fill": "#ffffff",
+                                  "content": "Gửi liên kết khôi phục",
+                                  "lineHeight": 1.43,
+                                  "textAlign": "center",
+                                  "fontFamily": "Geist",
+                                  "fontSize": 14,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "CSOKt",
+                              "name": "Back to Login Button",
+                              "context": "Button - button",
+                              "width": 380,
+                              "height": 40,
+                              "fill": "#00000000",
+                              "cornerRadius": 8,
+                              "stroke": "#e2e8f0",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                10
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "PKiou",
+                                  "fill": "#334155",
+                                  "content": "← Quay lại trang Đăng nhập",
+                                  "lineHeight": 1.43,
+                                  "textAlign": "center",
+                                  "fontFamily": "Geist",
+                                  "fontSize": 13,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "JMwWM",
+      "x": 4650,
+      "y": 0,
+      "name": "Logistics TMS - Email Template: Forgot & Reset Password",
+      "clip": true,
+      "width": 1440,
+      "height": 900,
+      "fill": "#0f172a",
+      "layout": "none",
+      "children": [
+        {
+          "type": "frame",
+          "id": "lBIdg",
+          "x": 400,
+          "y": 35,
+          "name": "Email Meta Bar",
+          "width": 640,
+          "height": 40,
+          "fill": "#1e293b",
+          "cornerRadius": 8,
+          "padding": [
+            8,
+            16
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "ciCoG",
+              "name": "Meta Text",
+              "fill": "#94a3b8",
+              "content": "📧 Tiêu đề: [Spider Express TMS] Khôi phục mật khẩu tài khoản / Reset Password",
+              "fontFamily": "Inter",
+              "fontSize": 12,
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "uEusj",
+              "name": "TTL Badge",
+              "fill": "#065f46",
+              "cornerRadius": 4,
+              "padding": [
+                3,
+                8
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "ENN60",
+                  "name": "TTL Text",
+                  "fill": "#6ee7b7",
+                  "content": "TTL: 15 PHÚT",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "700"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "QILzM",
+          "x": 400,
+          "y": 85,
+          "name": "Email Container Card",
+          "clip": true,
+          "width": 640,
+          "height": 775,
+          "fill": "#ffffff",
+          "cornerRadius": 12,
+          "layout": "none",
+          "children": [
+            {
+              "type": "frame",
+              "id": "EBpdw",
+              "x": 0,
+              "y": 0,
+              "name": "Email Header",
+              "width": 640,
+              "height": 110,
+              "fill": "#0f172a",
+              "layout": "vertical",
+              "gap": 8,
+              "padding": [
+                20,
+                28
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "j7yFu",
+                  "name": "Brand Row",
+                  "width": 584,
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "wv8D1",
+                      "name": "Brand Logo Text",
+                      "fill": "#38bdf8",
+                      "content": "SPIDER EXPRESS LOGISTICS TMS",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "800",
+                      "letterSpacing": 1.5
+                    },
+                    {
+                      "type": "frame",
+                      "id": "R6nw7",
+                      "name": "Security Badge",
+                      "fill": "#1e293b",
+                      "cornerRadius": 999,
+                      "padding": [
+                        3,
+                        10
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "L54vl",
+                          "name": "Sec Badge Text",
+                          "fill": "#38bdf8",
+                          "content": "🔐 SECURITY & AUTH",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "cmdqd",
+                  "name": "Header Title",
+                  "fill": "#ffffff",
+                  "content": "YÊU CẦU ĐẶT LẠI MẬT KHẨU HỆ THỐNG",
+                  "fontFamily": "Inter",
+                  "fontSize": 19,
+                  "fontWeight": "800"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "cf7Hp",
+              "x": 28,
+              "y": 130,
+              "name": "Email Body",
+              "width": 584,
+              "height": 540,
+              "layout": "vertical",
+              "gap": 14,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "DvLz8",
+                  "name": "Greeting",
+                  "fill": "#0f172a",
+                  "content": "Xin chào Quý nhân sự / Quản trị viên,",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "lnKAd",
+                  "name": "Intro Text",
+                  "fill": "#475569",
+                  "textGrowth": "fixed-width",
+                  "width": 584,
+                  "content": "Hệ thống Logistics TMS vừa tiếp nhận yêu cầu đặt lại mật khẩu cho tài khoản vận hành của bạn. Vui lòng bấm vào nút bên dưới để tiến hành tạo mật khẩu mới an toàn:",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "myw6b",
+                  "name": "Account Box",
+                  "width": 584,
+                  "fill": "#f8fafc",
+                  "cornerRadius": 8,
+                  "padding": [
+                    12,
+                    16
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "FEO3P",
+                      "name": "Account Email Text",
+                      "fill": "#1e293b",
+                      "content": "Tài khoản nhận: dispatcher@spiderexpress.vn",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Wwqr7",
+                      "name": "Time Pill",
+                      "fill": "#fef3c7",
+                      "cornerRadius": 6,
+                      "padding": [
+                        4,
+                        8
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "eAKaL",
+                          "name": "Pill Text",
+                          "fill": "#92400e",
+                          "content": "⏱️ Hiệu lực: 15 phút",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "k9BtcI",
+                  "name": "Btn Row",
+                  "width": 584,
+                  "padding": [
+                    8,
+                    0
+                  ],
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "wqgVV",
+                      "name": "CTA Button",
+                      "fill": "#2563eb",
+                      "cornerRadius": 8,
+                      "padding": [
+                        12,
+                        32
+                      ],
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "toMmp",
+                          "name": "CTA Text",
+                          "fill": "#ffffff",
+                          "content": "🔒 ĐẶT LẠI MẬT KHẨU NGAY →",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "bs8Q5",
+                  "name": "Warning Box",
+                  "width": 584,
+                  "fill": "#fffbeb",
+                  "cornerRadius": 8,
+                  "layout": "vertical",
+                  "gap": 4,
+                  "padding": [
+                    12,
+                    16
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "z6xZZh",
+                      "name": "Warn Title",
+                      "fill": "#b45309",
+                      "content": "⚠️ Lưu ý an toàn thông tin & Bảo mật doanh nghiệp:",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "R6xaB",
+                      "name": "Warn Body",
+                      "fill": "#78350f",
+                      "textGrowth": "fixed-width",
+                      "width": 552,
+                      "content": "• Nếu bạn KHÔNG yêu cầu đổi mật khẩu, vui lòng bỏ qua email này hoặc liên hệ ngay IT Helpdesk.\n• Tuyệt đối không cung cấp liên kết này cho bất kỳ ai để phòng ngừa rủi ro xâm nhập hệ thống điều vận.",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "I5yvxf",
+                  "name": "Link Box",
+                  "width": 584,
+                  "fill": "#f1f5f9",
+                  "cornerRadius": 6,
+                  "layout": "vertical",
+                  "gap": 4,
+                  "padding": [
+                    10,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "czgEM",
+                      "name": "Link Prompt",
+                      "fill": "#64748b",
+                      "content": "Nếu nút bấm phía trên không hoạt động, bạn cũng có thể truy cập qua liên kết dự phòng sau:",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "text",
+                      "id": "pMbJv",
+                      "name": "Link URL",
+                      "fill": "#2563eb",
+                      "content": "🔗 Nhấn vào đây để mở trang đặt lại mật khẩu",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "th31e",
+              "x": 0,
+              "y": 700,
+              "name": "Email Footer",
+              "width": 640,
+              "height": 75,
+              "fill": "#f8fafc",
+              "layout": "vertical",
+              "gap": 4,
+              "padding": [
+                14,
+                28
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "bcn5a",
+                  "name": "Footer 1",
+                  "fill": "#64748b",
+                  "content": "Spider Express Logistics TMS • Hệ thống Quản trị & Điều vận Vận tải Toàn quốc",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "uOR61",
+                  "name": "Footer 2",
+                  "fill": "#94a3b8",
+                  "content": "Trụ sở điều hành: TP. Huế | Hotline hỗ trợ 24/7: 1900-SPIDER | Email: it-support@spiderexpress.vn",
+                  "fontFamily": "Inter",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "dqjvM",
+      "x": 3100,
+      "y": 0,
+      "name": "Logistics TMS - Forgot Password (Success State)",
+      "context": "body",
+      "clip": true,
+      "width": 1440,
+      "height": 960,
+      "fill": "#fcfcfc",
+      "cornerRadius": 8,
+      "stroke": "#2563eb",
+      "strokeWidth": 2,
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "v6mW2k",
+          "name": "Auth 2-Col Layout Grid",
+          "context": "InnerLayoutRouter - div",
+          "clip": true,
+          "width": "fill_container",
+          "fill": "#fcfcfc",
+          "children": [
+            {
+              "type": "frame",
+              "id": "T9mHh",
+              "name": "Left Visual Column (4)",
+              "context": "div",
+              "clip": true,
+              "width": "fill_container",
+              "height": 960,
+              "fill": "#020618",
+              "layout": "none",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "qunuL",
+                  "x": 0,
+                  "y": 0,
+                  "name": "div",
+                  "context": "div",
+                  "width": 720,
+                  "height": 960,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "rectangle",
+                      "id": "bq6AB",
+                      "x": -19.85,
+                      "y": -46.1,
+                      "name": "img",
+                      "context": "img",
+                      "opacity": 0.65,
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "assets/auth-hero.jpg",
+                        "mode": "fill"
+                      },
+                      "width": 833.7,
+                      "height": 1050
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "TEeia",
+                      "x": 0,
+                      "y": 0,
+                      "name": "div",
+                      "context": "div",
+                      "fill": {
+                        "type": "gradient",
+                        "gradientType": "linear",
+                        "enabled": true,
+                        "rotation": -180,
+                        "size": {
+                          "height": 1
+                        },
+                        "colors": [
+                          {
+                            "color": "#020618d9",
+                            "position": 0
+                          },
+                          {
+                            "color": "#02061866",
+                            "position": 0.5
+                          },
+                          {
+                            "color": "#020618e6",
+                            "position": 1
+                          }
+                        ]
+                      },
+                      "width": 1000,
+                      "height": 960
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "ICKM1",
+                      "x": 0,
+                      "y": 0,
+                      "name": "div",
+                      "context": "div",
+                      "fill": {
+                        "type": "gradient",
+                        "gradientType": "linear",
+                        "enabled": true,
+                        "rotation": -90,
+                        "size": {
+                          "height": 1
+                        },
+                        "colors": [
+                          {
+                            "color": "#02061899",
+                            "position": 0
+                          },
+                          {
+                            "color": "#00000000",
+                            "position": 1
+                          }
+                        ]
+                      },
+                      "width": 1000,
+                      "height": 960
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "uXkaj",
+                  "x": 40,
+                  "y": 40,
+                  "name": "div",
+                  "context": "div",
+                  "width": 680,
+                  "height": 56,
+                  "padding": [
+                    0,
+                    16
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Gdj21",
+                      "name": "div",
+                      "context": "div",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "rZ072",
+                          "name": "div",
+                          "context": "div",
+                          "width": 36,
+                          "height": 36,
+                          "fill": "#2b7fff33",
+                          "cornerRadius": 12,
+                          "effect": [
+                            {
+                              "type": "shadow",
+                              "shadowType": "outer",
+                              "color": "#0000002e",
+                              "offset": {
+                                "x": 0,
+                                "y": 1
+                              },
+                              "blur": 2
+                            },
+                            {
+                              "type": "shadow",
+                              "shadowType": "outer",
+                              "color": "#0000002e",
+                              "offset": {
+                                "x": 0,
+                                "y": 4
+                              },
+                              "blur": 5
+                            },
+                            {
+                              "type": "background_blur",
+                              "radius": 12
+                            }
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "etQVK",
+                              "name": "svg",
+                              "context": "svg",
+                              "clip": true,
+                              "width": 22,
+                              "height": 22,
+                              "layout": "none",
+                              "children": [
+                                {
+                                  "type": "path",
+                                  "id": "ItKvJ",
+                                  "x": 3.4375,
+                                  "y": 2.40625,
+                                  "geometry": "M7.5625 0l7.5625 4.36563 0 8.45625-7.5625 4.36562-7.5625-4.36562 0-8.45625 7.5625-4.36563z",
+                                  "fill": {
+                                    "type": "gradient",
+                                    "gradientType": "linear",
+                                    "enabled": true,
+                                    "rotation": -131.34777721969368,
+                                    "size": {
+                                      "height": 1.4531629793757128
+                                    },
+                                    "colors": [
+                                      {
+                                        "color": "#38BDF8",
+                                        "position": 0
+                                      },
+                                      {
+                                        "color": "#2563EB",
+                                        "position": 0.5
+                                      },
+                                      {
+                                        "color": "#1E40AF",
+                                        "position": 1
+                                      }
+                                    ]
+                                  },
+                                  "width": 15.125,
+                                  "height": 17.1875
+                                },
+                                {
+                                  "type": "path",
+                                  "id": "O0PaD",
+                                  "x": 3.4375,
+                                  "y": 2.40625,
+                                  "geometry": "M7.5625 0l7.5625 4.36563-7.5625 4.22812-7.5625-4.22812 7.5625-4.36563z",
+                                  "fill": {
+                                    "type": "gradient",
+                                    "gradientType": "linear",
+                                    "enabled": true,
+                                    "rotation": -180,
+                                    "size": {
+                                      "height": 0.96
+                                    },
+                                    "colors": [
+                                      {
+                                        "color": "#ffffff73",
+                                        "position": 0
+                                      },
+                                      {
+                                        "color": "#ffffff0d",
+                                        "position": 1
+                                      }
+                                    ],
+                                    "center": {
+                                      "y": 0.52
+                                    }
+                                  },
+                                  "width": 15.125,
+                                  "height": 8.59375
+                                },
+                                {
+                                  "type": "path",
+                                  "id": "FzfPW",
+                                  "x": 11,
+                                  "y": 6.771875381469727,
+                                  "geometry": "M0 4.22812l7.5625-4.22812 0 8.45625-7.5625 4.36562 0-8.59375z",
+                                  "fill": "#0000002e",
+                                  "width": 7.5625,
+                                  "height": 12.821874618530273
+                                },
+                                {
+                                  "type": "path",
+                                  "id": "sMmqr",
+                                  "x": 7.21875,
+                                  "y": 6.53125,
+                                  "geometry": "M0 2.40625l3.78125-2.40625 3.78125 2.40625-3.78125 2.40625-3.78125-2.40625z",
+                                  "fill": {
+                                    "type": "gradient",
+                                    "gradientType": "linear",
+                                    "enabled": true,
+                                    "rotation": -147.52880770915152,
+                                    "size": {
+                                      "height": 2.709278921642659
+                                    },
+                                    "colors": [
+                                      {
+                                        "color": "#00F2FE",
+                                        "position": 0
+                                      },
+                                      {
+                                        "color": "#4FACFE",
+                                        "position": 1
+                                      }
+                                    ],
+                                    "center": {
+                                      "y": 0.9285714285714287
+                                    }
+                                  },
+                                  "width": 7.5625,
+                                  "height": 4.8125
+                                },
+                                {
+                                  "type": "path",
+                                  "id": "g6t7yx",
+                                  "x": 11,
+                                  "y": 11.34375,
+                                  "geometry": "M0 0l0 5.15625",
+                                  "width": 0,
+                                  "height": 5.15625,
+                                  "stroke": "#FFF",
+                                  "strokeWidth": 1.375,
+                                  "strokeLinecap": "round"
+                                },
+                                {
+                                  "type": "ellipse",
+                                  "id": "UIfL0",
+                                  "x": 9.796875,
+                                  "y": 5.328125,
+                                  "fill": "#FFF",
+                                  "width": 2.40625,
+                                  "height": 2.40625
+                                },
+                                {
+                                  "type": "ellipse",
+                                  "id": "NWBGj",
+                                  "x": 13.75,
+                                  "y": 7.90625,
+                                  "fill": "#38BDF8",
+                                  "width": 2.0625,
+                                  "height": 2.0625
+                                },
+                                {
+                                  "type": "ellipse",
+                                  "id": "m6E5OJ",
+                                  "x": 6.1875,
+                                  "y": 7.90625,
+                                  "fill": "#38BDF8",
+                                  "width": 2.0625,
+                                  "height": 2.0625
+                                },
+                                {
+                                  "type": "ellipse",
+                                  "id": "BUQKp",
+                                  "x": 9.625,
+                                  "y": 15.125,
+                                  "fill": "#67E8F9",
+                                  "width": 2.75,
+                                  "height": 2.75
+                                },
+                                {
+                                  "type": "ellipse",
+                                  "id": "uDSsU",
+                                  "x": 10.140625,
+                                  "y": 10.484375,
+                                  "fill": "#FFF",
+                                  "width": 1.71875,
+                                  "height": 1.71875
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "ue8hs",
+                          "name": "Logistics TMS",
+                          "context": "span",
+                          "fill": "#ffffff",
+                          "content": "Logistics TMS",
+                          "lineHeight": 1.56,
+                          "fontFamily": "Geist",
+                          "fontSize": 18,
+                          "fontWeight": "600",
+                          "letterSpacing": -0.45
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "p6XJOS",
+                      "name": "Enterprise TMS",
+                      "context": "div",
+                      "fill": "#00b8db1a",
+                      "cornerRadius": 67108900,
+                      "effect": {
+                        "type": "background_blur",
+                        "radius": 12
+                      },
+                      "layout": "vertical",
+                      "padding": [
+                        4,
+                        12
+                      ],
+                      "justifyContent": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "b6v525",
+                          "fill": "#53eafd",
+                          "content": "Security & Auth",
+                          "lineHeight": 1.33,
+                          "fontFamily": "Geist",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "g10DPx",
+                  "x": 40,
+                  "y": 340,
+                  "name": "div",
+                  "context": "div",
+                  "width": "fill_container(680)",
+                  "height": 132,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "glvxQ",
+                      "x": 0,
+                      "y": 0,
+                      "name": "div",
+                      "context": "div",
+                      "width": 448,
+                      "fill": "#0f172b99",
+                      "cornerRadius": 16,
+                      "effect": [
+                        {
+                          "type": "shadow",
+                          "shadowType": "outer",
+                          "color": "#00000073",
+                          "offset": {
+                            "x": 0,
+                            "y": 1
+                          },
+                          "blur": 2
+                        },
+                        {
+                          "type": "background_blur",
+                          "radius": 24
+                        }
+                      ],
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 20,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "J5qb6f",
+                          "name": "div",
+                          "context": "div",
+                          "gap": 8,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "n7kmA4",
+                              "name": "Status Dot (Emerald)",
+                              "fill": "#34D399",
+                              "width": 8,
+                              "height": 8
+                            },
+                            {
+                              "type": "text",
+                              "id": "gBEtb",
+                              "name": "Hệ thống Quản trị Vận tải Số hóa",
+                              "context": "span",
+                              "fill": "#53eafd",
+                              "content": "Bảo mật & Khôi phục Tài khoản",
+                              "lineHeight": 1.33,
+                              "fontFamily": "Geist",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "wPlgI",
+                          "name": "Quản lý đơn hàng, điều phối vận chuyển, ",
+                          "context": "p",
+                          "fill": "#e2e8f0",
+                          "textGrowth": "fixed-width-height",
+                          "width": "fill_container",
+                          "height": 68.25,
+                          "content": "Hệ thống bảo mật xác thực hai lớp (2FA) bảo vệ toàn diện dữ liệu đơn hàng, điều phối xe và kho bãi tập trung.",
+                          "lineHeight": 1.63,
+                          "fontFamily": "Geist",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "FV5X4",
+                  "x": 40,
+                  "y": 840,
+                  "name": "div",
+                  "context": "div",
+                  "width": 714,
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Eci6L",
+                      "name": "blockquote",
+                      "context": "blockquote",
+                      "width": "fill_container",
+                      "height": 76,
+                      "fill": "#02061899",
+                      "cornerRadius": 12,
+                      "effect": {
+                        "type": "background_blur",
+                        "radius": 12
+                      },
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 16,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "MloII",
+                          "name": "“Hệ thống quản lý vận tải giúp tối ưu hó",
+                          "context": "p",
+                          "fill": "#e2e8f0",
+                          "content": "“Bảo mật thông tin và tính sẵn sàng cao là ưu tiên hàng đầu trong vận hành Logistics TMS.”",
+                          "lineHeight": 1.43,
+                          "fontFamily": "Geist",
+                          "fontSize": 14,
+                          "fontWeight": "normal",
+                          "fontStyle": "italic"
+                        },
+                        {
+                          "type": "text",
+                          "id": "r6KsJd",
+                          "name": "Logistics TMS Platform",
+                          "context": "footer",
+                          "fill": "#90a1b9",
+                          "content": "Logistics TMS Platform",
+                          "lineHeight": 1.33,
+                          "fontFamily": "Geist",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "x55l4",
+              "name": "Right Form Column (1)",
+              "context": "div",
+              "width": 720,
+              "height": 900,
+              "fill": "#fcfcfc",
+              "layout": "vertical",
+              "padding": 32,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "a04cs",
+                  "name": "FormBox (3 children)",
+                  "context": "div",
+                  "width": 400,
+                  "height": 600,
+                  "layout": "vertical",
+                  "gap": 20,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "kzrp6",
+                      "name": "Child_0 (subs: 2)",
+                      "context": "div",
+                      "width": 380,
+                      "height": 61,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "NMnSk",
+                          "name": "Sub_0_0_Đăng nhập",
+                          "context": "h1",
+                          "fill": "#0f172a",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Quên mật khẩu?",
+                          "lineHeight": 1.33,
+                          "textAlign": "center",
+                          "fontFamily": "Geist",
+                          "fontSize": 24,
+                          "fontWeight": "600",
+                          "letterSpacing": -0.6
+                        },
+                        {
+                          "type": "text",
+                          "id": "mxu0n",
+                          "name": "Sub_0_1_Nhập email và mật khẩu được cung cấp bởi quản trị viên",
+                          "context": "p",
+                          "fill": "#64748b",
+                          "textGrowth": "fixed-width",
+                          "width": 380,
+                          "content": "Nhập địa chỉ email doanh nghiệp đã đăng ký để nhận mã OTP và liên kết đặt lại mật khẩu an toàn.",
+                          "lineHeight": 1.43,
+                          "textAlign": "center",
+                          "fontFamily": "Geist",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "f0xI68",
+                          "name": "Lock Icon Badge",
+                          "width": 48,
+                          "height": 48,
+                          "fill": "#f0f9ff",
+                          "cornerRadius": 24,
+                          "stroke": "#bae6fd",
+                          "strokeWidth": 1,
+                          "layout": "vertical",
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "VjPY6",
+                              "fill": "#0284c7",
+                              "content": "🔑",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "bizyY",
+                      "name": "Forgot Password Form Container",
+                      "context": "div",
+                      "width": 380,
+                      "layout": "vertical",
+                      "gap": 16,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "omxiv",
+                          "name": "Security Alert Banner",
+                          "context": "div",
+                          "width": 380,
+                          "fill": "#f0fdf4",
+                          "cornerRadius": 8,
+                          "stroke": "#bbf7d0",
+                          "strokeWidth": 2,
+                          "strokeAlignment": "inner",
+                          "padding": 12,
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "aVejK",
+                              "name": "💡 Thử nghiệm phiên bản Demo?",
+                              "context": "span",
+                              "fill": "#15803d",
+                              "content": "🔒 Nhận mã OTP qua Email",
+                              "lineHeight": 1.33,
+                              "fontFamily": "Geist",
+                              "fontSize": 12,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "O7I5C",
+                              "name": "button",
+                              "context": "Button - button",
+                              "width": 159.19,
+                              "height": 28,
+                              "fill": "#ffffff",
+                              "cornerRadius": 6,
+                              "stroke": "#86efac",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "gap": 6,
+                              "padding": [
+                                2,
+                                8
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "GyVRB",
+                                  "name": "svg",
+                                  "context": "Key - svg",
+                                  "clip": true,
+                                  "width": 14,
+                                  "height": 14,
+                                  "layout": "none",
+                                  "children": [
+                                    {
+                                      "type": "path",
+                                      "id": "osdX2",
+                                      "x": 1.75,
+                                      "y": 1.7501122355461123,
+                                      "geometry": "M13.555 0.84281l3.602 3.602c0.53964 0.53956 0.84281 1.2714 0.84281 2.0345 0 0.7631-0.30317 1.49495-0.84281 2.0345l-2.643 2.643c-0.53956 0.53964-1.2714 0.84281-2.0345 0.84281-0.7631 0-1.49495-0.30317-2.0345-0.84281l-0.301-0.301-6.558 6.558c-0.33228 0.33223-0.77093 0.53686-1.239 0.578l-0.175 0.008-1.172 0c-0.50697-0.00007-0.93368-0.37951-0.993-0.883l-0.007-0.117 0-1.172c0.00011-0.46955 0.16543-0.92409 0.467-1.284l0.119-0.13 0.414-0.414 2 0 0-2 2 0 0-2 2.144-2.144-0.301-0.301c-0.53964-0.53955-0.84281-1.2714-0.84281-2.0345 0-0.7631 0.30317-1.49495 0.84281-2.0345l2.643-2.643c0.53955-0.53964 1.2714-0.84281 2.0345-0.84281 0.7631 0 1.49495 0.30317 2.0345 0.84281m-1.555 5.157l0.01 0",
+                                      "width": 10.499887625376385,
+                                      "height": 10.499887764453888,
+                                      "stroke": "#fe9a00",
+                                      "strokeWidth": 1.1666666666666667,
+                                      "strokeLinejoin": "round",
+                                      "strokeLinecap": "round"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "U5njR",
+                                  "name": "Xem tài khoản Demo",
+                                  "fill": "#166534",
+                                  "content": "Hiệu lực 15 phút",
+                                  "lineHeight": 1.33,
+                                  "textAlign": "center",
+                                  "fontFamily": "Geist",
+                                  "fontSize": 11,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "H9P27v",
+                          "name": "form",
+                          "context": "form",
+                          "width": 380,
+                          "layout": "vertical",
+                          "gap": 16,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "ix4F4",
+                              "name": "div",
+                              "context": "div",
+                              "width": 380,
+                              "height": 54,
+                              "layout": "vertical",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "n6Sxd8",
+                                  "name": "Email hoặc Tên đăng nhập",
+                                  "context": "Label - label",
+                                  "fill": "#000000",
+                                  "content": "Địa chỉ Email doanh nghiệp *",
+                                  "lineHeight": 1,
+                                  "fontFamily": "Geist",
+                                  "fontSize": 14,
+                                  "fontWeight": "500"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "gke3X",
+                                  "name": "Email Input Box",
+                                  "width": 380,
+                                  "height": 42,
+                                  "fill": "#ffffff",
+                                  "cornerRadius": 8,
+                                  "stroke": "#cbd5e1",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    0,
+                                    12
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "C1tbLc",
+                                      "name": "Placeholder Text",
+                                      "fill": "#94a3b8",
+                                      "content": "vd: dispatcher@logistics.vn, admin@logistics.vn",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 13,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "T6Yo1A",
+                              "name": "Đăng nhập",
+                              "context": "Button - button",
+                              "width": 380,
+                              "height": 32,
+                              "fill": "#000000",
+                              "cornerRadius": 8,
+                              "padding": [
+                                0,
+                                10
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "g5K0l",
+                                  "fill": "#ffffff",
+                                  "content": "Gửi liên kết khôi phục",
+                                  "lineHeight": 1.43,
+                                  "textAlign": "center",
+                                  "fontFamily": "Geist",
+                                  "fontSize": 14,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Wh7vj",
+                              "name": "Back to Login Button",
+                              "context": "Button - button",
+                              "width": 380,
+                              "height": 40,
+                              "fill": "#00000000",
+                              "cornerRadius": 8,
+                              "stroke": "#e2e8f0",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                10
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "zu40k",
+                                  "fill": "#334155",
+                                  "content": "← Quay lại trang Đăng nhập",
+                                  "lineHeight": 1.43,
+                                  "textAlign": "center",
+                                  "fontFamily": "Geist",
+                                  "fontSize": 13,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "u1Jke",
+      "x": 3100,
+      "y": 0,
+      "name": "Logistics TMS - Forgot Password (Success State)",
+      "context": "body",
+      "clip": true,
+      "width": 1440,
+      "height": 960,
+      "fill": "#fcfcfc",
+      "cornerRadius": 8,
+      "stroke": "#2563eb",
+      "strokeWidth": 2,
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "cdj44",
+          "name": "Auth 2-Col Layout Grid",
+          "context": "InnerLayoutRouter - div",
+          "clip": true,
+          "width": "fill_container",
+          "fill": "#fcfcfc",
+          "children": [
+            {
+              "type": "frame",
+              "id": "z1zDl",
+              "name": "Left Visual Column (4)",
+              "context": "div",
+              "clip": true,
+              "width": "fill_container",
+              "height": 960,
+              "fill": "#020618",
+              "layout": "none",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "bJHOK",
+                  "x": 0,
+                  "y": 0,
+                  "name": "div",
+                  "context": "div",
+                  "width": 720,
+                  "height": 960,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "rectangle",
+                      "id": "MoRAy",
+                      "x": -19.85,
+                      "y": -46.1,
+                      "name": "img",
+                      "context": "img",
+                      "opacity": 0.65,
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "assets/auth-hero.jpg",
+                        "mode": "fill"
+                      },
+                      "width": 833.7,
+                      "height": 1050
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "QAklC",
+                      "x": 0,
+                      "y": 0,
+                      "name": "div",
+                      "context": "div",
+                      "fill": {
+                        "type": "gradient",
+                        "gradientType": "linear",
+                        "enabled": true,
+                        "rotation": -180,
+                        "size": {
+                          "height": 1
+                        },
+                        "colors": [
+                          {
+                            "color": "#020618d9",
+                            "position": 0
+                          },
+                          {
+                            "color": "#02061866",
+                            "position": 0.5
+                          },
+                          {
+                            "color": "#020618e6",
+                            "position": 1
+                          }
+                        ]
+                      },
+                      "width": 1000,
+                      "height": 960
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "a8q0c3",
+                      "x": 0,
+                      "y": 0,
+                      "name": "div",
+                      "context": "div",
+                      "fill": {
+                        "type": "gradient",
+                        "gradientType": "linear",
+                        "enabled": true,
+                        "rotation": -90,
+                        "size": {
+                          "height": 1
+                        },
+                        "colors": [
+                          {
+                            "color": "#02061899",
+                            "position": 0
+                          },
+                          {
+                            "color": "#00000000",
+                            "position": 1
+                          }
+                        ]
+                      },
+                      "width": 1000,
+                      "height": 960
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "MOlYl",
+                  "x": 40,
+                  "y": 40,
+                  "name": "div",
+                  "context": "div",
+                  "width": 680,
+                  "height": 56,
+                  "padding": [
+                    0,
+                    16
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "ZlGFj",
+                      "name": "div",
+                      "context": "div",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "OXsTI",
+                          "name": "div",
+                          "context": "div",
+                          "width": 36,
+                          "height": 36,
+                          "fill": "#2b7fff33",
+                          "cornerRadius": 12,
+                          "effect": [
+                            {
+                              "type": "shadow",
+                              "shadowType": "outer",
+                              "color": "#0000002e",
+                              "offset": {
+                                "x": 0,
+                                "y": 1
+                              },
+                              "blur": 2
+                            },
+                            {
+                              "type": "shadow",
+                              "shadowType": "outer",
+                              "color": "#0000002e",
+                              "offset": {
+                                "x": 0,
+                                "y": 4
+                              },
+                              "blur": 5
+                            },
+                            {
+                              "type": "background_blur",
+                              "radius": 12
+                            }
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "khsjD",
+                              "name": "svg",
+                              "context": "svg",
+                              "clip": true,
+                              "width": 22,
+                              "height": 22,
+                              "layout": "none",
+                              "children": [
+                                {
+                                  "type": "path",
+                                  "id": "QHz5t",
+                                  "x": 3.4375,
+                                  "y": 2.40625,
+                                  "geometry": "M7.5625 0l7.5625 4.36563 0 8.45625-7.5625 4.36562-7.5625-4.36562 0-8.45625 7.5625-4.36563z",
+                                  "fill": {
+                                    "type": "gradient",
+                                    "gradientType": "linear",
+                                    "enabled": true,
+                                    "rotation": -131.34777721969368,
+                                    "size": {
+                                      "height": 1.4531629793757128
+                                    },
+                                    "colors": [
+                                      {
+                                        "color": "#38BDF8",
+                                        "position": 0
+                                      },
+                                      {
+                                        "color": "#2563EB",
+                                        "position": 0.5
+                                      },
+                                      {
+                                        "color": "#1E40AF",
+                                        "position": 1
+                                      }
+                                    ]
+                                  },
+                                  "width": 15.125,
+                                  "height": 17.1875
+                                },
+                                {
+                                  "type": "path",
+                                  "id": "smKv6",
+                                  "x": 3.4375,
+                                  "y": 2.40625,
+                                  "geometry": "M7.5625 0l7.5625 4.36563-7.5625 4.22812-7.5625-4.22812 7.5625-4.36563z",
+                                  "fill": {
+                                    "type": "gradient",
+                                    "gradientType": "linear",
+                                    "enabled": true,
+                                    "rotation": -180,
+                                    "size": {
+                                      "height": 0.96
+                                    },
+                                    "colors": [
+                                      {
+                                        "color": "#ffffff73",
+                                        "position": 0
+                                      },
+                                      {
+                                        "color": "#ffffff0d",
+                                        "position": 1
+                                      }
+                                    ],
+                                    "center": {
+                                      "y": 0.52
+                                    }
+                                  },
+                                  "width": 15.125,
+                                  "height": 8.59375
+                                },
+                                {
+                                  "type": "path",
+                                  "id": "WLnsC",
+                                  "x": 11,
+                                  "y": 6.771875381469727,
+                                  "geometry": "M0 4.22812l7.5625-4.22812 0 8.45625-7.5625 4.36562 0-8.59375z",
+                                  "fill": "#0000002e",
+                                  "width": 7.5625,
+                                  "height": 12.821874618530273
+                                },
+                                {
+                                  "type": "path",
+                                  "id": "A3pJuL",
+                                  "x": 7.21875,
+                                  "y": 6.53125,
+                                  "geometry": "M0 2.40625l3.78125-2.40625 3.78125 2.40625-3.78125 2.40625-3.78125-2.40625z",
+                                  "fill": {
+                                    "type": "gradient",
+                                    "gradientType": "linear",
+                                    "enabled": true,
+                                    "rotation": -147.52880770915152,
+                                    "size": {
+                                      "height": 2.709278921642659
+                                    },
+                                    "colors": [
+                                      {
+                                        "color": "#00F2FE",
+                                        "position": 0
+                                      },
+                                      {
+                                        "color": "#4FACFE",
+                                        "position": 1
+                                      }
+                                    ],
+                                    "center": {
+                                      "y": 0.9285714285714287
+                                    }
+                                  },
+                                  "width": 7.5625,
+                                  "height": 4.8125
+                                },
+                                {
+                                  "type": "path",
+                                  "id": "DP8NF",
+                                  "x": 11,
+                                  "y": 11.34375,
+                                  "geometry": "M0 0l0 5.15625",
+                                  "width": 0,
+                                  "height": 5.15625,
+                                  "stroke": "#FFF",
+                                  "strokeWidth": 1.375,
+                                  "strokeLinecap": "round"
+                                },
+                                {
+                                  "type": "ellipse",
+                                  "id": "fOthS",
+                                  "x": 9.796875,
+                                  "y": 5.328125,
+                                  "fill": "#FFF",
+                                  "width": 2.40625,
+                                  "height": 2.40625
+                                },
+                                {
+                                  "type": "ellipse",
+                                  "id": "vRt90",
+                                  "x": 13.75,
+                                  "y": 7.90625,
+                                  "fill": "#38BDF8",
+                                  "width": 2.0625,
+                                  "height": 2.0625
+                                },
+                                {
+                                  "type": "ellipse",
+                                  "id": "E0p6T",
+                                  "x": 6.1875,
+                                  "y": 7.90625,
+                                  "fill": "#38BDF8",
+                                  "width": 2.0625,
+                                  "height": 2.0625
+                                },
+                                {
+                                  "type": "ellipse",
+                                  "id": "kK6nZ",
+                                  "x": 9.625,
+                                  "y": 15.125,
+                                  "fill": "#67E8F9",
+                                  "width": 2.75,
+                                  "height": 2.75
+                                },
+                                {
+                                  "type": "ellipse",
+                                  "id": "ZSQRP",
+                                  "x": 10.140625,
+                                  "y": 10.484375,
+                                  "fill": "#FFF",
+                                  "width": 1.71875,
+                                  "height": 1.71875
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "Qfeny",
+                          "name": "Logistics TMS",
+                          "context": "span",
+                          "fill": "#ffffff",
+                          "content": "Logistics TMS",
+                          "lineHeight": 1.56,
+                          "fontFamily": "Geist",
+                          "fontSize": 18,
+                          "fontWeight": "600",
+                          "letterSpacing": -0.45
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "BZkGC",
+                      "name": "Enterprise TMS",
+                      "context": "div",
+                      "fill": "#00b8db1a",
+                      "cornerRadius": 67108900,
+                      "effect": {
+                        "type": "background_blur",
+                        "radius": 12
+                      },
+                      "layout": "vertical",
+                      "padding": [
+                        4,
+                        12
+                      ],
+                      "justifyContent": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Rak8O",
+                          "fill": "#53eafd",
+                          "content": "Security & Auth",
+                          "lineHeight": 1.33,
+                          "fontFamily": "Geist",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "U8nUs",
+                  "x": 40,
+                  "y": 340,
+                  "name": "div",
+                  "context": "div",
+                  "width": "fill_container(680)",
+                  "height": 132,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "SchcI",
+                      "x": 0,
+                      "y": 0,
+                      "name": "div",
+                      "context": "div",
+                      "width": 448,
+                      "fill": "#0f172b99",
+                      "cornerRadius": 16,
+                      "effect": [
+                        {
+                          "type": "shadow",
+                          "shadowType": "outer",
+                          "color": "#00000073",
+                          "offset": {
+                            "x": 0,
+                            "y": 1
+                          },
+                          "blur": 2
+                        },
+                        {
+                          "type": "background_blur",
+                          "radius": 24
+                        }
+                      ],
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 20,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "DWs1N",
+                          "name": "div",
+                          "context": "div",
+                          "gap": 8,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "xnCc0",
+                              "name": "Status Dot (Emerald)",
+                              "fill": "#34D399",
+                              "width": 8,
+                              "height": 8
+                            },
+                            {
+                              "type": "text",
+                              "id": "TpdI6",
+                              "name": "Hệ thống Quản trị Vận tải Số hóa",
+                              "context": "span",
+                              "fill": "#53eafd",
+                              "content": "Bảo mật & Khôi phục Tài khoản",
+                              "lineHeight": 1.33,
+                              "fontFamily": "Geist",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "qV9DZ",
+                          "name": "Quản lý đơn hàng, điều phối vận chuyển, ",
+                          "context": "p",
+                          "fill": "#e2e8f0",
+                          "textGrowth": "fixed-width-height",
+                          "width": "fill_container",
+                          "height": 68.25,
+                          "content": "Hệ thống bảo mật xác thực hai lớp (2FA) bảo vệ toàn diện dữ liệu đơn hàng, điều phối xe và kho bãi tập trung.",
+                          "lineHeight": 1.63,
+                          "fontFamily": "Geist",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "geqF1",
+                  "x": 40,
+                  "y": 840,
+                  "name": "div",
+                  "context": "div",
+                  "width": 714,
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "A4b6v3",
+                      "name": "blockquote",
+                      "context": "blockquote",
+                      "width": "fill_container",
+                      "height": 76,
+                      "fill": "#02061899",
+                      "cornerRadius": 12,
+                      "effect": {
+                        "type": "background_blur",
+                        "radius": 12
+                      },
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 16,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Drlae",
+                          "name": "“Hệ thống quản lý vận tải giúp tối ưu hó",
+                          "context": "p",
+                          "fill": "#e2e8f0",
+                          "content": "“Bảo mật thông tin và tính sẵn sàng cao là ưu tiên hàng đầu trong vận hành Logistics TMS.”",
+                          "lineHeight": 1.43,
+                          "fontFamily": "Geist",
+                          "fontSize": 14,
+                          "fontWeight": "normal",
+                          "fontStyle": "italic"
+                        },
+                        {
+                          "type": "text",
+                          "id": "k3H8o1",
+                          "name": "Logistics TMS Platform",
+                          "context": "footer",
+                          "fill": "#90a1b9",
+                          "content": "Logistics TMS Platform",
+                          "lineHeight": 1.33,
+                          "fontFamily": "Geist",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "X0dUI",
+              "name": "Right Form Column (1)",
+              "context": "div",
+              "width": 720,
+              "height": 900,
+              "fill": "#fcfcfc",
+              "layout": "vertical",
+              "padding": 32,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "vfMtP",
+                  "name": "FormBox (3 children)",
+                  "context": "div",
+                  "width": 400,
+                  "height": 600,
+                  "layout": "vertical",
+                  "gap": 20,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Q0cKx0",
+                      "name": "Child_0 (subs: 2)",
+                      "context": "div",
+                      "width": 380,
+                      "height": 61,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Y7arpy",
+                          "name": "Sub_0_0_Đăng nhập",
+                          "context": "h1",
+                          "fill": "#0f172a",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Quên mật khẩu?",
+                          "lineHeight": 1.33,
+                          "textAlign": "center",
+                          "fontFamily": "Geist",
+                          "fontSize": 24,
+                          "fontWeight": "600",
+                          "letterSpacing": -0.6
+                        },
+                        {
+                          "type": "text",
+                          "id": "PwELn",
+                          "name": "Sub_0_1_Nhập email và mật khẩu được cung cấp bởi quản trị viên",
+                          "context": "p",
+                          "fill": "#64748b",
+                          "textGrowth": "fixed-width",
+                          "width": 380,
+                          "content": "Nhập địa chỉ email doanh nghiệp đã đăng ký để nhận mã OTP và liên kết đặt lại mật khẩu an toàn.",
+                          "lineHeight": 1.43,
+                          "textAlign": "center",
+                          "fontFamily": "Geist",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "d9KSoM",
+                          "name": "Lock Icon Badge",
+                          "width": 48,
+                          "height": 48,
+                          "fill": "#f0f9ff",
+                          "cornerRadius": 24,
+                          "stroke": "#bae6fd",
+                          "strokeWidth": 1,
+                          "layout": "vertical",
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "v2Bflb",
+                              "fill": "#0284c7",
+                              "content": "🔑",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "iLpgZ",
+                      "name": "Forgot Password Form Container",
+                      "context": "div",
+                      "width": 380,
+                      "layout": "vertical",
+                      "gap": 16,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "wdKLi",
+                          "name": "Security Alert Banner",
+                          "context": "div",
+                          "width": 380,
+                          "fill": "#f0fdf4",
+                          "cornerRadius": 8,
+                          "stroke": "#bbf7d0",
+                          "strokeWidth": 2,
+                          "strokeAlignment": "inner",
+                          "padding": 12,
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Ptyxh",
+                              "name": "💡 Thử nghiệm phiên bản Demo?",
+                              "context": "span",
+                              "fill": "#15803d",
+                              "content": "🔒 Nhận mã OTP qua Email",
+                              "lineHeight": 1.33,
+                              "fontFamily": "Geist",
+                              "fontSize": 12,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "ONmPx",
+                              "name": "button",
+                              "context": "Button - button",
+                              "width": 159.19,
+                              "height": 28,
+                              "fill": "#ffffff",
+                              "cornerRadius": 6,
+                              "stroke": "#86efac",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "gap": 6,
+                              "padding": [
+                                2,
+                                8
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "QYSHD",
+                                  "name": "svg",
+                                  "context": "Key - svg",
+                                  "clip": true,
+                                  "width": 14,
+                                  "height": 14,
+                                  "layout": "none",
+                                  "children": [
+                                    {
+                                      "type": "path",
+                                      "id": "RM6bp",
+                                      "x": 1.75,
+                                      "y": 1.7501122355461123,
+                                      "geometry": "M13.555 0.84281l3.602 3.602c0.53964 0.53956 0.84281 1.2714 0.84281 2.0345 0 0.7631-0.30317 1.49495-0.84281 2.0345l-2.643 2.643c-0.53956 0.53964-1.2714 0.84281-2.0345 0.84281-0.7631 0-1.49495-0.30317-2.0345-0.84281l-0.301-0.301-6.558 6.558c-0.33228 0.33223-0.77093 0.53686-1.239 0.578l-0.175 0.008-1.172 0c-0.50697-0.00007-0.93368-0.37951-0.993-0.883l-0.007-0.117 0-1.172c0.00011-0.46955 0.16543-0.92409 0.467-1.284l0.119-0.13 0.414-0.414 2 0 0-2 2 0 0-2 2.144-2.144-0.301-0.301c-0.53964-0.53955-0.84281-1.2714-0.84281-2.0345 0-0.7631 0.30317-1.49495 0.84281-2.0345l2.643-2.643c0.53955-0.53964 1.2714-0.84281 2.0345-0.84281 0.7631 0 1.49495 0.30317 2.0345 0.84281m-1.555 5.157l0.01 0",
+                                      "width": 10.499887625376385,
+                                      "height": 10.499887764453888,
+                                      "stroke": "#fe9a00",
+                                      "strokeWidth": 1.1666666666666667,
+                                      "strokeLinejoin": "round",
+                                      "strokeLinecap": "round"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "Ouo3G",
+                                  "name": "Xem tài khoản Demo",
+                                  "fill": "#166534",
+                                  "content": "Hiệu lực 15 phút",
+                                  "lineHeight": 1.33,
+                                  "textAlign": "center",
+                                  "fontFamily": "Geist",
+                                  "fontSize": 11,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "F5EOji",
+                          "name": "form",
+                          "context": "form",
+                          "width": 380,
+                          "layout": "vertical",
+                          "gap": 16,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "QjCHt",
+                              "name": "div",
+                              "context": "div",
+                              "width": 380,
+                              "height": 54,
+                              "layout": "vertical",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "VPePk",
+                                  "name": "Email hoặc Tên đăng nhập",
+                                  "context": "Label - label",
+                                  "fill": "#000000",
+                                  "content": "Địa chỉ Email doanh nghiệp *",
+                                  "lineHeight": 1,
+                                  "fontFamily": "Geist",
+                                  "fontSize": 14,
+                                  "fontWeight": "500"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "Ig4ah",
+                                  "name": "Email Input Box",
+                                  "width": 380,
+                                  "height": 42,
+                                  "fill": "#ffffff",
+                                  "cornerRadius": 8,
+                                  "stroke": "#cbd5e1",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    0,
+                                    12
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "s87eq",
+                                      "name": "Placeholder Text",
+                                      "fill": "#94a3b8",
+                                      "content": "vd: dispatcher@logistics.vn, admin@logistics.vn",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 13,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "kNiDs",
+                              "name": "Đăng nhập",
+                              "context": "Button - button",
+                              "width": 380,
+                              "height": 32,
+                              "fill": "#000000",
+                              "cornerRadius": 8,
+                              "padding": [
+                                0,
+                                10
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "RGa5o",
+                                  "fill": "#ffffff",
+                                  "content": "Gửi liên kết khôi phục",
+                                  "lineHeight": 1.43,
+                                  "textAlign": "center",
+                                  "fontFamily": "Geist",
+                                  "fontSize": 14,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "v6ngT",
+                              "name": "Back to Login Button",
+                              "context": "Button - button",
+                              "width": 380,
+                              "height": 40,
+                              "fill": "#00000000",
+                              "cornerRadius": 8,
+                              "stroke": "#e2e8f0",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                10
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "oah3D",
+                                  "fill": "#334155",
+                                  "content": "← Quay lại trang Đăng nhập",
+                                  "lineHeight": 1.43,
+                                  "textAlign": "center",
+                                  "fontFamily": "Geist",
+                                  "fontSize": 13,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "DmaVu",
+      "x": 3100,
+      "y": 0,
+      "name": "Logistics TMS - Forgot Password (Success State)",
+      "clip": true,
+      "width": 1440,
+      "height": 900,
+      "fill": "#ffffff",
+      "layout": "none",
+      "children": [
+        {
+          "type": "frame",
+          "id": "eOtGn",
+          "x": 0,
+          "y": 0,
+          "name": "Left Column (Visual Hero)",
+          "clip": true,
+          "width": 720,
+          "height": 900,
+          "fill": "#020617",
+          "layout": "vertical",
+          "padding": 40,
+          "justifyContent": "space_between",
+          "children": [
+            {
+              "type": "frame",
+              "id": "GzLm9",
+              "name": "Top Brand Row",
+              "width": 640,
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "RVJ1P",
+                  "name": "Logo Group",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "W6a2e",
+                      "name": "Logo Icon",
+                      "fill": "#1e3a8a",
+                      "cornerRadius": 10,
+                      "padding": [
+                        6,
+                        8
+                      ],
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "nH42H",
+                          "name": "Logo S",
+                          "fill": "#38bdf8",
+                          "content": "⚡",
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "ijaJH",
+                      "name": "Logo Text",
+                      "fill": "#ffffff",
+                      "content": "Logistics TMS",
+                      "fontFamily": "Inter",
+                      "fontSize": 18,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "CTpxz",
+                  "name": "Security Tag",
+                  "fill": "#0f172a",
+                  "cornerRadius": 999,
+                  "padding": [
+                    4,
+                    12
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Z7fEA",
+                      "name": "Tag Text",
+                      "fill": "#38bdf8",
+                      "content": "Security & Auth",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "un5nL",
+              "name": "Center Tech Badge",
+              "width": 440,
+              "fill": "#0f172a",
+              "cornerRadius": 16,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": [
+                20,
+                24
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "bfvST",
+                  "name": "Ping Row",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "A3zeu",
+                      "name": "Dot",
+                      "fill": "#34d399",
+                      "content": "🟢",
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "VtKeu",
+                      "name": "Badge Title",
+                      "fill": "#38bdf8",
+                      "content": "Bảo mật & Khôi phục Tài Khoản",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "APeAf",
+                  "name": "Badge Desc",
+                  "fill": "#94a3b8",
+                  "textGrowth": "fixed-width",
+                  "width": 390,
+                  "content": "Hệ thống bảo mật xác thực hai lớp (2FA) bảo vệ toàn diện dữ liệu đơn hàng, điều phối xe và kho bãi tập trung.",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "w057QD",
+              "name": "Bottom Testimonial",
+              "width": 640,
+              "fill": "#0f172a",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "gap": 4,
+              "padding": [
+                16,
+                20
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Md6Z2",
+                  "name": "Quote Text",
+                  "fill": "#cbd5e1",
+                  "textGrowth": "fixed-width",
+                  "width": 600,
+                  "content": "“Bảo mật thông tin và tính sẵn sàng cao là ưu tiên hàng đầu trong vận hành Logistics TMS.”",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "dySpt",
+                  "name": "Quote Author",
+                  "fill": "#64748b",
+                  "content": "Logistics TMS Platform",
+                  "fontFamily": "Inter",
+                  "fontSize": 11,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "Bilcc",
+          "x": 720,
+          "y": 0,
+          "name": "Right Column (Success Form View)",
+          "width": 720,
+          "height": 900,
+          "fill": "#ffffff",
+          "layout": "vertical",
+          "padding": 40,
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "BgCrf",
+              "name": "Success Center Box",
+              "width": 440,
+              "layout": "vertical",
+              "gap": 20,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "jTHsp",
+                  "name": "Success Alert Card",
+                  "width": 440,
+                  "fill": "#f0fdf4",
+                  "cornerRadius": 16,
+                  "layout": "vertical",
+                  "gap": 14,
+                  "padding": [
+                    32,
+                    24
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "UARCm",
+                      "name": "Check Icon Circle",
+                      "fill": "#dcfce7",
+                      "cornerRadius": 999,
+                      "padding": [
+                        10,
+                        16
+                      ],
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "flifa",
+                          "name": "Checkmark",
+                          "fill": "#16a34a",
+                          "content": "✓",
+                          "fontFamily": "Inter",
+                          "fontSize": 24,
+                          "fontWeight": "800"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "iiCAM",
+                      "name": "Success Title",
+                      "fill": "#0f172a",
+                      "content": "Đã gửi yêu cầu khôi phục!",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "i8rDSh",
+                      "name": "Success Desc",
+                      "fill": "#475569",
+                      "textGrowth": "fixed-width",
+                      "width": 380,
+                      "content": "Chúng tôi đã gửi hướng dẫn và liên kết đặt lại mật khẩu đến địa chỉ email doanh nghiệp:",
+                      "textAlign": "center",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "kUAPk",
+                      "name": "Email Box",
+                      "fill": "#ffffff",
+                      "cornerRadius": 8,
+                      "padding": [
+                        8,
+                        18
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "aemIL",
+                          "name": "Email Value",
+                          "fill": "#065f46",
+                          "content": "dispatcher@spiderexpress.vn",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "dGFga",
+                      "name": "Expiry Tip Box",
+                      "width": 380,
+                      "fill": "#ffffff",
+                      "cornerRadius": 8,
+                      "layout": "vertical",
+                      "padding": [
+                        10,
+                        14
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "h70V9p",
+                          "name": "Tip Text",
+                          "fill": "#64748b",
+                          "textGrowth": "fixed-width",
+                          "width": 352,
+                          "content": "💡 Vui lòng kiểm tra cả hộp thư rác (Spam/Junk) nếu không thấy email trong hộp thư đến. Liên kết có hiệu lực trong 15 phút.",
+                          "textAlign": "center",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "hYcq0",
+                  "name": "Action Button Box",
+                  "width": 440,
+                  "layout": "vertical",
+                  "gap": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "gPRGA",
+                      "name": "Back to Login Button",
+                      "width": 440,
+                      "fill": "#0f172a",
+                      "cornerRadius": 8,
+                      "padding": [
+                        12,
+                        24
+                      ],
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "MM1Bw",
+                          "name": "Button Label",
+                          "fill": "#ffffff",
+                          "content": "← Quay lại trang đăng nhập",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
+  "variables": {
+    "bg-app": {
+      "type": "color",
+      "value": "#020617"
+    },
+    "bg-card": {
+      "type": "color",
+      "value": "#0f172a"
+    },
+    "bg-popover": {
+      "type": "color",
+      "value": "#0f172a"
+    },
+    "text-primary": {
+      "type": "color",
+      "value": "#f8fafc"
+    },
+    "text-secondary": {
+      "type": "color",
+      "value": "#94a3b8"
+    },
+    "primary": {
+      "type": "color",
+      "value": "#2563eb"
+    },
+    "accent-cyan": {
+      "type": "color",
+      "value": "#38bdf8"
+    },
+    "destructive": {
+      "type": "color",
+      "value": "#ef4444"
+    },
+    "border-subtle": {
+      "type": "color",
+      "value": "#334155"
+    },
+    "status-draft": {
+      "type": "color",
+      "value": "#94a3b8"
+    },
+    "status-pending": {
+      "type": "color",
+      "value": "#fbbf24"
+    },
+    "status-assigned": {
+      "type": "color",
+      "value": "#38bdf8"
+    },
+    "status-in-transit": {
+      "type": "color",
+      "value": "#818cf8"
+    },
+    "status-delivered": {
+      "type": "color",
+      "value": "#34d399"
+    },
+    "status-cancelled": {
+      "type": "color",
+      "value": "#f87171"
+    },
+    "radius-sm": {
+      "type": "number",
+      "value": 4
+    },
+    "radius-md": {
+      "type": "number",
+      "value": 6
+    },
+    "radius-lg": {
+      "type": "number",
+      "value": 8
+    },
+    "font-main": {
+      "type": "string",
+      "value": "Inter"
+    }
+  },
   "fileToken": "1f61114c-88e2-4c22-94b8-238d764139a3",
   "fonts": [
     {

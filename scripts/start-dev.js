@@ -23,7 +23,7 @@ const ROOT         = path.resolve(__dirname, '..');
 const BACKEND_DIR  = path.join(ROOT, 'backend');
 const FRONTEND_DIR = path.join(ROOT, 'frontend');
 
-const BACKEND_HEALTH_URL = process.env.BACKEND_HEALTH_URL || 'http://localhost:3001/api';
+const BACKEND_HEALTH_URL = process.env.BACKEND_HEALTH_URL || 'http://localhost:3005/api';
 const WAIT_TIMEOUT_MS    = parseInt(process.env.WAIT_TIMEOUT_MS  || '120000', 10); // 2 min
 const WAIT_INTERVAL_MS   = parseInt(process.env.WAIT_INTERVAL_MS || '2000',   10); // 2 s
 

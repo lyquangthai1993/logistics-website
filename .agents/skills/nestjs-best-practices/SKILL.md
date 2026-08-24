@@ -23,6 +23,9 @@ This skill provides guidelines and patterns for developing high-quality, maintai
 6. **API Listing & Pagination Policy**:
    - **Zero-Assumption Rule**: For all collection endpoints (`GET /<resources>`), agents **MUST prompt/confirm with the user** whether pagination is required. Never assume a flat list.
    - For `PaginatedResult<T>` schema and lookup separation guidelines: 👉 [`references/api-pagination-guidelines.md`](file:///d:/Projects/logistics-website/.agents/skills/nestjs-best-practices/references/api-pagination-guidelines.md).
+7. **AI Model Selection & Fallback Policy**:
+   - **Primary Model**: Prefer **Claude** (Claude Sonnet / Opus) for all NestJS backend feature coding, refactoring, entity design, and complex business logic.
+   - **Fallback Model**: If Claude reaches quota or rate limits, automatically switch to **Gemini 3.6** (Gemini 3.6 Flash / Pro).
 
 ## Structure Pattern
 
