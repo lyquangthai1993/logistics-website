@@ -56,7 +56,7 @@
                       "fill": {
                         "type": "image",
                         "enabled": true,
-                        "url": "images/localhost/3957c11b8d6abdb9.jpg",
+                        "url": "assets/auth-hero.jpg",
                         "mode": "fill"
                       },
                       "width": 833.7,
