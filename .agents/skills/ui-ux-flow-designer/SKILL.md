@@ -37,6 +37,18 @@ This skill provides a structured methodology for analyzing user roles, designing
 
 > 🌟 **Canonical Benchmark**: All data listing tables in the system MUST align with the architecture implemented at [`/dashboard/product`](file:///d:/Projects/logistics-website/frontend/src/app/dashboard/product/page.tsx) and [`ProductTable`](file:///d:/Projects/logistics-website/frontend/src/features/products/components/product-tables/index.tsx).
 
+### 🧩 Canonical Element & Form Blueprints (hidden from Sidebar, preserved for reference)
+
+When architecting or building new pages, forms, or UI layouts, agents and `/ui-ux-flow-designer` MUST strictly follow the design standards and component structures established in these reference page routes:
+
+1. **Data Table Benchmark**: [`/dashboard/product`](file:///d:/Projects/logistics-website/frontend/src/app/dashboard/product/page.tsx) — TanStack Table v8, sticky headers, column pinning, shallow routing & URL synced search/pagination.
+2. **Basic Form Standard**: [`/dashboard/forms/basic`](file:///d:/Projects/logistics-website/frontend/src/app/dashboard/forms/basic/page.tsx) — Standard form layout with React Hook Form, Zod schema validation, and inline field error states.
+3. **Multi-Step Form Wizard**: [`/dashboard/forms/multi-step`](file:///d:/Projects/logistics-website/frontend/src/app/dashboard/forms/multi-step/page.tsx) — Multi-stage stepper flow for complex data entry (order dispatch setup, driver onboarding).
+4. **Sheet & Dialog Forms**: [`/dashboard/forms/sheet-form`](file:///d:/Projects/logistics-website/frontend/src/app/dashboard/forms/sheet-form/page.tsx) — Contextual slide-over Sheet drawers and Modal Dialogs for fast inspection/editing.
+5. **Advanced Patterns**: [`/dashboard/forms/advanced`](file:///d:/Projects/logistics-website/frontend/src/app/dashboard/forms/advanced/page.tsx) — Dynamic field arrays, multi-select dropdowns, and complex form controls.
+6. **React Query Patterns**: [`/dashboard/react-query`](file:///d:/Projects/logistics-website/frontend/src/app/dashboard/react-query/page.tsx) — Async data fetching, skeleton loaders, mutation handlers, and refetching.
+7. **System Icon Gallery**: [`/dashboard/elements/icons`](file:///d:/Projects/logistics-website/frontend/src/app/dashboard/elements/icons/page.tsx) — Authoritative Lucide / system icon set reference.
+
 ### 1. Architectural Stack & Shared Components
 - **Core Library**: TanStack React Table (`@tanstack/react-table` v8)
 - **URL Search Params Synchronization**: `nuqs` (`useQueryStates`, `parseAsInteger`, `parseAsString`, `getSortingStateParser`)
