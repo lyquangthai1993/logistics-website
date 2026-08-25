@@ -22,12 +22,13 @@ The frontend is architected on top of the **[next-shadcn-dashboard-starter](http
 Orchestrator Agent (this skill)
 ├── Sub-Agent D: Runtime Log Tracer         → e2e/00-runtime-log-tracer.spec.ts  ← RUN FIRST
 ├── Sub-Agent A: Console Health Inspector   → e2e/01-console-health.spec.ts
-├── Sub-Agent B: Login Flow Tester          → e2e/02-login-flow.spec.ts
+├── Sub-Agent B: Login Flow Tester          → e2e/02-login-flow.spec.ts (Auth & Error Sanitization)
 ├── Sub-Agent C: RBAC Route Guard Validator → e2e/03-rbac-routing.spec.ts
 └── Sub-Agent E: Viewport & Table UX Suite  → e2e/11-*-no-hscroll.spec.ts (or responsive specs)
 ```
 
 > **Sub-Agent D runs first** — surfaces backend/network issues early to prevent cascading timeouts in B, C, and E.
+> **Sub-Agent B strictly validates Error Sanitization** — asserts localized Vietnamese error messages and verifies that raw technical keys/codes (e.g. `incorrectEmailOrPassword`, `notFound`, `emailNotExists`, `email:`, `password:`) are NEVER rendered in the UI.
 
 ---
 
