@@ -17,13 +17,29 @@ const path      = require('path');
 const http      = require('http');
 const https     = require('https');
 
+const fs        = require('fs');
+
 // ─── Configuration ────────────────────────────────────────────────────────────
 
 const ROOT         = path.resolve(__dirname, '..');
 const BACKEND_DIR  = path.join(ROOT, 'backend');
 const FRONTEND_DIR = path.join(ROOT, 'frontend');
 
-const BACKEND_HEALTH_URL = process.env.BACKEND_HEALTH_URL || 'http://localhost:3005/api';
+// Dynamically read backend/.env for port and api prefix if not specified in env
+const backendEnvPath = path.join(BACKEND_DIR, '.env');
+let backendPort = '3001';
+let apiPrefix = 'api';
+
+if (fs.existsSync(backendEnvPath)) {
+  const envContent = fs.readFileSync(backendEnvPath, 'utf8');
+  const portMatch = envContent.match(/^(?:APP_PORT|PORT)\s*=\s*(.+)$/m);
+  const prefixMatch = envContent.match(/^API_PREFIX\s*=\s*(.+)$/m);
+  if (portMatch) backendPort = portMatch[1].trim().replace(/['"]/g, '');
+  if (prefixMatch) apiPrefix = prefixMatch[1].trim().replace(/['"]/g, '');
+}
+
+const defaultBackendUrl = `http://localhost:${backendPort}/${apiPrefix}`;
+const BACKEND_HEALTH_URL = process.env.BACKEND_HEALTH_URL || defaultBackendUrl;
 const WAIT_TIMEOUT_MS    = parseInt(process.env.WAIT_TIMEOUT_MS  || '120000', 10); // 2 min
 const WAIT_INTERVAL_MS   = parseInt(process.env.WAIT_INTERVAL_MS || '2000',   10); // 2 s
 
