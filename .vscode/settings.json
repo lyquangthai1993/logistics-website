@@ -28,5 +28,10 @@
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true
-  }
+  },
+  "workbench.colorCustomizations": {
+    "terminal.ansiBrightBlack": "#aaaaaa",
+    "terminal.ansiBlack": "#777777"
+  },
+  "playwright.showBrowser": true
 }
