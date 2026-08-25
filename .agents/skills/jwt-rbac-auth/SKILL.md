@@ -514,3 +514,10 @@ export function useRBAC() {
 | CORS block cookie | Backend chưa cho phép credentials | Set `credentials: true` trong CORS config |
 | Token expired ngay | Server/Client timezone khác | Dùng UTC, check `exp` claim |
 | Role guard không work | Guard order sai | `JwtAuthGuard` phải chạy TRƯỚC `RolesGuard` |
+| Lộ error code kỹ thuật | Render raw `errors` object trên FE | Dùng `formatApiError()` từ `@/lib/api-error`, ưu tiên `errorData.message` và dịch `incorrectEmailOrPassword` |
+
+## Auth Error Handling & Sanitization
+
+- Backend trả về uniform error codes (vd: `incorrectEmailOrPassword`) hoặc localized `message`.
+- Frontend **bắt buộc** dùng `formatApiError(err)` thay vì in trực tiếp `err.response.data.errors`.
+- Tuyệt đối không hiển thị dạng `email: incorrectEmailOrPassword | password: ...` cho người dùng.

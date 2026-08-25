@@ -13,6 +13,7 @@
 - **Schema & Migrations**: BEFORE modifying, renaming, or dropping existing DB columns/entities, analyze data impact, notify the user, and get explicit approval before generating/running migrations.
 - **Git Safety**: NEVER run `git push --force` or push code without explicit user request.
 - **Codebase Integrity**: DO NOT delete critical source folders or bypass error checks with silent fallbacks.
+- **Frontend Error Sanitization Rule**: NEVER render raw technical error keys/codes (e.g., `incorrectEmailOrPassword`, `notFound`, `emailNotExists`, camelCase identifiers, raw DTO constraint dumps) directly to users. Error handling MUST use `formatApiError()` in `@/lib/api-error`, prioritize localized user-facing API messages (`errorData.message`), and map technical codes to clear Vietnamese messages.
 - **RBAC Compliance**: Before adding/modifying any endpoint or menu, MUST reference [`rbac-matrix.md`](file:///d:/Projects/logistics-website/.agents/rules/rbac-matrix.md) — the system's authoritative permission matrix. Ensure all 3 layers are updated: Sidebar UI, Route Guard, API Guard.
 
 ## Model Selection Strategy & Guidelines

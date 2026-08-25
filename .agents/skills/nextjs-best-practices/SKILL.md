@@ -23,6 +23,11 @@ This skill provides guidelines and patterns for developing modern, performant Ne
    - Component composition using Shadcn UI / Radix UI primitives.
 5. **API Integration with NestJS**:
    - Centralize API calls in `lib/api/` or `services/` with an `axios` or `fetch` wrapper handling JWT auth tokens and error responses.
+6. **API Error Handling & Sanitization (MANDATORY)**:
+   - **NEVER** expose raw technical error keys or codes (e.g. `incorrectEmailOrPassword`, `notFound`, `emailNotExists`, unformatted JSON objects) directly in the UI.
+   - Always use `formatApiError()` from `@/lib/api-error` or `showApiErrorToast()`.
+   - Prioritize localized, human-friendly API messages (`errorData.message`) from backend over raw technical error keys.
+   - Maintain `ERROR_CODE_TRANSLATIONS` in `@/lib/api-error` for any new business exception codes.
 
 ## Structure Pattern
 
