@@ -175,6 +175,18 @@
 
 ---
 
+### Mail & Health Controller
+> **Files**: `backend/src/mail/mail.controller.ts`, `backend/src/home/home.controller.ts`
+
+| Endpoint | Method | SUPER_ADMIN | DISPATCHER | FLEET_MANAGER | WAREHOUSE_MANAGER | Ghi chú |
+|---|---|:-----------:|:----------:|:-------------:|:-----------------:|---|
+| `/health` | GET | ✅ | ✅ | ✅ | ✅ | Public (Uptime / Health check) |
+| `/v1/mail/queue-status` | GET | ✅ | ❌ | ❌ | ❌ | SUPER_ADMIN only — Giám sát Redis/BullMQ |
+| `/v1/mail/queue-clean` | POST | ✅ | ❌ | ❌ | ❌ | SUPER_ADMIN only — Dọn dẹp Redis |
+| `/v1/mail/test-send` | POST | ✅ | ✅ | ❌ | ❌ | JWT + Roles Guard |
+
+---
+
 ## Quy tắc triển khai (Implementation Rules)
 
 > **PHẢI tuân thủ** khi thêm endpoint hoặc menu mới:
