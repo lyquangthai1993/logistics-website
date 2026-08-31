@@ -1,15 +1,16 @@
 ---
-name: pencil-ui-converter
+name: pencil-ui-designer
 description: >-
-  Dedicated agent and skill for designing brand-new vector UI/UX screens from scratch and converting existing
-  Next.js / Web UIs directly onto Pencil (.pen) canvas files via Pencil MCP tools.
-  Manages pencil-workspace/UI_UX.pen, creates wireframes, dashboards, modals, imports live URLs, and coordinates design tokens.
-  Triggers on: "pencil", "pen", "tạo ui", "thiết kế ui", "vẽ ui mới", "convert ui", "pencil-workspace", "ui_ux.pen", "design canvas".
+  Dedicated agent and skill for full-lifecycle vector UI/UX design, screen creation from scratch,
+  layout modifications, wireframing, component design kits, and converting existing Web UIs
+  directly onto Pencil (.pen) canvas files via Pencil MCP tools.
+  Manages pencil-workspace/UI_UX.pen, creates wireframes, dashboards, modals, and coordinates design tokens.
+  Triggers on: "pencil", "pen", "tạo ui", "thiết kế ui", "vẽ ui mới", "sửa ui", "chỉnh sửa giao diện", "convert ui", "pencil-workspace", "ui_ux.pen", "design canvas".
 ---
 
-# Pencil UI Designer & Converter Agent
+# Pencil UI Designer Agent
 
-This specialized skill and agent governs all **net-new UI/UX screen design**, **interactive wireframing**, and **live web UI conversion** directly on `.pen` vector canvas files via **Pencil MCP**. It works in close tandem with [`ui-ux-flow-designer`](file:///d:/Projects/logistics-website/.agents/skills/ui-ux-flow-designer/SKILL.md) to transform operational user journeys and canonical page layouts into visual vector wireframes.
+This specialized skill and agent governs all **net-new UI/UX screen design**, **layout modifications & optimizations**, **interactive wireframing**, and **live web UI conversion** directly on `.pen` vector canvas files via **Pencil MCP**. It works in close tandem with [`ui-ux-flow-designer`](file:///d:/Projects/logistics-website/.agents/skills/ui-ux-flow-designer/SKILL.md) to transform operational user journeys and canonical page layouts into visual vector wireframes.
 
 ---
 
