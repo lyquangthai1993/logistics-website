@@ -6902,6 +6902,698 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "FLHub",
+      "x": 6200,
+      "y": 0,
+      "name": "5. EMPTY — Navigation & Header Shell",
+      "clip": true,
+      "width": 1440,
+      "height": 960,
+      "fill": "#F8FAFC",
+      "cornerRadius": 8,
+      "stroke": "#2563eb",
+      "strokeWidth": 2,
+      "children": [
+        {
+          "type": "frame",
+          "id": "mtd64",
+          "name": "Dispatcher Sidebar",
+          "width": 256,
+          "height": 960,
+          "fill": "#FFFFFF",
+          "stroke": "#E2E8F0",
+          "strokeWidth": {
+            "right": 1
+          },
+          "layout": "vertical",
+          "padding": [
+            16,
+            12
+          ],
+          "justifyContent": "space_between",
+          "children": [
+            {
+              "type": "frame",
+              "id": "eMq6S",
+              "name": "Sidebar Top",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "GiIC3",
+                  "name": "Company Branding",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "padding": [
+                    4,
+                    8
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "KlNgq",
+                      "name": "Logo Box",
+                      "width": 32,
+                      "height": 32,
+                      "fill": "#020618",
+                      "cornerRadius": 8,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "Rs8R2",
+                          "name": "LogoIco",
+                          "width": 16,
+                          "height": 16,
+                          "icon": "command",
+                          "library": "lucide",
+                          "fill": "#FFFFFF"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Lg87o",
+                      "name": "Brand Text",
+                      "layout": "vertical",
+                      "gap": 1,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "YgPWY",
+                          "name": "AppName",
+                          "fill": "#020618",
+                          "content": "Logistics TMS",
+                          "fontFamily": "Inter",
+                          "fontSize": 13.5,
+                          "fontWeight": "bold"
+                        },
+                        {
+                          "type": "text",
+                          "id": "D4l9dt",
+                          "name": "AppSub",
+                          "fill": "#64748B",
+                          "content": "Transport Management",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "gscCd",
+                  "name": "Nav Groups Container",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 14,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "sssJt",
+                      "name": "Group - OVERVIEW",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "SqrTo",
+                          "name": "Group Label Frame",
+                          "width": "fill_container",
+                          "padding": [
+                            4,
+                            8
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Z67Kw",
+                              "name": "GL",
+                              "fill": "#94A3B8",
+                              "content": "OVERVIEW",
+                              "fontFamily": "Inter",
+                              "fontSize": 10.5,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "BKerb",
+                          "name": "Dashboard",
+                          "width": "fill_container",
+                          "fill": "#00000000",
+                          "cornerRadius": 6,
+                          "gap": 10,
+                          "padding": [
+                            8,
+                            10
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "FS3FS",
+                              "name": "Ico",
+                              "width": 15,
+                              "height": 15,
+                              "icon": "layout-dashboard",
+                              "library": "lucide",
+                              "fill": "#64748B"
+                            },
+                            {
+                              "type": "text",
+                              "id": "FRUEq",
+                              "name": "Txt",
+                              "fill": "#334155",
+                              "content": "Dashboard",
+                              "fontFamily": "Inter",
+                              "fontSize": 12.5,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Urv7J",
+                      "name": "Group - VẬN HÀNH TMS",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "Dk4pp",
+                          "name": "Group Label Frame",
+                          "width": "fill_container",
+                          "padding": [
+                            4,
+                            8
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "WY4K3",
+                              "name": "GL",
+                              "fill": "#94A3B8",
+                              "content": "VẬN HÀNH TMS",
+                              "fontFamily": "Inter",
+                              "fontSize": 10.5,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "x9PP9",
+                          "name": "Lệnh điều vận",
+                          "width": "fill_container",
+                          "fill": "#F1F5F9",
+                          "cornerRadius": 6,
+                          "gap": 10,
+                          "padding": [
+                            8,
+                            10
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "r2t8w",
+                              "name": "Ico",
+                              "width": 15,
+                              "height": 15,
+                              "icon": "clipboard-list",
+                              "library": "lucide",
+                              "fill": "#020618"
+                            },
+                            {
+                              "type": "text",
+                              "id": "k4Fok1",
+                              "name": "Txt",
+                              "fill": "#020618",
+                              "content": "Lệnh điều vận",
+                              "fontFamily": "Inter",
+                              "fontSize": 12.5,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mDrnX",
+                      "name": "Group - KHÔNG GIAN LÀM VIỆC",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "Zrps4",
+                          "name": "Group Label Frame",
+                          "width": "fill_container",
+                          "padding": [
+                            4,
+                            8
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "GAII6",
+                              "name": "GL",
+                              "fill": "#94A3B8",
+                              "content": "KHÔNG GIAN LÀM VIỆC",
+                              "fontFamily": "Inter",
+                              "fontSize": 10.5,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "dKhZf",
+                          "name": "Kanban",
+                          "width": "fill_container",
+                          "fill": "#00000000",
+                          "cornerRadius": 6,
+                          "gap": 10,
+                          "padding": [
+                            8,
+                            10
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "pFZHM",
+                              "name": "Ico",
+                              "width": 15,
+                              "height": 15,
+                              "icon": "kanban",
+                              "library": "lucide",
+                              "fill": "#64748B"
+                            },
+                            {
+                              "type": "text",
+                              "id": "nSSqh",
+                              "name": "Txt",
+                              "fill": "#334155",
+                              "content": "Kanban",
+                              "fontFamily": "Inter",
+                              "fontSize": 12.5,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "F8O3aa",
+                          "name": "Chat",
+                          "width": "fill_container",
+                          "fill": "#00000000",
+                          "cornerRadius": 6,
+                          "gap": 10,
+                          "padding": [
+                            8,
+                            10
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "gDYAb",
+                              "name": "Ico",
+                              "width": 15,
+                              "height": 15,
+                              "icon": "message-square",
+                              "library": "lucide",
+                              "fill": "#64748B"
+                            },
+                            {
+                              "type": "text",
+                              "id": "HVUc1",
+                              "name": "Txt",
+                              "fill": "#334155",
+                              "content": "Chat",
+                              "fontFamily": "Inter",
+                              "fontSize": 12.5,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "e3Agnx",
+                          "name": "AI Chat",
+                          "width": "fill_container",
+                          "fill": "#00000000",
+                          "cornerRadius": 6,
+                          "gap": 10,
+                          "padding": [
+                            8,
+                            10
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "JOG0J",
+                              "name": "Ico",
+                              "width": 15,
+                              "height": 15,
+                              "icon": "sparkles",
+                              "library": "lucide",
+                              "fill": "#64748B"
+                            },
+                            {
+                              "type": "text",
+                              "id": "YQHcF",
+                              "name": "Txt",
+                              "fill": "#334155",
+                              "content": "AI Chat",
+                              "fontFamily": "Inter",
+                              "fontSize": 12.5,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "X3Qaef",
+              "name": "Sidebar Footer (User Profile)",
+              "width": "fill_container",
+              "fill": "#F8FAFC",
+              "cornerRadius": 8,
+              "stroke": "#E2E8F0",
+              "strokeWidth": 1,
+              "padding": [
+                8,
+                10
+              ],
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "QvrEm",
+                  "name": "UL",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "pN5bl",
+                      "name": "Avatar",
+                      "width": 30,
+                      "height": 30,
+                      "fill": "#020618",
+                      "cornerRadius": 6,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "mydAw",
+                          "name": "Initials",
+                          "fill": "#FFFFFF",
+                          "content": "DP",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "bold"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "HwBpx",
+                      "name": "Info",
+                      "layout": "vertical",
+                      "gap": 1,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "tnN8Y",
+                          "name": "UN",
+                          "fill": "#0F172A",
+                          "content": "Điều phối viên",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "sr3eL",
+                          "name": "UE",
+                          "fill": "#64748B",
+                          "content": "dispatcher@logistics.vn",
+                          "fontFamily": "Inter",
+                          "fontSize": 10.5,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "icon",
+                  "id": "w78Go5",
+                  "name": "ChevronsUpDown",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "chevrons-up-down",
+                  "library": "lucide",
+                  "fill": "#64748B"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "iMDEC",
+          "name": "Dispatcher Main Content Area",
+          "width": 1184,
+          "height": 960,
+          "fill": "#F8FAFC",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "PBmdV",
+              "name": "Topbar",
+              "width": "fill_container",
+              "height": 52,
+              "fill": "#FFFFFF",
+              "stroke": "#E2E8F0",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "padding": [
+                0,
+                24
+              ],
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "wiA8G",
+                  "name": "Breadcrumb",
+                  "fill": "#64748B",
+                  "content": "Dashboard",
+                  "fontFamily": "Inter",
+                  "fontSize": 12.5,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "Ifwkn",
+                  "name": "Top Right",
+                  "gap": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "z8KzHB",
+                      "name": "Search Box",
+                      "width": 180,
+                      "fill": "#F1F5F9",
+                      "cornerRadius": 6,
+                      "gap": 6,
+                      "padding": [
+                        4,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "LQqF2",
+                          "name": "SI",
+                          "width": 13,
+                          "height": 13,
+                          "icon": "search",
+                          "library": "lucide",
+                          "fill": "#94A3B8"
+                        },
+                        {
+                          "type": "text",
+                          "id": "vZBp1",
+                          "name": "ST",
+                          "fill": "#94A3B8",
+                          "content": "Search... ⌘K",
+                          "fontFamily": "Inter",
+                          "fontSize": 11.5,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "WjUwo",
+                      "name": "Theme Toggle Button",
+                      "width": 32,
+                      "height": 32,
+                      "fill": "#F1F5F9",
+                      "cornerRadius": 8,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "M9uYsi",
+                          "name": "Brightness Icon",
+                          "width": 16,
+                          "height": 16,
+                          "icon": "sun",
+                          "library": "lucide",
+                          "fill": "#0F172A"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "jddQU",
+                      "name": "Theme Selector",
+                      "height": 32,
+                      "fill": "#FFFFFF",
+                      "cornerRadius": 8,
+                      "stroke": "#E2E8F0",
+                      "strokeWidth": 1,
+                      "gap": 8,
+                      "padding": [
+                        0,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "U23bX",
+                          "name": "Palette Icon",
+                          "width": 16,
+                          "height": 16,
+                          "icon": "palette",
+                          "library": "lucide",
+                          "fill": "#64748B"
+                        },
+                        {
+                          "type": "text",
+                          "id": "w10wdq",
+                          "name": "Theme Name",
+                          "fill": "#0F172A",
+                          "content": "Vercel",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "S1Re7B",
+                          "name": "Theme Shortcut",
+                          "height": 20,
+                          "fill": "#F1F5F9",
+                          "cornerRadius": 4,
+                          "padding": [
+                            0,
+                            5
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "L3IN6",
+                              "name": "Shortcut Label",
+                              "fill": "#64748B",
+                              "content": "T T",
+                              "fontFamily": "Inter",
+                              "fontSize": 10.5,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "icon",
+                          "id": "R58DL",
+                          "name": "Selector Icon",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "chevrons-up-down",
+                          "library": "lucide",
+                          "fill": "#64748B"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "FtTMm",
+                      "name": "Notification Button",
+                      "width": 32,
+                      "height": 32,
+                      "cornerRadius": 8,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "d2PWWc",
+                          "name": "Bell Icon",
+                          "width": 16,
+                          "height": 16,
+                          "icon": "bell",
+                          "library": "lucide",
+                          "fill": "#0F172A"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "variables": {
