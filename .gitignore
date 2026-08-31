@@ -9,6 +9,7 @@ Thumbs.db
 
 # Node / Dependencies / Build
 node_modules/
+.tools/
 dist/
 .next/
 out/
