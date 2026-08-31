@@ -2,14 +2,35 @@
 name: ui-ux-flow-designer
 description: >-
   Specialized skill for analyzing user journeys, business workflow wireframing, page architecture,
-  and UI/UX frontend design for the Logistics TMS application.
+  and UI/UX frontend design for the Logistics TMS application. Works in direct collaboration with
+  /pencil-ui-converter for visual vector canvas prototyping via Pencil MCP.
   Use when designing frontend pages, layout wireframes, user flow diagrams, component hierarchies,
   or UI interactions for Next.js App Router & Tailwind CSS.
 ---
 
 # UI/UX Flow & Frontend Design Skill
 
-This skill provides a structured methodology for analyzing user roles, designing interactive business flows, and architecting modern frontend UI components for the Logistics TMS system.
+This skill provides a structured methodology for analyzing user roles, designing interactive business flows, and architecting modern frontend UI components for the Logistics TMS system. It collaborates closely with [`pencil-ui-converter`](file:///d:/Projects/logistics-website/.agents/skills/pencil-ui-converter/SKILL.md) to bridge operational logic with visual vector prototyping on Pencil MCP.
+
+---
+
+## 🤝 Pencil MCP & Vector Canvas Collaboration (with `pencil-ui-converter`)
+
+> 💡 **Mandatory Co-Design Protocol**: `/ui-ux-flow-designer` and `/pencil-ui-converter` operate as a unified UI/UX tandem. Whenever UI wireframes, visual mockups, or screen redesigns are required, `/ui-ux-flow-designer` establishes the operational journey and structure, then collaborates directly with `/pencil-ui-converter` to draw, prototype, or import UI screens into [`pencil-workspace/pens/UI_UX.pen`](file:///d:/Projects/logistics-website/pencil-workspace/pens/UI_UX.pen) via Pencil MCP.
+
+### Unified 3-Step UI/UX Delivery Pipeline:
+1. **Step 1: Journey & Requirements Mapping (`ui-ux-flow-designer`)**:
+   - Identify target roles (DISPATCHER, FLEET_MANAGER, WAREHOUSE_MANAGER, SUPER_ADMIN).
+   - Define user goals, data fields, action triggers, and operational status transitions.
+   - Select canonical layout archetype (TanStack Table, Multi-step Stepper, Sheet drawer, KPI Dashboard).
+2. **Step 2: Vector Wireframing & Prototyping (`pencil-ui-converter` via Pencil MCP)**:
+   - Call Pencil MCP tools (`get_app_state`, `execute`, `browser`, `get_style`) inside `pencil-workspace/pens/`.
+   - Layout screens on the 4px Tailwind grid using `FindEmptySpace({ width: 1440, height: 900, direction: "right" })`.
+   - Apply design variables (`$font-main`, `$primary`, `$bg-app`, `$text-primary`) and verify visual output with `TakeScreenshot()`.
+3. **Step 3: Component Implementation (`ui-ux-flow-designer` + `nextjs-best-practices`)**:
+   - Translate verified `.pen` canvas designs into Next.js 15 App Router JSX code.
+   - Use standard Shadcn UI components, Tailwind CSS v4 classes, and TanStack Table patterns (`useDataTable`).
+   - Implement loading guards, per-row async spinners, and Vietnamese Toast feedback.
 
 ---
 

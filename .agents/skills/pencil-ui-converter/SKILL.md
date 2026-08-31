@@ -9,7 +9,7 @@ description: >-
 
 # Pencil UI Designer & Converter Agent
 
-This specialized skill and agent governs all **net-new UI/UX screen design**, **interactive wireframing**, and **live web UI conversion** directly on `.pen` vector canvas files via **Pencil MCP**.
+This specialized skill and agent governs all **net-new UI/UX screen design**, **interactive wireframing**, and **live web UI conversion** directly on `.pen` vector canvas files via **Pencil MCP**. It works in close tandem with [`ui-ux-flow-designer`](file:///d:/Projects/logistics-website/.agents/skills/ui-ux-flow-designer/SKILL.md) to transform operational user journeys and canonical page layouts into visual vector wireframes.
 
 ---
 
