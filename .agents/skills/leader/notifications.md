@@ -1,7 +1,7 @@
 # TMS Notification Matrix & Governance
 
 > **Single Source of Truth** for notification mechanisms (In-app WebSockets & Email) in the Logistics TMS system.
-> Part of the [`tms-domain-lead`](file:///d:/Projects/logistics-website/.agents/skills/tms-domain-lead/SKILL.md) skill.
+> Part of the [`leader`](SKILL.md) skill.
 
 ---
 
@@ -57,7 +57,7 @@ When an order requires an external vehicle (`isExternalVehicleNeeded = true`):
 
 ## 📧 Handlebars Mail Template Registry
 
-Template directory: [`backend/src/mail/mail-templates/`](file:///d:/Projects/logistics-website/backend/src/mail/mail-templates)
+Template directory: [`backend/src/mail/mail-templates/`](../../../backend/src/mail/mail-templates)
 
 | Template File | Purpose | Required Context Data |
 |---|---|---|

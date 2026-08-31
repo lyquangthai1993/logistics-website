@@ -23,7 +23,7 @@
 ## Registered Skills & Agents
 
 ### Specialized Skills
-- [`tms-domain-lead`](file:///d:/Projects/logistics-website/.agents/skills/tms-domain-lead/SKILL.md): **[READ FIRST]** Business domain Team Lead — single source of truth for dispatch flows, role permissions, and notification matrix (who gets notified when). MANDATORY activation before implementing status transitions, notifications, or any new business feature.
+- [`leader`](.agents/skills/leader/SKILL.md): **[READ FIRST]** Business domain Team Lead — single source of truth for dispatch flows, role permissions, and notification matrix (who gets notified when). MANDATORY activation before implementing status transitions, notifications, or any new business feature.
 - [`nestjs-best-practices`](file:///d:/Projects/logistics-website/.agents/skills/nestjs-best-practices/SKILL.md): Backend architecture, NestJS patterns, TypeORM migrations, DTOs, controllers, services. Decides **how** (technical) — not **what/who** (business logic).
 - [`nextjs-best-practices`](file:///d:/Projects/logistics-website/.agents/skills/nextjs-best-practices/SKILL.md): Frontend App Router structure, React 19, Zustand stores, TanStack Query v5 API integration.
 - [`ui-ux-flow-designer`](file:///d:/Projects/logistics-website/.agents/skills/ui-ux-flow-designer/SKILL.md): User flow analysis, wireframing, role-based interaction design (DISPATCHER, FLEET_MANAGER, WAREHOUSE_MANAGER, SUPER_ADMIN), and UI layout architecture. Works in direct tandem with [`pencil-ui-designer`](file:///d:/Projects/logistics-website/.agents/skills/pencil-ui-designer/SKILL.md) for vector canvas visual prototyping via Pencil MCP.

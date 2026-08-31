@@ -1,5 +1,5 @@
 ---
-name: tms-domain-lead
+name: leader
 description: >-
   Business Domain Team Lead for the Logistics TMS system. Understands full dispatch workflows,
   fleet vehicle assignment, role-based permissions, and notification matrices.
@@ -12,7 +12,7 @@ description: >-
 
 > **Role**: Team Lead for all Transportation Management System (TMS) business logic, operational workflows, and dispatch governance.
 > All decisions regarding **who does what, lifecycle transitions, authorization boundaries, and notification triggers** MUST reference this skill first.
-> This skill defines **WHAT & WHY** (Business), while [`nestjs-best-practices`](file:///d:/Projects/logistics-website/.agents/skills/nestjs-best-practices/SKILL.md) and [`nextjs-best-practices`](file:///d:/Projects/logistics-website/.agents/skills/nextjs-best-practices/SKILL.md) define **HOW** (Technical Implementation).
+> This skill defines **WHAT & WHY** (Business), while [`nestjs-best-practices`](../nestjs-best-practices/SKILL.md) and [`nextjs-best-practices`](../nextjs-best-practices/SKILL.md) define **HOW** (Technical Implementation).
 
 ---
 
@@ -22,11 +22,11 @@ Before implementing features or modifying workflows, agents MUST reference:
 
 | Document | Key Scope | File Path |
 |---|---|---|
-| **Notification Matrix** | Event triggers, channels, email templates, external vehicle rules | [`notifications.md`](file:///d:/Projects/logistics-website/.agents/skills/tms-domain-lead/notifications.md) |
-| **Workflow Plan** | Dispatch planning, product decisions, split shipment architecture | [`docs/order-dispatch-workflow-plan.md`](file:///d:/Projects/logistics-website/docs/order-dispatch-workflow-plan.md) |
-| **Split Shipment Guide** | 1 Order across multiple Trips & Vehicle capacity allocation | [`docs/SPLIT_SHIPMENT_BUSINESS_INTERVIEW_GUIDE.md`](file:///d:/Projects/logistics-website/docs/SPLIT_SHIPMENT_BUSINESS_INTERVIEW_GUIDE.md) |
-| **User Manual** | Operational user guide and workflow step-by-step | [`docs/user-guide/USER_MANUAL_HUONG_DAN_SU_DUNG.md`](file:///d:/Projects/logistics-website/docs/user-guide/USER_MANUAL_HUONG_DAN_SU_DUNG.md) |
-| **RBAC Matrix** | 3-Layer permission enforcement (Sidebar, Route Guard, API Guard) | [`.agents/rules/rbac-matrix.md`](file:///d:/Projects/logistics-website/.agents/rules/rbac-matrix.md) |
+| **Notification Matrix** | Event triggers, channels, email templates, external vehicle rules | [`notifications.md`](notifications.md) |
+| **Workflow Plan** | Dispatch planning, product decisions, split shipment architecture | [`docs/order-dispatch-workflow-plan.md`](../../../docs/order-dispatch-workflow-plan.md) |
+| **Split Shipment Guide** | 1 Order across multiple Trips & Vehicle capacity allocation | [`docs/SPLIT_SHIPMENT_BUSINESS_INTERVIEW_GUIDE.md`](../../../docs/SPLIT_SHIPMENT_BUSINESS_INTERVIEW_GUIDE.md) |
+| **User Manual** | Operational user guide and workflow step-by-step | [`docs/user-guide/USER_MANUAL_HUONG_DAN_SU_DUNG.md`](../../../docs/user-guide/USER_MANUAL_HUONG_DAN_SU_DUNG.md) |
+| **RBAC Matrix** | 3-Layer permission enforcement (Sidebar, Route Guard, API Guard) | [`.agents/rules/rbac-matrix.md`](../../rules/rbac-matrix.md) |
 
 ---
 
@@ -117,7 +117,7 @@ sequenceDiagram
 
 For event triggers, recipient matrices, WebSocket vs. Email Handlebars templates, and external 3PL alert formatting:
 
-👉 **[See Notification Matrix in `notifications.md`](file:///d:/Projects/logistics-website/.agents/skills/tms-domain-lead/notifications.md)**
+See [Notification Matrix in `notifications.md`](notifications.md)
 
 ---
 
@@ -126,8 +126,8 @@ For event triggers, recipient matrices, WebSocket vs. Email Handlebars templates
 Before writing or modifying any backend endpoint, frontend page, or data model, verify:
 
 1. **Valid State Transition**: Does the new status conform to the Order/Trip State Machine?
-2. **Authorization Enforcement**: Is the executing role permitted per the [RBAC Matrix](file:///d:/Projects/logistics-website/.agents/rules/rbac-matrix.md)?
-3. **Notification Matrix Reference**: Checked [`notifications.md`](file:///d:/Projects/logistics-website/.agents/skills/tms-domain-lead/notifications.md) for recipients (In-app + Email)?
+2. **Authorization Enforcement**: Is the executing role permitted per the [RBAC Matrix](../../rules/rbac-matrix.md)?
+3. **Notification Matrix Reference**: Checked [`notifications.md`](notifications.md) for recipients (In-app + Email)?
 4. **SUPER_ADMIN Audit**: Is SUPER_ADMIN included in administrative event audit channels?
 5. **Non-blocking Notifications**: Wrapped all email/socket emissions in `try/catch` to prevent business transaction aborts?
 6. **External 3PL Handling**: For `isExternalVehicleNeeded = true`, are email subjects and UI badges prefixed with `🚨 [XE THUÊ NGOÀI]` / `[EXTERNAL VEHICLE]`?
@@ -138,7 +138,7 @@ Before writing or modifying any backend endpoint, frontend page, or data model, 
 ## 🗂️ Skill Responsibility Breakdown
 
 ```text
-tms-domain-lead (WHAT & WHY)
+  leader (WHAT & WHY)
   ├── notifications.md ──► Notification matrices, templates, 3PL alert rules
   ├── nestjs-best-practices ──► Backend Services, TypeORM, Controllers, BullMQ
   ├── nextjs-best-practices ──► Frontend App Router, UI Components, React 19
