@@ -41,6 +41,20 @@ Before implementing features or modifying workflows, agents MUST reference:
 
 ---
 
+## 📦 Cargo & Order Data Specification (STRICT BUSINESS RULE)
+
+> [!IMPORTANT]
+> **NO SKU / Product Item Management Rule:**
+> - Nghiệp vụ TMS hiện tại **KHÔNG QUẢN LÝ MÃ SKU / MÃ SẢN PHẨM CHI TIẾT** (No item-level/SKU inventory management).
+> - Quản lý hàng hóa hoàn toàn theo thông số kiện vận tải (Consignment/Freight Level):
+>   1. **Tên hàng**: Mô tả mặt hàng tổng quan (VD: Vải cuộn, Hạt nhựa...).
+>   2. **Số thùng / Số kiện**: Đơn vị đóng gói vận chuyển.
+>   3. **Số kg**: Tổng khối lượng (Gross Weight).
+>   4. **Số khối ($m^3$ / CBM)**: Tổng thể tích hàng hóa.
+> - Tuyệt đối **KHÔNG** tự ý thiết kế sub-entity SKU, bảng `items/skus`, hay các trường input SKU vào DTO/Entity/UI trừ khi có yêu cầu chỉ định rõ ràng từ người dùng.
+
+---
+
 ## 🔄 Order Lifecycle & State Machine
 
 ```
