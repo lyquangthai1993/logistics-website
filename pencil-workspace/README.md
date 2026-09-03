@@ -15,7 +15,8 @@ pencil-workspace/
 │   ├── UI_UX.pen           # ⭐ MASTER COMPONENT REFERENCE (Design System & Reusable Components)
 │   ├── SHADCN_UI.pen       # Thư viện gốc Shadcn UI Design Kit (88+ Components)
 │   ├── AUTH_FLOWS.pen      # 🔐 Luồng Xác thực & Khôi phục mật khẩu (4 Screens)
-│   └── DASHBOARDS.pen      # 📊 4 Màn hình Dashboard theo vai trò RBAC
+│   ├── DASHBOARDS.pen      # 📊 4 Màn hình Dashboard theo vai trò RBAC
+│   └── WAREHOUSE_FLOWS.pen # 📦 Luồng Quản lý Kho Hub & Inbound Lifecycle (4 Screens)
 ├── scripts/                # Procedural generation scripts (clock.js, radar.js)
 └── exports/                # Thư mục chứa các file chụp và xuất đồ họa
     ├── 01-super-admin-overview.png
@@ -61,6 +62,12 @@ Tại đây chỉ lưu trữ:
 - **2. Dispatcher Lệnh Điều Vận (`q2JXz3`)**: Quản lý 144 đơn hàng, TanStack table, nút Gửi Fleet
 - **3. Fleet Manager Phân Xe (`Kpbq6`)**: Hàng đợi phân công, nút Báo hết xe (NO_VEHICLE) & Phân công xe
 - **4. Warehouse Inbound Hub Kho (`UiZGP`)**: Lọc theo Hub Andromeda, lịch xe cập cảng (ETA) & Check-in
+
+### 📦 3. File `pens/WAREHOUSE_FLOWS.pen` (Warehouse Hub Inbound & Lifecycle Flows)
+- **1. Case 1: Mới hoàn toàn — Khách đưa vào kho (`WH_CASE_01`)**: Web Desktop 1440x980. Nhập tay thông tin xe/tài xế, địa chỉ nhận hàng Free-text, thanh công cụ Excel Ctrl+V & Import. **Vẽ rõ 3 cards chi tiết cho cột Địa chỉ giao hàng**: (1) Free text, (2) Dropdown Hub Cấp 1, (3) Dropdown Hub Cấp 2 ("Xe bo" KH/WT).
+- **2. Case 2: Luân chuyển nội bộ — Từ Hub khác (`WH_CASE_02`)**: Web Desktop 1440x980. Thông tin xe khóa Readonly trích xuất từ TRIP_ID, Địa chỉ nhận hàng tự động điền (Auto-fill Readonly) từ Hub hiện tại, nút nổi bật `+ Thêm item trong lúc nhập hàng` bổ sung hàng phát sinh dọc đường.
+- **3. Modal: Chọn đơn từ TRIP_ID (`WH_CASE_03_MODAL`)**: 1440x960. Tìm kiếm realtime theo mã Trip/biển số/tài xế, danh sách đơn thuộc trip `IN_TRANSIT` có checkbox multi-select.
+- **4. In ấn: Phiếu nhập kho & Tem dán kiện pallet (`WH_CASE_04_PRINT`)**: 1440x960. Mẫu A4 Phiếu Nhập Kho mã `DDMMYY-xxxx` (chuẩn scan `mau_phieu_nhap_kho.JPG`) và Tem nhận diện kiện dán pallet định dạng ba chấm `... / 50 KIỆN HÀNG (TỔNG)`.
 
 
 ---

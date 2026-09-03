@@ -1,10 +1,5 @@
 [leader](slashCommand;leader) lập plan, để sắp tới sẽ thêm 1 flow mới liên quan chú trọng vào nghiệp vụ của Kho (hubs)
 
-<!-- viết dòng bên dưới làm sao cho AI luôn ghi nhớ trong file .md -->
-````tôi cũng cần bạn viết gọn gàng lại khi tôi mô tả có thể có nhiều từ ngữ dư thừa, viết plan cho chuẩn chỉnh, xúc tích, dễ hiểu, dễ thực thi````
-
-
-
 [ui-ux-flow-designer](slashCommand;ui-ux-flow-designer) hãy tạo 1 file .pen mới nhé
 
 
@@ -28,6 +23,8 @@ cần có 1 màn hình tạo mới, khi click tạo mới sẽ có 2 mode:
 
 Màn hình tạo mới có UI follow theo các input, table, action button follow theo tài liệu scan ở folder docs_scan của dự án (.\docs_scan\form_create_new_don.JPG). Tuyệt đối không được thêm/bớt hoặc thay đổi vị trí các input/table/action button so với file scan. Yêu cầu tuân thủ các thông tin có trong tài liệu scan. Đây là tài liệu scan dạng ảnh, bạn UI cần dựa vào đó để thiết kế UI theo đúng yêu cầu. Yêu cầu thiết kế UI trên nền tảng web, app hỗ trợ cơ bản mobile.
 
+**QUAN TRỌNG: Giao diện nhập hàng ở case "Mới hoàn toàn (nhập hàng từ khách hàng đưa vào kho)" sẽ mong muốn là dạng table như trong file scan, cho phép nhập liệu row by row (theo chiều ngang), không phải form dạng bước (wizard) hay dạng step.** 
+
 
 **Bổ sung chi tiết:**
 - Cột **"Địa chỉ giao hàng"** sẽ có 3 options:
@@ -35,17 +32,23 @@ Màn hình tạo mới có UI follow theo các input, table, action button follo
   2. Chọn địa chỉ dropdown từ Hub khác (Hub cấp 1).
   3. Chọn Hub cấp 2 (Hub phân cấp thấp hơn), được gọi là "Xe bo"
 
-- Khi nhập kho, giao diện có thêm lựa chọn là chọn vào 1 TRIP_ID (của các trip có trạng thái IN_TRANSIT) để thao tác nhanh, khi chọn vào thì sẽ hiện ra 1 modal hiển thị danh sách các đơn thuộc trip đó, cho phép người dùng chọn 1 hoặc nhiều đơn để nhập kho. Tuyệt đối không được thêm/bớt hoặc thay đổi vị trí các input/table/action button so với file scan. Người dùng phải click vào nút "Xác nhận đơn" mới thực sự xác nhận nhập kho.
+- Khi nhập kho, giao diện có thêm lựa chọn là chọn vào 1 TRIP_ID (của các trip có trạng thái IN_TRANSIT) để thao tác nhanh, khi chọn vào thì sẽ hiện ra 1 modal hiển thị danh sách các đơn thuộc trip đó, cho phép người dùng chọn 1 hoặc nhiều đơn để nhập kho. Tuyệt đối không được thêm/bớt hoặc thay đổi vị trí các input/table/action button so với file scan. Người dùng phải click vào nút "Xác nhận đơn" mới thực sự xác nhận nhập kho. Logic trên UI để tìm TRIP_ID search theo mã TRIP ID, biển số xe, tên tài xế, sđt tài xế.
 
 - Khi nhập hàng từ nguồn luân chuyển nội bộ, có thể thêm trường hợp là xe chở hàng có nhận thêm hàng trong lúc di chuyển, vì thế ở giao diện nhập kho (mode luân chuyển nội bộ) có cho thêm lựa chọn thêm item trong lúc nhập hàng. Khi người dùng chọn thêm item thì sẽ hiện thêm 1 dòng trống để nhập thông tin item; có thể thêm nhiều dòng.
 
 - Nhập thông tin xe (Biển số xe, Tài xế, SĐT, Nhà thầu phụ) áp dụng mode: Nhập hàng từ khách hàng đưa vào kho. Còn đối với mode Luân chuyển nội bộ thì đã lựa chọn từ TRIP_ID, nên không cần nhập thông tin xe.
 
+- Nhập kho trên giao diện ở mode **Mới hoàn toàn**, thì cho thêm option là nhập bằng excel (thao tác copy-paste từ excel vào table, column order phải đúng theo file scan), hoặc là import excel file. Sau khi copy paste hoặc import excel file xong thì cho phép xem lại danh sách mặt hàng đã nhập, cũng như chỉnh sửa lại thông tin mặt hàng trước khi xác nhận đơn, cũng như có thể xóa từng dòng mặt hàng.
+
+- Khi tạo xong, đơn hàng sẽ ở trạng thái **PENDING_INBOUND** (Chờ nhập kho).
+
+
+
 ### **Các file cần in ra khi nhập kho**
 - Phiếu nhập kho (nội bộ hub).
 - Phiếu xuất kho (nếu là luân chuyển nội bộ).
 - Phiếu giao hàng (nếu là giao hàng chặng cuối).
-- Ngoài ra còn có phiếu in ra để dán vào từng thùng hàng. Chỉ cần ghi số lượng tổng (số kiện), chừa trống số lượng trên từng pallet, từng block, ví dụ có 5 pallet, mỗi pallet có 10 kiện hàng, thì ghi số lượng tổng là 50, còn mỗi pallet chừa trống số lượng => ghi 3 chấm kèm với tổng kiện hàng .../50 kiện hàng.
+- Ngoài ra còn có phiếu in ra để dán vào từng thùng hàng. Chỉ cần ghi số lượng tổng (số kiện), chừa trống số lượng trên từng pallet, từng block, ví dụ có 5 pallet, mỗi pallet có 10 kiện hàng, thì ghi số lượng tổng là 50, còn mỗi pallet chừa trống số lượng => ghi 3 chấm kèm với tổng kiện hàng .../50 kiện hàng. Đây gọi là "tem nhận diện đơn hàng".
 
 => Các file này được tạo ra khi có sự kiện nhập kho, xuất kho, giao hàng. Phải đảm bảo thông tin trên các file này là chính xác.
 

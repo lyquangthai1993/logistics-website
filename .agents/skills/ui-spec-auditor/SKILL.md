@@ -48,6 +48,7 @@ Each dimension is scored by counting **checkpoint violations**. Each violation d
 | Any field in UI has no spec origin (not in Task or docs_scan) | -3 per extra/phantom field | No |
 | Column/field order does not match scanned reference form | -2 | No |
 | SKU / Barcode / Ma san pham field present anywhere on screen | -10 (full dimension) | **YES** |
+| `.pen` vector file uses `"text"` property instead of `"content"` for text nodes (causing invisible labels in Pencil) | -10 (full dimension) | **YES** |
 
 **Score thresholds**: 10 = perfect, 8-9 = PASS, 5-7 = WARN, <5 or any auto-FAIL = FAIL.
 

@@ -24,8 +24,11 @@ This skill provides a structured methodology for analyzing user roles, designing
    - Define user goals, data fields, action triggers, and operational status transitions.
    - Select canonical layout archetype (TanStack Table, Multi-step Stepper, Sheet drawer, KPI Dashboard).
 2. **Step 2: Vector Wireframing & Prototyping (`pencil-ui-designer` via Pencil MCP)**:
-   - Call Pencil MCP tools (`get_app_state`, `execute`, `browser`, `get_style`) inside `pencil-workspace/pens/`.
+   - Call Pencil MCP tools (`get_app_state`, `execute`, `browser`, `get_style`) or author JSON directly inside `pencil-workspace/pens/`.
    - Layout screens on the 4px Tailwind grid using `FindEmptySpace({ width: 1440, height: 900, direction: "right" })`.
+   - **Strict Theme Standard**: Primary operational theme is **Clean Light Theme** (`#F8FAFC` app bg, `#FFFFFF` cards, `#0F172A` text, `#2563EB` blue accent).
+   - **Fatal Schema Rule**: Text nodes in `.pen` files MUST use `"content": "..."` (NEVER `"text"`). Using `"text"` causes silent render drops in Pencil.
+   - **Scan 1:1 Reproduction**: When designing based on `docs_scan/*.JPG`, replicate exact header layout, hotlines, vehicle boxes, column order, total rows, and signature blocks.
    - Apply design variables (`$font-main`, `$primary`, `$bg-app`, `$text-primary`) and verify visual output with `TakeScreenshot()`.
 3. **Step 3: Component Implementation (`ui-ux-flow-designer` + `nextjs-best-practices`)**:
    - Translate verified `.pen` canvas designs into Next.js 15 App Router JSX code.

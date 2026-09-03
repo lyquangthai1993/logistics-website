@@ -95,36 +95,75 @@ When given a live URL (e.g. `http://localhost:3000/auth/sign-in`, `http://localh
 
 All UI/UX designs, component definitions, and code exports MUST follow the **Tailwind CSS v4** styling framework and standard design tokens:
 
-### 1. Color System (Tailwind Color Palette)
-- **Backgrounds**: `slate-950` (`#020617`), `slate-900` (`#0f172a`), `slate-900/60` (`#0f172b99` glassmorphic cards).
-- **Accents & Highlights**: `sky-400` / `cyan-400` (`#38bdf8` / `#53eafd`), `indigo-500` (`#6366f1`), `blue-600` (`#2563eb`).
-- **Status Colors**: `emerald-400` (`#34d399` Success / Active), `amber-400` (`#fbbf24` Warning / Pending), `rose-400` (`#f87171` Danger / Error).
-- **Text & Borders**: `slate-50` (`#f8fafc` primary text), `slate-300`/`slate-400` (`#cbd5e1`/`#94a3b8` secondary text), `slate-800`/`slate-700` (`#1e293b`/`#334155` borders).
+### 1. Color System (Light Theme Priority for Spider Express TMS)
+The primary operational theme for TMS dashboards, warehouse dispatch, and forms is **Clean Light Theme** (matching Shadcn UI & Vercel aesthetics):
+- **App Background**: `#F8FAFC` (`slate-50`)
+- **Card / Surface Background**: `#FFFFFF` (pure white)
+- **Borders & Dividers**: `#E2E8F0` (`slate-200`) or `#CBD5E1` (`slate-300`). For physical document/scan print templates, use `#000000` borders.
+- **Primary Text**: `#0F172A` / `#020618` (`slate-900`) - high contrast, crisp legibility.
+- **Secondary / Muted Text**: `#64748B` (`slate-500`) / `#475569` (`slate-600`).
+- **Brand / Primary Accent**: `#2563EB` (`blue-600`) / `#1D4ED8` (`blue-700`).
+- **Status Colors**:
+  - Success / Active / Confirmed: `#059669` (`emerald-600`) or `#10B981`
+  - Pending / Warning / In-Transit: `#D97706` (`amber-600`) or `#F59E0B`
+  - Error / Shortage / Cancelled: `#EF4444` (`red-500`) or `#DC2626`
+- **Dark Theme (Alternative / Dark Mode Only)**:
+  - When explicitly instructed to design dark mode: use `slate-950` (`#020617`), `slate-900` (`#0f172a`), with `text-primary: #f8fafc`.
 
-### 2. Spacing & Radius Scale (4px Base Grid)
-- **Padding & Margins**: Strictly use Tailwind scale steps:
-  - `1` (4px), `2` (8px), `3` (12px), `4` (16px), `5` (20px), `6` (24px), `8` (32px), `10` (40px), `12` (48px).
-- **Corner Radius**: Map directly to Tailwind radius tokens:
-  - `rounded-sm` (2px), `rounded` (4px), `rounded-md` (6px), `rounded-lg` (8px), `rounded-xl` (12px), `rounded-2xl` (16px), `rounded-full` (9999px).
+### 2. Pencil JSON Schema Specifications (CRITICAL INVARIANTS)
+When generating or modifying `.pen` canvas files directly:
 
-### 3. Layout Alignment & Flexbox Mapping
-- Map Pencil node layout properties directly to Tailwind Flexbox utility classes:
-  - `layout: "vertical"` ➔ `flex flex-col`
-  - `layout: "horizontal"` ➔ `flex flex-row`
-  - `alignItems: "center"` ➔ `items-center`
-  - `justifyContent: "space_between"` ➔ `justify-between`
-  - `gap: 8` ➔ `gap-2` | `gap: 16` ➔ `gap-4` | `gap: 24` ➔ `gap-6`
+1. **Text Nodes MUST use `"content"` (NEVER `"text"`)**:
+   ```json
+   {
+     "type": "text",
+     "id": "unique_id",
+     "content": "Tiêu Đề Màn Hình",
+     "fontFamily": "Inter",
+     "fontSize": 14,
+     "fontWeight": "bold",
+     "fill": "#0F172A"
+   }
+   ```
+   > 🚨 **FATAL ERROR TO AVOID**: Using `"text": "..."` instead of `"content": "..."` causes Pencil's canvas engine to discard the text string completely. The canvas will render completely empty, dark shapes with no readable labels or values!
 
-### 4. Code Generation & HTML/JSX Exports
-- When converting Pencil frames to code or exporting assets, generate modern Next.js 15 / React 19 JSX code using standard Tailwind CSS classes (`className="..."`).
-- Reuse [`shadcn-ui-patterns`](file:///d:/Projects/logistics-website/.agents/skills/shadcn-ui-patterns/SKILL.md) component wrappers (`Button`, `Badge`, `Card`, `Table`, `Input`, `Dialog`).
+2. **Icon Nodes MUST use Lucide Library**:
+   ```json
+   {
+     "type": "icon",
+     "id": "unique_ico_id",
+     "width": 16,
+     "height": 16,
+     "icon": "warehouse",
+     "library": "lucide",
+     "fill": "#2563EB"
+   }
+   ```
+
+3. **Frame & Flexbox Layout Mapping**:
+   - Vertical container: `"layout": "vertical"`, `"gap": 8`, `"padding": 16`
+   - Horizontal row: `"layout": "horizontal"` (or omitted when layout is default horizontal), `"alignItems": "center"`, `"justifyContent": "space_between"`
+   - Full width child: `"width": "fill_container"`
+   - Corner radius: `"cornerRadius": 8`
+   - Border stroke: `"stroke": "#E2E8F0"`, `"strokeWidth": 1` (or directional: `"strokeWidth": { "bottom": 1 }`)
+
+### 3. Scan Reference 1:1 Fidelity Rule (`docs_scan/`)
+When designing screens based on scanned documents (e.g. `docs_scan/form_create_new_don.JPG`, `docs_scan/mau_phieu_nhap_kho.JPG`):
+- **Exact Layout Reproduction**: Replicate the exact position of header titles, hotlines, vehicle summary boxes, column order, total/lũy kế rows, and signature boxes.
+- **Strict NO-SKU Policy**: Never introduce SKU/Barcode columns unless explicitly requested in the scan or task. Cargo is managed at consignment level (Package count, Gross Weight kg, Volume CBM, General cargo description).
+- **Exact Action Button Placement**: Place action buttons and toolbar controls according to the scanned workflow.
+
+### 4. Mobile Responsiveness & Touch Target Invariants
+- Minimum touch target height for buttons, tabs, and interactive controls: **44px to 50px**.
+- Table handling on mobile viewports (< 640px): Render as **responsive Card lists** (`Cargo Item Cards`) with key badges, avoiding awkward horizontal full-page scrolling.
+- Sticky action bars: Place primary confirmation buttons at the bottom of the mobile screen (`Sticky Bottom Bar`, height $\ge 48px$) for easy single-thumb reach.
 
 ---
 
 ## 🛡️ Anti-Patterns & Safety Rules
-- ❌ **NO Percentage Sizing**: Never use `"100%"`, `"50%"`, `"vh"`, `"calc()"` in `.pen` nodes.
-- ❌ **NO Direct File Edits**: `.pen` files are binary/encrypted. NEVER use `replace_file_content` or `write_to_file` directly on `.pen` files. ALWAYS use Pencil MCP tools.
-- ❌ **NO Unchecked Layout Warnings**: Always resolve `fill_container` layout mismatch warnings immediately.
-- ❌ **NO Missing Text Fill**: Text nodes without `fill` will be invisible. Always provide a color or variable reference (`fill: "$text-primary"`).
-- ❌ **NO Non-Tailwind Arbitrary Spacing**: Avoid non-standard spacing values like `17px`, `23px` unless required by raw DOM conversion. Always snap manually created elements to the Tailwind 4px grid.
+- ❌ **FATAL: NEVER use `"text"` property on text nodes**: ALWAYS use `"content": "..."`.
+- ❌ **NO Empty Dark Blocks**: Never render pitch-black frames with invisible labels. Always apply high-contrast colors (`#0F172A` text on `#FFFFFF` / `#F8FAFC` surfaces).
+- ❌ **NO Missing Text Fill**: Always supply an explicit `fill` hex color (e.g. `fill: "#0F172A"`).
+- ❌ **NO Percentage Sizing**: Never use `"100%"`, `"50%"`, `"vh"`, `"calc()"` in `.pen` node dimensions. Use `"fill_container"` or explicit integer pixel values.
+- ❌ **NO Arbitrary Sizing**: Snap layout dimensions, paddings, and gaps to the Tailwind 4px grid (4, 8, 12, 16, 20, 24, 32).
 
