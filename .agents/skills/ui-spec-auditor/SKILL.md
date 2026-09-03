@@ -32,113 +32,168 @@ Before auditing, the agent MUST gather all relevant spec documents:
 
 ---
 
-## 🔍 Audit Methodology — 5 Dimensions
+## 🔍 Scoring Rubric — 5 Dimensions x 10 Points Each (Total: 50)
 
-For each UI screen or component being audited, evaluate across 5 dimensions:
+Each dimension is scored by counting **checkpoint violations**. Each violation deducts points deterministically — no subjective judgment.
 
-### Dimension 1: Field & Column Compliance
-- Does the UI display exactly the fields defined in the Task spec and docs_scan images?
-- Are there **extra fields not in spec** (e.g., SKU, Ma san pham, Barcode)?
-- Are there **missing fields** required by spec?
-- Is the **column order** consistent with the scanned reference form?
+---
 
-### Dimension 2: State-Driven UI Logic
-- Does the UI correctly **show/hide** action buttons based on `status` (from the AI Agent Actionable Matrix)?
-- Does each status render the correct **data fields** as specified in the State Matrix?
-- Is the **Timeline Stepper** (3-leg lifecycle visualizer) present on Order Detail screens?
+### Dimension 1: Field & Column Compliance (10 pts)
 
-### Dimension 3: Role & RBAC Compliance
-- Can only `WAREHOUSE_MANAGER` (scoped to their `hubId`) access and operate this screen?
-- Are unauthorized roles (DISPATCHER, FLEET_MANAGER) properly blocked or given read-only views?
-- Reference: [RBAC Matrix](../../rules/rbac-matrix.md)
+**Standard**: UI fields must exactly match the spec defined in `Task_*.md` AND `docs_scan/` reference images.
 
-### Dimension 4: Business Rule Compliance
-- **No-SKU Rule**: Is there any SKU / item-level product management field on screen? FAIL if yes.
-- **Cargo fields**: Are `Ten hang`, `So thung`, `So kg`, `So khoi (CBM)` present and correctly labeled?
-- **Hub Hierarchy**: Does "Dia chi giao hang" provide exactly 3 options (Free text / Hub L1 / Xe bo L2)?
-- **Inbound Receiving Slip**: Does the Print slip follow `DDMMYY-xxxx` numbering format?
-- **Excel Paste UX**: Is `Ctrl+V` paste-from-Excel supported on consolidation grids?
+| Checkpoint | Points Deducted on Violation | Auto-FAIL? |
+|---|---|---|
+| Any field present in docs_scan scan is missing from UI | -2 per missing field | No |
+| Any field in UI has no spec origin (not in Task or docs_scan) | -3 per extra/phantom field | No |
+| Column/field order does not match scanned reference form | -2 | No |
+| SKU / Barcode / Ma san pham field present anywhere on screen | -10 (full dimension) | **YES** |
 
-### Dimension 5: Mobile & UX Usability
-- Are touch targets (buttons, tabs) large enough for finger interaction?
-- Is horizontal scroll minimized? (No full-page horizontal scroll on mobile viewport)
-- Are non-relevant data fields collapsed into a drawer on mobile?
-- Are action buttons grouped logically and labeled in Vietnamese (user-facing lang)?
+**Score thresholds**: 10 = perfect, 8-9 = PASS, 5-7 = WARN, <5 or any auto-FAIL = FAIL.
+
+---
+
+### Dimension 2: State-Driven UI Logic (10 pts)
+
+**Standard**: UI must render correct data fields and action buttons for each `status` value as defined in the "AI Agent Actionable Matrix" table in `Task_Warehouse_Design_UI.md`.
+
+| Checkpoint | Points Deducted on Violation | Auto-FAIL? |
+|---|---|---|
+| Action buttons do not match the spec for the current `status` | -2 per incorrect button set | No |
+| Data fields shown do not match what spec defines for that `status` | -2 per incorrect field set | No |
+| Timeline Stepper (3-leg visualizer) absent on Order Detail screen | -3 | No |
+| UI shows identical layout regardless of `status` (no state-switching) | -10 (full dimension) | **YES** |
+
+**Score thresholds**: 10 = perfect, 8-9 = PASS, 5-7 = WARN, <5 or any auto-FAIL = FAIL.
+
+---
+
+### Dimension 3: Role & RBAC Compliance (10 pts)
+
+**Standard**: Access and edit permissions must comply with [`.agents/rules/rbac-matrix.md`](../../rules/rbac-matrix.md). For Warehouse screens: only `WAREHOUSE_MANAGER` scoped to `hubId` can create/edit.
+
+| Checkpoint | Points Deducted on Violation | Auto-FAIL? |
+|---|---|---|
+| Screen is accessible to roles not listed in RBAC matrix | -5 per unauthorized role | No |
+| `WAREHOUSE_MANAGER` is NOT scoped to their own `hubId` (can see/edit other hubs) | -5 | **YES** |
+| Edit/create actions exposed to read-only roles (DISPATCHER, FLEET_MANAGER) | -3 | No |
+| No role-guard on route (screen accessible without login) | -10 (full dimension) | **YES** |
+
+**Score thresholds**: 10 = perfect, 8-9 = PASS, 5-7 = WARN, <5 or any auto-FAIL = FAIL.
+
+---
+
+### Dimension 4: Business Rule Compliance (10 pts)
+
+**Standard**: UI must implement all business rules defined in `Task_Warehouse_Design_UI.md` section "Cac ghi chu nghiep vu" and `leader` skill.
+
+| Checkpoint | Points Deducted on Violation | Auto-FAIL? |
+|---|---|---|
+| SKU, Barcode, or item-level product field exists anywhere on screen | -10 (full dimension) | **YES** |
+| Cargo fields missing or mislabeled (`Ten hang` / `So thung` / `So kg` / `So khoi CBM`) | -2 per missing/wrong field | No |
+| "Dia chi giao hang" does NOT offer exactly 3 input modes (Free text / Hub L1 dropdown / Xe bo L2) | -3 | No |
+| Inbound Receiving Slip number format does not follow `DDMMYY-xxxx` | -2 | No |
+| Consolidation Grid does NOT support Excel paste (`Ctrl+V` → parse rows) | -2 | No |
+| Trip header missing required fields (Bien so xe, Tai xe, Nha thau, SĐT) | -1 per missing field | No |
+
+**Score thresholds**: 10 = perfect, 8-9 = PASS, 5-7 = WARN, <5 or any auto-FAIL = FAIL.
+
+---
+
+### Dimension 5: Mobile & UX Usability (10 pts)
+
+**Standard**: UI must be operable on mobile (touch-friendly) per AGENTS.md requirement: "ho tro co ban mobile, de thao tac".
+
+| Checkpoint | Points Deducted on Violation | Auto-FAIL? |
+|---|---|---|
+| Touch targets (buttons, tabs, checkboxes) < 44px height on mobile viewport | -2 per element type | No |
+| Full-page horizontal scroll exists at 375px (iPhone) viewport width | -3 | No |
+| Non-relevant data fields for current status are not hidden/collapsible on mobile | -2 | No |
+| Action buttons not labeled in Vietnamese (shows raw English enum or code) | -2 | No |
+| No loading state / skeleton shown during data fetching | -1 | No |
+
+**Score thresholds**: 10 = perfect, 8-9 = PASS, 5-7 = WARN, <5 or any auto-FAIL = FAIL.
 
 ---
 
 ## 📊 Audit Report Format (Structured Output)
 
-After auditing, produce a report in the following format:
+After scoring all 5 dimensions, produce a report using this exact format:
 
 ```
-## UI Audit Report — [Screen Name] — [Date]
+## UI Audit Report — [Screen Name] — [YYYY-MM-DD]
 
 **Auditor**: ui-spec-auditor
-**Target**: [Component/Screen being audited]
-**Spec Reference**: [Task_Warehouse_Design_UI.md | docs_scan/xxx.JPG]
+**Target**: [e.g., "Warehouse Create Order Form" / "Order Detail Modal"]
+**Spec References**:
+  - Task_Warehouse_Design_UI.md
+  - docs_scan/form_create_new_don.JPG
+  - docs_scan/ke_hoach_dong_hang_so_trip.JPG
 
 ### Summary Score
-| Dimension | Score | Status |
-|---|---|---|
-| Field & Column Compliance | X/10 | PASS / WARN / FAIL |
-| State-Driven UI Logic | X/10 | PASS / WARN / FAIL |
-| RBAC Compliance | X/10 | PASS / WARN / FAIL |
-| Business Rule Compliance | X/10 | PASS / WARN / FAIL |
-| Mobile & UX Usability | X/10 | PASS / WARN / FAIL |
-| **Overall** | **X/50** | **[PASS/FAIL]** |
+| Dimension | Checkpoints Violated | Score | Status |
+|---|---|---|---|
+| D1: Field & Column Compliance | [list violations] | X/10 | PASS / WARN / FAIL |
+| D2: State-Driven UI Logic | [list violations] | X/10 | PASS / WARN / FAIL |
+| D3: Role & RBAC Compliance | [list violations] | X/10 | PASS / WARN / FAIL |
+| D4: Business Rule Compliance | [list violations] | X/10 | PASS / WARN / FAIL |
+| D5: Mobile & UX Usability | [list violations] | X/10 | PASS / WARN / FAIL |
+| **OVERALL** | | **X/50** | **CLEARED / NOT CLEARED** |
 
-### Passing Criteria
-- [List items that pass]
+### Auto-FAIL Triggers (Blocking — zero tolerance)
+- [ ] D1: SKU field detected → [location on screen]
+- [ ] D2: No state-switching logic found
+- [ ] D3: hubId scope not enforced
+- [ ] D4: SKU field detected in business rule check
 
-### Warnings (Non-blocking, should fix)
-- [List items with minor deviations]
+### Warnings (Non-blocking, must fix before next sprint)
+- [WARN-D1] [Description with spec reference]
+- [WARN-D5] [Description]
 
-### Failures (Blocking — must fix before approval)
-- [List critical spec violations with exact spec reference]
+### Recommended Fixes (Ordered by priority)
+1. [BLOCKING] Fix: [exact action required] — Ref: [spec line/image]
+2. [WARN] Fix: [exact action required]
+...
 
-### Recommended Fixes
-1. [Actionable fix description for ui-ux-flow-designer to address]
-2. ...
+### Clearance Decision
+- Gate: score >= 40/50 AND 0 Auto-FAIL items
+- Result: CLEARED for implementation handoff / NOT CLEARED — return to ui-ux-flow-designer
 ```
 
 ---
 
 ## 🔄 Design-Audit Feedback Loop Protocol
 
-This agent is the **second step** in the 3-step delivery pipeline:
-
 ```
 Step 1: ui-ux-flow-designer
-  → Produce UI design (Pencil .pen / React components)
+  → Produce UI design (Pencil .pen / React component spec)
 
 Step 2: ui-spec-auditor
-  → Cross-check vs all spec sources
-  → Generate Audit Report with scores
-  → Return to designer if FAIL items exist
+  → Read all spec sources (Task_*.md, docs_scan, leader, rbac-matrix)
+  → Score all 5 dimensions using checkpoint rubric above
+  → Produce Audit Report
+  → If NOT CLEARED: return report to ui-ux-flow-designer with fix list
 
 Step 3: ui-ux-flow-designer
-  → Apply fixes from Audit Report
-  → Resubmit to ui-spec-auditor
-  → Loop until score >= 40/50 and 0 FAIL items
-```
+  → Apply all BLOCKING fixes
+  → Resubmit to ui-spec-auditor for re-audit
 
-**Gate Rule**: A UI screen MUST achieve **>= 40/50** overall score AND **0 FAIL items** before it is cleared for frontend implementation handoff to `nextjs-best-practices`.
+Step 4: Repeat until CLEARED (score >= 40/50, 0 Auto-FAIL)
+  → Hand off to nextjs-best-practices for implementation
+```
 
 ---
 
-## ✅ Pre-Audit Checklist (Quick Reference)
+## ✅ Pre-Audit Checklist
 
-Before submitting audit report, verify all checklist items:
-
-- [ ] Read all `Task_*.md` files for this feature
-- [ ] Viewed all relevant `docs_scan/` reference images
-- [ ] Read `leader` skill for No-SKU rule and role responsibilities
-- [ ] Checked RBAC matrix for role access boundaries
-- [ ] Evaluated all 5 audit dimensions
-- [ ] Produced structured Audit Report with scores
-- [ ] Listed all FAIL items with direct spec references
-- [ ] Sent report back to `ui-ux-flow-designer` for fixes (if FAIL)
+- [ ] Read `Task_*.md` for this feature (fields, state matrix, business rules)
+- [ ] Viewed all `docs_scan/` reference images for this screen
+- [ ] Read `leader` SKILL.md (No-SKU rule, role matrix, cargo fields)
+- [ ] Checked `rbac-matrix.md` for role access boundaries
+- [ ] Scored all 5 dimensions using checkpoint rubric
+- [ ] Verified no Auto-FAIL triggers activated
+- [ ] Produced Audit Report in standard format
+- [ ] Returned report to `ui-ux-flow-designer` if NOT CLEARED
 
 ---
 
@@ -146,9 +201,9 @@ Before submitting audit report, verify all checklist items:
 
 ```
 ui-spec-auditor (EVALUATE only — no design, no implementation)
-  ├── Task_*.md            → Feature spec, field lists, state matrix, business rules
-  ├── docs_scan/           → Ground truth scanned reference forms (JPG/PNG)
-  ├── leader SKILL.md      → Role matrix, No-SKU rule, state machine validation
-  ├── rbac-matrix.md       → Role access control boundary checks
-  └── ui-ux-flow-designer  → Sends Audit Report back for fix iteration
+  ├── Task_*.md            → Feature spec: field lists, state matrix, business rules
+  ├── docs_scan/           → Ground truth reference scans (JPG/PNG)
+  ├── leader SKILL.md      → No-SKU rule, role matrix, cargo field spec
+  ├── rbac-matrix.md       → Role access control boundary validation
+  └── ui-ux-flow-designer  → Receives Audit Report & applies fixes
 ```

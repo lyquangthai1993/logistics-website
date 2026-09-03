@@ -35,6 +35,19 @@ Màn hình tạo mới có UI follow theo các input, table, action button follo
   2. Chọn địa chỉ dropdown từ Hub khác (Hub cấp 1).
   3. Chọn Hub cấp 2 (Hub phân cấp thấp hơn), được gọi là "Xe bo"
 
+- Khi nhập kho, giao diện có thêm lựa chọn là chọn vào 1 TRIP_ID (của các trip có trạng thái IN_TRANSIT) để thao tác nhanh, khi chọn vào thì sẽ hiện ra 1 modal hiển thị danh sách các đơn thuộc trip đó, cho phép người dùng chọn 1 hoặc nhiều đơn để nhập kho. Tuyệt đối không được thêm/bớt hoặc thay đổi vị trí các input/table/action button so với file scan. Người dùng phải click vào nút "Xác nhận đơn" mới thực sự xác nhận nhập kho.
+
+- Khi nhập hàng từ nguồn luân chuyển nội bộ, có thể thêm trường hợp là xe chở hàng có nhận thêm hàng trong lúc di chuyển, vì thế ở giao diện nhập kho (mode luân chuyển nội bộ) có cho thêm lựa chọn thêm item trong lúc nhập hàng. Khi người dùng chọn thêm item thì sẽ hiện thêm 1 dòng trống để nhập thông tin item; có thể thêm nhiều dòng.
+
+- Nhập thông tin xe (Biển số xe, Tài xế, SĐT, Nhà thầu phụ) áp dụng mode: Nhập hàng từ khách hàng đưa vào kho. Còn đối với mode Luân chuyển nội bộ thì đã lựa chọn từ TRIP_ID, nên không cần nhập thông tin xe.
+
+### **Các file cần in ra khi nhập kho**
+- Phiếu nhập kho (nội bộ hub).
+- Phiếu xuất kho (nếu là luân chuyển nội bộ).
+- Phiếu giao hàng (nếu là giao hàng chặng cuối).
+- Ngoài ra còn có phiếu in ra để dán vào từng thùng hàng. Chỉ cần ghi số lượng tổng (số kiện), chừa trống số lượng trên từng pallet, từng block, ví dụ có 5 pallet, mỗi pallet có 10 kiện hàng, thì ghi số lượng tổng là 50, còn mỗi pallet chừa trống số lượng => ghi 3 chấm kèm với tổng kiện hàng .../50 kiện hàng.
+
+=> Các file này được tạo ra khi có sự kiện nhập kho, xuất kho, giao hàng. Phải đảm bảo thông tin trên các file này là chính xác.
 
 ### **Quy định trạng thái đơn hàng (Order Status Lifecycle)**
 
