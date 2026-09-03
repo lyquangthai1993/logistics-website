@@ -41,7 +41,7 @@ copilot-mcp.json
 *.zip
 *.7z
 *.tar.gz
-PROJECT_NOTE.md
+
 
 # Pencil Workspace Screenshots, Exports & Caches
 pencil-workspace/exports/
