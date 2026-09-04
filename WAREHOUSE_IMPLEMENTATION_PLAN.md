@@ -13,6 +13,7 @@
 | **Q1** | DB Schema | ✅ **Phương án A**: Bảng `waybill` riêng (1 order → N waybills) |
 | **Q2** | Excel Paste (Ctrl+V) | ✅ **Phase tiếp theo (P2)** — Không implement sprint này |
 | **Q3** | Print templates | ✅ **Client-side React + Print CSS** cho preview/in. **Server-side PDF gen** (Puppeteer/html-pdf-node) → upload S3 Supabase → lưu link vào DB → trả về URL thật (Đủ 5 mẫu: Phiếu Nhập, Phiếu Xuất, Phiếu Giao POD, **Tem Nhận Diện A4 Pallet**, **Bảng Kế Hoạch Đóng Hàng Xe**) |
+| **Q4** | Quản lý Xe Bo theo 34 Tỉnh Thành Việt Nam | ✅ **Quy chuẩn định danh thống nhất (`/leader`)**: Theo cơ cấu địa giới hành chính Việt Nam sau sáp nhập cấp tỉnh (chính thức từ 1/7/2025 - 2026 theo Nghị quyết của Quốc hội), Việt Nam có **34 đơn vị hành chính cấp tỉnh** (gồm 6 TP trực thuộc TW & 28 Tỉnh). Hệ thống thiết lập danh mục **34 Tuyến Xe Bo** tương ứng với 34 tỉnh thành này theo định dạng chuẩn: **`Xe bo Tuyến <Tên Tỉnh/Thành>`**. |
 
 ---
 
@@ -297,9 +298,12 @@ Tab key: chuyển ô đúng thứ tự → xuống dòng mới cuối hàng.
 
 Cột 6 — `<WaybillDeliverySelector />`:
 - Segmented: [Địa chỉ tự do] [Hub cấp 1] [Hub cấp 2 / Xe bo]
-- FREE_TEXT: text input
-- HUB_L1: dropdown từ `/v1/hubs/active`
-- HUB_L2_SAT: dropdown xe bo / tuyến vệ tinh
+- `FREE_TEXT`: text input nhập tay địa chỉ giao tận nơi của khách lẻ
+- `HUB_L1`: dropdown danh sách kho trung tâm chính từ `/v1/hubs/active` (VD: Andromeda Hub - Hà Nội, Magellan Hub - Đà Nẵng, Hubble Hub - HCM)
+- `HUB_L2_SAT`: dropdown 34 tuyến xe bo vệ tinh ứng với **34 tỉnh/thành phố Việt Nam** sau sắp xếp 1/7/2025 - 2026:
+  - **6 Thành phố trực thuộc TW**: `Xe bo Tuyến HCM`, `Xe bo Tuyến Hà Nội`, `Xe bo Tuyến Đà Nẵng`, `Xe bo Tuyến Hải Phòng`, `Xe bo Tuyến Cần Thơ`, `Xe bo Tuyến Huế`.
+  - **28 Tỉnh thành**: `Xe bo Tuyến Hưng Yên`, `Xe bo Tuyến Bắc Ninh`, `Xe bo Tuyến Quảng Ninh`, `Xe bo Tuyến Ninh Bình`, `Xe bo Tuyến Thái Nguyên`, `Xe bo Tuyến Phú Thọ`, `Xe bo Tuyến Lào Cai`, `Xe bo Tuyến Tuyên Quang`, `Xe bo Tuyến Lạng Sơn`, `Xe bo Tuyến Cao Bằng`, `Xe bo Tuyến Lai Châu`, `Xe bo Tuyến Điện Biên`, `Xe bo Tuyến Sơn La`, `Xe bo Tuyến Thanh Hóa`, `Xe bo Tuyến Nghệ An`, `Xe bo Tuyến Hà Tĩnh`, `Xe bo Tuyến Quảng Trị`, `Xe bo Tuyến Quảng Ngãi`, `Xe bo Tuyến Gia Lai`, `Xe bo Tuyến Khánh Hòa`, `Xe bo Tuyến Lâm Đồng`, `Xe bo Tuyến Đắk Lắk`, `Xe bo Tuyến Đồng Nai`, `Xe bo Tuyến Tây Ninh`, `Xe bo Tuyến Đồng Tháp`, `Xe bo Tuyến Vĩnh Long`, `Xe bo Tuyến An Giang`, `Xe bo Tuyến Cà Mau`.
+  *(Khi chọn bất kỳ tuyến xe bo nào, chứng từ xuất kho và tem Pallet A4 sẽ tự động in trường GIAO ĐẾN rõ ràng theo đúng tên tuyến xe bo tương ứng)*
 
 ### 2.4 Xử lý Cuộn Ngang Bảng & Chế Độ Toàn Màn Hình (Horizontal Scroll & Fullscreen View)
 
@@ -1004,7 +1008,7 @@ Trước khi chạy E2E, cần đảm bảo DB có:
 1. WAREHOUSE_MANAGER user (lyquangthai1993+4@gmail.com) được gán vào Hub ID = 1
 2. Ít nhất 1 Trip đang IN_TRANSIT có destinationHubId = 1
 3. Hubs: Hub cấp 1 (VD: Hub Hà Nội id=1, Hub HCM id=2)
-4. Hubs cấp 2 / Xe bo: ít nhất 2 satellite hubs
+4. Hubs cấp 2 / Xe bo: 34 tuyến xe bo ứng với 34 tỉnh/thành phố toàn quốc đã seed sẵn trong `hub-seed.service.ts`
 ```
 
 ```typescript

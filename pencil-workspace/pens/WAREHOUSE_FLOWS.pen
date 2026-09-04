@@ -3543,7 +3543,7 @@
                           "fill": "$text-primary",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Xe bo · XB-KH-02",
+                          "content": "Xe bo Tuyến Đà Nẵng",
                           "fontFamily": "$font-main",
                           "fontSize": 11,
                           "fontWeight": "normal"
@@ -4512,7 +4512,7 @@
                           "fill": "$text-primary",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Xe bo · XB-KH-02",
+                          "content": "Xe bo Tuyến Đà Nẵng",
                           "fontFamily": "$font-main",
                           "fontSize": 12,
                           "fontWeight": "normal"
@@ -6820,7 +6820,7 @@
                           "id": "A4_Tag_GiaoDen_Text",
                           "name": "Giao đến Text",
                           "fill": "#92400E",
-                          "content": "GIAO ĐẾN: Magellan Hub - Đà Nẵng (Xe bo 43H)",
+                          "content": "GIAO ĐẾN: Magellan Hub - Đà Nẵng (Xe bo Tuyến Đà Nẵng)",
                           "fontFamily": "$font-main",
                           "fontSize": 11,
                           "fontWeight": "bold"
@@ -14191,7 +14191,7 @@
                               "fill": "$text-primary",
                               "textGrowth": "fixed-width",
                               "width": "fill_container",
-                              "content": "Xe bo · XB-KH-02",
+                              "content": "Xe bo Tuyến Đà Nẵng",
                               "fontFamily": "$font-main",
                               "fontSize": 11,
                               "fontWeight": "normal"
@@ -14718,7 +14718,7 @@
                         {
                           "type": "frame",
                           "id": "gm5kr",
-                          "name": "Cargo Dispatcher",
+                          "name": "Cargo Dispatcher Textarea Field",
                           "width": "fill_container",
                           "layout": "vertical",
                           "gap": 6,
@@ -14736,27 +14736,25 @@
                             {
                               "type": "frame",
                               "id": "gxwqt",
-                              "name": "Cargo Dispatcher Control",
+                              "name": "Cargo Dispatcher Textarea",
                               "width": "fill_container",
-                              "height": 44,
+                              "height": 84,
                               "fill": "#FFFFFF",
                               "cornerRadius": 7,
                               "stroke": "$border-subtle",
                               "strokeWidth": 1,
-                              "padding": [
-                                0,
-                                12
-                              ],
-                              "alignItems": "center",
+                              "layout": "vertical",
+                              "padding": 12,
                               "children": [
                                 {
                                   "type": "text",
                                   "id": "P8iLDU",
-                                  "name": "Cargo Dispatcher Value",
+                                  "name": "Cargo Dispatcher Multiline Value",
                                   "fill": "$text-primary",
                                   "textGrowth": "fixed-width",
                                   "width": "fill_container",
-                                  "content": "LTV · Vương",
+                                  "content": "LTV · Vương · 0901 234 567\nMinh · Điều phối ca · 0938 456 789",
+                                  "lineHeight": 1.45,
                                   "fontFamily": "$font-main",
                                   "fontSize": 12,
                                   "fontWeight": "normal"
@@ -15747,7 +15745,7 @@
                                   "id": "gc_clean_opt3_val_40",
                                   "name": "Option 3 Selected Text",
                                   "fill": "#94A3B8",
-                                  "content": "Xe bo KH · Tuyến Sóng Thần",
+                                  "content": "Xe bo Tuyến HCM (Sóng Thần)",
                                   "fontFamily": "$font-main",
                                   "fontSize": 11,
                                   "fontWeight": "normal"
@@ -22210,7 +22208,7 @@
                               "fill": "$text-primary",
                               "textGrowth": "fixed-width",
                               "width": "fill_container",
-                              "content": "Xe bo · XB-KH-02",
+                              "content": "Xe bo Tuyến Đà Nẵng",
                               "fontFamily": "$font-main",
                               "fontSize": 11,
                               "fontWeight": "normal"
@@ -22737,7 +22735,7 @@
                         {
                           "type": "frame",
                           "id": "hub1_9hjt2",
-                          "name": "Cargo Dispatcher",
+                          "name": "Cargo Dispatcher Textarea Field",
                           "width": "fill_container",
                           "layout": "vertical",
                           "gap": 6,
@@ -22755,27 +22753,25 @@
                             {
                               "type": "frame",
                               "id": "hub1_w816c",
-                              "name": "Cargo Dispatcher Control",
+                              "name": "Cargo Dispatcher Textarea",
                               "width": "fill_container",
-                              "height": 44,
+                              "height": 84,
                               "fill": "#FFFFFF",
                               "cornerRadius": 7,
                               "stroke": "$border-subtle",
                               "strokeWidth": 1,
-                              "padding": [
-                                0,
-                                12
-                              ],
-                              "alignItems": "center",
+                              "layout": "vertical",
+                              "padding": 12,
                               "children": [
                                 {
                                   "type": "text",
                                   "id": "hub1_975mr",
-                                  "name": "Cargo Dispatcher Value",
+                                  "name": "Cargo Dispatcher Multiline Value",
                                   "fill": "$text-primary",
                                   "textGrowth": "fixed-width",
                                   "width": "fill_container",
-                                  "content": "LTV · Vương",
+                                  "content": "LTV · Vương · 0901 234 567\nMinh · Điều phối ca · 0938 456 789",
+                                  "lineHeight": 1.45,
                                   "fontFamily": "$font-main",
                                   "fontSize": 12,
                                   "fontWeight": "normal"
@@ -23708,29 +23704,6 @@
                                       "fontWeight": "700"
                                     }
                                   ]
-                                },
-                                {
-                                  "type": "frame",
-                                  "id": "h1clean_opt3_badge_36",
-                                  "name": "Option 3 Badge",
-                                  "fill": "#FEF3C7",
-                                  "cornerRadius": 4,
-                                  "padding": [
-                                    2,
-                                    6
-                                  ],
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "h1clean_opt3_bgtxt_37",
-                                      "name": "Option 3 Badge Text",
-                                      "fill": "#B45309",
-                                      "content": "Tuyến gom",
-                                      "fontFamily": "$font-main",
-                                      "fontSize": 9,
-                                      "fontWeight": "700"
-                                    }
-                                  ]
                                 }
                               ]
                             },
@@ -23766,7 +23739,7 @@
                                   "id": "h1clean_opt3_val_40",
                                   "name": "Option 3 Selected Text",
                                   "fill": "#94A3B8",
-                                  "content": "Xe bo KH · Tuyến Sóng Thần",
+                                  "content": "Xe bo Tuyến Đà Nẵng",
                                   "fontFamily": "$font-main",
                                   "fontSize": 11,
                                   "fontWeight": "normal"
@@ -26733,7 +26706,7 @@
                               "fill": "$text-primary",
                               "textGrowth": "fixed-width",
                               "width": "fill_container",
-                              "content": "Xe bo · XB-KH-02",
+                              "content": "Xe bo Tuyến Đà Nẵng",
                               "fontFamily": "$font-main",
                               "fontSize": 11,
                               "fontWeight": "normal"
@@ -27260,7 +27233,7 @@
                         {
                           "type": "frame",
                           "id": "xebo_sc21b",
-                          "name": "Cargo Dispatcher",
+                          "name": "Cargo Dispatcher Textarea Field",
                           "width": "fill_container",
                           "layout": "vertical",
                           "gap": 6,
@@ -27278,27 +27251,25 @@
                             {
                               "type": "frame",
                               "id": "xebo_xp0hw",
-                              "name": "Cargo Dispatcher Control",
+                              "name": "Cargo Dispatcher Textarea",
                               "width": "fill_container",
-                              "height": 44,
+                              "height": 84,
                               "fill": "#FFFFFF",
                               "cornerRadius": 7,
                               "stroke": "$border-subtle",
                               "strokeWidth": 1,
-                              "padding": [
-                                0,
-                                12
-                              ],
-                              "alignItems": "center",
+                              "layout": "vertical",
+                              "padding": 12,
                               "children": [
                                 {
                                   "type": "text",
                                   "id": "xebo_ja5yf",
-                                  "name": "Cargo Dispatcher Value",
+                                  "name": "Cargo Dispatcher Multiline Value",
                                   "fill": "$text-primary",
                                   "textGrowth": "fixed-width",
                                   "width": "fill_container",
-                                  "content": "LTV · Vương",
+                                  "content": "LTV · Vương · 0901 234 567\nMinh · Điều phối ca · 0938 456 789",
+                                  "lineHeight": 1.45,
                                   "fontFamily": "$font-main",
                                   "fontSize": 12,
                                   "fontWeight": "normal"
@@ -28289,7 +28260,7 @@
                                   "id": "xb_clean_opt3_val_40",
                                   "name": "Option 3 Selected Text",
                                   "fill": "$text-primary",
-                                  "content": "Xe bo KH · Tuyến Sóng Thần",
+                                  "content": "Xe bo Tuyến Đà Nẵng",
                                   "fontFamily": "$font-main",
                                   "fontSize": 11,
                                   "fontWeight": "600"
@@ -30411,7 +30382,7 @@
                       "id": "LP_R3_c12_T",
                       "name": "Cell Text",
                       "fill": "#0F172A",
-                      "content": "Xe Bo Vinh (Nghệ An)",
+                      "content": "Xe bo Tuyến Vinh (Nghệ An)",
                       "fontFamily": "$font-main",
                       "fontSize": 10,
                       "fontWeight": "normal"
@@ -30817,7 +30788,7 @@
                       "id": "LP_R4_c12_T",
                       "name": "Cell Text",
                       "fill": "#0F172A",
-                      "content": "Xe Bo Huế (Kim Long)",
+                      "content": "Xe bo Tuyến Huế (Kim Long)",
                       "fontFamily": "$font-main",
                       "fontSize": 10,
                       "fontWeight": "normal"
@@ -32035,7 +32006,7 @@
                       "id": "LP_R7_c12_T",
                       "name": "Cell Text",
                       "fill": "#0F172A",
-                      "content": "Xe Bo Khánh Hòa (Diên Lạc)",
+                      "content": "Xe bo Tuyến Khánh Hòa (Diên Lạc)",
                       "fontFamily": "$font-main",
                       "fontSize": 10,
                       "fontWeight": "normal"
@@ -32441,7 +32412,7 @@
                       "id": "LP_R8_c12_T",
                       "name": "Cell Text",
                       "fill": "#0F172A",
-                      "content": "Xe Bo Ninh Thuận (Bảo An)",
+                      "content": "Xe bo Tuyến Ninh Thuận (Bảo An)",
                       "fontFamily": "$font-main",
                       "fontSize": 10,
                       "fontWeight": "normal"
@@ -34895,7 +34866,7 @@
                               "id": "VPort_R3_c12_T",
                               "name": "T",
                               "fill": "#0F172A",
-                              "content": "Xe Bo Vinh (52 Đặng Văn Thụy)",
+                              "content": "Xe bo Tuyến Vinh (52 Đặng Văn Thụy)",
                               "fontFamily": "$font-main",
                               "fontSize": 10,
                               "fontWeight": "normal"
@@ -35331,7 +35302,7 @@
                               "id": "VPort_R4_c12_T",
                               "name": "T",
                               "fill": "#0F172A",
-                              "content": "Xe Bo Huế (Kim Long)",
+                              "content": "Xe bo Tuyến Huế (Kim Long)",
                               "fontFamily": "$font-main",
                               "fontSize": 10,
                               "fontWeight": "normal"
@@ -38246,7 +38217,7 @@
                       "id": "FS_R3_c12_T",
                       "name": "T",
                       "fill": "#0F172A",
-                      "content": "Xe Bo Vinh (52 Đặng Văn Thụy, TP Vinh)",
+                      "content": "Xe bo Tuyến Vinh (52 Đặng Văn Thụy, TP Vinh)",
                       "fontFamily": "$font-main",
                       "fontSize": 10,
                       "fontWeight": "normal"
@@ -38682,7 +38653,7 @@
                       "id": "FS_R4_c12_T",
                       "name": "T",
                       "fill": "#0F172A",
-                      "content": "Xe Bo Huế (Cây xăng 24 Kim Long, Huế)",
+                      "content": "Xe bo Tuyến Huế (Cây xăng 24 Kim Long, Huế)",
                       "fontFamily": "$font-main",
                       "fontSize": 10,
                       "fontWeight": "normal"
@@ -41477,7 +41448,7 @@
                           "fill": "$text-primary",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Xe bo · XB-KH-02",
+                          "content": "Xe bo Tuyến Đà Nẵng",
                           "fontFamily": "$font-main",
                           "fontSize": 11,
                           "fontWeight": "normal"

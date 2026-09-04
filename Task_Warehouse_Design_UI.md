@@ -151,7 +151,7 @@ Dành cho bảng điều phối đóng hàng lên xe tuyến theo tài liệu ch
 Cột này bắt buộc có bộ chuyển đổi 3 lựa chọn (Segmented Tab hoặc Dropdown Category):
 1. **Nhập địa chỉ thông thường (Free Text)**: Nhập số nhà, tên đường, phường/xã, quận/huyện cụ thể để giao chặng cuối cho khách lẻ.
 2. **Hub cấp 1 (Dropdown Kho chính)**: Chọn các Hub trung tâm trong hệ thống (VD: Hub Hà Nội, Hub Đà Nẵng, Hub Sài Gòn).
-3. **Hub cấp 2 / "Xe bo" (Dropdown Tuyến vệ tinh)**: Chọn các xe trung chuyển phân tán (VD: *Xe bo Vinh, Xe bo Huế, Xe bo Khánh Hòa, Xe bo Ninh Thuận...*).
+3. **Hub cấp 2 / "Xe bo" (Dropdown Tuyến vệ tinh)**: Quản lý theo chuẩn định danh `/leader`: **`Xe bo Tuyến <Tên Tỉnh/Thành>`** ứng với **34 đơn vị hành chính cấp tỉnh Việt Nam** (6 TP trực thuộc TW + 28 Tỉnh) sau sáp nhập 1/7/2025 - 2026 (VD: *Xe bo Tuyến HCM, Xe bo Tuyến Hà Nội, Xe bo Tuyến Đà Nẵng, Xe bo Tuyến Hải Phòng, Xe bo Tuyến Cần Thơ, Xe bo Tuyến Huế, Xe bo Tuyến Hưng Yên, Xe bo Tuyến Đồng Nai, Xe bo Tuyến Khánh Hòa...*).
 
 ### 4.4. Hỗ trợ thao tác Excel (Excel Grid Interaction):
 - **Copy-Paste thông minh**: Cho phép người dùng chọn vùng dữ liệu trên Excel (`Ctrl+C`), click vào ô đầu tiên trên Grid và bấm `Ctrl+V`. Hệ thống tự động phân tách Tab/Dấu cách thành các dòng và cột tương ứng.
