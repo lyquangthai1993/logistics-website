@@ -108,6 +108,7 @@ Each dimension is scored by counting **checkpoint violations**. Each violation d
 
 | Checkpoint | Points Deducted on Violation | Auto-FAIL? |
 |---|---|---|
+| **Text overflow / clipping / boundary bleed (chữ bị cắt cụt lủn, tràn mép container do độ rộng chuỗi vượt quá kích thước ô/card/nút chứa nó)** — Bắt buộc kiểm tra Box Model Geometry (`text.length * fontSize * 0.58 > parent.width`) | -4 per overflowing element | No (-5 if critical word clipped) |
 | **Broken line breaks / awkward text wrapping (chữ không cùng hàng, rớt dòng cụt lủn trong table headers, cells, badge/button labels, input labels)** — Được đánh giá là **TỆ** về mặt typography | -3 per broken text wrap | No |
 | Touch targets (buttons, tabs, checkboxes) < 44px height on mobile viewport | -2 per element type | No |
 | Full-page horizontal scroll exists at 375px (iPhone) viewport width | -3 | No |
@@ -195,6 +196,7 @@ Step 4: Repeat until CLEARED (score >= 40/50, 0 Auto-FAIL)
 - [ ] Checked `rbac-matrix.md` for role access boundaries
 - [ ] Scored all 5 dimensions using checkpoint rubric
 - [ ] Verified single-line text consistency (no broken line breaks / chữ rớt dòng cụt lủn trong table headers, cells, labels)
+- [ ] Verified Box Model Geometry (no text overflow / clipping / boundary bleed: text width must fit container without clipping)
 - [ ] Verified no spec notes or prompt nodes drawn inside UI frame (all notes must be in external side panel or markdown docs)
 - [ ] Verified no Auto-FAIL triggers activated
 - [ ] Produced Audit Report in standard format
