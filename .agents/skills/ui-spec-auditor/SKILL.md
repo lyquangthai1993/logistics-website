@@ -47,6 +47,7 @@ Each dimension is scored by counting **checkpoint violations**. Each violation d
 | Any field present in docs_scan scan is missing from UI | -2 per missing field | No |
 | Any field in UI has no spec origin (not in Task or docs_scan) | -3 per extra/phantom field | No |
 | Column/field order does not match scanned reference form | -2 | No |
+| Technical spec notes / designer prompt text drawn directly into UI frame instead of placed in a separate side-note panel outside the screen (e.g. Node SyY5O) | -3 per misplaced note | No |
 | SKU / Barcode / Ma san pham field present anywhere on screen | -10 (full dimension) | **YES** |
 | `.pen` vector file uses `"text"` property instead of `"content"` for text nodes (causing invisible labels in Pencil) | -10 (full dimension) | **YES** |
 
@@ -103,10 +104,11 @@ Each dimension is scored by counting **checkpoint violations**. Each violation d
 
 ### Dimension 5: Mobile & UX Usability (10 pts)
 
-**Standard**: UI must be operable on mobile (touch-friendly) per AGENTS.md requirement: "ho tro co ban mobile, de thao tac".
+**Standard**: UI must be operable on mobile (touch-friendly) per AGENTS.md requirement: "ho tro co ban mobile, de thao tac", và đảm bảo chuẩn thẩm mỹ Typography/Layout chuyên nghiệp.
 
 | Checkpoint | Points Deducted on Violation | Auto-FAIL? |
 |---|---|---|
+| **Broken line breaks / awkward text wrapping (chữ không cùng hàng, rớt dòng cụt lủn trong table headers, cells, badge/button labels, input labels)** — Được đánh giá là **TỆ** về mặt typography | -3 per broken text wrap | No |
 | Touch targets (buttons, tabs, checkboxes) < 44px height on mobile viewport | -2 per element type | No |
 | Full-page horizontal scroll exists at 375px (iPhone) viewport width | -3 | No |
 | Non-relevant data fields for current status are not hidden/collapsible on mobile | -2 | No |
@@ -192,6 +194,8 @@ Step 4: Repeat until CLEARED (score >= 40/50, 0 Auto-FAIL)
 - [ ] Read `leader` SKILL.md (No-SKU rule, role matrix, cargo fields)
 - [ ] Checked `rbac-matrix.md` for role access boundaries
 - [ ] Scored all 5 dimensions using checkpoint rubric
+- [ ] Verified single-line text consistency (no broken line breaks / chữ rớt dòng cụt lủn trong table headers, cells, labels)
+- [ ] Verified no spec notes or prompt nodes drawn inside UI frame (all notes must be in external side panel or markdown docs)
 - [ ] Verified no Auto-FAIL triggers activated
 - [ ] Produced Audit Report in standard format
 - [ ] Returned report to `ui-ux-flow-designer` if NOT CLEARED

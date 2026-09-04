@@ -1,4 +1,4 @@
-﻿# Kế Hoạch Triển Khai: Phân Hệ Quản Lý Kho (Warehouse Hub Operations)
+# Kế Hoạch Triển Khai: Phân Hệ Quản Lý Kho (Warehouse Hub Operations)
 
 > **Nguồn tham chiếu**: [Task_Warehouse_Design_UI.md](./Task_Warehouse_Design_UI.md) · [leader SKILL](./.agents/skills/leader/SKILL.md) · [RBAC Matrix v1.4](./.agents/rules/rbac-matrix.md)
 > **Phiên bản**: v1.1 — 2026-09-03 (cập nhật Q2/Q3)
@@ -12,7 +12,7 @@
 |---|---|---|
 | **Q1** | DB Schema | ✅ **Phương án A**: Bảng `waybill` riêng (1 order → N waybills) |
 | **Q2** | Excel Paste (Ctrl+V) | ✅ **Phase tiếp theo (P2)** — Không implement sprint này |
-| **Q3** | Print templates | ✅ **Client-side React + Print CSS** cho preview/in. **Server-side PDF gen** (Puppeteer/html-pdf-node) → upload S3 Supabase → lưu link vào DB → trả về URL thật |
+| **Q3** | Print templates | ✅ **Client-side React + Print CSS** cho preview/in. **Server-side PDF gen** (Puppeteer/html-pdf-node) → upload S3 Supabase → lưu link vào DB → trả về URL thật (Đủ 5 mẫu: Phiếu Nhập, Phiếu Xuất, Phiếu Giao POD, **Tem Nhận Diện A4 Pallet**, **Bảng Kế Hoạch Đóng Hàng Xe**) |
 
 ---
 
@@ -41,11 +41,11 @@
 | Backend: `WaybillModule` (CRUD + state machine) | 🔴 Critical |
 | Backend: PDF generation service (Puppeteer/html-pdf) | 🔴 Critical (Q3) |
 | Backend: API gen PDF → upload S3 → lưu link DB → trả URL | 🔴 Critical (Q3) |
-| Frontend: Form nhập hàng dạng Grid (Excel-like) | 🔴 Critical |
+| Frontend: Form nhập hàng dạng Grid (Excel-like với viền đỏ Bắt buộc) | 🔴 Critical |
 | Frontend: Trip Selection Modal (Mode 2) | 🔴 Critical |
 | Frontend: Timeline Stepper 3 chặng | 🔴 Critical |
-| Frontend: Print preview (React + Print CSS) + nút "Tạo PDF" | 🟡 High |
-| Frontend: Mobile UX — Cargo Cards + Sticky bar | 🟡 High |
+| Frontend: Print preview + Template Tem A4 + Bảng Kế Hoạch Đóng Hàng | 🟡 High |
+| Frontend: Mobile UX — Cargo Cards (Red border) + Sticky bar | 🟡 High |
 | RBAC Matrix: Waybill endpoints | 🟠 Medium |
 
 ---
@@ -77,21 +77,37 @@ export class WaybillEntity extends AbstractBaseEntity {
   @Column({ type: Number, nullable: true })
   tripId: number | null;               // FK → trip (Mode 2 only)
 
-  // Thông tin xe/tài xế
+  // ─── Thông tin xe/tài xế/nhà thầu (Red Border Fields) ───
   @Column({ type: String, nullable: true })
-  vehicleLicensePlate: string | null;
+  vehicleLicensePlate: string | null;  // 🔴 Biển số xe (VD: 43H30703)
 
   @Column({ type: String, nullable: true })
-  driverName: string | null;
+  driverName: string | null;           // 🔴 Họ tên tài xế
 
   @Column({ type: String, nullable: true })
-  driverPhone: string | null;
+  driverPhone: string | null;          // 🔴 SĐT tài xế (VD: 0964248662)
 
   @Column({ type: String, nullable: true })
-  subContractor: string | null;
+  receiverName: string | null;         // 🔴 Họ tên người nhận/lái xe (VD: Bùi Ngọc Tân)
+
+  @Column({ type: String, nullable: true })
+  subContractor: string | null;        // 🔴 Nhà thầu vận chuyển (VD: SPIDER)
 
   @Column({ type: 'text', nullable: true })
-  pickupAddress: string | null;
+  pickupAddress: string | null;        // 🔴 Địa chỉ nhận hàng
+
+  @Column({ type: String, nullable: true })
+  dispatcherContact: string | null;    // Người điều hành phụ trách (VD: HCM - Minh 0363920977)
+
+  @Column({ type: String, nullable: true })
+  targetStation: string | null;        // Trạm/Tỉnh đích tóm tắt ("Đã soạn", VD: đà nẵng, hà nam)
+
+  // ─── Thông tin Pallet (Phục vụ In Tem Nhận Diện Khổ A4) ───
+  @Column({ type: Number, nullable: true })
+  palletIndex: number | null;          // Palet số (VD: 1)
+
+  @Column({ type: Number, nullable: true })
+  totalPallets: number | null;         // Tổng số palet (VD: 5)
 
   @Column({ type: Number, nullable: true })
   createdByUserId: number | null;
@@ -113,7 +129,10 @@ export class WaybillEntity extends AbstractBaseEntity {
   pdfDeliveryNoteUrl: string | null;   // Phiếu Giao Hàng / POD PDF URL
 
   @Column({ type: 'text', nullable: true })
-  pdfCargoLabelUrl: string | null;     // Tem Nhận Diện PDF URL
+  pdfCargoLabelUrl: string | null;     // Tem Nhận Diện Hàng Hóa Khổ A4 PDF URL
+
+  @Column({ type: 'text', nullable: true })
+  pdfLoadingSheetUrl: string | null;   // Bảng Kế Hoạch Đóng Hàng Xe Tuyến PDF URL
 
   @OneToMany(() => WaybillItemEntity, (item) => item.waybill, { cascade: true })
   items: WaybillItemEntity[];
@@ -137,32 +156,44 @@ export class WaybillItemEntity {
   rowIndex: number;                   // Thứ tự dòng trên grid
 
   @Column({ type: String })
-  orderCode: string;                  // Mã đơn hàng (do khách/bill gửi)
+  orderCode: string;                  // 🔴 Mã đơn hàng (VD: HCM2609-011)
+
+  @Column({ type: String, nullable: true })
+  customerCode: string | null;        // Mã & Tên khách hàng (VD: KH0124MASAN)
 
   @Column({ type: 'text' })
-  pickupAddress: string;              // Địa chỉ nhận hàng (Cột 3)
+  pickupAddress: string;              // 🔴 Địa chỉ nhận hàng
+
+  @Column({ type: String, nullable: true })
+  pickupDate: string | null;          // Ngày cần bốc hàng (VD: 7H sáng 3/9/2026)
 
   @Column({ type: 'text' })
-  goodsDescription: string;           // Tên hàng — NO SKU
+  goodsDescription: string;           // 🔴 Tên hàng — NO SKU (VD: Nguyên Liệu, Can thực phẩm...)
 
   @Column({ type: 'int', default: 0 })
-  quantity: number;                   // Số thùng/kiện
+  quantity: number;                   // 🔴 Số thùng/kiện
 
   @Column({ type: 'float', default: 0 })
-  weightKg: number;                   // Số kg (Gross weight)
+  weightKg: number;                   // 🔴 Số kg (Gross weight)
 
   @Column({ type: 'float', default: 0 })
-  volumeM3: number;                   // Số m³/CBM
+  volumeM3: number;                   // 🔴 Số m³/CBM
 
-  // Địa chỉ giao hàng — 3-mode
+  @Column({ type: String, nullable: true })
+  deliveryDate: string | null;        // Ngày cần giao hàng (VD: 13h00 ngày 05/09/2026)
+
+  // Địa chỉ giao hàng — 3-mode (🔴 Bắt buộc)
   @Column({ type: String, default: 'FREE_TEXT' })
   deliveryMode: string;               // FREE_TEXT | HUB_L1 | HUB_L2_SAT
 
   @Column({ type: 'text', nullable: true })
-  deliveryAddress: string | null;     // FREE_TEXT: nhập tay
+  deliveryAddress: string | null;     // FREE_TEXT: nhập tay (VD: CÔNG TY TNHH MNS MEAT HÀ NAM...)
 
   @Column({ type: Number, nullable: true })
   deliveryHubId: number | null;       // HUB_L1 / HUB_L2_SAT: FK → hub
+
+  @Column({ type: String, nullable: true })
+  targetStation: string | null;        // Tỉnh/Trạm đích ngắn gọn ("Đã soạn", VD: ninh bình, hà nam)
 
   @Column({ type: 'text', nullable: true })
   notes: string | null;
@@ -270,19 +301,52 @@ Cột 6 — `<WaybillDeliverySelector />`:
 - HUB_L1: dropdown từ `/v1/hubs/active`
 - HUB_L2_SAT: dropdown xe bo / tuyến vệ tinh
 
+### 2.4 Xử lý Cuộn Ngang Bảng & Chế Độ Toàn Màn Hình (Horizontal Scroll & Fullscreen View)
+
+**Thành phần xử lý UX**:
+- **Scroll Container**: Bọc toàn bộ bảng trong `ScrollArea` hoặc `div className="overflow-x-auto relative rounded-lg border border-slate-200"` với `min-w-[1550px]` cho thẻ `<table>`.
+- **Sticky Columns**: Ghim cố định cột `STT` (left: 0) và cột `Mã đơn hàng` (left: 56px, `bg-white z-10 shadow-[2px_0_4px_rgba(0,0,0,0.05)]`) để người dùng không mất dấu dòng khi cuộn ngang.
+- **Scroll Indicator Badge**: Hiển thị badge nhỏ ở phía trên bảng: `"👉 Đang hiển thị 10/15 cột · Cuộn ngang ➔"` khi `scrollWidth > clientWidth`.
+- **Nút Chuyển Đổi Toàn Màn Hình (Fullscreen Toggle)**:
+  - Nút `[⛶ Toàn màn hình]` góc phải thanh công cụ bảng.
+  - Khi kích hoạt: Mở rộng vùng làm việc chiếm trọn 100vw/100vh (hoặc ẩn Sidebar + thu gọn Header), chuyển sang giao diện tương đương frame **`WH_FULLSCREEN_TABLE`** (1920px), cho phép hiển thị trọn vẹn 15 cột mà không bị che khuất.
+- **Mô phỏng Pencil Canvas**:
+  - `WH_VIEWPORT_SCROLL_VIEW` (1440x1100px): Mô phỏng thực tế màn hình người dùng bị che cột 11–15, có thanh scrollbar track và indicator badge.
+  - `WH_FULLSCREEN_TABLE` (1920x1100px): Màn hình mở rộng tối đa xem full table không cần cuộn.
+
 ---
 
-## 🏗️ Sprint 3 — Mode 2 + Detail Sheet + Timeline
+## 🏗️ Sprint 3 — Mode 2 (Hành Trình 3 Bước) + Detail Sheet + Timeline
 
-### 3.1 TripSelectionModal
+### 3.1 Quy trình 3 Bước Luân Chuyển Nội Bộ (Mode 2 Step-by-Step Flow)
 
-**File mới**: `frontend/src/features/warehouse/components/trip-selection-modal.tsx`
+Quy trình giao diện được chia thành 3 bước tương ứng với 3 frame trên Canvas Pencil:
 
-- Search: tripId, biển số xe, tên/SĐT tài xế
-- Filter API: `GET /v1/trips?status=IN_TRANSIT&destinationHubId={currentUser.hubId}`
-- Kết quả: danh sách Trips → expand → list đơn hàng trong trip
-- Checkbox chọn: [Chọn tất cả] / từng đơn
-- Confirm → auto-fill grid
+1. **Bước 1A: Khởi tạo trên màn hình chính (Frame `dd8X5`)**:
+   - Khi vào tab "Luân chuyển nội bộ", chưa chọn chuyến xe nào.
+   - Stepper: `[① Chọn chuyến xe] (Active)` ➔ `[② Chọn đơn hàng] (Pending)` ➔ `[③ Kiểm tra & Nhận kho] (Pending)`.
+   - Component `<TripSelectorTriggerBar />`: Thanh hiển thị "Chưa chọn chuyến hàng luân chuyển" + Nút **`[🚚 Chọn chuyến hàng ➔]`**.
+   - Bấm nút ➔ Mở **Modal Chọn Chuyến Hàng (Bước 1B)**.
+
+2. **Bước 1B: Modal Chọn Chuyến Xe Luân Chuyển (Frame `WH_CASE_02B_TRIP_MODAL`)**:
+   - **File mới**: `frontend/src/features/warehouse/components/trip-picker-modal.tsx`
+   - **Quy tắc cốt lõi (Leader Business Rule)**: Không quản lý trạng thái vi mô ('Tới cổng', 'Đang chạy'...). Chuyến xe chỉ kết thúc khi toàn bộ đơn hàng trên xe đã được dỡ và tiếp nhận hết (`hasRemainingOrders = true`).
+   - Xử lý khi có **> 20 chuyến xe**:
+     - Thanh Toolbar có Live count badge (`24 chuyến xe còn hàng`), Filter pills theo Hub xuất phát (`Tất cả còn hàng`, `Từ Andromeda HN`, `Từ Đà Nẵng`, `Từ Miền Tây`), và Live search input.
+     - Bảng mini 7 cột hiển thị chuyến xe với tình trạng hàng trên xe (`Còn 5/5 đơn chưa dỡ`, badge `CÒN HÀNG`), khối lượng/kiện trên xe.
+     - Phân trang gọn (`Trang 1/8`, Next/Prev, Direct pages).
+   - Bấm `[Chọn chuyến này ➔ Sang Bước 2]` ➔ Mở tiếp Modal Chọn Đơn Hàng.
+
+3. **Bước 2: Modal Chọn Đơn Hàng Trong Chuyến (Frame `WH_CASE_03_MODAL`)**:
+   - **File mới**: `frontend/src/features/warehouse/components/trip-orders-modal.tsx`
+   - Hiển thị danh sách các đơn hàng trên chuyến xe vừa chọn. Checkbox từng đơn hoặc `[Chọn tất cả]`.
+   - Bấm `[Xác nhận nạp đơn vào bảng ➔]` ➔ Đóng modal và nạp toàn bộ vào Bước 3.
+
+4. **Bước 3: Kiểm tra, bổ sung hàng dọc đường & Xác nhận (Frame `WH_CASE_02_TRANSFER_LOADED`)**:
+   - Dữ liệu xe/tài xế tự động điền và khóa (Readonly).
+   - Nạp các đơn hàng đã chọn vào `<WaybillGridInput />`.
+   - Nút `[+ Thêm hàng phát sinh]` cho phép thủ kho thêm dòng hàng nhận thêm dọc đường (địa chỉ nhận = Hub hiện tại).
+   - Nút `[Xác nhận tiếp nhận]` active sẵn sàng submit.
 
 ### 3.2 WaybillDetailSheet
 
@@ -363,13 +427,13 @@ export class WaybillPdfService {
 
   async generateAndUpload(
     waybill: WaybillEntity,
-    type: 'INBOUND_SLIP' | 'OUTBOUND_SLIP' | 'DELIVERY_NOTE' | 'CARGO_LABEL',
+    type: 'INBOUND_SLIP' | 'OUTBOUND_SLIP' | 'DELIVERY_NOTE' | 'CARGO_LABEL' | 'LOADING_SHEET',
   ): Promise<string> {
     // 1. Render HTML từ template
     const html = this.renderTemplate(waybill, type);
 
     // 2. Generate PDF buffer
-    const pdfBuffer = await this.generatePdfBuffer(html);
+    const pdfBuffer = await this.generatePdfBuffer(html, type === 'LOADING_SHEET' ? 'landscape' : 'portrait');
 
     // 3. Upload lên S3 Supabase
     const key = `waybills/${waybill.waybillCode}/${type.toLowerCase()}-${Date.now()}.pdf`;
@@ -383,13 +447,13 @@ export class WaybillPdfService {
     // - INBOUND_SLIP: mã DDMMYY-xxxx, bảng items, 2 ô ký
     // - OUTBOUND_SLIP: thông tin xuất kho
     // - DELIVERY_NOTE: POD + ô ký khách
-    // - CARGO_LABEL: tem dán "... / [Tổng số kiện]"
+    // - CARGO_LABEL: Tem A4 Pallet chuẩn 11 mục (TEM NHẬN DIỆN HÀNG HÓA THÀNH A4.xlsx)
+    // - LOADING_SHEET: Bảng Kế Hoạch Đóng Hàng Xe Tuyến A4 ngang (14 cột + hotline 3 miền)
   }
 
-  private async generatePdfBuffer(html: string): Promise<Buffer> {
-    // Dùng html-pdf-node hoặc Puppeteer
+  private async generatePdfBuffer(html: string, orientation: 'portrait' | 'landscape' = 'portrait'): Promise<Buffer> {
     const file = { content: html };
-    const options = { format: 'A4', printBackground: true };
+    const options = { format: 'A4', landscape: orientation === 'landscape', printBackground: true };
     return htmlPdf.generatePdf(file, options);
   }
 
@@ -411,12 +475,13 @@ export class WaybillPdfService {
 **File mới**: `backend/src/waybills/pdf/templates/inbound-slip.template.ts`
 **File mới**: `backend/src/waybills/pdf/templates/outbound-slip.template.ts`
 **File mới**: `backend/src/waybills/pdf/templates/delivery-note.template.ts`
-**File mới**: `backend/src/waybills/pdf/templates/cargo-label.template.ts`
+**File mới**: `backend/src/waybills/pdf/templates/cargo-label.template.ts`       ← Tem A4 Pallet 11 mục
+**File mới**: `backend/src/waybills/pdf/templates/loading-sheet.template.ts`     ← Bảng Đóng Hàng Xe A4 ngang
 
 ### Endpoint Generate PDF
 
 ```typescript
-// PATCH /v1/waybills/:id/generate-pdf?type=INBOUND_SLIP
+// POST /v1/waybills/:id/generate-pdf?type=INBOUND_SLIP
 @Post(':id/generate-pdf')
 @Roles(RoleEnum.WAREHOUSE_MANAGER, RoleEnum.SUPER_ADMIN)
 async generatePdf(
@@ -431,7 +496,7 @@ async generatePdf(
 **Logic trong `waybillsService.generatePdf()`**:
 1. Fetch waybill + items từ DB
 2. Gọi `WaybillPdfService.generateAndUpload(waybill, type)`
-3. Cập nhật DB: `waybill.pdfInboundSlipUrl = url` (hoặc cột tương ứng)
+3. Cập nhật DB: `waybill.pdf*Url = url` tương ứng với type
 4. Return `{ url }`
 
 ### 4.2 Frontend — Print Preview + PDF Button
@@ -445,7 +510,7 @@ async generatePdf(
 
 interface WaybillPrintViewProps {
   waybill: Waybill;
-  type: 'INBOUND_SLIP' | 'OUTBOUND_SLIP' | 'DELIVERY_NOTE' | 'CARGO_LABEL';
+  type: 'INBOUND_SLIP' | 'OUTBOUND_SLIP' | 'DELIVERY_NOTE' | 'CARGO_LABEL' | 'LOADING_SHEET';
 }
 
 // Trong Dialog/Sheet chi tiết:
@@ -455,14 +520,15 @@ interface WaybillPrintViewProps {
 // [📋 Copy link PDF]  → nếu pdfUrl đã có → copy URL vào clipboard
 ```
 
-**4 loại phiếu in (nội dung bắt buộc)**:
+**5 loại biểu mẫu in (nội dung bắt buộc)**:
 
-| Loại | Nội dung | Đặc biệt |
+| Loại | Nội dung | Định dạng & Điểm đặc biệt |
 |---|---|---|
-| **Phiếu Nhập Kho** | Mã `DDMMYY-xxxx`, Ngày, Xe+Tài xế, Hub nhận, Bảng items, Tổng lũy kế | **2 ô ký**: Thủ kho + Lái xe |
-| **Phiếu Xuất Kho** | Thông tin xuất Hub, xe nhận, items | Ghi chú xuất kho |
-| **Phiếu Giao Hàng / POD** | Người nhận, địa chỉ giao, items, COD | **Ô ký khách hàng** |
-| **Tem Nhận Diện** | Mã đơn, tên hàng, điểm đến | Format: `... / [Tổng kiện]` (VD: `... / 50 kiện`) |
+| **Phiếu Nhập Kho** | Mã `DDMMYY-xxxx`, Ngày, Xe+Tài xế, Hub nhận, Bảng items, Tổng lũy kế | Khổ A4 dọc, **2 ô ký**: Thủ kho + Lái xe |
+| **Phiếu Xuất Kho** | Thông tin xuất Hub, xe nhận, danh sách kiện hàng | Khổ A4 dọc, Ghi chú bốc xếp xuất kho |
+| **Phiếu Giao Hàng / POD** | Người nhận, địa chỉ giao, items, COD | Khổ A4 dọc, **Ô ký khách hàng** |
+| **Tem Nhận Diện Hàng Hóa (A4)** | KHO, TÊN HÀNG, NGƯỜI ĐIỀU HÀNH, MÃ ĐƠN, NGÀY NHẬP, CHỨNG TỪ, SỐ LƯỢNG, PALET SỐ, TỔNG SỐ PALET, NGƯỜI NHẬP, GIAO ĐẾN | Khổ A4 dọc dán trực tiếp Pallet/Kiện, Barcode/QR to, chuẩn theo `docs_scan/TEM NHẬN DIỆN HÀNG HÓA THÀNH A4.xlsx` |
+| **Bảng Kế Hoạch Đóng Hàng Xe** | Header xe/tài xế/nhà thầu, Bảng 14 cột, Hàng tổng `SUBTOTAL`, Hotline 3 miền | Khổ A4 ngang, chuẩn theo `docs_scan/Kế Hoạch Đóng Hàng Xe 43H30703 Spider 3.9 K.xlsx` |
 
 ---
 
@@ -613,34 +679,37 @@ npm install puppeteer                  # Nặng hơn nhưng render CSS đẹp h�
 - [ ] RBAC: `DISPATCHER` → `POST /v1/waybills` → 403
 
 ### Frontend
-- [ ] Grid 8 cột hiển thị đúng thứ tự
+- [ ] Grid 8 cột hiển thị đúng thứ tự, có highlight viền đỏ/dấu sao cho các trường BẮT BUỘC (`docs_scan/required_field_border_red.png`)
+- [ ] Header Mode 1 đủ 5 trường viền đỏ: Biển số xe, Lái xe/Người nhận, SĐT, Nhà thầu, Ngày tạo
 - [ ] Tab key chuyển ô theo đúng thứ tự cột
 - [ ] Cột 6 — 3-mode selector hoạt động (Free text / Hub L1 / Hub L2)
 - [ ] Mode 2: chọn Trip IN_TRANSIT → auto-fill vehicleInfo + items
 - [ ] Timeline Stepper 3 chặng: highlight đúng step theo state
-- [ ] Nút "🖨️ In phiếu" → window.print() → in đúng layout phiếu nhập kho
+- [ ] Nút "🖨️ In biểu mẫu" → window.print() → in đúng layout phiếu nhập/xuất/POD/Tem A4/Bảng đóng hàng
+- [ ] Template **Tem Nhận Diện Hàng Hóa Khổ A4**: Hiển thị đầy đủ 11 mục thông tin từ `docs_scan/TEM NHẬN DIỆN HÀNG HÓA THÀNH A4.xlsx` (kèm Palet số / Tổng số palet)
+- [ ] Template **Bảng Kế Hoạch Đóng Hàng Xe**: Hiển thị bảng 14 cột, dòng tổng `SUBTOTAL`, hotline 3 miền từ `docs_scan/Kế Hoạch Đóng Hàng Xe 43H30703 Spider 3.9 K.xlsx`
 - [ ] Nút "📄 Tạo PDF & Lưu" → loading → nhận URL → hiển thị link tải
 - [ ] Nếu PDF đã gen rồi → hiện link sẵn, không gen lại
-- [ ] Mobile <640px: Grid → Cargo Cards + Sticky Bottom Bar
+- [ ] Mobile <640px: Grid → Cargo Cards (có viền đỏ cho trường required) + Sticky Bottom Bar
 
 ---
 
-## 📅 Timeline Sprint
+## 📅 Timeline Sprint & Phân Bổ Nhiệm Vụ
 
-| Sprint | Nội dung | Estimate |
-|---|---|---|
-| **Sprint 1** | DB Schema + Migration + WaybillModule (7 endpoints) | 1-2 ngày |
-| **Sprint 2** | API Layer + WarehouseCreateDialog + WaybillGridInput (Mode 1) | 2-3 ngày |
-| **Sprint 3** | Mode 2 (TripSelectionModal) + WaybillDetailSheet + Timeline | 2 ngày |
-| **Sprint 4** | PDF Service + S3 Upload + Print View + PDF Button | 1-2 ngày |
-| **Sprint 5** | Mobile UX + RBAC Matrix v1.5 | 1 ngày |
+| Sprint | Nội dung & Nhiệm vụ Trọng tâm | Deliverables | Estimate |
+|---|---|---|---|
+| **Sprint 1** | **DB Schema & Backend WaybillModule**<br>- Entity `WaybillEntity` (thêm contractor, receiverName, pallet, loading plan url)<br>- Entity `WaybillItemEntity` (thêm customerCode, dates, targetStation)<br>- Migration + Controller + Service + DTO Validation Red-Border | Migration chạy, 7 APIs hoạt động | 1-2 ngày |
+| **Sprint 2** | **Frontend Grid Mode 1 & Red-Border UI Indicators**<br>- `WarehouseCreateDialog` Tab Direct Customer<br>- `WaybillGridInput` 8 cột có viền đỏ bắt buộc theo `required_field_border_red.png`<br>- Zod Schema validation 2 lớp | Form Mode 1 submit mượt mà, validate realtime | 2-3 ngày |
+| **Sprint 3** | **Mode 2 (Hub Transfer) & Bảng Kế Hoạch Đóng Hàng Xe**<br>- `TripSelectionModal` chọn chuyến IN_TRANSIT<br>- Gom chuyến & Xem bảng Kế hoạch Đóng hàng 14 cột (`Kế Hoạch Đóng Hàng Xe 43H30703 Spider 3.9 K.xlsx`)<br>- `WaybillDetailSheet` + Timeline Stepper 3 chặng | Luồng luân chuyển hoàn chỉnh | 2 ngày |
+| **Sprint 4** | **PDF Service + S3 Upload + 5 Mẫu Biểu In**<br>- Backend: `WaybillPdfService` (Puppeteer/html-pdf-node + S3 Supabase)<br>- Template 1-3: Phiếu Nhập Kho, Phiếu Xuất Kho, Phiếu Giao Hàng POD<br>- Template 4: **Tem Nhận Diện Hàng Hóa Khổ A4** (11 mục chuẩn `TEM NHẬN DIỆN HÀNG HÓA THÀNH A4.xlsx`)<br>- Template 5: **Bảng Kế Hoạch Đóng Hàng Xe Tuyến** (A4 ngang + hotline 3 miền)<br>- Frontend: `WaybillPrintView` preview & nút "Tạo PDF" | In & xuất PDF 5 mẫu hoàn chỉnh | 2 ngày |
+| **Sprint 5** | **Mobile UX + RBAC Matrix v1.5 + E2E Tests**<br>- Cargo Cards trên mobile có viền đỏ cảnh báo<br>- Sticky Bottom Bar, Touch target $\ge 44px$<br>- Cập nhật RBAC matrix v1.5 & chạy full suite Playwright E2E | Pass 100% E2E test suites | 1-2 ngày |
 
-**Tổng**: ~7-10 ngày dev
+**Tổng thời gian dự kiến**: ~8-11 ngày dev
 
 ---
 
 > **Branch**: `feature/warehouse-inbound-module` (backend + frontend)
-> **Phiên bản plan**: v1.1 (cập nhật Q2: P2, Q3: PDF → S3 Supabase)
+> **Phiên bản plan**: v1.2 (cập nhật Red-Border Required Fields, Tem A4 Pallet & Bảng Kế Hoạch Đóng Hàng Xe Tuyến)
 > **S3 Bucket**: `logistics-media` tại `https://ykcuwumpelgnfgfyxepg.supabase.co/storage/v1/object/public/logistics-media`
 
 
@@ -991,19 +1060,19 @@ export const waybillItemSchema = z.object({
   quantity: z
     .number({ invalid_type_error: 'Số thùng phải là số' })
     .int('Số thùng phải là số nguyên')
-    .min(1, 'Số thùng/kiện phải ít nhất là 1'),
+    .min(1, 'Số thùng/kiện bắt buộc (tối thiểu là 1)'), // 🔴 Red Border
 
   weightKg: z
     .number({ invalid_type_error: 'Số kg phải là số' })
-    .min(0, 'Số kg không được âm')
+    .positive('Số kg bắt buộc lớn hơn 0 (Gross weight)') // 🔴 Red Border
     .max(999999, 'Số kg quá lớn'),
 
   volumeM3: z
     .number({ invalid_type_error: 'Số m³ phải là số' })
-    .min(0, 'Số m³ không được âm')
+    .positive('Số khối (m³) bắt buộc lớn hơn 0') // 🔴 Red Border
     .max(99999, 'Số m³ quá lớn'),
 
-  // Địa chỉ giao hàng — 3-mode
+  // Địa chỉ giao hàng — 3-mode (🔴 Red Border)
   deliveryMode: z.enum(['FREE_TEXT', 'HUB_L1', 'HUB_L2_SAT'], {
     errorMap: () => ({ message: 'Vui lòng chọn phương thức địa chỉ giao hàng' }),
   }),
@@ -1011,6 +1080,8 @@ export const waybillItemSchema = z.object({
   deliveryAddress: z.string().max(255).nullable().optional(),
 
   deliveryHubId: z.number().int().positive().nullable().optional(),
+
+  targetStation: z.string().max(100).optional(), // Tỉnh/trạm "Đã soạn"
 
   notes: z.string().max(500, 'Ghi chú tối đa 500 ký tự').optional(),
 }).superRefine((item, ctx) => {
@@ -1030,46 +1101,45 @@ export const waybillItemSchema = z.object({
       message: 'Vui lòng chọn Hub/Tuyến vệ tinh từ danh sách',
     });
   }
-  // Cảnh báo: cả weightKg và volumeM3 đều = 0
-  if (item.weightKg === 0 && item.volumeM3 === 0) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ['weightKg'],
-      message: 'Số kg và Số m³ không thể đồng thời bằng 0',
-    });
-  }
 });
 
 // ─── Schema Mode 1: Direct Customer ─────────────────────────────────────────
 export const waybillMode1Schema = z.object({
   mode: z.literal('DIRECT_CUSTOMER'),
 
-  vehicleLicensePlate: z
+  vehicleLicensePlate: z // 🔴 Red Border
     .string()
     .min(1, 'Biển số xe không được để trống')
     .max(20, 'Biển số xe tối đa 20 ký tự')
     .regex(/^[A-Z0-9\-\.]+$/i, 'Biển số xe không hợp lệ'),
 
-  driverName: z
+  driverName: z // 🔴 Red Border
     .string()
     .min(1, 'Tên tài xế không được để trống')
     .max(100, 'Tên tài xế tối đa 100 ký tự'),
 
-  driverPhone: z
+  receiverName: z // 🔴 Red Border (Họ tên người nhận/lái xe)
+    .string()
+    .min(1, 'Họ tên người nhận/lái xe không được để trống')
+    .max(100, 'Họ tên người nhận tối đa 100 ký tự'),
+
+  driverPhone: z // 🔴 Red Border
     .string()
     .min(9, 'Số điện thoại tối thiểu 9 số')
     .max(15, 'Số điện thoại tối đa 15 số')
     .regex(/^[0-9\+\-\s]+$/, 'Số điện thoại không hợp lệ'),
 
-  subContractor: z
+  subContractor: z // 🔴 Red Border (Nhà thầu)
     .string()
-    .max(200, 'Tên nhà thầu tối đa 200 ký tự')
-    .optional(),
+    .min(1, 'Nhà thầu không được để trống')
+    .max(200, 'Tên nhà thầu tối đa 200 ký tự'),
 
-  pickupAddress: z
+  pickupAddress: z // 🔴 Red Border
     .string()
     .min(1, 'Địa chỉ nhận hàng không được để trống')
     .max(500),
+
+  dispatcherContact: z.string().max(200).optional(),
 
   notes: z.string().max(1000).optional(),
 
