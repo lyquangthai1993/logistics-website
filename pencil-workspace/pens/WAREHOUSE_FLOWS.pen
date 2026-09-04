@@ -7341,11 +7341,10 @@
                       "id": "I6dx2",
                       "name": "Core Form Title",
                       "fill": "$text-primary",
-                      "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "KẾ HOẠCH ĐÓNG HÀNG · TRIP TRUNG CHUYỂN",
+                      "content": "KẾ HOẠCH ĐÓNG HÀNG",
                       "fontFamily": "$font-main",
-                      "fontSize": 13,
+                      "fontSize": 15,
                       "fontWeight": "800"
                     },
                     {
@@ -7353,10 +7352,11 @@
                       "id": "Q846Ju",
                       "name": "Core Form Note",
                       "fill": "$text-secondary",
-                      "content": "🔒 Thông tin xe sẽ được tự động điền và khóa cố định sau khi chọn chuyến xe ở Bước 1",
+                      "content": "",
                       "fontFamily": "$font-main",
                       "fontSize": 11,
-                      "fontWeight": "normal"
+                      "fontWeight": "normal",
+                      "height": 0
                     },
                     {
                       "type": "text",
@@ -8027,11 +8027,10 @@
                       "type": "frame",
                       "id": "PJUIY",
                       "name": "Confirm New Order",
-                      "width": 168,
                       "height": 44,
-                      "fill": "#E2E8F0",
+                      "fill": "#CBD5E1",
                       "cornerRadius": 8,
-                      "stroke": "$primary",
+                      "stroke": "#94A3B8",
                       "strokeWidth": 1,
                       "gap": 8,
                       "padding": [
@@ -8045,8 +8044,8 @@
                           "type": "text",
                           "id": "SwBMQ",
                           "name": "Confirm New Order Label",
-                          "fill": "#94A3B8",
-                          "content": "Xác nhận tiếp nhận (Chưa chọn chuyến)",
+                          "fill": "#64748B",
+                          "content": "Xác nhận nhập kho",
                           "fontFamily": "$font-main",
                           "fontSize": 13,
                           "fontWeight": "600"
@@ -39762,11 +39761,10 @@
                       "id": "s3_I6dx2",
                       "name": "Core Form Title",
                       "fill": "$text-primary",
-                      "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "KẾ HOẠCH ĐÓNG HÀNG · TRIP TRUNG CHUYỂN",
+                      "content": "KẾ HOẠCH ĐÓNG HÀNG",
                       "fontFamily": "$font-main",
-                      "fontSize": 13,
+                      "fontSize": 15,
                       "fontWeight": "800"
                     },
                     {
@@ -39776,7 +39774,9 @@
                       "fill": "$text-secondary",
                       "fontFamily": "$font-main",
                       "fontSize": 11,
-                      "fontWeight": "normal"
+                      "fontWeight": "normal",
+                      "content": "",
+                      "height": 0
                     },
                     {
                       "type": "text",
@@ -40494,7 +40494,7 @@
                       "type": "frame",
                       "id": "s3_TGBHj",
                       "name": "Header Row Cell 8",
-                      "width": 52,
+                      "width": 68,
                       "height": "fill_container",
                       "fill": "#FEF2F2",
                       "stroke": "#EF4444",
@@ -40546,7 +40546,7 @@
                       "type": "frame",
                       "id": "s3_NABGS",
                       "name": "Header Row Cell 10",
-                      "width": 52,
+                      "width": 68,
                       "height": "fill_container",
                       "fill": "#FEF2F2",
                       "stroke": "#EF4444",
@@ -41090,7 +41090,7 @@
                           "fill": "$text-primary",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Đơn thuộc TRIP",
+                          "content": "Theo TRIP",
                           "fontFamily": "$font-main",
                           "fontSize": 11,
                           "fontWeight": "normal"
@@ -41506,7 +41506,7 @@
                           "fill": "$text-primary",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Đơn thuộc TRIP",
+                          "content": "Theo TRIP",
                           "fontFamily": "$font-main",
                           "fontSize": 11,
                           "fontWeight": "normal"
@@ -41922,7 +41922,7 @@
                           "fill": "$text-primary",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Hàng nhận thêm dọc đường",
+                          "content": "Nhận thêm",
                           "fontFamily": "$font-main",
                           "fontSize": 11,
                           "fontWeight": "normal"
