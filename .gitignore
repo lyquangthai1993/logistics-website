@@ -43,9 +43,10 @@ copilot-mcp.json
 *.tar.gz
 
 
-# Pencil Workspace Screenshots, Exports & Caches
+# Pencil Workspace Screenshots, Exports & Caches + Scripts
 pencil-workspace/exports/
 pencil-workspace/images/
 pencil-workspace/fonts/
+pencil-workspace/scripts
 images/
 
