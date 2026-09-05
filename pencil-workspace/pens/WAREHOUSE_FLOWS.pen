@@ -32534,10 +32534,10 @@
       "fill": "#F8FAFC",
       "children": [
         {
+          "id": "Mc5Yp",
           "type": "ref",
-          "id": "VPort_Sidebar",
+          "ref": "P7PKM",
           "name": "Warehouse Sidebar",
-          "ref": "S6ZAqk_Sidebar",
           "x": 0,
           "y": 0,
           "width": 256,

@@ -1,8 +1,241 @@
 # Kế Hoạch Triển Khai: Phân Hệ Quản Lý Kho (Warehouse Hub Operations)
 
-> **Nguồn tham chiếu**: [Task_Warehouse_Design_UI.md](./Task_Warehouse_Design_UI.md) · [leader SKILL](./.agents/skills/leader/SKILL.md) · [RBAC Matrix v1.4](./.agents/rules/rbac-matrix.md)
-> **Phiên bản**: v1.1 — 2026-09-03 (cập nhật Q2/Q3)
+> **Nguồn tham chiếu bắt buộc**: [Task_Warehouse_Design_UI.md](./Task_Warehouse_Design_UI.md) · [WAREHOUSE_FLOWS.pen](./pencil-workspace/pens/WAREHOUSE_FLOWS.pen) · [Vòng đời đơn hàng N-Hubs](./business_flow/1_vong_doi_don_hang.png) · [Tem nhận diện A4](./docs_scan/TEM%20NHẬN%20DIỆN%20HÀNG%20HÓA%20THÀNH%20A4.xlsx) · [Kế hoạch đóng hàng xe](./docs_scan/Kế%20Hoạch%20Đóng%20Hàng%20Xe%2043H30703%20Spider%203.9%20K.xlsx) · [leader SKILL](./.agents/skills/leader/SKILL.md) · [RBAC Matrix v1.4](./.agents/rules/rbac-matrix.md)
+> **Phiên bản**: v2.0 — 2026-09-05 (audit thiết kế → dữ liệu → API → triển khai)
+> **Trạng thái handoff**: **NOT CLEARED** — chỉ bắt đầu code sau khi đóng toàn bộ Design Gate G0 bên dưới.
 > **Branch**: `feature/warehouse-inbound-module` (backend + frontend)
+
+---
+
+## 🚦 Kết Luận Audit 2026-09-05 — Canonical v2.0
+
+> Phần này là hợp đồng triển khai có thẩm quyền cao nhất trong tài liệu. Mọi code sketch hoặc test case v1.x ở các phần sau nếu mâu thuẫn với phần v2.0 này phải được sửa trước khi dùng.
+
+### UI Audit Report — Warehouse Flows — 2026-09-05
+
+**Auditor**: `ui-spec-auditor`
+**Target**: toàn bộ 18 top-level frames trong `pencil-workspace/pens/WAREHOUSE_FLOWS.pen`
+**Spec References**:
+
+- `Task_Warehouse_Design_UI.md`
+- `business_flow/1_vong_doi_don_hang.png`
+- `docs_scan/form_create_new_don.JPG`
+- `docs_scan/required_field_border_red.png`
+- `docs_scan/mau_phieu_nhap_kho.JPG`
+- `docs_scan/TEM NHẬN DIỆN HÀNG HÓA THÀNH A4.xlsx`
+- `docs_scan/Kế Hoạch Đóng Hàng Xe 43H30703 Spider 3.9 K.xlsx`
+- `.agents/skills/leader/SKILL.md` và `.agents/skills/leader/notifications.md`
+- `.agents/rules/rbac-matrix.md`
+
+#### Summary Score
+
+| Dimension | Checkpoints Violated | Score | Status |
+|---|---|---:|---|
+| D1: Field & Column Compliance | `Địa chỉ nhận hàng` xuất hiện cả header và từng dòng nhưng chưa định nghĩa rõ nguồn sự thật; còn text node rỗng và cột `Ghi chú` của loading sheet bị clip | 7/10 | WARN |
+| D2: State-Driven UI Logic | `J2W764` đặt các action của nhiều trạng thái trong cùng một panel; modal Mode 2 dùng hành động outbound trong flow inbound | 0/10 | FAIL |
+| D3: Role & RBAC Compliance | Canvas thể hiện WM + hub scope; quyền thực thi vẫn phải theo RBAC hiện hành | 10/10 | PASS |
+| D4: Business Rule Compliance | Trip picker dùng `CÒN CHỖ/ĐÃ CHẤT` thay cho điều kiện inbound `remainingOrderCount > 0` | 7/10 | WARN |
+| D5: Mobile & UX Usability | Có cargo cards và sticky bar; chưa có frame loading/error/offline và chưa chứng minh toàn bộ touch target ≥ 44 px | 9/10 | PASS |
+| **OVERALL** |  | **33/50** | **NOT CLEARED** |
+
+#### Auto-FAIL Triggers (Blocking — zero tolerance)
+
+- [ ] D1: Không có SKU/item-level barcode. QR/Barcode chỉ được phép mã hóa `orderCode`/`waybillCode` để nhận diện kiện vận tải, không phải mã sản phẩm.
+- [x] D2: Chưa có state-switching contract rõ ràng; frame `J2W764` đang hiển thị đồng thời action của các trạng thái tương lai.
+- [ ] D3: Hub scoping chưa thể kiểm chứng chỉ bằng canvas; phải được ép tại query/command backend.
+- [ ] D4: Không phát hiện trường SKU.
+
+#### Warnings
+
+- [WARN-D1] `WH_CASE_01`/`GcZml` có 15 cột hiển thị nhưng plan cũ gọi là “grid 8 cột”. Chuẩn đúng là **15 cột vật lý** (14 cột nghiệp vụ + thao tác), trong đó có **8 nhóm nhập liệu lõi**.
+- [WARN-D1] Các text node rỗng: `Ti2Vx`, `R9kApH`, `iudrU`, `hub1_801l2`, `xebo_66bjd`.
+- [WARN-D1] `LP_H14` và các cell cột 14 trong `WH_CASE_05_LOADING_PLAN` bị clip; không được coi đây là hành vi scroll chủ ý của bản in A4.
+- [WARN-D4] `WH_CASE_02B_TRIP_MODAL` có ba filter pill bị fully clipped; đồng thời thiếu route/origin/remaining-order information mà spec inbound yêu cầu.
+- [WARN-D5] `WH_VIEWPORT_SCROLL_VIEW` được clip có chủ ý; chỉ inner table được cuộn, `body` không được overflow.
+
+#### Recommended Fixes (Ordered by priority)
+
+1. [BLOCKING] Tách rõ hai nghiệp vụ: **nhận hàng từ trip đang đến hub** và **chất hàng lên trip xuất hub**; không dùng chung modal/copy/action.
+2. [BLOCKING] Vẽ hoặc đặc tả state variants cho `DRAFT`, `PENDING_INBOUND`, `INBOUND`, `COMPLETED_INBOUND`; mỗi trạng thái chỉ render action hợp lệ.
+3. [BLOCKING] Chốt aggregate và quan hệ multi-order/multi-stop trước migration.
+4. [WARN] Sửa clip ở trip filter pills và loading sheet; dọn text node rỗng.
+5. [WARN] Bổ sung loading/error/empty/offline mobile states và kiểm tra touch target bằng bounds/E2E.
+
+#### Clearance Decision
+
+- Gate: score ≥ 40/50 và 0 Auto-FAIL.
+- Result: **NOT CLEARED — trả về vòng Design → Audit → Fix trước implementation handoff**.
+
+### G0 — Design & Domain Gates Phải Đóng Trước Khi Code
+
+| Gate | Vấn đề | Quyết định chuẩn v2.0 / Điều kiện đóng |
+|---|---|---|
+| G0.1 | Mode 2 bị trộn inbound/outbound | Tách thành `Inbound Transfer Receipt` (dỡ/nhận hàng tại hub) và `Outbound Loading Plan` (chất hàng lên xe). Frames `dd8X5`, `WH_CASE_02B_TRIP_MODAL`, `WH_CASE_03_MODAL`, `WH_CASE_02_TRANSFER_LOADED` thuộc inbound nên copy phải dùng “chuyến đang đến”, “đơn còn trên xe”, “dỡ/tiếp nhận”. `WH_CASE_05_LOADING_PLAN` thuộc outbound. |
+| G0.2 | Vòng đời N-Hubs | Dùng `business_flow/1_vong_doi_don_hang.png` làm nguồn bắt buộc: một consignment có thể qua A → B → C rồi mới đến điểm giao. Không gắn toàn bộ vòng đời này vào một `waybill`. |
+| G0.3 | Aggregate chưa rõ | `Waybill` là **một lần tiếp nhận tại một Hub**, không phải Order và không phải Trip. `WaybillItem` là snapshot của consignment được nhận trong lần đó. |
+| G0.4 | Trip hiện chỉ có một `orderId` | Mode 2 chỉ được mở khi đã có mô hình additive `trip_stop` + `trip_order_allocation` (hoặc tên tương đương) hỗ trợ N orders/N stops và partial unload. |
+| G0.5 | Mode 1 và canonical Order | Mode 1 được lưu là ad-hoc warehouse consignment. Không tự động tạo/sửa `OrderEntity` dưới quyền WM. Action `Tạo Trip` cho dòng ad-hoc phải ẩn cho đến khi business duyệt quy trình Dispatcher chuyển đổi thành Order. |
+| G0.6 | RBAC mâu thuẫn giữa Task và matrix | Tuân thủ source-of-truth hiện hành: `/dashboard/warehouse` và Waybill API chỉ `SUPER_ADMIN`, `WAREHOUSE_MANAGER`. Không cấp GET toàn bộ cho D/FM trong sprint này. Nếu cần read-only, phải thay đổi đồng bộ Sidebar + Route Guard + API Guard + RBAC matrix. |
+| G0.7 | Excel bị defer trái zero-tolerance spec | Paste TSV từ clipboard và import `.xlsx` là P0 trong scope. Không được chuyển sang phase sau nếu vẫn claim UI bám bản scan/Excel. |
+| G0.8 | Notification chưa có source-of-truth | Bổ sung event warehouse vào `leader/notifications.md` và được duyệt trước khi code trigger. SUPER_ADMIN luôn nhận cảnh báo; delivery phải non-blocking qua queue. |
+| G0.9 | 5 mẫu in nhưng dữ liệu chưa đủ | Chỉ nghiệm thu từng mẫu khi resource nguồn đã tồn tại. Phiếu nhập + Tem A4 đi với Waybill; Loading Sheet đi với Trip/Stop; Phiếu xuất/POD đi với outbound/delivery resource, không nhét URL vào Waybill cho tiện. |
+| G0.10 | DB impact | Migration đầu chỉ được **additive**. Giữ `trip.orderId` để tương thích và backfill sang allocation; không rename/drop/alter cột hiện hữu nếu chưa có phân tích dữ liệu và phê duyệt rõ ràng. |
+
+### Traceability Từ Tài Liệu → Thiết Kế → Triển Khai
+
+| Nguồn | Quy tắc phải trace | Canvas/UX | Backend/DB | Acceptance |
+|---|---|---|---|---|
+| `business_flow/1_vong_doi_don_hang.png` | Nhận từ khách → luân chuyển qua N hubs → giao cuối | Timeline phải thể hiện history theo hub/leg, không chỉ một step tĩnh | `trip_stop`, `trip_order_allocation`, warehouse receipt theo từng hub | Một order qua A→B→C tạo ba warehouse events độc lập nhưng giữ cùng order identity |
+| `TEM NHẬN DIỆN HÀNG HÓA THÀNH A4.xlsx` | 11 mục: Kho, Tên hàng, Điều hành, Mã đơn, Ngày nhập, Chứng từ, Số lượng, Palet số, Tổng palet, Người nhập, Giao đến | Tab Tem A4 + preview đúng khổ | Document record theo `waybillItemId` + `palletIndex`; QR chỉ encode order/waybill code | Golden PDF kiểm đủ 11 mục, page size A4 portrait, không lộ SKU |
+| `Kế Hoạch Đóng Hàng Xe 43H30703 Spider 3.9 K.xlsx` | Header xe 5 trường, hotline 3 miền, 14 cột đúng thứ tự, subtotal | `WH_CASE_05_LOADING_PLAN`, fullscreen/print A4 ngang | Loading plan là trip-level resource; totals tính server-side từ allocations | Golden PDF A4 landscape, 14 cột không clip, totals khớp DB |
+
+### Hợp Đồng Vòng Đời — Không Trộn Status
+
+| Aggregate | Status được phép trong scope | Chủ thể chuyển trạng thái |
+|---|---|---|
+| `Order` hiện hữu | `DRAFT → PENDING_FLEET → ASSIGNED → IN_TRANSIT → DELIVERED` (+ `NO_VEHICLE`, `CANCELLED`) | Dispatcher/Fleet theo `leader` |
+| `Trip` hiện hữu/mở rộng | `PENDING → CONFIRMED → IN_TRANSIT → COMPLETED` (+ `CANCELLED`) | Fleet; arrival/stop confirmation theo rule được duyệt |
+| `Waybill` / Warehouse Receipt | `DRAFT → PENDING_INBOUND → INBOUND → COMPLETED_INBOUND` (+ `CANCELLED`) | WM tại đúng hub; SA có override audit |
+| Outbound/POD | Không dùng `warehouseStatus`; phải thuộc loading/delivery aggregate riêng | Theo workflow outbound được duyệt |
+
+Mỗi transition phải kiểm tra trạng thái hiện tại trong transaction, có `version`/optimistic lock hoặc row lock, ghi audit event và hỗ trợ idempotency. Không cho client gửi `hubId`, vehicle snapshot hoặc status để tự quyết định; server derive từ JWT, Trip và DB.
+
+### Data Model Canonical v2.0
+
+#### A. Nền tảng multi-order/multi-stop (precondition của Mode 2)
+
+- `trip_stop`: `id`, `tripId`, `hubId`, `sequence`, `status`, `eta`, `arrivedAt`, `departedAt`.
+- `trip_order_allocation`: `id`, `tripId`, `orderId`, `unloadStopId`, planned `quantity/weightKg/volumeM3`, `unloadedAt`, `version`.
+- Unique/index tối thiểu: `(tripId, sequence)`, `(tripId, orderId, unloadStopId)`, `unloadStopId`, `unloadedAt`.
+- Backfill mỗi `trip.orderId` hiện hữu thành một allocation. Giữ cột cũ trong compatibility window; mọi bước loại bỏ sau này là migration riêng cần user approval.
+- “Chuyến còn hàng” tại hub = còn allocation có `unloadStopId = currentStop`, `unloadedAt IS NULL`; không suy ra từ `CÒN CHỖ` hoặc chỉ từ `Trip.status`.
+
+#### B. `waybill`
+
+- Identity: `id`, `waybillCode` (`DDMMYY-xxxx`, nullable khi draft), `mode`, `status`, `version`.
+- Scope: `hubId` FK bắt buộc và server-derived; `sourceTripId` nullable; `receivedAt` bắt buộc khi confirm.
+- Snapshot xe: `contractorName`, `vehicleLicensePlate`, `receiverOrDriverName`, `driverPhone`. Mode 2 lấy từ Trip và readonly; Mode 1 nhập tay.
+- Audit: `createdByUserId`, `confirmedByUserId`, `startedInboundByUserId`, `completedByUserId` và timestamps tương ứng; `cancelledBy/reason` nếu hủy.
+- Không lưu năm URL PDF trên bảng này.
+
+#### C. `waybill_item`
+
+- Reference: `waybillId`, `orderId` nullable cho ad-hoc, `tripOrderAllocationId` nullable, `sourceType = ORDER_ALLOCATION | AD_HOC`.
+- Snapshot theo scan: dispatcher, external order code, customer, pickup address/date, goods description, planned quantity/weight/volume, delivery date/mode/address/hub, target station, prepared flag, notes.
+- Kiểm đếm: actual quantity/weight/volume, condition, storage location, anomaly note.
+- Dùng PostgreSQL `numeric`, không dùng `float` cho kg/m³. Dates dùng `date`/`timestamptz`, không lưu string trình bày.
+- Unique chống nhận trùng allocation tại cùng hub; record đã `COMPLETED_INBOUND` không được sửa snapshot.
+
+#### D. Documents, ảnh và ký nhận
+
+- `warehouse_document`: `id`, `documentType`, `waybillId?`, `waybillItemId?`, `tripId?`, `tripStopId?`, `fileId`, `status=PENDING|READY|FAILED`, `templateVersion`, checksum, generatedBy/At.
+- `waybill_item_attachment`: liên kết `FileEntity`, loại ảnh, người tải, thời điểm; validate MIME/size.
+- `warehouse_signoff`: người ký, vai trò ký, thời điểm và file/chữ ký nếu phase này thật sự số hóa. Nếu chỉ in giấy, template để ô ký trống và không giả vờ đã lưu chữ ký.
+- Tem A4 có cardinality theo item/pallet; loading sheet có cardinality theo trip/stop. Không dùng một URL duy nhất trên Waybill để đại diện tất cả.
+
+### API Contract Canonical v2.0
+
+| API | Role/scope | Ý nghĩa |
+|---|---|---|
+| `GET /v1/waybills` | SA; WM forced `currentUser.hubId` | Paginated list, URL-synced filters; response `{ data, meta }` |
+| `POST /v1/waybills` | SA/WM | Tạo draft; bỏ qua `hubId/status/vehicle snapshot` do client gửi |
+| `GET/PATCH /v1/waybills/:id` | SA hoặc WM cùng hub | Detail/update draft; 404/403 không làm lộ dữ liệu hub khác |
+| `PATCH /v1/waybills/:id/confirm` | SA/WM cùng hub | Sinh code an toàn race, `DRAFT → PENDING_INBOUND` |
+| `PATCH /v1/waybills/:id/start-inbound` | WM cùng hub | `PENDING_INBOUND → INBOUND` |
+| `PATCH /v1/waybills/:id/complete-inbound` | WM cùng hub | Lưu actual count/condition/bin/signoff trong một transaction |
+| `PATCH /v1/waybills/:id/cancel` | Theo matrix đã duyệt | Hủy có reason; không dùng DELETE cho record đã confirm |
+| `GET /v1/warehouse/inbound-trips` | WM cùng hub | Trips/stops đang đến và còn allocation chưa dỡ; search/filter/pagination server-side |
+| `GET /v1/warehouse/inbound-trips/:tripId/orders` | WM cùng hub | Chỉ trả allocations đủ điều kiện nhận tại hub hiện tại |
+| `POST /v1/warehouse/documents` | SA/WM cùng hub | Queue generate document; trả document job/id |
+| `GET /v1/warehouse/documents/:id/download` | SA/WM cùng hub | Signed URL ngắn hạn hoặc stream có authorization |
+
+Mọi command nhận header `Idempotency-Key`; error trả code nội bộ + `message` tiếng Việt. Frontend luôn đi qua `formatApiError()` và không render raw validation dumps.
+
+### Frontend Contract Canonical v2.0
+
+- Desktop operational table: 15 cột vật lý (14 theo Excel + `Thao tác`), sticky `STT` + `Mã đơn`, inner horizontal scroll, fullscreen có `Esc`/restore focus.
+- Row editor không phải wizard: cho phép inline edit hoặc một dialog duy nhất cho một dòng; Tab order đúng cột; paste TSV và import `.xlsx` cùng dùng một parser/validation pipeline.
+- Mode 2 inbound: trigger → modal chọn **chuyến đang đến/còn hàng** → modal chọn allocations cần dỡ → review readonly trip snapshot + actual receiving → confirm.
+- Loading plan outbound là route/dialog riêng; không tái sử dụng copy hoặc mutation của inbound picker.
+- `J2W764`: dùng action map theo status + role. Panel “trạng thái tiếp theo” trong canvas chỉ là annotation và không được render nguyên trạng cho người dùng.
+- Mobile: cargo cards, required marker, 3-mode destination selector, sticky action bar, minimum 44 px; thêm skeleton, empty, error, offline/retry và unsaved-change guard.
+- TanStack Query keys phải tách list/detail/inboundTrips/eligibleOrders/documents; mutation cập nhật detail + list + counters, chống double submit.
+
+### Notification Contract (Phải cập nhật `leader/notifications.md` trước code)
+
+| Event đề xuất | Recipients tối thiểu | Channel |
+|---|---|---|
+| `WAREHOUSE_ANOMALY_RECORDED` | WM đúng hub, Dispatcher của order, Fleet phụ trách source trip, SUPER_ADMIN | In-app + Email |
+| `WAREHOUSE_INBOUND_COMPLETED` | Dispatcher/Fleet liên quan và SUPER_ADMIN; WM hub kế tiếp nếu đã xác định | In-app; Email cho milestone quan trọng |
+| `WAREHOUSE_RECEIPT_CANCELLED` | Các actor liên quan và SUPER_ADMIN | In-app + Email |
+| Save draft / sửa draft | Không gửi | — |
+
+Notification phải enqueue sau khi transaction chính commit (outbox hoặc BullMQ), retry có giới hạn và không làm fail nghiệp vụ chính.
+
+### Revised Sprint Order & Exit Criteria
+
+| Sprint | Nội dung | Exit criteria |
+|---|---|---|
+| **Sprint 0** | Sửa canvas theo G0.1/G0.2, chốt aggregate/RBAC/notification, re-audit | UI ≥ 40/50, 0 Auto-FAIL, decision log được duyệt |
+| **Sprint 1** | Additive `trip_stop` + `trip_order_allocation`, backfill và compatibility adapter | Existing Trips tests pass; multi-order/multi-stop/partial unload tests pass; chưa drop cột |
+| **Sprint 2** | Waybill backend, hub scoping, transitions, audit/idempotency | Unit + API integration + concurrency tests pass |
+| **Sprint 3** | Mode 1 desktop/mobile, 15-column grid, paste/import Excel | Golden parser tests + form E2E + no body overflow |
+| **Sprint 4** | Mode 2 inbound picker/eligible allocations/receiving count & anomalies | Duplicate unload/race/hub-isolation tests pass |
+| **Sprint 5** | Detail state variants + inbound slip + Tem A4 + document queue/storage | Golden PDF tests; private authorized download; 11 label fields |
+| **Sprint 6** | Outbound loading plan, Phiếu xuất, POD sau khi resource tương ứng sẵn sàng | A4 landscape 14 columns no clip; outbound state tests pass |
+| **Sprint 7** | Accessibility, mobile/offline, RBAC 3 layers, regression/E2E | Full core suites pass, audit docs updated |
+
+Ước lượng thực tế sau khi đóng Sprint 0: **18–30 ngày dev** tùy mức độ phải mở rộng Trip multi-order/multi-stop và phạm vi chữ ký/POD; estimate cũ 8–11 ngày không còn đáng tin cậy.
+
+### Test Gaps Bắt Buộc Bổ Sung
+
+- Concurrency sinh `waybillCode`; confirm/cancel/complete lặp và hai request đồng thời.
+- WM không có hub bị chặn bằng thông báo Việt; WM Hub A không query/mutate/generate document của Hub B; SA override có audit.
+- Trip nhiều orders, nhiều stops, partial unload; chỉ allocation của current hub được chọn; nhận trùng trả conflict.
+- Paste Excel có merged/blank cells, decimal `1.280`/`1,280`/`5,0`, quá 200 dòng, sai thứ tự cột và formula injection.
+- Import file kiểm MIME/size; không thực thi formula/macro; preview lỗi theo row/cell trước submit.
+- State-action contract cho đủ `DRAFT/PENDING_INBOUND/INBOUND/COMPLETED_INBOUND/CANCELLED` và read-only role.
+- Golden PDF/page-size/font/Unicode cho Phiếu nhập, Tem A4 và Loading Sheet; 14 cột không clip.
+- Document generation retry/idempotency/stale template; signed URL hết hạn và unauthorized access.
+- Mobile 320/375/390/768 px, keyboard/focus trap, `Esc`, restore focus, no body overflow, touch target ≥ 44 px.
+- Notification outbox/queue failure không rollback warehouse transaction; SUPER_ADMIN luôn được include ở event đã duyệt.
+
+### Security & Configuration Corrections
+
+- Không ghi URL bucket cụ thể, access key, email/password test vào plan hoặc source. Dùng biến môi trường và fixtures cục bộ git-ignored.
+- PDF/POD/ảnh bất thường mặc định là private object; dùng signed URL/authorized stream. Chỉ chuyển public nếu business phê duyệt rõ.
+- Escape toàn bộ text từ người dùng trước khi render HTML/PDF; chặn remote URL tùy ý để tránh SSRF.
+- Không dùng `ACL: public-read` mặc định. Reuse Files infrastructure hoặc tạo adapter lưu `FileEntity` + object key.
+- Chọn PDF engine sau deployment spike trên môi trường đích; `html-pdf-node` vẫn phụ thuộc Chromium/Puppeteer và không được coi là “không cần Chrome”.
+
+### Release, Migration & Rollback Contract
+
+1. Chốt Sprint 0 và lưu audit baseline; chưa bật route/action mới nếu score còn dưới gate.
+2. Deploy migration additive trước code. Chạy preflight đếm Trip hiện hữu, allocation dự kiến và orphan FK; tuyệt đối không dùng `synchronize: true`.
+3. Backfill `trip.orderId → trip_order_allocation` bằng job idempotent có dry-run, progress log và reconciliation report. Không xóa cột cũ trong release này.
+4. Deploy backend ở chế độ dual-read/compatibility; kiểm tra metrics lỗi, mismatch và hub-scope denial trước khi frontend sử dụng API mới.
+5. Bật Mode 1 trước. Mode 2 nằm sau feature flag cho tới khi backfill = 100%, mismatch = 0 và test multi-stop/partial unload pass.
+6. Document worker triển khai riêng với health check, retry/dead-letter visibility và smoke test font tiếng Việt/A4 trên chính runtime production.
+7. Rollback ứng dụng bằng cách tắt feature flag/quay lại code dual-read; migration additive và dữ liệu backfill được giữ nguyên. Mọi kế hoạch drop cột là change request khác, cần user approval.
+
+### Definition of Ready / Definition of Done
+
+**Ready để bắt đầu implementation**:
+
+- [ ] Canvas sửa xong G0.1–G0.2, loading sheet không clip, re-audit ≥ 40/50 và 0 FAIL.
+- [ ] Business ký quyết định Waybill per-hub receipt, multi-order/multi-stop Trip, Mode 1 ad-hoc và ownership của 5 mẫu in.
+- [ ] RBAC matrix + `leader/notifications.md` đã chứa contract warehouse được duyệt.
+- [ ] Schema/data impact/backfill/dry-run/rollback được review; chưa có destructive migration.
+- [ ] Exact column/field mapping của hai workbook được đóng băng thành fixtures/golden files.
+
+**Done để release**:
+
+- [ ] Sidebar, route guard và API guard nhất quán; hub isolation test pass.
+- [ ] State/action matrix và mọi transition/concurrency/idempotency test pass.
+- [ ] Paste TSV/import `.xlsx`, mobile/keyboard/no-overflow và error sanitization E2E pass.
+- [ ] Golden PDFs pass: Tem A4 đủ 11 mục; Loading Sheet A4 ngang đủ 14 cột, subtotal đúng, không clip.
+- [ ] File private, authorized download, queue retry/dead-letter và notification non-blocking được kiểm chứng.
+- [ ] Backfill reconciliation = 100%, observability/runbook/rollback drill hoàn tất, `CODEBASE_AUDIT.md` được cập nhật sau implementation.
 
 ---
 
@@ -10,14 +243,18 @@
 
 | # | Câu hỏi | Quyết định |
 |---|---|---|
-| **Q1** | DB Schema | ✅ **Phương án A**: Bảng `waybill` riêng (1 order → N waybills) |
-| **Q2** | Excel Paste (Ctrl+V) | ✅ **Phase tiếp theo (P2)** — Không implement sprint này |
-| **Q3** | Print templates | ✅ **Client-side React + Print CSS** cho preview/in. **Server-side PDF gen** (Puppeteer/html-pdf-node) → upload S3 Supabase → lưu link vào DB → trả về URL thật (Đủ 5 mẫu: Phiếu Nhập, Phiếu Xuất, Phiếu Giao POD, **Tem Nhận Diện A4 Pallet**, **Bảng Kế Hoạch Đóng Hàng Xe**) |
-| **Q4** | Quản lý Xe Bo theo 34 Tỉnh Thành Việt Nam | ✅ **Quy chuẩn định danh thống nhất (`/leader`)**: Theo cơ cấu địa giới hành chính Việt Nam sau sáp nhập cấp tỉnh (chính thức từ 1/7/2025 - 2026 theo Nghị quyết của Quốc hội), Việt Nam có **34 đơn vị hành chính cấp tỉnh** (gồm 6 TP trực thuộc TW & 28 Tỉnh). Hệ thống thiết lập danh mục **34 Tuyến Xe Bo** tương ứng với 34 tỉnh thành này theo định dạng chuẩn: **`Xe bo Tuyến <Tên Tỉnh/Thành>`**. |
+| **Q1** | DB Schema | ✅ `Waybill` là một lần tiếp nhận tại một hub; chứa N items, mỗi item có thể tham chiếu Order/allocation hoặc là ad-hoc. Không diễn giải đơn giản là `1 order → N waybills`. |
+| **Q2** | Excel Paste/Import | ✅ **P0 trong scope** — paste TSV + import `.xlsx` phải hoàn thành cùng grid để đáp ứng zero-tolerance spec. |
+| **Q3** | Print templates | ✅ Preview React/Print CSS và document generation có queue. Phiếu nhập + Tem A4 thuộc Waybill; Loading Sheet thuộc Trip/Stop; Phiếu xuất/POD thuộc outbound resource. File lưu qua `FileEntity`, download có authorization. |
+| **Q4** | Mode 2 | ✅ Tách inbound receiving khỏi outbound loading; canvas phải sửa copy/action và audit lại trước code. |
+| **Q5** | RBAC | ✅ Sprint hiện tại chỉ SA/WM; WM luôn server-side scoped theo `currentUser.hubId`. |
+| **Q6** | Quản lý Xe Bo theo 34 Tỉnh Thành Việt Nam | ✅ **Quy chuẩn định danh thống nhất (`/leader`)**: Theo cơ cấu địa giới hành chính Việt Nam sau sáp nhập cấp tỉnh (chính thức từ 1/7/2025 - 2026 theo Nghị quyết của Quốc hội), Việt Nam có **34 đơn vị hành chính cấp tỉnh** (gồm 6 TP trực thuộc TW & 28 Tỉnh). Hệ thống thiết lập danh mục **34 Tuyến Xe Bo** tương ứng với 34 tỉnh thành này theo định dạng chuẩn: **`Xe bo Tuyến <Tên Tỉnh/Thành>`**. |
 
 ---
 
 ## 📊 Gap Analysis
+
+> **Lưu ý v2.0**: Các mục Sprint 1–6 bên dưới là bản phân rã kỹ thuật chi tiết được giữ lại từ v1.x. Chỉ dùng sau khi đã áp dụng các quyết định Canonical v2.0 ở trên; các code sketch về schema, PDF và API là minh họa, không được triển khai nguyên văn.
 
 ### ✅ Những gì đã có
 
@@ -27,11 +264,11 @@
 | WarehouseListing | `frontend/src/features/warehouse/components/warehouse-listing.tsx` | Chỉ prefetch Trips |
 | WarehouseInboundBoard | `frontend/src/features/warehouse/components/warehouse-inbound-board.tsx` | Card view Trips — chưa đủ |
 | WarehouseTable + columns | `frontend/src/features/warehouse/components/warehouse-tables/` | Đọc Trips, thiếu action kho |
-| **S3 Supabase** | `backend/src/files/infrastructure/uploader/s3/` | ✅ **Đầy đủ**: S3Client + multer-s3, FILE_DRIVER=s3 |
+| **S3-compatible storage** | `backend/src/files/infrastructure/uploader/s3/` | ✅ Có S3Client + multer-s3; phải reuse `FileEntity` và quyền download riêng tư |
 | **FileEntity** | `backend/src/files/.../entities/file.entity.ts` | Bảng `file` (id uuid, path, createdBy) |
 | **FilesS3Service** | `backend/src/files/.../uploader/s3/files.service.ts` | Có `create(multerS3File)` → lưu path vào DB |
 | **S3 Config** | `.env` | Supabase S3 endpoint + bucket `logistics-media` + credentials |
-| TripEntity | `backend/src/trips/.../trip.entity.ts` | Đủ dữ liệu xe/tài xế ✅ |
+| TripEntity | `backend/src/trips/.../trip.entity.ts` | Có dữ liệu xe/tài xế nhưng hiện chỉ gắn một `orderId`; chưa đủ cho Mode 2 nhiều đơn/nhiều điểm dừng |
 | RBAC Route Guard | `frontend/src/proxy.ts` | /dashboard/warehouse → WAREHOUSE_MANAGER ✅ |
 
 ### ❌ Những gì chưa có (Gap)
@@ -40,8 +277,8 @@
 |---|---|
 | DB Schema: Bảng `waybill` + `waybill_item` | 🔴 Critical |
 | Backend: `WaybillModule` (CRUD + state machine) | 🔴 Critical |
-| Backend: PDF generation service (Puppeteer/html-pdf) | 🔴 Critical (Q3) |
-| Backend: API gen PDF → upload S3 → lưu link DB → trả URL | 🔴 Critical (Q3) |
+| Backend: document generation worker + template versioning | 🔴 Critical (Q3) |
+| Backend: API queue document → `warehouse_document` + `FileEntity` → authorized download | 🔴 Critical (Q3) |
 | Frontend: Form nhập hàng dạng Grid (Excel-like với viền đỏ Bắt buộc) | 🔴 Critical |
 | Frontend: Trip Selection Modal (Mode 2) | 🔴 Critical |
 | Frontend: Timeline Stepper 3 chặng | 🔴 Critical |
@@ -51,7 +288,7 @@
 
 ---
 
-## 🏗️ Sprint 1 — DB Schema & Backend WaybillModule
+## 🏗️ Sprint 1 — DB Schema & Backend WaybillModule (legacy sketch; canonical v2.0 wins)
 
 ### 1.1 Entity: `WaybillEntity`
 
@@ -94,8 +331,7 @@ export class WaybillEntity extends AbstractBaseEntity {
   @Column({ type: String, nullable: true })
   subContractor: string | null;        // 🔴 Nhà thầu vận chuyển (VD: SPIDER)
 
-  @Column({ type: 'text', nullable: true })
-  pickupAddress: string | null;        // 🔴 Địa chỉ nhận hàng
+  // Địa chỉ nhận hàng là snapshot theo từng item, không lặp ở header.
 
   @Column({ type: String, nullable: true })
   dispatcherContact: string | null;    // Người điều hành phụ trách (VD: HCM - Minh 0363920977)
@@ -119,21 +355,7 @@ export class WaybillEntity extends AbstractBaseEntity {
   @Column({ type: 'text', nullable: true })
   notes: string | null;
 
-  // ─── PDF Links (lưu URL S3 của từng loại phiếu) ───
-  @Column({ type: 'text', nullable: true })
-  pdfInboundSlipUrl: string | null;    // Phiếu Nhập Kho PDF URL (Supabase S3)
-
-  @Column({ type: 'text', nullable: true })
-  pdfOutboundSlipUrl: string | null;   // Phiếu Xuất Kho PDF URL
-
-  @Column({ type: 'text', nullable: true })
-  pdfDeliveryNoteUrl: string | null;   // Phiếu Giao Hàng / POD PDF URL
-
-  @Column({ type: 'text', nullable: true })
-  pdfCargoLabelUrl: string | null;     // Tem Nhận Diện Hàng Hóa Khổ A4 PDF URL
-
-  @Column({ type: 'text', nullable: true })
-  pdfLoadingSheetUrl: string | null;   // Bảng Kế Hoạch Đóng Hàng Xe Tuyến PDF URL
+  // Document không lưu thành các URL rời trên waybill; dùng warehouse_document + FileEntity.
 
   @OneToMany(() => WaybillItemEntity, (item) => item.waybill, { cascade: true })
   items: WaybillItemEntity[];
@@ -174,10 +396,10 @@ export class WaybillItemEntity {
   @Column({ type: 'int', default: 0 })
   quantity: number;                   // 🔴 Số thùng/kiện
 
-  @Column({ type: 'float', default: 0 })
+  @Column({ type: 'numeric', precision: 14, scale: 3, default: 0 })
   weightKg: number;                   // 🔴 Số kg (Gross weight)
 
-  @Column({ type: 'float', default: 0 })
+  @Column({ type: 'numeric', precision: 14, scale: 3, default: 0 })
   volumeM3: number;                   // 🔴 Số m³/CBM
 
   @Column({ type: String, nullable: true })
@@ -205,8 +427,8 @@ export class WaybillItemEntity {
 
 **File mới**: `backend/src/database/migrations/{timestamp}-CreateWaybillAndWaybillItem.ts`
 
-Tạo bảng `waybill` (với cột pdf*Url) và `waybill_item`, đúng thứ tự cột.
-Indexes: `waybill.waybillCode (unique)`, `waybill.hubId`, `waybill.warehouseStatus`, `waybill_item.waybillId`.
+Tạo additive `trip_stop`, `trip_order_allocation`, `waybill`, `waybill_item`, `warehouse_document` và các bảng attachment/signoff cần thiết. Không tạo các cột `pdf*Url` trên `waybill`.
+Indexes/unique phải bao phủ hub scope, state queries, code generation và chống nhận trùng allocation theo G0.4/G0.10.
 
 ### 1.4 WaybillModule — NestJS
 
@@ -227,14 +449,14 @@ backend/src/waybills/
 | Endpoint | Method | Role | Mô tả |
 |---|---|---|---|
 | `POST /v1/waybills` | POST | WM, SA | Tạo đơn nhập kho (Mode 1 & 2) |
-| `GET /v1/waybills` | GET | All auth | Danh sách (filter: hubId, status, mode, date) |
-| `GET /v1/waybills/:id` | GET | All auth | Chi tiết + items |
+| `GET /v1/waybills` | GET | WM, SA | Danh sách; WM bị ép scope theo hub trong JWT |
+| `GET /v1/waybills/:id` | GET | WM, SA | Chi tiết + items; kiểm tra cùng hub |
 | `PATCH /v1/waybills/:id` | PATCH | WM, SA | Cập nhật DRAFT |
 | `PATCH /v1/waybills/:id/confirm` | PATCH | WM, SA | DRAFT → PENDING_INBOUND (sinh waybillCode) |
 | `PATCH /v1/waybills/:id/start-inbound` | PATCH | WM | PENDING_INBOUND → INBOUND |
 | `PATCH /v1/waybills/:id/complete-inbound` | PATCH | WM | INBOUND → COMPLETED_INBOUND |
-| `POST /v1/waybills/:id/generate-pdf` | POST | WM, SA | Gen PDF → S3 → lưu URL → trả link (xem Sprint 4) |
-| `DELETE /v1/waybills/:id` | DELETE | WM, SA | Soft-delete DRAFT |
+| `POST /v1/warehouse/documents` | POST | WM, SA | Queue tạo tài liệu đúng resource ownership |
+| `PATCH /v1/waybills/:id/cancel` | PATCH | Theo matrix duyệt | Hủy có reason; chỉ draft chưa dùng có thể soft-delete nội bộ |
 
 **Files sửa**:
 - `backend/src/app.module.ts` → import WaybillsModule
@@ -257,8 +479,8 @@ useCreateWaybill()              // POST /v1/waybills
 useConfirmWaybill()             // PATCH /v1/waybills/:id/confirm
 useStartInbound()               // PATCH /v1/waybills/:id/start-inbound
 useCompleteInbound()            // PATCH /v1/waybills/:id/complete-inbound
-useGeneratePdf()                // POST /v1/waybills/:id/generate-pdf → trả { url, type }
-useDeleteWaybill()              // DELETE /v1/waybills/:id
+useCreateWarehouseDocument()    // POST /v1/warehouse/documents → trả document/job id
+useCancelWaybill()              // PATCH /v1/waybills/:id/cancel
 ```
 
 ### 2.2 WarehouseCreateDialog
@@ -266,7 +488,7 @@ useDeleteWaybill()              // DELETE /v1/waybills/:id
 **File mới**: `frontend/src/features/warehouse/components/warehouse-create-dialog.tsx`
 
 Tab "Mới hoàn toàn" (Mode 1):
-- Header: vehicleLicensePlate, driverName, driverPhone, subContractor, pickupAddress
+- Header 5 trường theo mẫu: receivedAt, subContractor, vehicleLicensePlate, receiverOrDriverName, driverPhone
 - `<WaybillGridInput />` component
 - Sticky Footer: [Hủy] [Lưu nháp] [Xác nhận đơn →]
 
@@ -279,7 +501,7 @@ Tab "Luân chuyển nội bộ" (Mode 2):
 
 **File mới**: `frontend/src/features/warehouse/components/waybill-grid-input.tsx`
 
-8 cột (khớp 1:1 với `docs_scan/form_create_new_don.JPG`):
+15 cột vật lý (14 cột nghiệp vụ + `Thao tác`), được gom thành 8 nhóm nhập liệu lõi; thứ tự chi tiết phải theo Excel loading plan và canvas đã duyệt:
 
 | STT | Tên cột | Control |
 |---|---|---|
@@ -380,16 +602,18 @@ Step 1: Nhập kho (Hub gốc)          Step 2: Luân chuyển (N-Hubs)      Ste
 
 ## 🏗️ Sprint 4 — PDF Generation + S3 Upload + Print
 
+> **Thay thế theo v2.0**: Luồng đồng bộ và code `public-read` dưới đây chỉ là sơ đồ v1.x. Triển khai thật phải dùng document job, `warehouse_document`, `FileEntity` và authorized download; template phải escape dữ liệu người dùng.
+
 ### Kiến trúc PDF Flow
 
 ```
 [Frontend: nút "Tạo PDF / Tải PDF"]
            │
            ▼
-POST /v1/waybills/:id/generate-pdf?type=INBOUND_SLIP
+POST /v1/warehouse/documents { resourceType, resourceId, documentType }
            │
            ▼ (Backend)
-[WaybillsService.generatePdf()]
+[WarehouseDocumentWorker.generate()]
    1. Fetch waybill + items từ DB
    2. Render HTML template string (Handlebars / template literals)
    3. Puppeteer: html → Buffer PDF
@@ -401,15 +625,15 @@ POST /v1/waybills/:id/generate-pdf?type=INBOUND_SLIP
    - ContentType: application/pdf
            │
            ▼
-[WaybillsService: lưu URL vào DB]
-   - pdfInboundSlipUrl = AWS_S3_PUBLIC_URL + "/" + key
-   - PATCH waybill record
+[DocumentService: lưu object key qua FileEntity]
+   - warehouse_document.fileId = file.id
+   - status = READY, lưu checksum + templateVersion
            │
            ▼
-Response: { url: "https://...supabase.co/.../waybills/030926-0001/inbound-slip-xxx.pdf" }
+Response ban đầu: { documentId, status: "PENDING" }
            │
            ▼
-[Frontend: mở URL trong tab mới / hiển thị download link]
+[Frontend: poll/query status → gọi authorized download khi READY]
 ```
 
 ### 4.1 Backend — PDF Generation Service
@@ -419,8 +643,7 @@ Response: { url: "https://...supabase.co/.../waybills/030926-0001/inbound-slip-x
 ```typescript
 // Dependencies cần cài:
 // npm install puppeteer-core @sparticuz/chromium
-// Hoặc nhẹ hơn: npm install html-pdf-node
-// Khuyến nghị: html-pdf-node (không cần Chrome binary, dùng headless Chrome)
+// Chọn engine sau deployment spike; cả Puppeteer/html-pdf-node đều cần Chromium phù hợp.
 
 @Injectable()
 export class WaybillPdfService {
@@ -468,10 +691,9 @@ export class WaybillPdfService {
       Key: key,
       Body: buffer,
       ContentType: 'application/pdf',
-      ACL: 'public-read',    // Supabase Storage: bucket phải public
+      // Không đặt ACL public; object mặc định private.
     }));
-    const publicUrl = this.configService.get('file.awsS3PublicUrl');
-    return `${publicUrl}/${key}`;
+    return key; // lưu object key vào FileEntity; không trả public URL.
   }
 }
 ```
@@ -497,11 +719,12 @@ async generatePdf(
 }
 ```
 
-**Logic trong `waybillsService.generatePdf()`**:
-1. Fetch waybill + items từ DB
-2. Gọi `WaybillPdfService.generateAndUpload(waybill, type)`
-3. Cập nhật DB: `waybill.pdf*Url = url` tương ứng với type
-4. Return `{ url }`
+**Logic canonical thay thế**:
+
+1. Controller xác thực role + hub scope và enqueue document job idempotent.
+2. Worker fetch resource đúng ownership, render template đã escape và upload private object.
+3. Tạo/cập nhật `FileEntity` + `warehouse_document` (`READY`/`FAILED`, checksum, templateVersion).
+4. Frontend query trạng thái và chỉ tải qua signed URL ngắn hạn hoặc authorized stream.
 
 ### 4.2 Frontend — Print Preview + PDF Button
 
@@ -556,24 +779,22 @@ Thêm bảng Waybills Controller:
 | Endpoint | Method | SA | D | FM | WM |
 |---|---|:-:|:-:|:-:|:-:|
 | `POST /v1/waybills` | POST | ✅ | ❌ | ❌ | ✅ |
-| `GET /v1/waybills` | GET | ✅ | ✅ | ✅ | ✅ |
-| `GET /v1/waybills/:id` | GET | ✅ | ✅ | ✅ | ✅ |
+| `GET /v1/waybills` | GET | ✅ | ❌ | ❌ | ✅ |
+| `GET /v1/waybills/:id` | GET | ✅ | ❌ | ❌ | ✅ |
 | `PATCH /v1/waybills/:id` | PATCH | ✅ | ❌ | ❌ | ✅ |
 | `PATCH /v1/waybills/:id/confirm` | PATCH | ✅ | ❌ | ❌ | ✅ |
 | `PATCH /v1/waybills/:id/start-inbound` | PATCH | ✅ | ❌ | ❌ | ✅ |
 | `PATCH /v1/waybills/:id/complete-inbound` | PATCH | ✅ | ❌ | ❌ | ✅ |
-| `POST /v1/waybills/:id/generate-pdf` | POST | ✅ | ❌ | ❌ | ✅ |
-| `DELETE /v1/waybills/:id` | DELETE | ✅ | ❌ | ❌ | ✅ |
+| `POST /v1/warehouse/documents` | POST | ✅ | ❌ | ❌ | ✅ |
+| `PATCH /v1/waybills/:id/cancel` | PATCH | Theo matrix duyệt | ❌ | ❌ | Theo matrix duyệt |
 
 Bump RBAC v1.4 → **v1.5**
 
 ---
 
-## ~~Sprint 6 — Excel Integration (P2 — Phase tiếp theo)~~
+## 🏗️ Excel Integration — P0 thuộc Sprint 3
 
-> ⏸️ **Đã quyết định: Để lại Phase 2**. Không implement trong feature branch này.
->
-> Bao gồm: Excel Paste Ctrl+V (parse TSV từ clipboard) + Import Excel file (.xlsx) dùng SheetJS.
+> Bắt buộc triển khai trong feature branch: paste TSV từ clipboard + import `.xlsx`, dùng chung parser/validation pipeline, preview lỗi theo row/cell và giới hạn 200 dòng. Chỉ thêm SheetJS sau khi kiểm tra dependency/security/licensing và khả năng parse workbook mẫu.
 
 ---
 
@@ -588,10 +809,11 @@ backend/src/waybills/
 │   ├── create-waybill-item.dto.ts
 │   └── query-waybill.dto.ts
 ├── infrastructure/persistence/relational/entities/
-│   ├── waybill.entity.ts               ← có pdf*Url columns
+│   ├── waybill.entity.ts
 │   └── waybill-item.entity.ts
-├── pdf/
-│   ├── waybill-pdf.service.ts          ← gen PDF + S3 upload
+├── documents/
+│   ├── warehouse-document.service.ts   ← enqueue/status/FileEntity
+│   ├── warehouse-document.worker.ts    ← render + private S3 upload
 │   └── templates/
 │       ├── inbound-slip.template.ts
 │       ├── outbound-slip.template.ts
@@ -622,7 +844,8 @@ frontend/src/features/warehouse/
     ├── warehouse-create-dialog.tsx
     ├── waybill-grid-input.tsx
     ├── waybill-delivery-selector.tsx   ← 3-mode selector (FREE_TEXT|HUB_L1|HUB_L2_SAT)
-    ├── trip-selection-modal.tsx
+    ├── inbound-trip-picker-modal.tsx
+    ├── inbound-order-allocation-modal.tsx
     ├── waybill-detail-sheet.tsx
     ├── waybill-timeline-stepper.tsx
     ├── waybill-print-view.tsx          ← Print CSS + "Tạo PDF" button
@@ -649,10 +872,7 @@ frontend/src/app/dashboard/warehouse/page.tsx
 
 ### Backend
 ```bash
-# PDF generation (chọn 1 trong 2)
-npm install html-pdf-node              # Nhẹ hơn, không cần Chrome binary riêng
-# hoặc:
-npm install puppeteer                  # Nặng hơn nhưng render CSS đẹp hơn
+# PDF generation: chốt engine sau deployment spike; không mặc định cài package ở bước lập kế hoạch.
 
 # S3 upload: @aws-sdk/client-s3 đã có sẵn trong project ✅
 ```
@@ -665,7 +885,7 @@ npm install puppeteer                  # Nặng hơn nhưng render CSS đẹp h�
 
 ---
 
-## ✅ Verification Checklist
+## ✅ Verification Checklist (legacy; phải bổ sung các gate/test canonical v2.0)
 
 ### Backend
 - [ ] Migration chạy thành công: bảng `waybill` + `waybill_item` được tạo
@@ -674,16 +894,12 @@ npm install puppeteer                  # Nặng hơn nhưng render CSS đẹp h�
 - [ ] `PATCH /v1/waybills/:id/confirm` → warehouseStatus = PENDING_INBOUND, waybillCode = DDMMYY-xxxx
 - [ ] `PATCH /v1/waybills/:id/start-inbound` → INBOUND
 - [ ] `PATCH /v1/waybills/:id/complete-inbound` → COMPLETED_INBOUND
-- [ ] `POST /v1/waybills/:id/generate-pdf?type=INBOUND_SLIP`:
-  - [ ] PDF được tạo thành công
-  - [ ] File được upload lên Supabase S3 bucket `logistics-media`
-  - [ ] URL được lưu vào `waybill.pdfInboundSlipUrl` trong DB
-  - [ ] Response trả về `{ url: "https://...supabase.co/..." }`
-  - [ ] URL có thể mở được, tải về PDF đúng nội dung
+- [ ] `POST /v1/warehouse/documents` tạo job idempotent; worker tạo PDF, lưu `FileEntity`, chuyển document `READY`.
+- [ ] Download yêu cầu authorization, không dùng public URL; WM Hub A không tải tài liệu Hub B.
 - [ ] RBAC: `DISPATCHER` → `POST /v1/waybills` → 403
 
 ### Frontend
-- [ ] Grid 8 cột hiển thị đúng thứ tự, có highlight viền đỏ/dấu sao cho các trường BẮT BUỘC (`docs_scan/required_field_border_red.png`)
+- [ ] Grid 15 cột vật lý/8 nhóm nhập liệu hiển thị đúng thứ tự, có highlight viền đỏ/dấu sao cho các trường BẮT BUỘC (`docs_scan/required_field_border_red.png`)
 - [ ] Header Mode 1 đủ 5 trường viền đỏ: Biển số xe, Lái xe/Người nhận, SĐT, Nhà thầu, Ngày tạo
 - [ ] Tab key chuyển ô theo đúng thứ tự cột
 - [ ] Cột 6 — 3-mode selector hoạt động (Free text / Hub L1 / Hub L2)
@@ -698,7 +914,7 @@ npm install puppeteer                  # Nặng hơn nhưng render CSS đẹp h�
 
 ---
 
-## 📅 Timeline Sprint & Phân Bổ Nhiệm Vụ
+## 📅 Timeline Sprint v1.x (đã thay thế bởi Revised Sprint Order v2.0)
 
 | Sprint | Nội dung & Nhiệm vụ Trọng tâm | Deliverables | Estimate |
 |---|---|---|---|
@@ -713,13 +929,12 @@ npm install puppeteer                  # Nặng hơn nhưng render CSS đẹp h�
 ---
 
 > **Branch**: `feature/warehouse-inbound-module` (backend + frontend)
-> **Phiên bản plan**: v1.2 (cập nhật Red-Border Required Fields, Tem A4 Pallet & Bảng Kế Hoạch Đóng Hàng Xe Tuyến)
-> **S3 Bucket**: `logistics-media` tại `https://ykcuwumpelgnfgfyxepg.supabase.co/storage/v1/object/public/logistics-media`
+> **Phiên bản lịch sử**: v1.2 — chỉ để truy vết; estimate và storage contract không còn hiệu lực.
 
 
 ---
 
-## 🧪 E2E Test Specification (Dành cho `/e2e-test-runner`)
+## 🧪 E2E Test Specification v1.x (tham khảo; canonical v2.0 bổ sung và ghi đè)
 
 > **Hướng dẫn**: Sau khi hoàn thành mỗi Sprint, agent `e2e-test-runner` đọc section tương ứng bên dưới, tạo Playwright spec file và chạy theo thứ tự:
 > 1. `node scripts/check-servers.mjs` (pre-flight gate)
@@ -730,11 +945,7 @@ npm install puppeteer                  # Nặng hơn nhưng render CSS đẹp h�
 > 6. Sub-Agent E: `11-warehouse-table-no-hscroll.spec.ts` (viewport × sidebar)
 > 7. Sub-Agent W: `20-warehouse-waybill.spec.ts` ← **spec mới cho Warehouse**
 >
-> **Test Credentials**:
-> - WAREHOUSE_MANAGER: `lyquangthai1993+4@gmail.com` / `secret`
-> - DISPATCHER: `lyquangthai1993+2@gmail.com` / `secret`
-> - SUPER_ADMIN: `lyquangthai1993+1@gmail.com` / `secret`
-> - FLEET_MANAGER: `lyquangthai1993+3@gmail.com` / `secret`
+> **Test credentials**: chỉ lấy từ biến môi trường/fixture git-ignored; không ghi email/password vào tài liệu hoặc source.
 
 ---
 
@@ -808,7 +1019,7 @@ npm install puppeteer                  # Nặng hơn nhưng render CSS đẹp h�
 |---|---|---|---|
 | W-2.1 | Warehouse page load | Navigate `/dashboard/warehouse` | Page render, title "Inbound Hub & Kho Tiếp Nhận" |
 | W-2.2 | Mở dialog tạo đơn | Click `[data-testid="btn-create-waybill"]` | Dialog mở, Tab "Mới hoàn toàn" active mặc định |
-| W-2.3 | Tab Mode 1 active | Dialog mở | Header form xe/tài xế hiển thị, grid 8 cột hiển thị |
+| W-2.3 | Tab Mode 1 active | Dialog mở | Header đủ 5 trường và grid 15 cột vật lý/8 nhóm nhập liệu hiển thị |
 | W-2.4 | Thêm dòng hàng | Click `[data-testid="btn-add-row"]` | 1 dòng mới xuất hiện cuối grid |
 | W-2.5 | Tab key navigation | Điền ô đầu → Tab liên tục | Focus chuyển đúng thứ tự: Mã đơn → Địa chỉ nhận → Tên hàng → Thùng → Kg → m³ → Địa chỉ giao → Ghi chú → [row mới] |
 | W-2.6 | Cột Địa chỉ giao — Free text | Click Segmented "Địa chỉ tự do" | Hiện text input, user nhập được |
@@ -901,7 +1112,7 @@ const canScroll = await page.evaluate(() => {
 | W-3.E7 | Bấm "Xóa" DRAFT trong detail | Confirm xóa | Confirm dialog → xóa → redirect về danh sách |
 | W-3.E8 | Bấm "Hủy đơn" PENDING_INBOUND | Confirm hủy | Waybill bị soft-delete, disappear khỏi list |
 | W-3.E9 | Detail waybill không tồn tại | Navigate /dashboard/warehouse?id=99999 | 404 message, redirect về list |
-| W-3.E10 | Items trong detail hiển thị đủ 8 cột | Mở detail waybill 5 items | Tất cả 5 rows hiển thị đủ: mã đơn, tên hàng, thùng, kg, m³, địa chỉ giao |
+| W-3.E10 | Items trong detail hiển thị đúng dữ liệu | Mở detail waybill 5 items | Tất cả rows hiển thị đủ các trường nghiệp vụ được phép theo state/role |
 
 ---
 
@@ -914,14 +1125,14 @@ const canScroll = await page.evaluate(() => {
 
 | # | Test Case | Action | Expected |
 |---|---|---|---|
-| W-4.1 | Gen PDF Phiếu Nhập Kho | POST `/v1/waybills/:id/generate-pdf?type=INBOUND_SLIP` | 200, response có `{ url: "https://...supabase.co/...pdf" }` |
-| W-4.2 | URL trả về hợp lệ | Kiểm tra URL trong response | URL starts with `AWS_S3_PUBLIC_URL`, ends with `.pdf` |
-| W-4.3 | PDF tồn tại trên S3 | GET request đến URL trả về | HTTP 200, Content-Type: application/pdf |
-| W-4.4 | URL được lưu vào DB | GET `/v1/waybills/:id` sau khi gen | Field `pdfInboundSlipUrl` ≠ null |
-| W-4.5 | Gen lại → URL mới | Gọi lại endpoint | URL mới (timestamp mới), DB cập nhật, file cũ có thể vẫn tồn tại trên S3 |
-| W-4.6 | Gen đủ 4 loại phiếu | type=OUTBOUND_SLIP, DELIVERY_NOTE, CARGO_LABEL | 4 URL riêng biệt, 4 cột DB được cập nhật |
+| W-4.1 | Queue Phiếu Nhập Kho | POST `/v1/warehouse/documents` | 202, response có `{ documentId, status: "PENDING" }` |
+| W-4.2 | Worker hoàn thành | Poll/query document | Chuyển `PENDING → READY`, có `fileId`, checksum và templateVersion |
+| W-4.3 | Download có quyền | GET authorized download với đúng role/hub | HTTP 200, `application/pdf`; trái hub/role trả 403/404 |
+| W-4.4 | Không public object | Gọi trực tiếp object URL không chữ ký | Không truy cập được |
+| W-4.5 | Idempotency | Gọi lại cùng resource/type/version/key | Không sinh document trùng |
+| W-4.6 | Đúng resource owner | Tạo tem/loading sheet/POD | Tem gắn item/pallet; loading sheet gắn trip/stop; POD không gắn giả vào Waybill |
 | W-4.7 | Frontend: Nút "Tạo PDF & Lưu" | Click trong WaybillDetailSheet | Loading spinner → Toast "PDF đã được tạo" → Hiện link "Tải PDF ↓" |
-| W-4.8 | Frontend: Link PDF hoạt động | Click "Tải PDF ↓" | Mở tab mới với URL Supabase S3, PDF tải được |
+| W-4.8 | Frontend: Link PDF hoạt động | Click "Tải PDF ↓" | Lấy signed URL ngắn hạn/authorized stream và tải được |
 | W-4.9 | PDF đã có → hiện link sẵn | Mở detail waybill đã gen PDF | Nút "Tải PDF ↓" hiện ngay, KHÔNG cần gen lại |
 | W-4.10 | PDF chứa nội dung đúng | Tải PDF về | Text: waybillCode, tên hub, ngày, items table, "Thủ kho" ký tên |
 
@@ -933,9 +1144,9 @@ const canScroll = await page.evaluate(() => {
 | W-4.E2 | Gen PDF không hợp lệ type | type=INVALID_TYPE | 422 / 400 |
 | W-4.E3 | DISPATCHER gọi gen PDF | POST generate-pdf với DISPATCHER token | 403 Forbidden |
 | W-4.E4 | Puppeteer/html-pdf fail | Server lỗi render HTML | 500 với message rõ, KHÔNG để crash unhandled |
-| W-4.E5 | S3 upload timeout | Giả lập S3 không phản hồi | 500 + message, waybill record KHÔNG bị cập nhật URL rác |
+| W-4.E5 | Storage timeout | Giả lập storage không phản hồi | Job `FAILED` có retry giới hạn; không lưu `fileId` rác |
 | W-4.E6 | Gen PDF waybill không tồn tại | generate-pdf/:id=99999 | 404 |
-| W-4.E7 | Frontend: S3 URL không mở được | URL expire hoặc bucket private | Toast error: "Không thể tải file PDF. Vui lòng thử tạo lại." |
+| W-4.E7 | Frontend: signed URL hết hạn | Mở link đã hết hạn | Lấy link mới nếu còn quyền; lỗi hiển thị tiếng Việt qua `formatApiError()` |
 | W-4.E8 | WaybillCode null khi gen PDF | Waybill chưa confirm | 422, waybillCode là null — phiếu nhập kho cần mã |
 
 #### 🖨️ Print View Test (Sub-Agent A — Console Health)
@@ -1000,26 +1211,18 @@ const canScroll = await page.evaluate(() => {
 
 ---
 
-### 📋 Test Data Setup (Seed Data cho E2E)
+### 📋 Test Data Setup (Seed Data cục bộ cho E2E)
 
 Trước khi chạy E2E, cần đảm bảo DB có:
 
 ```
-1. WAREHOUSE_MANAGER user (lyquangthai1993+4@gmail.com) được gán vào Hub ID = 1
+1. Fixture WAREHOUSE_MANAGER được gán vào Hub A; credentials lấy từ environment/fixture git-ignored
 2. Ít nhất 1 Trip đang IN_TRANSIT có destinationHubId = 1
 3. Hubs: Hub cấp 1 (VD: Hub Hà Nội id=1, Hub HCM id=2)
 4. Hubs cấp 2 / Xe bo: 34 tuyến xe bo ứng với 34 tỉnh/thành phố toàn quốc đã seed sẵn trong `hub-seed.service.ts`
 ```
 
-```typescript
-// Trong auth.ts helper:
-export const TEST_USERS = {
-  SUPER_ADMIN:       { email: 'lyquangthai1993+1@gmail.com', password: 'secret' },
-  DISPATCHER:        { email: 'lyquangthai1993+2@gmail.com', password: 'secret' },
-  FLEET_MANAGER:     { email: 'lyquangthai1993+3@gmail.com', password: 'secret' },
-  WAREHOUSE_MANAGER: { email: 'lyquangthai1993+4@gmail.com', password: 'secret' },
-};
-```
+Không ghi email/password thật hoặc mặc định vào plan/source. Test helper chỉ đọc biến môi trường được quản lý ngoài Git.
 
 ---
 
@@ -1111,18 +1314,15 @@ export const waybillItemSchema = z.object({
 export const waybillMode1Schema = z.object({
   mode: z.literal('DIRECT_CUSTOMER'),
 
+  receivedAt: z.coerce.date({ error: 'Ngày tiếp nhận không hợp lệ' }), // 🔴 Red Border
+
   vehicleLicensePlate: z // 🔴 Red Border
     .string()
     .min(1, 'Biển số xe không được để trống')
     .max(20, 'Biển số xe tối đa 20 ký tự')
     .regex(/^[A-Z0-9\-\.]+$/i, 'Biển số xe không hợp lệ'),
 
-  driverName: z // 🔴 Red Border
-    .string()
-    .min(1, 'Tên tài xế không được để trống')
-    .max(100, 'Tên tài xế tối đa 100 ký tự'),
-
-  receiverName: z // 🔴 Red Border (Họ tên người nhận/lái xe)
+  receiverOrDriverName: z // 🔴 Red Border
     .string()
     .min(1, 'Họ tên người nhận/lái xe không được để trống')
     .max(100, 'Họ tên người nhận tối đa 100 ký tự'),
@@ -1137,11 +1337,6 @@ export const waybillMode1Schema = z.object({
     .string()
     .min(1, 'Nhà thầu không được để trống')
     .max(200, 'Tên nhà thầu tối đa 200 ký tự'),
-
-  pickupAddress: z // 🔴 Red Border
-    .string()
-    .min(1, 'Địa chỉ nhận hàng không được để trống')
-    .max(500),
 
   dispatcherContact: z.string().max(200).optional(),
 
@@ -1162,7 +1357,7 @@ export const waybillMode2Schema = z.object({
     .int()
     .positive('ID chuyến xe không hợp lệ'),
 
-  // vehicleLicensePlate / driverName / driverPhone / pickupAddress: readonly, auto-fill từ Trip
+  // receivedAt do WM xác nhận; vehicle/driver/contractor readonly và server derive từ Trip.
   // Không cần validate trên FE vì server tự lấy từ tripId
 
   notes: z.string().max(1000).optional(),
@@ -1200,11 +1395,11 @@ export function WarehouseCreateDialog({ open, onOpenChange }) {
     resolver: zodResolver(createWaybillSchema),
     defaultValues: {
       mode: 'DIRECT_CUSTOMER',
+      receivedAt: new Date(),
       vehicleLicensePlate: '',
-      driverName: '',
+      receiverOrDriverName: '',
       driverPhone: '',
       subContractor: '',
-      pickupAddress: '',
       notes: '',
       items: [defaultItem()],  // 1 dòng trống mặc định
     },
@@ -1289,10 +1484,11 @@ function GridCell({ name, rowIndex, register, errors }) {
 | Field | FE Rule (Zod) | BE Rule (class-validator) | Error Message |
 |---|---|---|---|
 | **Header — Mode 1** | | | |
+| `receivedAt` | required, valid date | `@IsDateString` hoặc transform + date validation | "Ngày tiếp nhận không hợp lệ" |
 | `vehicleLicensePlate` | required, min 1, max 20, regex biển số | `@IsNotEmpty @IsString @MaxLength(20)` | "Biển số xe không được để trống" |
-| `driverName` | required, min 1, max 100 | `@IsNotEmpty @IsString @MaxLength(100)` | "Tên tài xế không được để trống" |
+| `receiverOrDriverName` | required, min 1, max 100 | `@IsNotEmpty @IsString @MaxLength(100)` | "Người nhận/lái xe không được để trống" |
 | `driverPhone` | regex số điện thoại, 9-15 ký tự | `@Matches(/^[0-9+\-\s]+$/)` | "Số điện thoại không hợp lệ" |
-| `pickupAddress` | required, max 500 | `@IsNotEmpty @IsString` | "Địa chỉ nhận hàng không được để trống" |
+| `subContractor` | required, max 200 | `@IsNotEmpty @IsString @MaxLength(200)` | "Nhà thầu không được để trống" |
 | **Header — Mode 2** | | | |
 | `tripId` | required, integer, positive | `@IsInt @IsPositive` | "Vui lòng chọn chuyến xe" |
 | `tripId` (BE cross) | — | Trip phải tồn tại + status = IN_TRANSIT | "Chỉ được chọn chuyến xe đang vận chuyển" |
@@ -1301,9 +1497,8 @@ function GridCell({ name, rowIndex, register, errors }) {
 | `pickupAddress` | required, max 255 | `@IsNotEmpty @IsString` | "Địa chỉ nhận hàng không được để trống" |
 | `goodsDescription` | required, max 500, no-SKU regex warn | `@IsNotEmpty @IsString` | "Tên hàng không được để trống" |
 | `quantity` | integer, min 1 | `@IsInt @Min(1)` | "Số thùng/kiện phải ít nhất là 1" |
-| `weightKg` | number, min 0 | `@IsNumber @Min(0)` | "Số kg không được âm" |
-| `volumeM3` | number, min 0 | `@IsNumber @Min(0)` | "Số m³ không được âm" |
-| `weightKg + volumeM3` | superRefine: không đồng thời = 0 | BE: `@ValidateIf` cross-check | "Số kg và Số m³ không thể đồng thời bằng 0" |
+| `weightKg` | number, > 0 | `@IsNumber @IsPositive` | "Số kg phải lớn hơn 0" |
+| `volumeM3` | number, > 0 | `@IsNumber @IsPositive` | "Số m³ phải lớn hơn 0" |
 | `deliveryMode` | enum('FREE_TEXT','HUB_L1','HUB_L2_SAT') | `@IsIn([...])` | "Vui lòng chọn phương thức địa chỉ giao" |
 | `deliveryAddress` | required nếu FREE_TEXT (superRefine) | `@ValidateIf(o => o.deliveryMode === 'FREE_TEXT') @IsNotEmpty` | "Vui lòng nhập địa chỉ giao hàng" |
 | `deliveryHubId` | required nếu HUB_L1/HUB_L2_SAT | `@ValidateIf(o => o.deliveryMode !== 'FREE_TEXT') @IsInt @IsPositive` | "Vui lòng chọn Hub từ danh sách" |
