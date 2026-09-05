@@ -799,8 +799,8 @@
             {
               "type": "icon",
               "id": "Dc446",
-              "x": 2221,
-              "y": 176,
+              "x": 2229,
+              "y": 178,
               "name": "Direct Print Arrow",
               "width": 22,
               "height": 22,
@@ -1125,57 +1125,21 @@
                       "id": "O2293",
                       "name": "Vehicle Row 1",
                       "width": "fill_container",
+                      "height": 64,
                       "gap": 10,
                       "children": [
                         {
-                          "type": "frame",
-                          "id": "SbY4O",
-                          "name": "Ngày tháng năm",
+                          "id": "R5WwJ",
+                          "type": "ref",
+                          "ref": "O30hTR",
+                          "name": "Ngày tháng năm · Date Picker",
                           "width": "fill_container",
-                          "layout": "vertical",
-                          "gap": 6,
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "hyqfV",
-                              "name": "Ngày tháng năm Label",
-                              "fill": "$text-secondary",
-                              "content": "Ngày/tháng/năm",
-                              "fontFamily": "$font-main",
-                              "fontSize": 11,
-                              "fontWeight": "600"
-                            },
-                            {
-                              "type": "frame",
-                              "id": "s1fgA",
-                              "name": "Ngày tháng năm Input",
-                              "width": "fill_container",
-                              "height": 44,
-                              "fill": "#FFFFFF",
-                              "cornerRadius": 7,
-                              "stroke": "$border-subtle",
-                              "strokeWidth": 1,
-                              "padding": [
-                                0,
-                                12
-                              ],
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "i369Ds",
-                                  "name": "Ngày tháng năm Value",
-                                  "fill": "$text-primary",
-                                  "textGrowth": "fixed-width",
-                                  "width": "fill_container",
-                                  "content": "03/09/2026",
-                                  "fontFamily": "$font-main",
-                                  "fontSize": 13,
-                                  "fontWeight": "normal"
-                                }
-                              ]
+                          "descendants": {
+                            "nnCNL": {
+                              "stroke": "$primary",
+                              "strokeWidth": 1.5
                             }
-                          ]
+                          }
                         },
                         {
                           "type": "frame",
@@ -1283,7 +1247,7 @@
                       "type": "frame",
                       "id": "FHkgS",
                       "name": "Vehicle Row 2",
-                      "width": "fill_container",
+                      "width": 574,
                       "gap": 10,
                       "children": [
                         {
@@ -1378,56 +1342,6 @@
                                   "textGrowth": "fixed-width",
                                   "width": "fill_container",
                                   "content": "0973 824 235",
-                                  "fontFamily": "$font-main",
-                                  "fontSize": 13,
-                                  "fontWeight": "normal"
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "type": "frame",
-                          "id": "jBGSF",
-                          "name": "Địa chỉ nhận hàng",
-                          "width": "fill_container",
-                          "layout": "vertical",
-                          "gap": 6,
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "ieWi3",
-                              "name": "Địa chỉ nhận hàng Label",
-                              "fill": "#DC2626",
-                              "content": "Địa chỉ nhận hàng *",
-                              "fontFamily": "$font-main",
-                              "fontSize": 11,
-                              "fontWeight": "600"
-                            },
-                            {
-                              "type": "frame",
-                              "id": "shutW",
-                              "name": "Địa chỉ nhận hàng Input",
-                              "width": "fill_container",
-                              "height": 44,
-                              "fill": "#FFF5F5",
-                              "cornerRadius": 7,
-                              "stroke": "#EF4444",
-                              "strokeWidth": 1.5,
-                              "padding": [
-                                0,
-                                12
-                              ],
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "F8C6ne",
-                                  "name": "Địa chỉ nhận hàng Value",
-                                  "fill": "$text-primary",
-                                  "textGrowth": "fixed-width",
-                                  "width": "fill_container",
-                                  "content": "Nhập địa chỉ lấy hàng",
                                   "fontFamily": "$font-main",
                                   "fontSize": 13,
                                   "fontWeight": "normal"
@@ -3543,7 +3457,7 @@
                           "fill": "$text-primary",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Xe bo Tuyến Đà Nẵng",
+                          "content": "Xe bo · XB-KH-02",
                           "fontFamily": "$font-main",
                           "fontSize": 11,
                           "fontWeight": "normal"
@@ -3965,7 +3879,7 @@
                       "id": "INuaB",
                       "name": "Dialog Title",
                       "fill": "$text-primary",
-                      "content": "BƯỚC 2 / 3  ·  CHỌN ĐƠN HÀNG ĐỂ CHẤT LÊN TRIP-260903-018",
+                      "content": "BƯỚC 2 / 3  ·  CHỌN ĐƠN HÀNG CẦN TIẾP NHẬN TỪ TRIP-260903-018",
                       "fontFamily": "$font-main",
                       "fontSize": 20,
                       "fontWeight": "750"
@@ -3975,7 +3889,7 @@
                       "id": "CcR9K",
                       "name": "Dialog Subtitle",
                       "fill": "$text-secondary",
-                      "content": "Bước 2: Chọn một hoặc nhiều đơn hàng để đưa lên chuyến xe",
+                      "content": "Chọn một hoặc nhiều đơn còn trên xe để dỡ và tiếp nhận vào kho",
                       "fontFamily": "$font-main",
                       "fontSize": 12,
                       "fontWeight": "normal"
@@ -4141,7 +4055,7 @@
                           "id": "t9epLf",
                           "name": "Trip Route",
                           "fill": "$text-primary",
-                          "content": "Chuyến gom hàng · Điểm giao theo từng đơn",
+                          "content": "Chuyến đang đến hub · Điểm dỡ theo từng đơn",
                           "fontFamily": "$font-main",
                           "fontSize": 12,
                           "fontWeight": "600"
@@ -4171,7 +4085,7 @@
                           "id": "PJmvM",
                           "name": "ETA Label",
                           "fill": "$text-secondary",
-                          "content": "DỰ KIẾN XUẤT BẾN",
+                          "content": "DỰ KIẾN ĐẾN HUB",
                           "fontFamily": "$font-main",
                           "fontSize": 10,
                           "fontWeight": "700"
@@ -4204,7 +4118,7 @@
                       "id": "W3y1Y",
                       "name": "Order Selection Title",
                       "fill": "$text-primary",
-                      "content": "Đơn chờ chất lên xe · chọn một hoặc nhiều",
+                      "content": "Đơn còn trên xe · chọn một hoặc nhiều",
                       "fontFamily": "$font-main",
                       "fontSize": 14,
                       "fontWeight": "750"
@@ -4512,7 +4426,7 @@
                           "fill": "$text-primary",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Xe bo Tuyến Đà Nẵng",
+                          "content": "Xe bo · XB-KH-02",
                           "fontFamily": "$font-main",
                           "fontSize": 12,
                           "fontWeight": "normal"
@@ -4894,7 +4808,7 @@
                           "id": "nrTcY",
                           "name": "Confirm Selected Orders Label",
                           "fill": "#FFFFFF",
-                          "content": "Xác nhận chất hàng",
+                          "content": "Xác nhận đơn cần nhận",
                           "fontFamily": "$font-main",
                           "fontSize": 13,
                           "fontWeight": "700"
@@ -6820,7 +6734,7 @@
                           "id": "A4_Tag_GiaoDen_Text",
                           "name": "Giao đến Text",
                           "fill": "#92400E",
-                          "content": "GIAO ĐẾN: Magellan Hub - Đà Nẵng (Xe bo Tuyến Đà Nẵng)",
+                          "content": "GIAO ĐẾN: Magellan Hub - Đà Nẵng (Xe bo 43H)",
                           "fontFamily": "$font-main",
                           "fontSize": 11,
                           "fontWeight": "bold"
@@ -7341,22 +7255,12 @@
                       "id": "I6dx2",
                       "name": "Core Form Title",
                       "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "KẾ HOẠCH ĐÓNG HÀNG",
+                      "content": "KẾ HOẠCH ĐÓNG HÀNG · TRIP TRUNG CHUYỂN",
                       "fontFamily": "$font-main",
-                      "fontSize": 15,
+                      "fontSize": 13,
                       "fontWeight": "800"
-                    },
-                    {
-                      "type": "text",
-                      "id": "Q846Ju",
-                      "name": "Core Form Note",
-                      "fill": "$text-secondary",
-                      "content": "",
-                      "fontFamily": "$font-main",
-                      "fontSize": 11,
-                      "fontWeight": "normal",
-                      "height": 0
                     },
                     {
                       "type": "text",
@@ -7412,54 +7316,11 @@
                       "gap": 10,
                       "children": [
                         {
-                          "type": "frame",
-                          "id": "n4rym",
-                          "name": "Ngày tháng năm",
-                          "width": "fill_container",
-                          "layout": "vertical",
-                          "gap": 6,
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "m0TGhP",
-                              "name": "Ngày tháng năm Label",
-                              "fill": "$text-secondary",
-                              "content": "Ngày/tháng/năm",
-                              "fontFamily": "$font-main",
-                              "fontSize": 11,
-                              "fontWeight": "600"
-                            },
-                            {
-                              "type": "frame",
-                              "id": "iKTnQ",
-                              "name": "Ngày tháng năm Input",
-                              "width": "fill_container",
-                              "height": 44,
-                              "fill": "#FFFFFF",
-                              "cornerRadius": 7,
-                              "stroke": "$border-subtle",
-                              "strokeWidth": 1,
-                              "padding": [
-                                0,
-                                12
-                              ],
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "v2UbAd",
-                                  "name": "Ngày tháng năm Value",
-                                  "fill": "$text-primary",
-                                  "textGrowth": "fixed-width",
-                                  "width": "fill_container",
-                                  "content": "03/09/2026",
-                                  "fontFamily": "$font-main",
-                                  "fontSize": 13,
-                                  "fontWeight": "normal"
-                                }
-                              ]
-                            }
-                          ]
+                          "id": "gutR4",
+                          "type": "ref",
+                          "ref": "O30hTR",
+                          "name": "Ngày tháng năm · Date Picker",
+                          "width": "fill_container"
                         },
                         {
                           "type": "frame",
@@ -7477,7 +7338,7 @@
                               "id": "DyIbr",
                               "name": "Nhà thầu Label",
                               "fill": "#DC2626",
-                              "content": "Nhà thầu · TRIP *",
+                              "content": "Nhà thầu*",
                               "fontFamily": "$font-main",
                               "fontSize": 11,
                               "fontWeight": "600"
@@ -7505,7 +7366,7 @@
                                   "fill": "#94A3B8",
                                   "textGrowth": "fixed-width",
                                   "width": "fill_container",
-                                  "content": "-- (Chờ chọn chuyến xe)",
+                                  "content": "Nhập tên nhà thầu",
                                   "fontFamily": "$font-main",
                                   "fontSize": 13,
                                   "fontWeight": "normal"
@@ -7530,7 +7391,7 @@
                               "id": "vjeAL",
                               "name": "Biển số xe Label",
                               "fill": "#DC2626",
-                              "content": "Biển số xe · TRIP *",
+                              "content": "Biển số xe*",
                               "fontFamily": "$font-main",
                               "fontSize": 11,
                               "fontWeight": "600"
@@ -7558,7 +7419,7 @@
                                   "fill": "#94A3B8",
                                   "textGrowth": "fixed-width",
                                   "width": "fill_container",
-                                  "content": "-- (Chờ chọn chuyến xe)",
+                                  "content": "00A-ABC.XY",
                                   "fontFamily": "$font-main",
                                   "fontSize": 13,
                                   "fontWeight": "normal"
@@ -7573,7 +7434,7 @@
                       "type": "frame",
                       "id": "wybgk",
                       "name": "Vehicle Row 2",
-                      "width": "fill_container",
+                      "width": 575,
                       "gap": 10,
                       "children": [
                         {
@@ -7592,7 +7453,7 @@
                               "id": "Fb8ZR",
                               "name": "Họ tên tài xế Label",
                               "fill": "#DC2626",
-                              "content": "Tài xế · TRIP *",
+                              "content": "Tài xế *",
                               "fontFamily": "$font-main",
                               "fontSize": 11,
                               "fontWeight": "600"
@@ -7620,7 +7481,7 @@
                                   "fill": "#94A3B8",
                                   "textGrowth": "fixed-width",
                                   "width": "fill_container",
-                                  "content": "-- (Chờ chọn chuyến xe)",
+                                  "content": "Họ tên tài xế",
                                   "fontFamily": "$font-main",
                                   "fontSize": 13,
                                   "fontWeight": "normal"
@@ -7645,7 +7506,7 @@
                               "id": "rxUMQ",
                               "name": "Điện thoại Label",
                               "fill": "#DC2626",
-                              "content": "Điện thoại · TRIP *",
+                              "content": "Điện thoại *",
                               "fontFamily": "$font-main",
                               "fontSize": 11,
                               "fontWeight": "600"
@@ -7673,60 +7534,7 @@
                                   "fill": "#94A3B8",
                                   "textGrowth": "fixed-width",
                                   "width": "fill_container",
-                                  "content": "-- (Chờ chọn chuyến xe)",
-                                  "fontFamily": "$font-main",
-                                  "fontSize": 13,
-                                  "fontWeight": "normal"
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "type": "frame",
-                          "id": "spQy9",
-                          "name": "Địa chỉ nhận hàng",
-                          "width": "fill_container",
-                          "fill": "#F8FAFC",
-                          "stroke": "#D0D5DD",
-                          "strokeWidth": 1,
-                          "layout": "vertical",
-                          "gap": 6,
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "aMygw",
-                              "name": "Địa chỉ nhận hàng Label",
-                              "fill": "#DC2626",
-                              "content": "Địa chỉ nhận hàng · HUB *",
-                              "fontFamily": "$font-main",
-                              "fontSize": 11,
-                              "fontWeight": "600"
-                            },
-                            {
-                              "type": "frame",
-                              "id": "t2uV0Z",
-                              "name": "Địa chỉ nhận hàng Input",
-                              "width": "fill_container",
-                              "height": 44,
-                              "fill": "#FFF5F5",
-                              "cornerRadius": 7,
-                              "stroke": "#EF4444",
-                              "strokeWidth": 1.5,
-                              "padding": [
-                                0,
-                                12
-                              ],
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "qASE1",
-                                  "name": "Địa chỉ nhận hàng Value",
-                                  "fill": "$text-primary",
-                                  "textGrowth": "fixed-width",
-                                  "width": "fill_container",
-                                  "content": "Andromeda Hub - HCM · 16 Đường 15, Thủ Đức",
+                                  "content": "Điện thoại liên hệ",
                                   "fontFamily": "$font-main",
                                   "fontSize": 13,
                                   "fontWeight": "normal"
@@ -8027,10 +7835,11 @@
                       "type": "frame",
                       "id": "PJUIY",
                       "name": "Confirm New Order",
+                      "width": 168,
                       "height": 44,
-                      "fill": "#CBD5E1",
+                      "fill": "#E2E8F0",
                       "cornerRadius": 8,
-                      "stroke": "#94A3B8",
+                      "stroke": "$primary",
                       "strokeWidth": 1,
                       "gap": 8,
                       "padding": [
@@ -8044,8 +7853,8 @@
                           "type": "text",
                           "id": "SwBMQ",
                           "name": "Confirm New Order Label",
-                          "fill": "#64748B",
-                          "content": "Xác nhận nhập kho",
+                          "fill": "#94A3B8",
+                          "content": "Xác nhận tiếp nhận (Chưa chọn chuyến)",
                           "fontFamily": "$font-main",
                           "fontSize": 13,
                           "fontWeight": "600"
@@ -11775,54 +11584,11 @@
                           "gap": 10,
                           "children": [
                             {
-                              "type": "frame",
-                              "id": "QlF0P",
-                              "name": "Ngày tháng năm",
-                              "width": "fill_container",
-                              "layout": "vertical",
-                              "gap": 6,
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "XxZSy",
-                                  "name": "Ngày tháng năm Label",
-                                  "fill": "$text-secondary",
-                                  "content": "Ngày/tháng/năm",
-                                  "fontFamily": "$font-main",
-                                  "fontSize": 11,
-                                  "fontWeight": "600"
-                                },
-                                {
-                                  "type": "frame",
-                                  "id": "eleBO",
-                                  "name": "Ngày tháng năm Input",
-                                  "width": "fill_container",
-                                  "height": 44,
-                                  "fill": "#FFFFFF",
-                                  "cornerRadius": 7,
-                                  "stroke": "$border-subtle",
-                                  "strokeWidth": 1,
-                                  "padding": [
-                                    0,
-                                    12
-                                  ],
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "OENOE",
-                                      "name": "Ngày tháng năm Value",
-                                      "fill": "$text-primary",
-                                      "textGrowth": "fixed-width",
-                                      "width": "fill_container",
-                                      "content": "03/09/2026",
-                                      "fontFamily": "$font-main",
-                                      "fontSize": 13,
-                                      "fontWeight": "normal"
-                                    }
-                                  ]
-                                }
-                              ]
+                              "id": "RJ35v",
+                              "type": "ref",
+                              "ref": "O30hTR",
+                              "name": "Ngày tháng năm · Date Picker",
+                              "width": "fill_container"
                             },
                             {
                               "type": "frame",
@@ -14190,7 +13956,7 @@
                               "fill": "$text-primary",
                               "textGrowth": "fixed-width",
                               "width": "fill_container",
-                              "content": "Xe bo Tuyến Đà Nẵng",
+                              "content": "Xe bo · XB-KH-02",
                               "fontFamily": "$font-main",
                               "fontSize": 11,
                               "fontWeight": "normal"
@@ -14609,16 +14375,6 @@
                       "fontFamily": "$font-main",
                       "fontSize": 20,
                       "fontWeight": "750"
-                    },
-                    {
-                      "type": "text",
-                      "id": "HOxTH",
-                      "name": "Cargo Modal Subtitle",
-                      "fill": "$text-secondary",
-                      "content": "Dòng hàng 01",
-                      "fontFamily": "$font-main",
-                      "fontSize": 11,
-                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -14717,7 +14473,7 @@
                         {
                           "type": "frame",
                           "id": "gm5kr",
-                          "name": "Cargo Dispatcher Textarea Field",
+                          "name": "Cargo Dispatcher",
                           "width": "fill_container",
                           "layout": "vertical",
                           "gap": 6,
@@ -14737,22 +14493,24 @@
                               "id": "gxwqt",
                               "name": "Cargo Dispatcher Textarea",
                               "width": "fill_container",
-                              "height": 84,
+                              "height": 88,
                               "fill": "#FFFFFF",
                               "cornerRadius": 7,
                               "stroke": "$border-subtle",
                               "strokeWidth": 1,
-                              "layout": "vertical",
-                              "padding": 12,
+                              "padding": [
+                                10,
+                                12
+                              ],
                               "children": [
                                 {
                                   "type": "text",
                                   "id": "P8iLDU",
-                                  "name": "Cargo Dispatcher Multiline Value",
+                                  "name": "Cargo Dispatcher Textarea Value",
                                   "fill": "$text-primary",
                                   "textGrowth": "fixed-width",
                                   "width": "fill_container",
-                                  "content": "LTV · Vương · 0901 234 567\nMinh · Điều phối ca · 0938 456 789",
+                                  "content": "LTV · Vương",
                                   "lineHeight": 1.45,
                                   "fontFamily": "$font-main",
                                   "fontSize": 12,
@@ -14853,7 +14611,7 @@
                                   "fill": "$text-primary",
                                   "textGrowth": "fixed-width",
                                   "width": "fill_container",
-                                  "content": "Chọn khách hàng ▾",
+                                  "content": "Nhập tên khách hàng",
                                   "fontFamily": "$font-main",
                                   "fontSize": 12,
                                   "fontWeight": "normal"
@@ -15744,7 +15502,7 @@
                                   "id": "gc_clean_opt3_val_40",
                                   "name": "Option 3 Selected Text",
                                   "fill": "#94A3B8",
-                                  "content": "Xe bo Tuyến HCM (Sóng Thần)",
+                                  "content": "Xe bo KH · Tuyến Sóng Thần",
                                   "fontFamily": "$font-main",
                                   "fontSize": 11,
                                   "fontWeight": "normal"
@@ -16205,7 +15963,7 @@
                           "type": "text",
                           "id": "l7bJZ",
                           "name": "Lifecycle Step 1 Subtitle",
-                          "fill": "$text-secondary",
+                          "fill": "#175CD3",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
                           "content": "Chờ nhập kho",
@@ -16269,7 +16027,7 @@
                           "type": "text",
                           "id": "PYz5W",
                           "name": "Lifecycle Step 2 Subtitle",
-                          "fill": "$text-secondary",
+                          "fill": "#98A2B3",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
                           "content": "Chưa bắt đầu",
@@ -16333,7 +16091,7 @@
                           "type": "text",
                           "id": "f8pSK",
                           "name": "Lifecycle Step 3 Subtitle",
-                          "fill": "$text-secondary",
+                          "fill": "#98A2B3",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
                           "content": "Chưa bắt đầu",
@@ -16781,29 +16539,68 @@
                         },
                         {
                           "type": "frame",
-                          "id": "E0Jbq",
-                          "name": "Print Inbound QR",
+                          "id": "L56fc",
+                          "name": "PENDING_INBOUND Secondary Actions",
+                          "width": "fill_container",
                           "height": 44,
-                          "fill": "#FFFFFF",
-                          "cornerRadius": 8,
-                          "stroke": "$border-subtle",
-                          "strokeWidth": 1,
-                          "padding": [
-                            0,
-                            16
-                          ],
-                          "justifyContent": "center",
-                          "alignItems": "center",
+                          "gap": 8,
                           "children": [
                             {
-                              "type": "text",
-                              "id": "Zvk4K",
-                              "name": "Print Inbound QR Label",
-                              "fill": "$text-primary",
-                              "content": "In phiếu nhập / Mã QR",
-                              "fontFamily": "$font-main",
-                              "fontSize": 12,
-                              "fontWeight": "700"
+                              "type": "frame",
+                              "id": "SJnoN",
+                              "name": "In phiếu và Tem A4",
+                              "width": "fill_container",
+                              "height": "fill_container",
+                              "fill": "#FFFFFF",
+                              "cornerRadius": 8,
+                              "stroke": "#DCE3EC",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "p5oYX",
+                                  "name": "In phiếu và Tem A4 Label",
+                                  "fill": "#0F172A",
+                                  "content": "In phiếu / Tem A4",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 11,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "c3m8VO",
+                              "name": "Hủy đơn PENDING_INBOUND",
+                              "height": "fill_container",
+                              "fill": "#FFFFFF",
+                              "cornerRadius": 8,
+                              "stroke": "#FCA5A5",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                14
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "G6GAQ",
+                                  "name": "Hủy đơn PENDING_INBOUND Label",
+                                  "fill": "#B42318",
+                                  "content": "Hủy đơn",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 11,
+                                  "fontWeight": "700"
+                                }
+                              ]
                             }
                           ]
                         }
@@ -16811,371 +16608,76 @@
                     },
                     {
                       "type": "frame",
-                      "id": "twD9a",
+                      "id": "wCa3O",
                       "x": 0,
                       "y": 181,
-                      "name": "Next State Actions",
+                      "name": "Order Actual Status History",
                       "width": 390,
-                      "height": 482,
+                      "height": 228,
                       "fill": "#FFFFFF",
                       "cornerRadius": 10,
                       "stroke": "#D0D5DD",
                       "strokeWidth": 1,
                       "layout": "vertical",
-                      "gap": 8,
+                      "gap": 12,
                       "padding": 16,
                       "children": [
                         {
                           "type": "text",
-                          "id": "CbCUk",
-                          "name": "Next State Actions Title",
+                          "id": "q0U3n",
+                          "name": "Order Actual Status History Title",
                           "fill": "#101828",
-                          "content": "Trạng thái tiếp theo",
+                          "content": "Lịch sử xử lý",
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "700"
                         },
                         {
                           "type": "frame",
-                          "id": "mnyET",
-                          "name": "Đã nhập kho",
+                          "id": "iPqnv",
+                          "name": "History 09:42",
                           "width": "fill_container",
-                          "height": 70,
-                          "fill": "#F8FAFC",
-                          "cornerRadius": 8,
-                          "stroke": "#EAECF0",
-                          "strokeWidth": 1,
-                          "layout": "vertical",
-                          "gap": 5,
-                          "padding": [
-                            6,
-                            10
-                          ],
+                          "gap": 10,
                           "children": [
                             {
-                              "type": "text",
-                              "id": "V4bIk",
-                              "name": "Đã nhập kho Label",
-                              "fill": "#344054",
-                              "content": "Đã nhập kho",
-                              "fontFamily": "Inter",
-                              "fontSize": 12,
-                              "fontWeight": "700"
+                              "type": "ellipse",
+                              "id": "Q9y0k",
+                              "name": "History 09:42 Dot",
+                              "fill": "#98A2B3",
+                              "width": 8,
+                              "height": 8
                             },
                             {
                               "type": "frame",
-                              "id": "yEnYS",
-                              "name": "Đã nhập kho Actions",
-                              "width": 338,
-                              "height": 28,
-                              "gap": 6,
-                              "children": [
-                                {
-                                  "type": "frame",
-                                  "id": "b4GrQY",
-                                  "name": "Đã nhập kho Tạo Trip",
-                                  "height": 26,
-                                  "fill": "#FFFFFF",
-                                  "cornerRadius": 6,
-                                  "stroke": "#D0D5DD",
-                                  "strokeWidth": 1,
-                                  "padding": [
-                                    0,
-                                    9
-                                  ],
-                                  "justifyContent": "center",
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "HQdpa",
-                                      "name": "Đã nhập kho Tạo Trip Label",
-                                      "fill": "#344054",
-                                      "content": "Tạo Trip",
-                                      "fontFamily": "Inter",
-                                      "fontSize": 10,
-                                      "fontWeight": "600"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "frame",
-                                  "id": "DuOrn",
-                                  "name": "Đã nhập kho Bàn giao giao hàng",
-                                  "height": 26,
-                                  "fill": "#FFFFFF",
-                                  "cornerRadius": 6,
-                                  "stroke": "#D0D5DD",
-                                  "strokeWidth": 1,
-                                  "padding": [
-                                    0,
-                                    9
-                                  ],
-                                  "justifyContent": "center",
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "FcPeH",
-                                      "name": "Đã nhập kho Bàn giao giao hàng Label",
-                                      "fill": "#344054",
-                                      "content": "Bàn giao giao hàng",
-                                      "fontFamily": "Inter",
-                                      "fontSize": 10,
-                                      "fontWeight": "600"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "frame",
-                                  "id": "EWNk5",
-                                  "name": "Đã nhập kho Điều chuyển Hub",
-                                  "height": 26,
-                                  "fill": "#FFFFFF",
-                                  "cornerRadius": 6,
-                                  "stroke": "#D0D5DD",
-                                  "strokeWidth": 1,
-                                  "padding": [
-                                    0,
-                                    8
-                                  ],
-                                  "justifyContent": "center",
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "kKJzO",
-                                      "name": "Đã nhập kho Điều chuyển Hub Label",
-                                      "fill": "#344054",
-                                      "content": "Điều chuyển Hub",
-                                      "fontFamily": "Inter",
-                                      "fontSize": 10,
-                                      "fontWeight": "600"
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "type": "frame",
-                          "id": "NfjOD",
-                          "name": "Đang trung chuyển",
-                          "width": "fill_container",
-                          "height": 70,
-                          "fill": "#F8FAFC",
-                          "cornerRadius": 8,
-                          "stroke": "#EAECF0",
-                          "strokeWidth": 1,
-                          "layout": "vertical",
-                          "gap": 5,
-                          "padding": [
-                            6,
-                            10
-                          ],
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "sAqwl",
-                              "name": "Đang trung chuyển Label",
-                              "fill": "#344054",
-                              "content": "Đang trung chuyển",
-                              "fontFamily": "Inter",
-                              "fontSize": 12,
-                              "fontWeight": "700"
-                            },
-                            {
-                              "type": "frame",
-                              "id": "fluGW",
-                              "name": "Đang trung chuyển Actions",
-                              "width": 338,
-                              "height": 28,
-                              "gap": 6,
-                              "children": [
-                                {
-                                  "type": "frame",
-                                  "id": "dq7hm",
-                                  "name": "Đang trung chuyển Theo dõi",
-                                  "height": 26,
-                                  "fill": "#FFFFFF",
-                                  "cornerRadius": 6,
-                                  "stroke": "#D0D5DD",
-                                  "strokeWidth": 1,
-                                  "padding": [
-                                    0,
-                                    9
-                                  ],
-                                  "justifyContent": "center",
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "tQPN7",
-                                      "name": "Đang trung chuyển Theo dõi Label",
-                                      "fill": "#344054",
-                                      "content": "Theo dõi",
-                                      "fontFamily": "Inter",
-                                      "fontSize": 10,
-                                      "fontWeight": "600"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "frame",
-                                  "id": "jRs0c",
-                                  "name": "Đang trung chuyển Xác nhận đến",
-                                  "height": 26,
-                                  "fill": "#FFFFFF",
-                                  "cornerRadius": 6,
-                                  "stroke": "#D0D5DD",
-                                  "strokeWidth": 1,
-                                  "padding": [
-                                    0,
-                                    9
-                                  ],
-                                  "justifyContent": "center",
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "udS6y",
-                                      "name": "Đang trung chuyển Xác nhận đến Label",
-                                      "fill": "#344054",
-                                      "content": "Xác nhận đến",
-                                      "fontFamily": "Inter",
-                                      "fontSize": 10,
-                                      "fontWeight": "600"
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "type": "frame",
-                          "id": "sF8JC",
-                          "name": "Đang giao hàng",
-                          "width": "fill_container",
-                          "height": 100,
-                          "fill": "#F8FAFC",
-                          "cornerRadius": 8,
-                          "stroke": "#EAECF0",
-                          "strokeWidth": 1,
-                          "layout": "vertical",
-                          "gap": 5,
-                          "padding": [
-                            6,
-                            10
-                          ],
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "P4e0Jo",
-                              "name": "Đang giao hàng Label",
-                              "fill": "#344054",
-                              "content": "Đang giao hàng",
-                              "fontFamily": "Inter",
-                              "fontSize": 12,
-                              "fontWeight": "700"
-                            },
-                            {
-                              "type": "frame",
-                              "id": "jKX56",
-                              "name": "Đang giao hàng Actions",
-                              "width": 338,
-                              "height": 28,
-                              "gap": 6,
-                              "children": [
-                                {
-                                  "type": "frame",
-                                  "id": "oTjVk",
-                                  "name": "Đang giao hàng Gọi khách",
-                                  "height": 26,
-                                  "fill": "#FFFFFF",
-                                  "cornerRadius": 6,
-                                  "stroke": "#D0D5DD",
-                                  "strokeWidth": 1,
-                                  "padding": [
-                                    0,
-                                    9
-                                  ],
-                                  "justifyContent": "center",
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "IJ05r",
-                                      "name": "Đang giao hàng Gọi khách Label",
-                                      "fill": "#344054",
-                                      "content": "Gọi khách",
-                                      "fontFamily": "Inter",
-                                      "fontSize": 10,
-                                      "fontWeight": "600"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "frame",
-                                  "id": "K0dfL",
-                                  "name": "Đang giao hàng Cập nhật giao",
-                                  "height": 26,
-                                  "fill": "#FFFFFF",
-                                  "cornerRadius": 6,
-                                  "stroke": "#D0D5DD",
-                                  "strokeWidth": 1,
-                                  "padding": [
-                                    0,
-                                    9
-                                  ],
-                                  "justifyContent": "center",
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "hYab0",
-                                      "name": "Đang giao hàng Cập nhật giao Label",
-                                      "fill": "#344054",
-                                      "content": "Cập nhật giao",
-                                      "fontFamily": "Inter",
-                                      "fontSize": 10,
-                                      "fontWeight": "600"
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "type": "frame",
-                              "id": "vTsq7",
-                              "name": "Đang giao hàng More Actions",
+                              "id": "Rd1FC",
+                              "name": "History 09:42 Content",
                               "width": "fill_container",
-                              "height": 26,
-                              "gap": 6,
+                              "layout": "vertical",
+                              "gap": 2,
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "lOFir",
-                                  "name": "Đang giao hàng Báo giao thất bại",
-                                  "height": 26,
-                                  "fill": "#FFFFFF",
-                                  "cornerRadius": 6,
-                                  "stroke": "#D0D5DD",
-                                  "strokeWidth": 1,
-                                  "padding": [
-                                    0,
-                                    8
-                                  ],
-                                  "justifyContent": "center",
-                                  "alignItems": "center",
+                                  "id": "pjSyI",
+                                  "name": "History 09:42 Header",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
                                   "children": [
                                     {
                                       "type": "text",
-                                      "id": "sWgg5",
-                                      "name": "Đang giao hàng Báo giao thất bại Label",
+                                      "id": "c6cbvI",
+                                      "name": "History 09:42 Event",
                                       "fill": "#344054",
-                                      "content": "Báo giao thất bại",
+                                      "content": "Đơn được xác nhận",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 11,
+                                      "fontWeight": "650"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "Ziq0u",
+                                      "name": "History 09:42 Time",
+                                      "fill": "#98A2B3",
+                                      "content": "09:42",
                                       "fontFamily": "Inter",
                                       "fontSize": 9,
                                       "fontWeight": "600"
@@ -17183,32 +16685,14 @@
                                   ]
                                 },
                                 {
-                                  "type": "frame",
-                                  "id": "Ccp4C",
-                                  "name": "Đang giao hàng Xác nhận giao thành công",
-                                  "height": 26,
-                                  "fill": "#FFFFFF",
-                                  "cornerRadius": 6,
-                                  "stroke": "#D0D5DD",
-                                  "strokeWidth": 1,
-                                  "padding": [
-                                    0,
-                                    8
-                                  ],
-                                  "justifyContent": "center",
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "c5duL7",
-                                      "name": "Đang giao hàng Xác nhận giao thành công Label",
-                                      "fill": "#344054",
-                                      "content": "Xác nhận giao thành công",
-                                      "fontFamily": "Inter",
-                                      "fontSize": 9,
-                                      "fontWeight": "600"
-                                    }
-                                  ]
+                                  "type": "text",
+                                  "id": "n5SRNZ",
+                                  "name": "History 09:42 Meta",
+                                  "fill": "#667085",
+                                  "content": "Nguyễn An · Kho HCM",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 9,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -17216,98 +16700,146 @@
                         },
                         {
                           "type": "frame",
-                          "id": "EeWS8",
-                          "name": "Đã xuất kho",
+                          "id": "U24eH",
+                          "name": "History 09:43",
                           "width": "fill_container",
-                          "height": 70,
-                          "fill": "#F8FAFC",
-                          "cornerRadius": 8,
-                          "stroke": "#EAECF0",
-                          "strokeWidth": 1,
-                          "layout": "vertical",
-                          "gap": 5,
-                          "padding": [
-                            6,
-                            10
-                          ],
+                          "gap": 10,
                           "children": [
                             {
-                              "type": "text",
-                              "id": "I1C4vE",
-                              "name": "Đã xuất kho Label",
-                              "fill": "#344054",
-                              "content": "Đã xuất kho",
-                              "fontFamily": "Inter",
-                              "fontSize": 12,
-                              "fontWeight": "700"
+                              "type": "ellipse",
+                              "id": "wVc8I",
+                              "name": "History 09:43 Dot",
+                              "fill": "#98A2B3",
+                              "width": 8,
+                              "height": 8
                             },
                             {
                               "type": "frame",
-                              "id": "l83KL",
-                              "name": "Đã xuất kho Actions",
-                              "width": 338,
-                              "height": 28,
-                              "gap": 6,
+                              "id": "KJ97w",
+                              "name": "History 09:43 Content",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "AZFUP",
-                                  "name": "Đã xuất kho In POD",
-                                  "height": 26,
-                                  "fill": "#FFFFFF",
-                                  "cornerRadius": 6,
-                                  "stroke": "#D0D5DD",
-                                  "strokeWidth": 1,
-                                  "padding": [
-                                    0,
-                                    9
-                                  ],
-                                  "justifyContent": "center",
-                                  "alignItems": "center",
+                                  "id": "ioSja",
+                                  "name": "History 09:43 Header",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
                                   "children": [
                                     {
                                       "type": "text",
-                                      "id": "aGU9Q",
-                                      "name": "Đã xuất kho In POD Label",
+                                      "id": "DVtwD",
+                                      "name": "History 09:43 Event",
                                       "fill": "#344054",
-                                      "content": "In POD",
+                                      "content": "Sinh mã vận đơn LTV2609-0025",
                                       "fontFamily": "Inter",
-                                      "fontSize": 10,
+                                      "fontSize": 11,
+                                      "fontWeight": "650"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "JmDu4",
+                                      "name": "History 09:43 Time",
+                                      "fill": "#98A2B3",
+                                      "content": "09:43",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 9,
                                       "fontWeight": "600"
                                     }
                                   ]
                                 },
                                 {
-                                  "type": "frame",
-                                  "id": "bcnYz",
-                                  "name": "Đã xuất kho Lịch sử",
-                                  "height": 26,
-                                  "fill": "#FFFFFF",
-                                  "cornerRadius": 6,
-                                  "stroke": "#D0D5DD",
-                                  "strokeWidth": 1,
-                                  "padding": [
-                                    0,
-                                    9
-                                  ],
-                                  "justifyContent": "center",
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "MmkPJ",
-                                      "name": "Đã xuất kho Lịch sử Label",
-                                      "fill": "#344054",
-                                      "content": "Lịch sử",
-                                      "fontFamily": "Inter",
-                                      "fontSize": 10,
-                                      "fontWeight": "600"
-                                    }
-                                  ]
+                                  "type": "text",
+                                  "id": "YtI2k",
+                                  "name": "History 09:43 Meta",
+                                  "fill": "#667085",
+                                  "content": "Hệ thống",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 9,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
                           ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "TqEGT",
+                          "name": "History Hiện tại",
+                          "width": "fill_container",
+                          "gap": 10,
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "X9kOcF",
+                              "name": "History Hiện tại Dot",
+                              "fill": "#175CD3",
+                              "width": 8,
+                              "height": 8
+                            },
+                            {
+                              "type": "frame",
+                              "id": "cX3Pb",
+                              "name": "History Hiện tại Content",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "FDX6u",
+                                  "name": "History Hiện tại Header",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "fUI9l",
+                                      "name": "History Hiện tại Event",
+                                      "fill": "#344054",
+                                      "content": "Chờ nhập kho tại Andromeda Hub - HCM",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 11,
+                                      "fontWeight": "650"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "P6aJMo",
+                                      "name": "History Hiện tại Time",
+                                      "fill": "#175CD3",
+                                      "content": "Hiện tại",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 9,
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "mrqh4",
+                                  "name": "History Hiện tại Meta",
+                                  "fill": "#667085",
+                                  "content": "PENDING_INBOUND",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 9,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "Idwy3",
+                          "name": "Actual History Helper",
+                          "fill": "#667085",
+                          "content": "Chỉ hiển thị các mốc đã phát sinh của đơn này.",
+                          "fontFamily": "Inter",
+                          "fontSize": 9,
+                          "fontWeight": "normal",
+                          "fontStyle": "italic"
                         }
                       ]
                     }
@@ -18808,7 +18340,7 @@
       "id": "S6ZAqk",
       "x": -100,
       "y": -3908,
-      "name": "Components · Warehouse Shell",
+      "name": "Components · Warehouse UI Kit",
       "width": 1540,
       "height": 1120,
       "fill": "#F8FAFC",
@@ -19462,15 +18994,14 @@
         {
           "type": "text",
           "id": "u1Kgi",
-          "layoutPosition": "absolute",
-          "x": 320,
-          "y": 105,
+          "x": 342,
+          "y": 536,
           "name": "Component Section Title",
           "fill": "#0F172A",
           "textGrowth": "fixed-width-height",
           "width": 460,
           "height": 24,
-          "content": "Components · Warehouse Shell",
+          "content": "Components · Warehouse UI Kit",
           "fontFamily": "Inter",
           "fontSize": 18,
           "fontWeight": "700"
@@ -19486,11 +19017,1393 @@
           "textGrowth": "fixed-width-height",
           "width": 170,
           "height": 18,
-          "content": "Reusable components",
+          "content": "Reusable · FE handoff",
           "textAlign": "right",
           "fontFamily": "Inter",
           "fontSize": 12,
           "fontWeight": "600"
+        },
+        {
+          "type": "frame",
+          "id": "UE5P6",
+          "x": 320,
+          "y": 180,
+          "name": "Date Picker Popover Component",
+          "context": "DatePickerPopover",
+          "reusable": true,
+          "width": 320,
+          "fill": "#FFFFFF",
+          "cornerRadius": 10,
+          "stroke": "$border-subtle",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#0F172A1F",
+            "offset": {
+              "x": 0,
+              "y": 8
+            },
+            "blur": 24
+          },
+          "layout": "vertical",
+          "gap": 12,
+          "padding": 16,
+          "children": [
+            {
+              "type": "frame",
+              "id": "x8b5CT",
+              "name": "Date Picker Month Header",
+              "width": "fill_container",
+              "height": 32,
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Y0nar2",
+                  "name": "Previous Month",
+                  "width": 28,
+                  "height": 28,
+                  "cornerRadius": 6,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "aTtFb",
+                      "name": "Previous Month Icon",
+                      "width": 16,
+                      "height": 16,
+                      "icon": "chevron-left",
+                      "library": "lucide",
+                      "fill": "$text-secondary"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "g4dID",
+                  "name": "Current Month",
+                  "fill": "$text-primary",
+                  "content": "Tháng 09, 2026",
+                  "fontFamily": "$font-main",
+                  "fontSize": 14,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "frame",
+                  "id": "hpA0a",
+                  "name": "Next Month",
+                  "width": 28,
+                  "height": 28,
+                  "cornerRadius": 6,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "u0J85",
+                      "name": "Next Month Icon",
+                      "width": 16,
+                      "height": 16,
+                      "icon": "chevron-right",
+                      "library": "lucide",
+                      "fill": "$text-secondary"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Gc7PK",
+              "name": "Weekday Header",
+              "width": "fill_container",
+              "height": 24,
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "tDWvb",
+                  "name": "Weekday T2",
+                  "width": 36,
+                  "height": 24,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "USz0p",
+                      "name": "Weekday Label T2",
+                      "fill": "$text-secondary",
+                      "content": "T2",
+                      "fontFamily": "$font-main",
+                      "fontSize": 10,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "AyFIV",
+                  "name": "Weekday T3",
+                  "width": 36,
+                  "height": 24,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "uCkBh",
+                      "name": "Weekday Label T3",
+                      "fill": "$text-secondary",
+                      "content": "T3",
+                      "fontFamily": "$font-main",
+                      "fontSize": 10,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "jo8Wx",
+                  "name": "Weekday T4",
+                  "width": 36,
+                  "height": 24,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "aPCCN",
+                      "name": "Weekday Label T4",
+                      "fill": "$text-secondary",
+                      "content": "T4",
+                      "fontFamily": "$font-main",
+                      "fontSize": 10,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "gbngr",
+                  "name": "Weekday T5",
+                  "width": 36,
+                  "height": 24,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "kavbp",
+                      "name": "Weekday Label T5",
+                      "fill": "$text-secondary",
+                      "content": "T5",
+                      "fontFamily": "$font-main",
+                      "fontSize": 10,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "i6EDk",
+                  "name": "Weekday T6",
+                  "width": 36,
+                  "height": 24,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "pozDL",
+                      "name": "Weekday Label T6",
+                      "fill": "$text-secondary",
+                      "content": "T6",
+                      "fontFamily": "$font-main",
+                      "fontSize": 10,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "qgy0b",
+                  "name": "Weekday T7",
+                  "width": 36,
+                  "height": 24,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "of0PW",
+                      "name": "Weekday Label T7",
+                      "fill": "$text-secondary",
+                      "content": "T7",
+                      "fontFamily": "$font-main",
+                      "fontSize": 10,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "H5pSuY",
+                  "name": "Weekday CN",
+                  "width": 36,
+                  "height": 24,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "MCieq",
+                      "name": "Weekday Label CN",
+                      "fill": "$text-secondary",
+                      "content": "CN",
+                      "fontFamily": "$font-main",
+                      "fontSize": 10,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "IpdJK",
+              "name": "Calendar Grid",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 4,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "IFmyZ",
+                  "name": "Calendar Week 1",
+                  "width": "fill_container",
+                  "height": 32,
+                  "justifyContent": "space_between",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Ouzvr",
+                      "name": "Day 30",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "TITvF",
+                          "name": "Day Label 30",
+                          "fill": "#CBD5E1",
+                          "content": "30",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "L8aed",
+                      "name": "Day 31",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "jbtj8",
+                          "name": "Day Label 31",
+                          "fill": "#CBD5E1",
+                          "content": "31",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "dNu5p",
+                      "name": "Day 1",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "yIc3w",
+                          "name": "Day Label 1",
+                          "fill": "$text-primary",
+                          "content": "1",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mdkl8",
+                      "name": "Day 2",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "uP2I7",
+                          "name": "Day Label 2",
+                          "fill": "$text-primary",
+                          "content": "2",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "xCz1f",
+                      "name": "Selected Day 03",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "$primary",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "oFtDv",
+                          "name": "Day Label 3",
+                          "fill": "#FFFFFF",
+                          "content": "3",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "eCluN",
+                      "name": "Day 4",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ePd9X",
+                          "name": "Day Label 4",
+                          "fill": "$text-primary",
+                          "content": "4",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "J2PZ5c",
+                      "name": "Day 5",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "$primary",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "DZe6m",
+                          "name": "Day Label 5",
+                          "fill": "$text-primary",
+                          "content": "5",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "OHksG",
+                  "name": "Calendar Week 2",
+                  "width": "fill_container",
+                  "height": 32,
+                  "justifyContent": "space_between",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "fHZtP",
+                      "name": "Day 6",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "jAd3k",
+                          "name": "Day Label 6",
+                          "fill": "$text-primary",
+                          "content": "6",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "c2lQL",
+                      "name": "Day 7",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "LRhMA",
+                          "name": "Day Label 7",
+                          "fill": "$text-primary",
+                          "content": "7",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "vEv2x",
+                      "name": "Day 8",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "iIeHm",
+                          "name": "Day Label 8",
+                          "fill": "$text-primary",
+                          "content": "8",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "lcqZt",
+                      "name": "Day 9",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Oz0fW",
+                          "name": "Day Label 9",
+                          "fill": "$text-primary",
+                          "content": "9",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Q7zOok",
+                      "name": "Day 10",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "EiwLJ",
+                          "name": "Day Label 10",
+                          "fill": "$text-primary",
+                          "content": "10",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "KnsES",
+                      "name": "Day 11",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "B0yUF",
+                          "name": "Day Label 11",
+                          "fill": "$text-primary",
+                          "content": "11",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "wgmSZ",
+                      "name": "Day 12",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "GC6Pt",
+                          "name": "Day Label 12",
+                          "fill": "$text-primary",
+                          "content": "12",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "w7M6c",
+                  "name": "Calendar Week 3",
+                  "width": "fill_container",
+                  "height": 32,
+                  "justifyContent": "space_between",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "c3YH0L",
+                      "name": "Day 13",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "imQAE",
+                          "name": "Day Label 13",
+                          "fill": "$text-primary",
+                          "content": "13",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Y3EOtf",
+                      "name": "Day 14",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "cKbAd",
+                          "name": "Day Label 14",
+                          "fill": "$text-primary",
+                          "content": "14",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "zqWUV",
+                      "name": "Day 15",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "KGyYY",
+                          "name": "Day Label 15",
+                          "fill": "$text-primary",
+                          "content": "15",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "cpn2D",
+                      "name": "Day 16",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "WoPff",
+                          "name": "Day Label 16",
+                          "fill": "$text-primary",
+                          "content": "16",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "X4a0dz",
+                      "name": "Day 17",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "zPx3n",
+                          "name": "Day Label 17",
+                          "fill": "$text-primary",
+                          "content": "17",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "c1lkvI",
+                      "name": "Day 18",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "RBTEQ",
+                          "name": "Day Label 18",
+                          "fill": "$text-primary",
+                          "content": "18",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "DZhR6",
+                      "name": "Day 19",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "qtj0A",
+                          "name": "Day Label 19",
+                          "fill": "$text-primary",
+                          "content": "19",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "W4uSPj",
+                  "name": "Calendar Week 4",
+                  "width": "fill_container",
+                  "height": 32,
+                  "justifyContent": "space_between",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "ajucy",
+                      "name": "Day 20",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "B204Wi",
+                          "name": "Day Label 20",
+                          "fill": "$text-primary",
+                          "content": "20",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "VQEji",
+                      "name": "Day 21",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "n5s1P",
+                          "name": "Day Label 21",
+                          "fill": "$text-primary",
+                          "content": "21",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "UBNDR",
+                      "name": "Day 22",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "SHagy",
+                          "name": "Day Label 22",
+                          "fill": "$text-primary",
+                          "content": "22",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "sWE19",
+                      "name": "Day 23",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "q2Jpn8",
+                          "name": "Day Label 23",
+                          "fill": "$text-primary",
+                          "content": "23",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Myubj",
+                      "name": "Day 24",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "K25ol",
+                          "name": "Day Label 24",
+                          "fill": "$text-primary",
+                          "content": "24",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "qoPsg",
+                      "name": "Day 25",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "bfBsM",
+                          "name": "Day Label 25",
+                          "fill": "$text-primary",
+                          "content": "25",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "uibFh",
+                      "name": "Day 26",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "rbgna",
+                          "name": "Day Label 26",
+                          "fill": "$text-primary",
+                          "content": "26",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "aMc1v",
+                  "name": "Calendar Week 5",
+                  "width": "fill_container",
+                  "height": 32,
+                  "justifyContent": "space_between",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "XzmVt",
+                      "name": "Day 27",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "oqH1h",
+                          "name": "Day Label 27",
+                          "fill": "$text-primary",
+                          "content": "27",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Xewg9",
+                      "name": "Day 28",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "fsnxt",
+                          "name": "Day Label 28",
+                          "fill": "$text-primary",
+                          "content": "28",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "YeKBn",
+                      "name": "Day 29",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "S3Enc",
+                          "name": "Day Label 29",
+                          "fill": "$text-primary",
+                          "content": "29",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "fjmwO",
+                      "name": "Day 30",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "yjZGv",
+                          "name": "Day Label 30",
+                          "fill": "$text-primary",
+                          "content": "30",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "DRavd",
+                      "name": "Day 1",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "mcgbn",
+                          "name": "Day Label 1",
+                          "fill": "#CBD5E1",
+                          "content": "1",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "W8LSDG",
+                      "name": "Day 2",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "gMqdR",
+                          "name": "Day Label 2",
+                          "fill": "#CBD5E1",
+                          "content": "2",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Ly1CI",
+                      "name": "Day 3",
+                      "width": 36,
+                      "height": 32,
+                      "fill": "#00000000",
+                      "cornerRadius": 7,
+                      "stroke": "#00000000",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "zFpcB",
+                          "name": "Day Label 3",
+                          "fill": "#CBD5E1",
+                          "content": "3",
+                          "fontFamily": "$font-main",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "b2b0hS",
+              "name": "Date Picker Footer",
+              "width": "fill_container",
+              "height": 30,
+              "stroke": "$border-subtle",
+              "strokeWidth": {
+                "top": 1
+              },
+              "padding": [
+                8,
+                0,
+                0,
+                0
+              ],
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "P2Jqb",
+                  "name": "Clear Date",
+                  "fill": "$text-secondary",
+                  "content": "Xóa",
+                  "fontFamily": "$font-main",
+                  "fontSize": 11,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "NZUGG",
+                  "name": "Go To Today",
+                  "fill": "$primary",
+                  "content": "Hôm nay",
+                  "fontFamily": "$font-main",
+                  "fontSize": 11,
+                  "fontWeight": "700"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "O30hTR",
+          "x": 680,
+          "y": 180,
+          "name": "Date Picker Field Component",
+          "context": "DatePicker",
+          "reusable": true,
+          "metadata": {
+            "type": "code-component",
+            "componentName": "DatePicker",
+            "props": [
+              "value",
+              "onChange",
+              "minDate",
+              "maxDate",
+              "locale",
+              "disabled",
+              "error"
+            ],
+            "states": [
+              "closed",
+              "open",
+              "disabled",
+              "error"
+            ]
+          },
+          "width": 360,
+          "layout": "vertical",
+          "gap": 6,
+          "children": [
+            {
+              "type": "text",
+              "id": "LVy48",
+              "name": "Date Picker Label",
+              "fill": "$text-secondary",
+              "content": "Ngày/tháng/năm",
+              "fontFamily": "$font-main",
+              "fontSize": 11,
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "nnCNL",
+              "name": "Date Picker Trigger",
+              "width": "fill_container",
+              "height": 44,
+              "fill": "#FFFFFF",
+              "cornerRadius": 7,
+              "stroke": "$border-subtle",
+              "strokeWidth": 1,
+              "gap": 8,
+              "padding": [
+                0,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "P0vmaF",
+                  "name": "Date Picker Value",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "03/09/2026",
+                  "fontFamily": "$font-main",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "icon",
+                  "id": "tNNDd",
+                  "name": "Date Picker Calendar Icon",
+                  "width": 17,
+                  "height": 17,
+                  "icon": "calendar-days",
+                  "library": "lucide",
+                  "fill": "$text-secondary"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "bnaso",
+          "x": 680,
+          "y": 280,
+          "name": "Date Picker FE Handoff",
+          "width": 520,
+          "fill": "#FFFFFF",
+          "cornerRadius": 10,
+          "stroke": "$border-subtle",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "gap": 10,
+          "padding": 16,
+          "children": [
+            {
+              "type": "frame",
+              "id": "F2Tzz",
+              "name": "Date Picker Spec Header",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "DUHOX",
+                  "name": "Date Picker Spec Title",
+                  "fill": "$text-primary",
+                  "content": "DatePicker",
+                  "fontFamily": "$font-main",
+                  "fontSize": 15,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "frame",
+                  "id": "IlTsn",
+                  "name": "Reusable Badge",
+                  "fill": "$success-soft",
+                  "cornerRadius": 12,
+                  "padding": [
+                    4,
+                    8
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "r0EwnD",
+                      "name": "Reusable Badge Label",
+                      "fill": "$success",
+                      "content": "REUSABLE",
+                      "fontFamily": "$font-main",
+                      "fontSize": 9,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "d92IOW",
+              "name": "Date Picker Component Anatomy",
+              "fill": "$text-secondary",
+              "content": "Trigger field  +  calendar popover",
+              "fontFamily": "$font-main",
+              "fontSize": 12,
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "H46cI5",
+              "name": "Date Picker Props",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Props: value · onChange · minDate · maxDate · locale · disabled · error",
+              "fontFamily": "$font-main",
+              "fontSize": 11,
+              "fontWeight": "500"
+            },
+            {
+              "type": "text",
+              "id": "r8EIv",
+              "name": "Date Picker States",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "States: closed · open · selected · today · disabled · error",
+              "fontFamily": "$font-main",
+              "fontSize": 11,
+              "fontWeight": "500"
+            },
+            {
+              "type": "text",
+              "id": "optAX",
+              "name": "Date Picker Format",
+              "fill": "$primary",
+              "content": "Format: DD/MM/YYYY  ·  Locale: vi-VN",
+              "fontFamily": "$font-main",
+              "fontSize": 11,
+              "fontWeight": "600"
+            }
+          ]
         }
       ]
     },
@@ -19792,54 +20705,11 @@
                           "gap": 10,
                           "children": [
                             {
-                              "type": "frame",
-                              "id": "hub1_aoh7q",
-                              "name": "Ngày tháng năm",
-                              "width": "fill_container",
-                              "layout": "vertical",
-                              "gap": 6,
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "hub1_swcuq",
-                                  "name": "Ngày tháng năm Label",
-                                  "fill": "$text-secondary",
-                                  "content": "Ngày/tháng/năm",
-                                  "fontFamily": "$font-main",
-                                  "fontSize": 11,
-                                  "fontWeight": "600"
-                                },
-                                {
-                                  "type": "frame",
-                                  "id": "hub1_5kv6j",
-                                  "name": "Ngày tháng năm Input",
-                                  "width": "fill_container",
-                                  "height": 44,
-                                  "fill": "#FFFFFF",
-                                  "cornerRadius": 7,
-                                  "stroke": "$border-subtle",
-                                  "strokeWidth": 1,
-                                  "padding": [
-                                    0,
-                                    12
-                                  ],
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "hub1_5j45t",
-                                      "name": "Ngày tháng năm Value",
-                                      "fill": "$text-primary",
-                                      "textGrowth": "fixed-width",
-                                      "width": "fill_container",
-                                      "content": "03/09/2026",
-                                      "fontFamily": "$font-main",
-                                      "fontSize": 13,
-                                      "fontWeight": "normal"
-                                    }
-                                  ]
-                                }
-                              ]
+                              "id": "frA1U",
+                              "type": "ref",
+                              "ref": "O30hTR",
+                              "name": "Ngày tháng năm · Date Picker",
+                              "width": "fill_container"
                             },
                             {
                               "type": "frame",
@@ -22207,7 +23077,7 @@
                               "fill": "$text-primary",
                               "textGrowth": "fixed-width",
                               "width": "fill_container",
-                              "content": "Xe bo Tuyến Đà Nẵng",
+                              "content": "Xe bo · XB-KH-02",
                               "fontFamily": "$font-main",
                               "fontSize": 11,
                               "fontWeight": "normal"
@@ -22626,16 +23496,6 @@
                       "fontFamily": "$font-main",
                       "fontSize": 20,
                       "fontWeight": "750"
-                    },
-                    {
-                      "type": "text",
-                      "id": "hub1_i3k05",
-                      "name": "Cargo Modal Subtitle",
-                      "fill": "$text-secondary",
-                      "content": "Dòng hàng 01",
-                      "fontFamily": "$font-main",
-                      "fontSize": 11,
-                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -22734,7 +23594,7 @@
                         {
                           "type": "frame",
                           "id": "hub1_9hjt2",
-                          "name": "Cargo Dispatcher Textarea Field",
+                          "name": "Cargo Dispatcher",
                           "width": "fill_container",
                           "layout": "vertical",
                           "gap": 6,
@@ -22754,22 +23614,24 @@
                               "id": "hub1_w816c",
                               "name": "Cargo Dispatcher Textarea",
                               "width": "fill_container",
-                              "height": 84,
+                              "height": 88,
                               "fill": "#FFFFFF",
                               "cornerRadius": 7,
                               "stroke": "$border-subtle",
                               "strokeWidth": 1,
-                              "layout": "vertical",
-                              "padding": 12,
+                              "padding": [
+                                10,
+                                12
+                              ],
                               "children": [
                                 {
                                   "type": "text",
                                   "id": "hub1_975mr",
-                                  "name": "Cargo Dispatcher Multiline Value",
+                                  "name": "Cargo Dispatcher Textarea Value",
                                   "fill": "$text-primary",
                                   "textGrowth": "fixed-width",
                                   "width": "fill_container",
-                                  "content": "LTV · Vương · 0901 234 567\nMinh · Điều phối ca · 0938 456 789",
+                                  "content": "LTV · Vương",
                                   "lineHeight": 1.45,
                                   "fontFamily": "$font-main",
                                   "fontSize": 12,
@@ -23703,6 +24565,29 @@
                                       "fontWeight": "700"
                                     }
                                   ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "h1clean_opt3_badge_36",
+                                  "name": "Option 3 Badge",
+                                  "fill": "#FEF3C7",
+                                  "cornerRadius": 4,
+                                  "padding": [
+                                    2,
+                                    6
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "h1clean_opt3_bgtxt_37",
+                                      "name": "Option 3 Badge Text",
+                                      "fill": "#B45309",
+                                      "content": "Tuyến gom",
+                                      "fontFamily": "$font-main",
+                                      "fontSize": 9,
+                                      "fontWeight": "700"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -23738,7 +24623,7 @@
                                   "id": "h1clean_opt3_val_40",
                                   "name": "Option 3 Selected Text",
                                   "fill": "#94A3B8",
-                                  "content": "Xe bo Tuyến Đà Nẵng",
+                                  "content": "Xe bo KH · Tuyến Sóng Thần",
                                   "fontFamily": "$font-main",
                                   "fontSize": 11,
                                   "fontWeight": "normal"
@@ -24290,54 +25175,11 @@
                           "gap": 10,
                           "children": [
                             {
-                              "type": "frame",
-                              "id": "xebo_01dvk",
-                              "name": "Ngày tháng năm",
-                              "width": "fill_container",
-                              "layout": "vertical",
-                              "gap": 6,
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "xebo_qiijv",
-                                  "name": "Ngày tháng năm Label",
-                                  "fill": "$text-secondary",
-                                  "content": "Ngày/tháng/năm",
-                                  "fontFamily": "$font-main",
-                                  "fontSize": 11,
-                                  "fontWeight": "600"
-                                },
-                                {
-                                  "type": "frame",
-                                  "id": "xebo_qmznw",
-                                  "name": "Ngày tháng năm Input",
-                                  "width": "fill_container",
-                                  "height": 44,
-                                  "fill": "#FFFFFF",
-                                  "cornerRadius": 7,
-                                  "stroke": "$border-subtle",
-                                  "strokeWidth": 1,
-                                  "padding": [
-                                    0,
-                                    12
-                                  ],
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "xebo_nx87m",
-                                      "name": "Ngày tháng năm Value",
-                                      "fill": "$text-primary",
-                                      "textGrowth": "fixed-width",
-                                      "width": "fill_container",
-                                      "content": "03/09/2026",
-                                      "fontFamily": "$font-main",
-                                      "fontSize": 13,
-                                      "fontWeight": "normal"
-                                    }
-                                  ]
-                                }
-                              ]
+                              "id": "NrDZ6",
+                              "type": "ref",
+                              "ref": "O30hTR",
+                              "name": "Ngày tháng năm · Date Picker",
+                              "width": "fill_container"
                             },
                             {
                               "type": "frame",
@@ -26705,7 +27547,7 @@
                               "fill": "$text-primary",
                               "textGrowth": "fixed-width",
                               "width": "fill_container",
-                              "content": "Xe bo Tuyến Đà Nẵng",
+                              "content": "Xe bo · XB-KH-02",
                               "fontFamily": "$font-main",
                               "fontSize": 11,
                               "fontWeight": "normal"
@@ -27124,16 +27966,6 @@
                       "fontFamily": "$font-main",
                       "fontSize": 20,
                       "fontWeight": "750"
-                    },
-                    {
-                      "type": "text",
-                      "id": "xebo_8hpwa",
-                      "name": "Cargo Modal Subtitle",
-                      "fill": "$text-secondary",
-                      "content": "Dòng hàng 01",
-                      "fontFamily": "$font-main",
-                      "fontSize": 11,
-                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -27232,7 +28064,7 @@
                         {
                           "type": "frame",
                           "id": "xebo_sc21b",
-                          "name": "Cargo Dispatcher Textarea Field",
+                          "name": "Cargo Dispatcher",
                           "width": "fill_container",
                           "layout": "vertical",
                           "gap": 6,
@@ -27252,22 +28084,24 @@
                               "id": "xebo_xp0hw",
                               "name": "Cargo Dispatcher Textarea",
                               "width": "fill_container",
-                              "height": 84,
+                              "height": 88,
                               "fill": "#FFFFFF",
                               "cornerRadius": 7,
                               "stroke": "$border-subtle",
                               "strokeWidth": 1,
-                              "layout": "vertical",
-                              "padding": 12,
+                              "padding": [
+                                10,
+                                12
+                              ],
                               "children": [
                                 {
                                   "type": "text",
                                   "id": "xebo_ja5yf",
-                                  "name": "Cargo Dispatcher Multiline Value",
+                                  "name": "Cargo Dispatcher Textarea Value",
                                   "fill": "$text-primary",
                                   "textGrowth": "fixed-width",
                                   "width": "fill_container",
-                                  "content": "LTV · Vương · 0901 234 567\nMinh · Điều phối ca · 0938 456 789",
+                                  "content": "LTV · Vương",
                                   "lineHeight": 1.45,
                                   "fontFamily": "$font-main",
                                   "fontSize": 12,
@@ -28259,7 +29093,7 @@
                                   "id": "xb_clean_opt3_val_40",
                                   "name": "Option 3 Selected Text",
                                   "fill": "$text-primary",
-                                  "content": "Xe bo Tuyến Đà Nẵng",
+                                  "content": "Xe bo KH · Tuyến Sóng Thần",
                                   "fontFamily": "$font-main",
                                   "fontSize": 11,
                                   "fontWeight": "600"
@@ -30381,7 +31215,7 @@
                       "id": "LP_R3_c12_T",
                       "name": "Cell Text",
                       "fill": "#0F172A",
-                      "content": "Xe bo Tuyến Vinh (Nghệ An)",
+                      "content": "Xe Bo Vinh (Nghệ An)",
                       "fontFamily": "$font-main",
                       "fontSize": 10,
                       "fontWeight": "normal"
@@ -30787,7 +31621,7 @@
                       "id": "LP_R4_c12_T",
                       "name": "Cell Text",
                       "fill": "#0F172A",
-                      "content": "Xe bo Tuyến Huế (Kim Long)",
+                      "content": "Xe Bo Huế (Kim Long)",
                       "fontFamily": "$font-main",
                       "fontSize": 10,
                       "fontWeight": "normal"
@@ -32005,7 +32839,7 @@
                       "id": "LP_R7_c12_T",
                       "name": "Cell Text",
                       "fill": "#0F172A",
-                      "content": "Xe bo Tuyến Khánh Hòa (Diên Lạc)",
+                      "content": "Xe Bo Khánh Hòa (Diên Lạc)",
                       "fontFamily": "$font-main",
                       "fontSize": 10,
                       "fontWeight": "normal"
@@ -32411,7 +33245,7 @@
                       "id": "LP_R8_c12_T",
                       "name": "Cell Text",
                       "fill": "#0F172A",
-                      "content": "Xe bo Tuyến Ninh Thuận (Bảo An)",
+                      "content": "Xe Bo Ninh Thuận (Bảo An)",
                       "fontFamily": "$font-main",
                       "fontSize": 10,
                       "fontWeight": "normal"
@@ -34865,7 +35699,7 @@
                               "id": "VPort_R3_c12_T",
                               "name": "T",
                               "fill": "#0F172A",
-                              "content": "Xe bo Tuyến Vinh (52 Đặng Văn Thụy)",
+                              "content": "Xe Bo Vinh (52 Đặng Văn Thụy)",
                               "fontFamily": "$font-main",
                               "fontSize": 10,
                               "fontWeight": "normal"
@@ -35301,7 +36135,7 @@
                               "id": "VPort_R4_c12_T",
                               "name": "T",
                               "fill": "#0F172A",
-                              "content": "Xe bo Tuyến Huế (Kim Long)",
+                              "content": "Xe Bo Huế (Kim Long)",
                               "fontFamily": "$font-main",
                               "fontSize": 10,
                               "fontWeight": "normal"
@@ -38216,7 +39050,7 @@
                       "id": "FS_R3_c12_T",
                       "name": "T",
                       "fill": "#0F172A",
-                      "content": "Xe bo Tuyến Vinh (52 Đặng Văn Thụy, TP Vinh)",
+                      "content": "Xe Bo Vinh (52 Đặng Văn Thụy, TP Vinh)",
                       "fontFamily": "$font-main",
                       "fontSize": 10,
                       "fontWeight": "normal"
@@ -38652,7 +39486,7 @@
                       "id": "FS_R4_c12_T",
                       "name": "T",
                       "fill": "#0F172A",
-                      "content": "Xe bo Tuyến Huế (Cây xăng 24 Kim Long, Huế)",
+                      "content": "Xe Bo Huế (Cây xăng 24 Kim Long, Huế)",
                       "fontFamily": "$font-main",
                       "fontSize": 10,
                       "fontWeight": "normal"
@@ -39761,10 +40595,11 @@
                       "id": "s3_I6dx2",
                       "name": "Core Form Title",
                       "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "KẾ HOẠCH ĐÓNG HÀNG",
+                      "content": "KẾ HOẠCH ĐÓNG HÀNG · TRIP TRUNG CHUYỂN",
                       "fontFamily": "$font-main",
-                      "fontSize": 15,
+                      "fontSize": 13,
                       "fontWeight": "800"
                     },
                     {
@@ -39774,9 +40609,7 @@
                       "fill": "$text-secondary",
                       "fontFamily": "$font-main",
                       "fontSize": 11,
-                      "fontWeight": "normal",
-                      "content": "",
-                      "height": 0
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "text",
@@ -39832,54 +40665,11 @@
                       "gap": 10,
                       "children": [
                         {
-                          "type": "frame",
-                          "id": "s3_n4rym",
-                          "name": "Ngày tháng năm",
-                          "width": "fill_container",
-                          "layout": "vertical",
-                          "gap": 6,
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "s3_m0TGhP",
-                              "name": "Ngày tháng năm Label",
-                              "fill": "$text-secondary",
-                              "content": "Ngày/tháng/năm",
-                              "fontFamily": "$font-main",
-                              "fontSize": 11,
-                              "fontWeight": "600"
-                            },
-                            {
-                              "type": "frame",
-                              "id": "s3_iKTnQ",
-                              "name": "Ngày tháng năm Input",
-                              "width": "fill_container",
-                              "height": 44,
-                              "fill": "#FFFFFF",
-                              "cornerRadius": 7,
-                              "stroke": "$border-subtle",
-                              "strokeWidth": 1,
-                              "padding": [
-                                0,
-                                12
-                              ],
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "s3_v2UbAd",
-                                  "name": "Ngày tháng năm Value",
-                                  "fill": "$text-primary",
-                                  "textGrowth": "fixed-width",
-                                  "width": "fill_container",
-                                  "content": "03/09/2026",
-                                  "fontFamily": "$font-main",
-                                  "fontSize": 13,
-                                  "fontWeight": "normal"
-                                }
-                              ]
-                            }
-                          ]
+                          "id": "KgH9j",
+                          "type": "ref",
+                          "ref": "O30hTR",
+                          "name": "Ngày tháng năm · Date Picker",
+                          "width": "fill_container"
                         },
                         {
                           "type": "frame",
@@ -40494,7 +41284,7 @@
                       "type": "frame",
                       "id": "s3_TGBHj",
                       "name": "Header Row Cell 8",
-                      "width": 68,
+                      "width": 52,
                       "height": "fill_container",
                       "fill": "#FEF2F2",
                       "stroke": "#EF4444",
@@ -40546,7 +41336,7 @@
                       "type": "frame",
                       "id": "s3_NABGS",
                       "name": "Header Row Cell 10",
-                      "width": 68,
+                      "width": 52,
                       "height": "fill_container",
                       "fill": "#FEF2F2",
                       "stroke": "#EF4444",
@@ -41090,7 +41880,7 @@
                           "fill": "$text-primary",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Theo TRIP",
+                          "content": "Đơn thuộc TRIP",
                           "fontFamily": "$font-main",
                           "fontSize": 11,
                           "fontWeight": "normal"
@@ -41448,7 +42238,7 @@
                           "fill": "$text-primary",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Xe bo Tuyến Đà Nẵng",
+                          "content": "Xe bo · XB-KH-02",
                           "fontFamily": "$font-main",
                           "fontSize": 11,
                           "fontWeight": "normal"
@@ -41506,7 +42296,7 @@
                           "fill": "$text-primary",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Theo TRIP",
+                          "content": "Đơn thuộc TRIP",
                           "fontFamily": "$font-main",
                           "fontSize": 11,
                           "fontWeight": "normal"
@@ -41922,7 +42712,7 @@
                           "fill": "$text-primary",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Nhận thêm",
+                          "content": "Hàng nhận thêm dọc đường",
                           "fontFamily": "$font-main",
                           "fontSize": 11,
                           "fontWeight": "normal"
@@ -42153,7 +42943,7 @@
                       "id": "tmd_h_eyebrow",
                       "name": "Eyebrow",
                       "fill": "#1D4ED8",
-                      "content": "LUÂN CHUYỂN NỘI BỘ  ·  BƯỚC 1 / 3: CHỌN CHUYẾN XE LUÂN CHUYỂN",
+                      "content": "LUÂN CHUYỂN NỘI BỘ  ·  BƯỚC 1 / 3: CHỌN CHUYẾN ĐANG ĐẾN HUB",
                       "fontFamily": "$font-main",
                       "fontSize": 10,
                       "fontWeight": "700"
@@ -42163,7 +42953,7 @@
                       "id": "tmd_h_title",
                       "name": "Title",
                       "fill": "#0F172A",
-                      "content": "Chọn chuyến xe để chất hàng (24 chuyến khả dụng)",
+                      "content": "Chọn chuyến đang đến để tiếp nhận hàng (24 chuyến)",
                       "fontFamily": "$font-main",
                       "fontSize": 17,
                       "fontWeight": "700"
@@ -42510,7 +43300,7 @@
                                           "id": "MmMIq",
                                           "name": "Loading Status Label",
                                           "fill": "#15803D",
-                                          "content": "CÒN CHỖ",
+                                          "content": "CHỜ TIẾP NHẬN",
                                           "fontFamily": "$font-main",
                                           "fontSize": 10,
                                           "fontWeight": "700"
@@ -42650,7 +43440,7 @@
                                           "id": "j0N0yQ",
                                           "name": "Loaded Cargo Label",
                                           "fill": "#94A3B8",
-                                          "content": "ĐÃ CHẤT LÊN XE",
+                                          "content": "ĐƠN CÒN TRÊN XE",
                                           "fontFamily": "$font-main",
                                           "fontSize": 9,
                                           "fontWeight": "700",
@@ -42801,7 +43591,7 @@
                                           "id": "Tj5Kb",
                                           "name": "Loading Status Label",
                                           "fill": "#15803D",
-                                          "content": "CÒN CHỖ",
+                                          "content": "CHỜ TIẾP NHẬN",
                                           "fontFamily": "$font-main",
                                           "fontSize": 10,
                                           "fontWeight": "700"
@@ -42941,7 +43731,7 @@
                                           "id": "tTBsU",
                                           "name": "Loaded Cargo Label",
                                           "fill": "#94A3B8",
-                                          "content": "ĐÃ CHẤT LÊN XE",
+                                          "content": "ĐƠN CÒN TRÊN XE",
                                           "fontFamily": "$font-main",
                                           "fontSize": 9,
                                           "fontWeight": "700",
@@ -43092,7 +43882,7 @@
                                           "id": "T6JxgW",
                                           "name": "Loading Status Label",
                                           "fill": "#15803D",
-                                          "content": "CÒN CHỖ",
+                                          "content": "CHỜ TIẾP NHẬN",
                                           "fontFamily": "$font-main",
                                           "fontSize": 10,
                                           "fontWeight": "700"
@@ -43232,7 +44022,7 @@
                                           "id": "sTDgI",
                                           "name": "Loaded Cargo Label",
                                           "fill": "#94A3B8",
-                                          "content": "ĐÃ CHẤT LÊN XE",
+                                          "content": "ĐƠN CÒN TRÊN XE",
                                           "fontFamily": "$font-main",
                                           "fontSize": 9,
                                           "fontWeight": "700",
@@ -43276,7 +44066,7 @@
                       "id": "tmd_pag_info",
                       "name": "Info Text",
                       "fill": "#64748B",
-                      "content": "Hiển thị 3 / 24 chuyến xe khả dụng để chất hàng",
+                      "content": "Hiển thị 3 / 24 chuyến có hàng chờ tiếp nhận",
                       "fontFamily": "$font-main",
                       "fontSize": 11,
                       "fontWeight": "500"
@@ -43479,7 +44269,7 @@
                   "id": "tmd_foot_hint",
                   "name": "Hint Text",
                   "fill": "#64748B",
-                  "content": "💡 Chọn chuyến xe, sau đó chọn các đơn hàng cần chất lên xe. Mỗi chuyến có thể giao tại nhiều điểm khác nhau.",
+                  "content": "💡 Chọn chuyến đang đến hub, sau đó chọn các đơn còn trên xe cần dỡ và tiếp nhận vào kho.",
                   "fontFamily": "$font-main",
                   "fontSize": 12,
                   "fontWeight": "500"
@@ -43509,6 +44299,641 @@
                       "fontFamily": "$font-main",
                       "fontSize": 12,
                       "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "Bh9OJ",
+      "x": 9300,
+      "y": 1300,
+      "name": "DEV SPEC · Warehouse Status-to-Action Contract",
+      "clip": true,
+      "width": 1440,
+      "height": 560,
+      "fill": "#FFFCF5",
+      "cornerRadius": 12,
+      "stroke": "#FEC84B",
+      "strokeWidth": 2,
+      "layout": "vertical",
+      "gap": 16,
+      "padding": 24,
+      "children": [
+        {
+          "type": "frame",
+          "id": "xoyg8",
+          "name": "DEV SPEC Header",
+          "width": "fill_container",
+          "height": 52,
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "N0nGMa",
+              "name": "DEV SPEC Header Text",
+              "layout": "vertical",
+              "gap": 4,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "GJtI5",
+                  "name": "DEV SPEC Title",
+                  "fill": "#7A2E0E",
+                  "content": "DEV HANDOFF · STATUS-TO-ACTION CONTRACT",
+                  "fontFamily": "Inter",
+                  "fontSize": 20,
+                  "fontWeight": "800"
+                },
+                {
+                  "type": "text",
+                  "id": "Dc0S3",
+                  "name": "DEV SPEC Subtitle",
+                  "fill": "#B54708",
+                  "content": "Ghi chú triển khai — đặt ngoài màn hình, KHÔNG render khối đặc tả này trong sản phẩm.",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Bj8G4",
+              "name": "Documentation Only Badge",
+              "height": 28,
+              "fill": "#FEF0C7",
+              "cornerRadius": 14,
+              "stroke": "#FEC84B",
+              "strokeWidth": 1,
+              "padding": [
+                0,
+                12
+              ],
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "emm0H",
+                  "name": "Documentation Only Badge Label",
+                  "fill": "#93370D",
+                  "content": "DOCUMENTATION ONLY",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "800",
+                  "letterSpacing": 0.6
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "Q7gAyK",
+          "name": "DEV SPEC Content",
+          "width": "fill_container",
+          "height": "fill_container",
+          "gap": 16,
+          "children": [
+            {
+              "type": "frame",
+              "id": "pXeN2",
+              "name": "Waybill Status Contract",
+              "width": 840,
+              "height": "fill_container",
+              "fill": "#FFFFFF",
+              "cornerRadius": 10,
+              "stroke": "#FEDF89",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Eiqhl",
+                  "name": "Waybill Status Contract Title",
+                  "fill": "#101828",
+                  "content": "1. Waybill / Warehouse Receipt · warehouseStatus",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "750"
+                },
+                {
+                  "type": "text",
+                  "id": "U4QjrO",
+                  "name": "Waybill Status Contract Chain",
+                  "fill": "#B54708",
+                  "content": "DRAFT → PENDING_INBOUND → INBOUND → COMPLETED_INBOUND   ·   CANCELLED là trạng thái kết thúc ngoại lệ",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "650"
+                },
+                {
+                  "type": "frame",
+                  "id": "r8YPXK",
+                  "name": "Contract DRAFT",
+                  "width": "fill_container",
+                  "height": 56,
+                  "fill": "#F8FAFC",
+                  "cornerRadius": 8,
+                  "stroke": "#EAECF0",
+                  "strokeWidth": 1,
+                  "gap": 12,
+                  "padding": [
+                    8,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "NCmYQ",
+                      "name": "Contract DRAFT Identity",
+                      "width": 185,
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "y0cKkC",
+                          "name": "Contract DRAFT Enum",
+                          "fill": "#667085",
+                          "content": "DRAFT",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "800",
+                          "letterSpacing": 0.4
+                        },
+                        {
+                          "type": "text",
+                          "id": "aO2jN",
+                          "name": "Contract DRAFT Vietnamese",
+                          "fill": "#475467",
+                          "content": "Nháp",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "lz14X",
+                      "name": "Contract DRAFT Actions",
+                      "fill": "#344054",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Chỉnh sửa · Xóa · Xác nhận đơn (sinh waybillCode)",
+                      "lineHeight": 1.25,
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "a6TVsv",
+                  "name": "Contract PENDING_INBOUND",
+                  "width": "fill_container",
+                  "height": 56,
+                  "fill": "#EFF8FF",
+                  "cornerRadius": 8,
+                  "stroke": "#EAECF0",
+                  "strokeWidth": 1,
+                  "gap": 12,
+                  "padding": [
+                    8,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "FGV8I",
+                      "name": "Contract PENDING_INBOUND Identity",
+                      "width": 185,
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "FbJdk",
+                          "name": "Contract PENDING_INBOUND Enum",
+                          "fill": "#175CD3",
+                          "content": "PENDING_INBOUND",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "800",
+                          "letterSpacing": 0.4
+                        },
+                        {
+                          "type": "text",
+                          "id": "O8MvBc",
+                          "name": "Contract PENDING_INBOUND Vietnamese",
+                          "fill": "#475467",
+                          "content": "Chờ nhập kho",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "T1eyY",
+                      "name": "Contract PENDING_INBOUND Actions",
+                      "fill": "#344054",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Bắt đầu nhập kho · In phiếu · In Tem A4 · Hủy đơn",
+                      "lineHeight": 1.25,
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Y24Yr",
+                  "name": "Contract INBOUND",
+                  "width": "fill_container",
+                  "height": 56,
+                  "fill": "#FFFAEB",
+                  "cornerRadius": 8,
+                  "stroke": "#EAECF0",
+                  "strokeWidth": 1,
+                  "gap": 12,
+                  "padding": [
+                    8,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "c520s",
+                      "name": "Contract INBOUND Identity",
+                      "width": 185,
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "mqSfB",
+                          "name": "Contract INBOUND Enum",
+                          "fill": "#B54708",
+                          "content": "INBOUND",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "800",
+                          "letterSpacing": 0.4
+                        },
+                        {
+                          "type": "text",
+                          "id": "S8aSQ",
+                          "name": "Contract INBOUND Vietnamese",
+                          "fill": "#475467",
+                          "content": "Đang nhập kho",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "G3blc",
+                      "name": "Contract INBOUND Actions",
+                      "fill": "#344054",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Ghi nhận bất thường · Hoàn tất nhập kho",
+                      "lineHeight": 1.25,
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "CwS0d",
+                  "name": "Contract COMPLETED_INBOUND",
+                  "width": "fill_container",
+                  "height": 56,
+                  "fill": "#ECFDF3",
+                  "cornerRadius": 8,
+                  "stroke": "#EAECF0",
+                  "strokeWidth": 1,
+                  "gap": 12,
+                  "padding": [
+                    8,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "M5c4b",
+                      "name": "Contract COMPLETED_INBOUND Identity",
+                      "width": 185,
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "P9Wb1",
+                          "name": "Contract COMPLETED_INBOUND Enum",
+                          "fill": "#027A48",
+                          "content": "COMPLETED_INBOUND",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "800",
+                          "letterSpacing": 0.4
+                        },
+                        {
+                          "type": "text",
+                          "id": "rJAUO",
+                          "name": "Contract COMPLETED_INBOUND Vietnamese",
+                          "fill": "#475467",
+                          "content": "Đã nhập kho",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "N8fV1",
+                      "name": "Contract COMPLETED_INBOUND Actions",
+                      "fill": "#344054",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Tạo kế hoạch xuất · Điều chuyển Hub · Bàn giao đi giao",
+                      "lineHeight": 1.25,
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "T6CRgW",
+                  "name": "Contract CANCELLED",
+                  "width": "fill_container",
+                  "height": 56,
+                  "fill": "#FEF3F2",
+                  "cornerRadius": 8,
+                  "stroke": "#EAECF0",
+                  "strokeWidth": 1,
+                  "gap": 12,
+                  "padding": [
+                    8,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "S5b2KE",
+                      "name": "Contract CANCELLED Identity",
+                      "width": 185,
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Z9dhD",
+                          "name": "Contract CANCELLED Enum",
+                          "fill": "#B42318",
+                          "content": "CANCELLED",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "800",
+                          "letterSpacing": 0.4
+                        },
+                        {
+                          "type": "text",
+                          "id": "QpUzj",
+                          "name": "Contract CANCELLED Vietnamese",
+                          "fill": "#475467",
+                          "content": "Đã hủy",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "XRfNp",
+                      "name": "Contract CANCELLED Actions",
+                      "fill": "#344054",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Read-only · Xem lịch sử kiểm toán",
+                      "lineHeight": 1.25,
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "W3hCP",
+              "name": "Aggregate Boundaries and FE Rules",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "N0Ju4",
+                  "name": "Trip Status Boundary",
+                  "width": "fill_container",
+                  "height": 104,
+                  "fill": "#F4F3FF",
+                  "cornerRadius": 10,
+                  "stroke": "#D9D6FE",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "padding": 14,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "EvdNj",
+                      "name": "Trip Status Boundary Title",
+                      "fill": "#42307D",
+                      "content": "2. Trip · trip.status (aggregate riêng)",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "750"
+                    },
+                    {
+                      "type": "text",
+                      "id": "U79h2",
+                      "name": "Trip Status Boundary Chain",
+                      "fill": "#6941C6",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "PENDING → CONFIRMED → IN_TRANSIT → COMPLETED (+ CANCELLED)",
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "M3tfuL",
+                      "name": "Trip Status Boundary Rule",
+                      "fill": "#475467",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Chỉ đọc qua quan hệ chuyến/timeline. Không gán các giá trị này vào warehouseStatus.",
+                      "lineHeight": 1.25,
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "O9F33",
+                  "name": "Outbound POD Status Boundary",
+                  "width": "fill_container",
+                  "height": 92,
+                  "fill": "#FFF6ED",
+                  "cornerRadius": 10,
+                  "stroke": "#FDB022",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "padding": 14,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Yebd0",
+                      "name": "Outbound POD Status Boundary Title",
+                      "fill": "#7A2E0E",
+                      "content": "3. Outbound / POD · aggregate riêng",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "750"
+                    },
+                    {
+                      "type": "text",
+                      "id": "NsECd",
+                      "name": "Outbound POD Status Boundary Chain",
+                      "fill": "#C4320A",
+                      "content": "OUT_FOR_DELIVERY → COMPLETED_OUTBOUND",
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "DSimC",
+                      "name": "Outbound POD Status Boundary Rule",
+                      "fill": "#475467",
+                      "content": "Không dùng làm warehouseStatus của phiếu nhập kho.",
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "B9Ddr",
+                  "name": "Frontend Rendering Rules",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "fill": "#F8FAFC",
+                  "cornerRadius": 10,
+                  "stroke": "#D0D5DD",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": 14,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "slJUW",
+                      "name": "Frontend Rendering Rules Title",
+                      "fill": "#101828",
+                      "content": "Quy tắc render frontend",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "750"
+                    },
+                    {
+                      "type": "text",
+                      "id": "hfWls",
+                      "name": "Frontend Rule 1",
+                      "fill": "#344054",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "• Badge header: chỉ hiển thị status hiện tại của record.",
+                      "lineHeight": 1.3,
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "CZeGM",
+                      "name": "Frontend Rule 2",
+                      "fill": "#344054",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "• Action: lọc theo status hiện tại + role + đúng Hub.",
+                      "lineHeight": 1.3,
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "bvANx",
+                      "name": "Frontend Rule 3",
+                      "fill": "#344054",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "• Timeline: hiển thị các event thực tế theo từng Hub/leg.",
+                      "lineHeight": 1.3,
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "GDkyP",
+                      "name": "Frontend Rule 4",
+                      "fill": "#B42318",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "• Không render toàn bộ state machine bên trong màn chi tiết.",
+                      "lineHeight": 1.3,
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "700"
                     }
                   ]
                 }

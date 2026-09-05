@@ -55,6 +55,32 @@ Before implementing features or modifying workflows, agents MUST reference:
 
 ---
 
+## 🧾 Order Code Generation (STRICT PRECONDITION)
+
+> [!IMPORTANT]
+> No canonical Order creation flow may be implemented or modified until this rule is satisfied end-to-end. The server, never the client, owns Order code generation.
+
+Canonical format: `{HUB_PREFIX}-{OPERATOR_INITIALS}-{YYMM}-{SEQUENCE}`.
+
+Example: `HCM-LTV-2609-011` means:
+
+- `HCM`: the unique `HubEntity.orderCodePrefix` of the authenticated operator's assigned `hubId`. This is separate from the existing Hub identity `code` such as `HUB-HAN-01`.
+- `LTV`: initials from every word in the operator's persisted full name. Normalize Vietnamese diacritics (`Đ → D`), remove punctuation, and uppercase; `Lê Thâm Vương → LTV`.
+- `2609`: creation period in `YYMM` order, calculated in the `Asia/Ho_Chi_Minh` business timezone.
+- `011`: the monthly counter, starting at `001`, scoped by `(hubOrderCodePrefix, operatorInitials, YYMM)`. Counters shared by operators with identical initials prevent collisions; values above 999 continue with four or more digits.
+
+Mandatory invariants:
+
+1. The authenticated creator MUST have a valid `hubId`; that Hub MUST be active and have a non-empty, unique `orderCodePrefix`. User provisioning MUST support Hub assignment for every role already authorized to create Orders. This metadata requirement does not broaden endpoint permissions. Missing prerequisites block creation with a localized business error.
+2. The operator MUST have a usable persisted full name. The server derives initials; clients cannot submit a prefix, initials, period, sequence, or final `orderCode`.
+3. Allocate the counter atomically in the same database transaction as Order creation. Use a dedicated counter row/table with a composite unique constraint; `SELECT MAX(...) + 1`, client-side generation, and non-reserving preview endpoints are forbidden.
+4. `order.orderCode` retains its global database unique constraint, is immutable after creation, remains reserved after soft deletion/cancellation, and is never recycled.
+5. Batch creation allocates one distinct code per Order row atomically. Hub-to-hub receiving reuses the existing Order code and never generates a replacement.
+6. A customer bill/reference, when needed, is stored separately (for example `customerReferenceCode`) and never replaces the internal canonical Order code.
+7. This rule does not grant a role permission to create Orders. Order creation authorization still follows the RBAC matrix; enabling Warehouse Manager Order creation requires a separately approved three-layer RBAC change.
+
+---
+
 ## 🔄 Order Lifecycle & State Machine
 
 ```
@@ -146,6 +172,7 @@ Before writing or modifying any backend endpoint, frontend page, or data model, 
 5. **Non-blocking Notifications**: Wrapped all email/socket emissions in `try/catch` to prevent business transaction aborts?
 6. **External 3PL Handling**: For `isExternalVehicleNeeded = true`, are email subjects and UI badges prefixed with `🚨 [XE THUÊ NGOÀI]` / `[EXTERNAL VEHICLE]`?
 7. **Listing & Pagination Confirmation**: Asked and confirmed with the User regarding Pagination vs. Flat List mechanisms for listing APIs? Never assume without confirmation.
+8. **Order Code Prerequisite**: Is the code generated server-side from the authenticated creator's Hub prefix, persisted full-name initials, `YYMM`, and an atomic monthly counter, with global uniqueness and no reuse?
 
 ---
 

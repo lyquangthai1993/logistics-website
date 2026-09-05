@@ -14,6 +14,22 @@ This specialized skill and agent governs all **net-new UI/UX screen design**, **
 
 ---
 
+## GPT Model Routing (MANDATORY)
+
+Use an OpenAI GPT model for every task governed by this skill. Do not route Pencil design work to Claude or Gemini unless the user explicitly requests that override.
+
+| Work type | Model | Reasoning | Use for |
+|---|---|---|---|
+| Business and visual design | `gpt-5.6-sol` | `high` | TMS workflow analysis, RBAC-aware UX, screen architecture, wireframes, design-system decisions, Pencil MCP canvas operations, scan fidelity, and visual validation. |
+| Ambiguous cross-role workflow | `gpt-5.6-sol` | `xhigh` | Status transitions, multi-role handoffs, notification-sensitive screens, or conflicting business requirements. Activate `leader` and inspect `rbac-matrix.md` before drawing. |
+| Frontend implementation | `gpt-5.6-terra` | `high` | Translating an approved Pencil design into Next.js/React/Tailwind code or repairing implementation-heavy UI code. |
+
+Default to `gpt-5.6-sol` with `high` reasoning for mixed Pencil requests because business correctness and visual judgment take precedence during design. Switch or delegate to `gpt-5.6-terra` only after the workflow, permissions, and visual contract are settled and source-code implementation becomes the dominant task.
+
+When launching a dedicated `pencil-ui-designer` agent, explicitly pass `model: "gpt-5.6-sol"` and `reasoning_effort: "high"` with only the task-relevant context. Do not spawn an agent solely to change models when the active agent is already a suitable GPT model and can complete the work directly.
+
+---
+
 ## 📁 Workspace Governance & Directory Rules (STRICT)
 
 All Pencil design files and assets MUST be organized strictly inside the [`pencil-workspace/`](file:///d:/Projects/logistics-website/pencil-workspace) directory:

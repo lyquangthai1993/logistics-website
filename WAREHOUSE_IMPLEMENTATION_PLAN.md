@@ -1,15 +1,15 @@
 # Kế Hoạch Triển Khai: Phân Hệ Quản Lý Kho (Warehouse Hub Operations)
 
 > **Nguồn tham chiếu bắt buộc**: [Task_Warehouse_Design_UI.md](./Task_Warehouse_Design_UI.md) · [WAREHOUSE_FLOWS.pen](./pencil-workspace/pens/WAREHOUSE_FLOWS.pen) · [Vòng đời đơn hàng N-Hubs](./business_flow/1_vong_doi_don_hang.png) · [Tem nhận diện A4](./docs_scan/TEM%20NHẬN%20DIỆN%20HÀNG%20HÓA%20THÀNH%20A4.xlsx) · [Kế hoạch đóng hàng xe](./docs_scan/Kế%20Hoạch%20Đóng%20Hàng%20Xe%2043H30703%20Spider%203.9%20K.xlsx) · [leader SKILL](./.agents/skills/leader/SKILL.md) · [RBAC Matrix v1.4](./.agents/rules/rbac-matrix.md)
-> **Phiên bản**: v2.0 — 2026-09-05 (audit thiết kế → dữ liệu → API → triển khai)
+> **Phiên bản**: v2.1 — 2026-09-05 (bổ sung `leader` prerequisite sinh mã Order)
 > **Trạng thái handoff**: **NOT CLEARED** — chỉ bắt đầu code sau khi đóng toàn bộ Design Gate G0 bên dưới.
 > **Branch**: `feature/warehouse-inbound-module` (backend + frontend)
 
 ---
 
-## 🚦 Kết Luận Audit 2026-09-05 — Canonical v2.0
+## 🚦 Kết Luận Audit 2026-09-05 — Canonical v2.1
 
-> Phần này là hợp đồng triển khai có thẩm quyền cao nhất trong tài liệu. Mọi code sketch hoặc test case v1.x ở các phần sau nếu mâu thuẫn với phần v2.0 này phải được sửa trước khi dùng.
+> Phần này là hợp đồng triển khai có thẩm quyền cao nhất trong tài liệu. Mọi code sketch hoặc test case v1.x ở các phần sau nếu mâu thuẫn với phần v2.1 này phải được sửa trước khi dùng.
 
 ### UI Audit Report — Warehouse Flows — 2026-09-05
 
@@ -32,7 +32,7 @@
 | Dimension | Checkpoints Violated | Score | Status |
 |---|---|---:|---|
 | D1: Field & Column Compliance | `Địa chỉ nhận hàng` xuất hiện cả header và từng dòng nhưng chưa định nghĩa rõ nguồn sự thật; còn text node rỗng và cột `Ghi chú` của loading sheet bị clip | 7/10 | WARN |
-| D2: State-Driven UI Logic | `J2W764` đặt các action của nhiều trạng thái trong cùng một panel; modal Mode 2 dùng hành động outbound trong flow inbound | 0/10 | FAIL |
+| D2: State-Driven UI Logic | `J2W764` đặt các action của nhiều trạng thái trong cùng một panel; lỗi copy outbound trong hai modal Mode 2 đã sửa ngày 2026-09-05 | 0/10 | FAIL |
 | D3: Role & RBAC Compliance | Canvas thể hiện WM + hub scope; quyền thực thi vẫn phải theo RBAC hiện hành | 10/10 | PASS |
 | D4: Business Rule Compliance | Trip picker dùng `CÒN CHỖ/ĐÃ CHẤT` thay cho điều kiện inbound `remainingOrderCount > 0` | 7/10 | WARN |
 | D5: Mobile & UX Usability | Có cargo cards và sticky bar; chưa có frame loading/error/offline và chưa chứng minh toàn bộ touch target ≥ 44 px | 9/10 | PASS |
@@ -55,7 +55,7 @@
 
 #### Recommended Fixes (Ordered by priority)
 
-1. [BLOCKING] Tách rõ hai nghiệp vụ: **nhận hàng từ trip đang đến hub** và **chất hàng lên trip xuất hub**; không dùng chung modal/copy/action.
+1. [DONE 2026-09-05] Hai modal inbound đã đổi toàn bộ copy sang **chuyến đang đến hub → đơn còn trên xe → tiếp nhận vào kho**; outbound loading vẫn nằm ở màn Loading Plan riêng.
 2. [BLOCKING] Vẽ hoặc đặc tả state variants cho `DRAFT`, `PENDING_INBOUND`, `INBOUND`, `COMPLETED_INBOUND`; mỗi trạng thái chỉ render action hợp lệ.
 3. [BLOCKING] Chốt aggregate và quan hệ multi-order/multi-stop trước migration.
 4. [WARN] Sửa clip ở trip filter pills và loading sheet; dọn text node rỗng.
@@ -68,9 +68,9 @@
 
 ### G0 — Design & Domain Gates Phải Đóng Trước Khi Code
 
-| Gate | Vấn đề | Quyết định chuẩn v2.0 / Điều kiện đóng |
+| Gate | Vấn đề | Quyết định chuẩn v2.1 / Điều kiện đóng |
 |---|---|---|
-| G0.1 | Mode 2 bị trộn inbound/outbound | Tách thành `Inbound Transfer Receipt` (dỡ/nhận hàng tại hub) và `Outbound Loading Plan` (chất hàng lên xe). Frames `dd8X5`, `WH_CASE_02B_TRIP_MODAL`, `WH_CASE_03_MODAL`, `WH_CASE_02_TRANSFER_LOADED` thuộc inbound nên copy phải dùng “chuyến đang đến”, “đơn còn trên xe”, “dỡ/tiếp nhận”. `WH_CASE_05_LOADING_PLAN` thuộc outbound. |
+| G0.1 ✅ | Mode 2 bị trộn inbound/outbound | **Đã đóng 2026-09-05**: `WH_CASE_02B_TRIP_MODAL` và `WH_CASE_03_MODAL` dùng “chuyến đang đến”, “đơn còn trên xe”, “dỡ/tiếp nhận”; không còn “chất hàng”, “còn chỗ”, “đã chất lên xe”, “xuất bến”. `WH_CASE_05_LOADING_PLAN` tiếp tục là màn outbound riêng. |
 | G0.2 | Vòng đời N-Hubs | Dùng `business_flow/1_vong_doi_don_hang.png` làm nguồn bắt buộc: một consignment có thể qua A → B → C rồi mới đến điểm giao. Không gắn toàn bộ vòng đời này vào một `waybill`. |
 | G0.3 | Aggregate chưa rõ | `Waybill` là **một lần tiếp nhận tại một Hub**, không phải Order và không phải Trip. `WaybillItem` là snapshot của consignment được nhận trong lần đó. |
 | G0.4 | Trip hiện chỉ có một `orderId` | Mode 2 chỉ được mở khi đã có mô hình additive `trip_stop` + `trip_order_allocation` (hoặc tên tương đương) hỗ trợ N orders/N stops và partial unload. |
@@ -80,6 +80,7 @@
 | G0.8 | Notification chưa có source-of-truth | Bổ sung event warehouse vào `leader/notifications.md` và được duyệt trước khi code trigger. SUPER_ADMIN luôn nhận cảnh báo; delivery phải non-blocking qua queue. |
 | G0.9 | 5 mẫu in nhưng dữ liệu chưa đủ | Chỉ nghiệm thu từng mẫu khi resource nguồn đã tồn tại. Phiếu nhập + Tem A4 đi với Waybill; Loading Sheet đi với Trip/Stop; Phiếu xuất/POD đi với outbound/delivery resource, không nhét URL vào Waybill cho tiện. |
 | G0.10 | DB impact | Migration đầu chỉ được **additive**. Giữ `trip.orderId` để tương thích và backfill sang allocation; không rename/drop/alter cột hiện hữu nếu chưa có phân tích dữ liệu và phê duyệt rõ ràng. |
+| G0.11 | Sinh mã đơn hàng là prerequisite của `leader` | Mã canonical phải do server sinh theo `{HUB_PREFIX}-{INITIALS}-{YYMM}-{SEQ}`. Trước implementation phải có `hub.orderCodePrefix`, full name hợp lệ, atomic counter và unique constraint; client không nhập/sửa mã. |
 
 ### Traceability Từ Tài Liệu → Thiết Kế → Triển Khai
 
@@ -100,7 +101,43 @@
 
 Mỗi transition phải kiểm tra trạng thái hiện tại trong transaction, có `version`/optimistic lock hoặc row lock, ghi audit event và hỗ trợ idempotency. Không cho client gửi `hubId`, vehicle snapshot hoặc status để tự quyết định; server derive từ JWT, Trip và DB.
 
-### Data Model Canonical v2.0
+### Quy Tắc Sinh Mã Đơn Hàng — Leader Prerequisite
+
+Format chuẩn: `HCM-LTV-2609-011` = `{HUB_PREFIX}-{OPERATOR_INITIALS}-{YYMM}-{SEQUENCE}`.
+
+| Phần | Nguồn dữ liệu và rule |
+|---|---|
+| `HCM` | `HubEntity.orderCodePrefix` của `req.user.hubId`; uppercase, 2–5 ký tự `A-Z0-9`, unique. Không dùng lại `HubEntity.code` hiện có vì trường đó đang là mã identity kiểu `HUB-HAN-01`. |
+| `LTV` | Ghép full name đã persist từ `firstName` + `lastName`, lấy chữ cái đầu của mọi từ, bỏ dấu tiếng Việt (`Đ → D`), bỏ punctuation và uppercase. `Lê Thâm Vương → LTV`. |
+| `2609` | `YYMM` theo timezone nghiệp vụ `Asia/Ho_Chi_Minh`; tháng 09 năm 2026 thành `2609`, không phải `0926`. |
+| `011` | Counter bắt đầu `001`, scope theo `(hubPrefix, operatorInitials, YYMM)`. Hai user cùng initials trong cùng Hub dùng chung counter. Từ 1000 tiếp tục `1000`, không quay vòng. |
+
+Business invariants:
+
+- Server sinh mã trong cùng transaction tạo `Order`; client không gửi prefix/initials/period/sequence/final code và không được sửa sau khi tạo.
+- Dùng bảng counter có composite unique + atomic upsert/row lock; cấm `SELECT MAX(orderCode) + 1` và cấm endpoint preview không reserve mã.
+- `order.orderCode` giữ unique constraint toàn cục, không tái sử dụng sau soft-delete/cancel. Nếu transaction tạo Order rollback thì counter allocation cũng rollback.
+- Tạo batch N Order rows phải cấp N mã khác nhau trong một transaction; Mode 2 chỉ dùng lại mã của Order nguồn.
+- Thiếu `user.hubId`, Hub inactive, thiếu/duplicate `orderCodePrefix`, hoặc full name không sinh được initials thì chặn tạo và trả message tiếng Việt qua error contract chuẩn.
+- User provisioning hiện chỉ mô tả Hub assignment cho WM; implementation phải cho phép gán Hub cho mọi account vốn đã được RBAC cho phép tạo Order (`DISPATCHER`, `SUPER_ADMIN` khi dùng flow này). Đây là yêu cầu metadata, không cấp thêm quyền endpoint.
+- Mã tham chiếu/chứng từ của khách phải lưu riêng, ví dụ `customerReferenceCode`; không dùng thay internal `orderCode`.
+- Rule này không tự cấp quyền tạo Order cho WM. Với quyết định G0.5 hiện tại, Mode 1 ad-hoc chỉ được cấp canonical Order code khi Dispatcher chuyển đổi thành Order. Nếu muốn WM tạo Order ngay tại kho, phải có phê duyệt RBAC riêng và cập nhật đủ Sidebar + Route Guard + API Guard.
+
+### Data Model Canonical v2.1
+
+#### 0. Nền tảng sinh mã Order (precondition cho mọi Order creation)
+
+- Thêm additive `hub.orderCodePrefix` nullable trong bước backfill, sau đó mới chuyển thành required theo change request riêng khi mọi Hub active đã có giá trị hợp lệ; unique index case-insensitive hoặc lưu normalized uppercase.
+- Thêm `order_code_counter`: `hubId`, `operatorInitials`, `yearMonth`, `lastSequence`, timestamps; unique `(hubId, operatorInitials, yearMonth)`.
+- `order.orderCode` unique hiện hữu được giữ nguyên; bổ sung immutability ở service/domain và không lọc `deletedAt` khi xét uniqueness.
+- `OrderEntity.createdByUserId` là audit identity; snapshot thêm `createdByInitials`/`originOrderCodePrefix` nếu cần bảo toàn khả năng giải thích mã sau khi user đổi tên hoặc Hub đổi prefix.
+
+Implementation touchpoints tối thiểu:
+
+- Hub backend/admin UI: entity, create/update DTO, uniqueness validation, form `orderCodePrefix`, migration/backfill.
+- User provisioning: cho phép Hub assignment với actor đã có quyền tạo Order; validate Hub active.
+- Orders: bỏ client-owned `orderCode`, thay generator hiện tại bằng transaction + counter repository, khóa update code.
+- Frontend Orders/Warehouse: readonly `Tự sinh khi lưu`, field customer reference riêng, hiển thị/copy code sau create.
 
 #### A. Nền tảng multi-order/multi-stop (precondition của Mode 2)
 
@@ -133,7 +170,7 @@ Mỗi transition phải kiểm tra trạng thái hiện tại trong transaction,
 - `warehouse_signoff`: người ký, vai trò ký, thời điểm và file/chữ ký nếu phase này thật sự số hóa. Nếu chỉ in giấy, template để ô ký trống và không giả vờ đã lưu chữ ký.
 - Tem A4 có cardinality theo item/pallet; loading sheet có cardinality theo trip/stop. Không dùng một URL duy nhất trên Waybill để đại diện tất cả.
 
-### API Contract Canonical v2.0
+### API Contract Canonical v2.1
 
 | API | Role/scope | Ý nghĩa |
 |---|---|---|
@@ -151,7 +188,13 @@ Mỗi transition phải kiểm tra trạng thái hiện tại trong transaction,
 
 Mọi command nhận header `Idempotency-Key`; error trả code nội bộ + `message` tiếng Việt. Frontend luôn đi qua `formatApiError()` và không render raw validation dumps.
 
-### Frontend Contract Canonical v2.0
+Đối với Orders hiện hữu:
+
+- `POST /v1/orders`: server lấy authenticated user kèm Hub, allocate code atomically và bỏ `orderCode` khỏi `CreateOrderDto`.
+- `GET /v1/orders/generate-code` hiện tại phải deprecate/xóa khỏi UI vì chỉ “gợi ý” bằng `MAX+1` và không reserve; code chỉ được trả sau khi draft Order đã tạo thành công.
+- `PATCH /v1/orders/:id`: loại `orderCode` khỏi `UpdateOrderDto`; request cố sửa mã bị reject.
+
+### Frontend Contract Canonical v2.1
 
 - Desktop operational table: 15 cột vật lý (14 theo Excel + `Thao tác`), sticky `STT` + `Mã đơn`, inner horizontal scroll, fullscreen có `Esc`/restore focus.
 - Row editor không phải wizard: cho phép inline edit hoặc một dialog duy nhất cho một dòng; Tab order đúng cột; paste TSV và import `.xlsx` cùng dùng một parser/validation pipeline.
@@ -160,6 +203,7 @@ Mọi command nhận header `Idempotency-Key`; error trả code nội bộ + `me
 - `J2W764`: dùng action map theo status + role. Panel “trạng thái tiếp theo” trong canvas chỉ là annotation và không được render nguyên trạng cho người dùng.
 - Mobile: cargo cards, required marker, 3-mode destination selector, sticky action bar, minimum 44 px; thêm skeleton, empty, error, offline/retry và unsaved-change guard.
 - TanStack Query keys phải tách list/detail/inboundTrips/eligibleOrders/documents; mutation cập nhật detail + list + counters, chống double submit.
+- UI không cho nhập internal `orderCode`: Order mới hiển thị “Tự sinh khi lưu”; sau create hiển thị code readonly/copyable. Mode 2 hiển thị code Order nguồn readonly. Customer reference, nếu có, là field riêng.
 
 ### Notification Contract (Phải cập nhật `leader/notifications.md` trước code)
 
@@ -190,6 +234,9 @@ Notification phải enqueue sau khi transaction chính commit (outbox hoặc Bul
 ### Test Gaps Bắt Buộc Bổ Sung
 
 - Concurrency sinh `waybillCode`; confirm/cancel/complete lặp và hai request đồng thời.
+- Concurrency sinh `orderCode`: ít nhất 50 request song song cùng Hub/initials/month không trùng; hai user trùng initials dùng chung counter; khác Hub/month có scope riêng.
+- Normalization initials: tên nhiều khoảng trắng, dấu tiếng Việt, `Đ/đ`, dấu gạch/apostrophe; thiếu full name/hub/prefix và Hub inactive đều bị chặn.
+- Time boundary tại 23:59:59 → 00:00:00 theo `Asia/Ho_Chi_Minh`; soft-deleted code không được cấp lại; batch create rollback không để lại Orders nửa chừng.
 - WM không có hub bị chặn bằng thông báo Việt; WM Hub A không query/mutate/generate document của Hub B; SA override có audit.
 - Trip nhiều orders, nhiều stops, partial unload; chỉ allocation của current hub được chọn; nhận trùng trả conflict.
 - Paste Excel có merged/blank cells, decimal `1.280`/`1,280`/`5,0`, quá 200 dòng, sai thứ tự cột và formula injection.
@@ -211,7 +258,7 @@ Notification phải enqueue sau khi transaction chính commit (outbox hoặc Bul
 ### Release, Migration & Rollback Contract
 
 1. Chốt Sprint 0 và lưu audit baseline; chưa bật route/action mới nếu score còn dưới gate.
-2. Deploy migration additive trước code. Chạy preflight đếm Trip hiện hữu, allocation dự kiến và orphan FK; tuyệt đối không dùng `synchronize: true`.
+2. Deploy migration additive trước code. Chạy preflight đếm Trip hiện hữu, allocation dự kiến, orphan FK và coverage `orderCodePrefix` của mọi Hub active; tuyệt đối không dùng `synchronize: true`.
 3. Backfill `trip.orderId → trip_order_allocation` bằng job idempotent có dry-run, progress log và reconciliation report. Không xóa cột cũ trong release này.
 4. Deploy backend ở chế độ dual-read/compatibility; kiểm tra metrics lỗi, mismatch và hub-scope denial trước khi frontend sử dụng API mới.
 5. Bật Mode 1 trước. Mode 2 nằm sau feature flag cho tới khi backfill = 100%, mismatch = 0 và test multi-stop/partial unload pass.
@@ -224,6 +271,7 @@ Notification phải enqueue sau khi transaction chính commit (outbox hoặc Bul
 
 - [ ] Canvas sửa xong G0.1–G0.2, loading sheet không clip, re-audit ≥ 40/50 và 0 FAIL.
 - [ ] Business ký quyết định Waybill per-hub receipt, multi-order/multi-stop Trip, Mode 1 ad-hoc và ownership của 5 mẫu in.
+- [ ] `leader` prerequisite về mã Order đã pass: mọi Hub active có unique `orderCodePrefix`, actor tạo Order có hub/full name, counter design và timezone `Asia/Ho_Chi_Minh` được duyệt.
 - [ ] RBAC matrix + `leader/notifications.md` đã chứa contract warehouse được duyệt.
 - [ ] Schema/data impact/backfill/dry-run/rollback được review; chưa có destructive migration.
 - [ ] Exact column/field mapping của hai workbook được đóng băng thành fixtures/golden files.
@@ -254,7 +302,7 @@ Notification phải enqueue sau khi transaction chính commit (outbox hoặc Bul
 
 ## 📊 Gap Analysis
 
-> **Lưu ý v2.0**: Các mục Sprint 1–6 bên dưới là bản phân rã kỹ thuật chi tiết được giữ lại từ v1.x. Chỉ dùng sau khi đã áp dụng các quyết định Canonical v2.0 ở trên; các code sketch về schema, PDF và API là minh họa, không được triển khai nguyên văn.
+> **Lưu ý v2.1**: Các mục Sprint 1–6 bên dưới là bản phân rã kỹ thuật chi tiết được giữ lại từ v1.x. Chỉ dùng sau khi đã áp dụng các quyết định Canonical v2.1 ở trên; các code sketch về schema, PDF và API là minh họa, không được triển khai nguyên văn.
 
 ### ✅ Những gì đã có
 
@@ -288,7 +336,7 @@ Notification phải enqueue sau khi transaction chính commit (outbox hoặc Bul
 
 ---
 
-## 🏗️ Sprint 1 — DB Schema & Backend WaybillModule (legacy sketch; canonical v2.0 wins)
+## 🏗️ Sprint 1 — DB Schema & Backend WaybillModule (legacy sketch; canonical v2.1 wins)
 
 ### 1.1 Entity: `WaybillEntity`
 
@@ -378,8 +426,11 @@ export class WaybillItemEntity {
   @Column({ type: Number, default: 1 })
   rowIndex: number;                   // Thứ tự dòng trên grid
 
-  @Column({ type: String })
-  orderCode: string;                  // 🔴 Mã đơn hàng (VD: HCM2609-011)
+  @Column({ type: String, nullable: true })
+  orderCode: string | null;           // Readonly snapshot từ canonical Order; VD: HCM-LTV-2609-011
+
+  @Column({ type: String, nullable: true })
+  customerReferenceCode: string | null; // Bill/chứng từ khách, không thay internal orderCode
 
   @Column({ type: String, nullable: true })
   customerCode: string | null;        // Mã & Tên khách hàng (VD: KH0124MASAN)
@@ -506,7 +557,7 @@ Tab "Luân chuyển nội bộ" (Mode 2):
 | STT | Tên cột | Control |
 |---|---|---|
 | 1 | STT | Auto-increment |
-| 2 | Mã đơn hàng | text input |
+| 2 | Mã đơn hàng | readonly; `Tự sinh khi lưu` hoặc code Order nguồn |
 | 3 | Địa chỉ nhận hàng | text / readonly (Mode 2) |
 | 4 | Tên hàng | text input (NO SKU) |
 | 5.1 | Số thùng (kiện) | number int |
@@ -602,7 +653,7 @@ Step 1: Nhập kho (Hub gốc)          Step 2: Luân chuyển (N-Hubs)      Ste
 
 ## 🏗️ Sprint 4 — PDF Generation + S3 Upload + Print
 
-> **Thay thế theo v2.0**: Luồng đồng bộ và code `public-read` dưới đây chỉ là sơ đồ v1.x. Triển khai thật phải dùng document job, `warehouse_document`, `FileEntity` và authorized download; template phải escape dữ liệu người dùng.
+> **Thay thế theo v2.1**: Luồng đồng bộ và code `public-read` dưới đây chỉ là sơ đồ v1.x. Triển khai thật phải dùng document job, `warehouse_document`, `FileEntity` và authorized download; template phải escape dữ liệu người dùng.
 
 ### Kiến trúc PDF Flow
 
@@ -885,7 +936,7 @@ frontend/src/app/dashboard/warehouse/page.tsx
 
 ---
 
-## ✅ Verification Checklist (legacy; phải bổ sung các gate/test canonical v2.0)
+## ✅ Verification Checklist (legacy; phải bổ sung các gate/test canonical v2.1)
 
 ### Backend
 - [ ] Migration chạy thành công: bảng `waybill` + `waybill_item` được tạo
@@ -1035,7 +1086,7 @@ frontend/src/app/dashboard/warehouse/page.tsx
 | # | Edge Case | Action | Expected |
 |---|---|---|---|
 | W-2.E1 | Submit khi không có dòng hàng | Click "Xác nhận đơn" với grid trống | Toast error: "Phải có ít nhất 1 dòng hàng" |
-| W-2.E2 | Submit khi Mã đơn trống | Để trống cột "Mã đơn hàng" | Highlight ô lỗi màu đỏ, message bắt buộc |
+| W-2.E2 | Internal Order code readonly | Mở dòng Order mới | Hiển thị `Tự sinh khi lưu`; không có input cho phép sửa code |
 | W-2.E3 | Submit khi Tên hàng trống | Để trống cột "Tên hàng" | Highlight ô lỗi |
 | W-2.E4 | Submit khi Số kg = 0 và Số m³ = 0 | Nhập 0 vào cả 2 cột | 422 từ API, toast error rõ ràng |
 | W-2.E5 | Số lượng âm | Nhập -1 vào cột "Số thùng" | UI block hoặc validation error |
@@ -1245,10 +1296,11 @@ import { z } from 'zod';
 
 // ─── Schema cho 1 dòng hàng (WaybillItem) ───────────────────────────────────
 export const waybillItemSchema = z.object({
-  orderCode: z
+  // Internal orderCode không thuộc form; server sinh khi canonical Order được tạo.
+  customerReferenceCode: z
     .string()
-    .min(1, 'Mã đơn hàng không được để trống')
-    .max(50, 'Mã đơn hàng tối đa 50 ký tự'),
+    .max(100, 'Mã tham chiếu khách hàng tối đa 100 ký tự')
+    .optional(),
 
   pickupAddress: z
     .string()
@@ -1493,7 +1545,8 @@ function GridCell({ name, rowIndex, register, errors }) {
 | `tripId` | required, integer, positive | `@IsInt @IsPositive` | "Vui lòng chọn chuyến xe" |
 | `tripId` (BE cross) | — | Trip phải tồn tại + status = IN_TRANSIT | "Chỉ được chọn chuyến xe đang vận chuyển" |
 | **Items (mỗi dòng)** | | | |
-| `orderCode` | required, max 50 | `@IsNotEmpty @IsString @MaxLength(50)` | "Mã đơn hàng không được để trống" |
+| `orderCode` | Không có trong form; readonly sau create | Server derive + immutable + DB unique | "Không thể tạo mã đơn hàng do thiếu cấu hình Hub/người thao tác" |
+| `customerReferenceCode` | optional, max 100 | `@IsOptional @IsString @MaxLength(100)` | "Mã tham chiếu khách hàng tối đa 100 ký tự" |
 | `pickupAddress` | required, max 255 | `@IsNotEmpty @IsString` | "Địa chỉ nhận hàng không được để trống" |
 | `goodsDescription` | required, max 500, no-SKU regex warn | `@IsNotEmpty @IsString` | "Tên hàng không được để trống" |
 | `quantity` | integer, min 1 | `@IsInt @Min(1)` | "Số thùng/kiện phải ít nhất là 1" |
@@ -1514,7 +1567,7 @@ function GridCell({ name, rowIndex, register, errors }) {
 
 | # | Test Case | Action | Expected (FE only, trước khi submit) |
 |---|---|---|---|
-| Z-1 | Lỗi hiện inline ngay khi blur ô trống | Focus "Mã đơn" → blur | Border đỏ + tooltip "Mã đơn hàng không được để trống" |
+| Z-1 | Internal Order code không sửa được | Focus/click "Mã đơn" | Hiển thị readonly `Tự sinh khi lưu`; không có editable input |
 | Z-2 | Số thùng nhập 0 | Input quantity=0 → blur | Lỗi inline "Số thùng/kiện phải ít nhất là 1" |
 | Z-3 | Số thùng nhập số âm | Input quantity=-1 | Input bị revert hoặc lỗi inline |
 | Z-4 | Số thùng nhập chữ | Input quantity="abc" | Input block nhập hoặc lỗi "Số thùng phải là số" |

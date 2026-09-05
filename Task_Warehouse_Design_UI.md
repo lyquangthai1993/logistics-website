@@ -33,6 +33,11 @@ Mọi agent (`pencil-ui-designer`, `ui-ux-flow-designer`, frontend/backend) bắ
 >    - Thứ tự cột trên bảng nhập liệu PHẢI khớp 1:1 với bản scan thực tế của doanh nghiệp. Cấm tự ý đảo vị trí, thêm cột rác hoặc xóa cột bắt buộc.
 > 4. **PENCIL ENGINE SCHEMA INVARIANT:**
 >    - Trong file `.pen`, mọi Text Node **PHẢI DÙNG PROPERTY `"content"`**, TUYỆT ĐỐI KHÔNG DÙNG `"text"`.
+> 5. **MÃ ĐƠN HÀNG DO SERVER SINH — `leader` PREREQUISITE:**
+>    - Internal `orderCode` có format `{HUB_PREFIX}-{OPERATOR_INITIALS}-{YYMM}-{SEQUENCE}`, ví dụ `HCM-LTV-2609-011`.
+>    - Hub prefix lấy từ `currentUser.hubId → hub.orderCodePrefix`; initials lấy từ full name đã lưu; kỳ thời gian dùng `YYMM` theo `Asia/Ho_Chi_Minh`; sequence cấp atomically theo tháng.
+>    - UI không cho nhập/sửa internal code. Mode tạo Order hiển thị `Tự sinh khi lưu`; Mode 2 dùng lại code Order nguồn ở trạng thái readonly. Mã bill/chứng từ khách hàng phải là field tham chiếu riêng.
+>    - Rule sinh mã không tự thay đổi quyền tạo Order; mọi role vẫn phải theo `leader` và RBAC matrix.
 
 ---
 
@@ -54,7 +59,7 @@ Căn cứ theo bản scan nghiệp vụ thực tế `docs_scan/required_field_bo
 | :---: | :--- | :---: | :--- |
 | 1 | `STT` | Tự động | Số thứ tự tăng dần 1, 2, 3... |
 | 2 | `Điều hành` | Tùy chọn / Tự động | Người điều phối phụ trách đơn (VD: `HCM - Minh 0363920977`, `NAV-Vũ...`). Hệ thống tự động map theo Dispatcher tạo đơn. |
-| 3 | `Mã đơn hàng` | 🔴 **Bắt buộc** | Mã đơn định danh theo khách hàng / bill gửi (VD: `HCM2609-011`, `NAV2609-0016`...). |
+| 3 | `Mã đơn hàng` | 🔴 **Bắt buộc / Tự động** | Internal code readonly do server sinh, ví dụ `HCM-LTV-2609-011`. Mã bill/chứng từ khách hàng lưu riêng, không dùng thay internal code. |
 | 4 | `Khách hàng` | Tùy chọn / Tự điền | Mã khách hàng và tên đối tác gửi hàng (VD: `KH0124MASAN`, `KH0954MINH ĐĂNG`...). |
 | 5 | `Địa chỉ nhận hàng` | 🔴 **Bắt buộc** | Tên kho, địa chỉ chi tiết nơi lấy/nhận hàng (VD: Kho khách hoặc Hub trung chuyển `Spider Warehousing...`). |
 | 6 | `Ngày cần bốc hàng` | Tùy chọn | Ngày giờ hẹn bốc hàng (VD: `7H sáng 3/9/2026`). |
@@ -105,6 +110,7 @@ graph TD
 | **Địa chỉ nhận hàng (Pickup Address)** | **Nhập tự do (Free text)** do khách cung cấp. | **Tự động điền (Read-only)**: Lấy `hubs.address` từ `currentUser.hubId`. |
 | **Thông tin xe / Tài xế** | **Bắt buộc nhập (Red Border)**: Biển số xe, Họ tên tài xế, SĐT, Nhà thầu phụ. | **Không cần nhập tay**: Tự động trích xuất khi chọn `TRIP_ID`. |
 | **Cách nạp dữ liệu** | - Nhập từng dòng trực tiếp trên Grid.<br>- Copy từ Excel (`Ctrl+C` ➔ `Ctrl+V`).<br>- Import file Excel (.xlsx). | - Chọn từ danh sách `TRIP_ID` đang `IN_TRANSIT`.<br>- Modal chọn 1 hoặc nhiều đơn trong Trip.<br>- Hỗ trợ **nhận thêm hàng dọc đường** (bấm nút "Thêm dòng"). |
+| **Mã đơn hàng nội bộ** | Readonly `Tự sinh khi lưu` nếu flow được RBAC cho phép tạo canonical Order; server sinh theo Hub + initials + `YYMM` + counter. | Readonly, giữ nguyên code của Order nguồn; tuyệt đối không sinh mã mới khi nhận qua Hub. |
 | **Trạng thái khởi tạo** | `PENDING_INBOUND` (Sinh mã vận đơn `waybillId`). | Cập nhật tiến trình luân chuyển của đơn trong chuyến. |
 
 ---
@@ -119,7 +125,7 @@ Dành cho thao tác tạo mới đơn hàng nhanh tại kho (`form_create_new_do
 | STT | Tên cột trên UI | Kiểu nhập liệu (Control Type) | Bắt buộc (Required) | Quy tắc nghiệp vụ & Giá trị |
 | :---: | :--- | :--- | :---: | :--- |
 | **1** | **STT** | Text (Auto-increment) | Tự động | 1, 2, 3... |
-| **2** | **Mã đơn hàng** | Text Input | 🔴 **Bắt buộc** | Mã đơn định danh theo khách hàng / bill gửi. |
+| **2** | **Mã đơn hàng** | Readonly / System Generated | 🔴 **Bắt buộc / Tự động** | Hiển thị `Tự sinh khi lưu` trước khi tạo; sau create hiển thị code dạng `HCM-LTV-2609-011`. Mode 2 dùng lại code nguồn. |
 | **3** | **Địa chỉ nhận hàng** | Text Input (Mode 1) / Readonly (Mode 2) | 🔴 **Bắt buộc** | Mode 1: Khách nhập; Mode 2: Tự lấy Hub hiện tại. |
 | **4** | **Tên hàng** | Text Input | 🔴 **Bắt buộc** | Mô tả hàng hóa tổng quan (VD: Thùng carton bánh kẹo, Vải cuộn...). Tuyệt đối không ghi SKU. |
 | **5** | **Khối lượng** *(Group Header)* | *Gồm 3 cột con bên dưới* | 🔴 **Bắt buộc** | Nhóm chỉ số tải trọng vận tải: |
@@ -348,3 +354,4 @@ Các agent kiểm tra từng tiêu chí trước khi bàn giao. `ui-spec-auditor
 - [ ] **Tiêu chí 8: Mobile UX & Touch Target**: Nút bấm $\ge 44px$, giao diện thẻ dọc trên điện thoại, sticky bottom bar.
 - [ ] **Tiêu chí 9: Pencil Engine Schema**: Toàn bộ Text Node trong `.pen` sử dụng `"content"`, không dùng `"text"`.
 - [ ] **Tiêu chí 10: Cơ chế Cuộn Ngang Bảng & 2 Viewport**: Bảng nhiều cột (>10 cột) được bọc trong container cuộn ngang; vẽ đầy đủ 2 phiên bản: Fullscreen 1920px (`WH_FULLSCREEN_TABLE`) và Viewport thực tế 1440px che các cột sau kèm track cuộn + badge chỉ dẫn (`WH_VIEWPORT_SCROLL_VIEW`).
+- [ ] **Tiêu chí 11: Mã Order do server sinh**: UI chỉ hiển thị readonly `Tự sinh khi lưu`/code nguồn; format đúng `HCM-LTV-2609-011`; không có input sửa internal code hoặc endpoint preview không reserve.
