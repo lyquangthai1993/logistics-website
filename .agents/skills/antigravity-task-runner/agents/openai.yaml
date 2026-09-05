@@ -1,0 +1,6 @@
+interface:
+  display_name: "Antigravity Task Runner"
+  short_description: "Controlled Antigravity runs for Logistics TMS"
+  default_prompt: "Use $antigravity-task-runner to execute this explicitly delegated Logistics TMS task with scoped changes and Codex review."
+policy:
+  allow_implicit_invocation: false
