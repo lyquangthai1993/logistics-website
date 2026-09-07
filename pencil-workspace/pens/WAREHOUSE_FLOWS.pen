@@ -840,6 +840,51 @@
               "fontWeight": "600"
             }
           ]
+        },
+        {
+          "type": "prompt",
+          "id": "G0O1D6",
+          "x": 8322,
+          "y": 0,
+          "width": 250,
+          "height": 219,
+          "content": "Thêm cột thao tác giống như lúc nhập"
+        },
+        {
+          "type": "prompt",
+          "id": "dMSuP",
+          "x": 10845.393458100934,
+          "y": 791.5325620751173,
+          "width": 250,
+          "height": 219,
+          "content": "Giao diện chỗ này cần gọn, thể hiện nhiều dòng hàng hơn"
+        },
+        {
+          "type": "prompt",
+          "id": "h2Q3Pw",
+          "x": 12628.878573401782,
+          "y": 253.10066334189196,
+          "width": 250,
+          "height": 219,
+          "content": "Thêm nút \"In tem nhận diện\""
+        },
+        {
+          "type": "prompt",
+          "id": "XW4ry",
+          "x": 7451.700187078923,
+          "y": 1177.2694021069578,
+          "width": 250,
+          "height": 219,
+          "content": "Có nút button thêm 1 dòng đơn mới, nhập xong là vừa thêm dòng, vừa tạo đơn mới cho kho"
+        },
+        {
+          "type": "prompt",
+          "id": "nw7KU",
+          "x": 3460.970377338051,
+          "y": 170.6423313757897,
+          "width": 250,
+          "height": 219,
+          "content": "Đem màn hình này, nhỏ vào cột là được, sửa trực tiếp trong table, table phải là table editable"
         }
       ]
     },
@@ -914,16 +959,6 @@
                       "content": "NHẬP KHO  /  TẠO MỚI",
                       "fontFamily": "$font-main",
                       "fontSize": 11,
-                      "fontWeight": "700"
-                    },
-                    {
-                      "type": "text",
-                      "id": "XWBb8",
-                      "name": "Page Title",
-                      "fill": "$text-primary",
-                      "content": "Tạo đơn nhập kho",
-                      "fontFamily": "$font-main",
-                      "fontSize": 24,
                       "fontWeight": "700"
                     }
                   ]
@@ -1143,56 +1178,6 @@
                         },
                         {
                           "type": "frame",
-                          "id": "ZtRhJ",
-                          "name": "Nhà thầu",
-                          "width": "fill_container",
-                          "layout": "vertical",
-                          "gap": 6,
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "JxZ2O",
-                              "name": "Nhà thầu Label",
-                              "fill": "#DC2626",
-                              "content": "Nhà thầu *",
-                              "fontFamily": "$font-main",
-                              "fontSize": 11,
-                              "fontWeight": "600"
-                            },
-                            {
-                              "type": "frame",
-                              "id": "H5ADz",
-                              "name": "Nhà thầu Input",
-                              "width": "fill_container",
-                              "height": 44,
-                              "fill": "#FFF5F5",
-                              "cornerRadius": 7,
-                              "stroke": "#EF4444",
-                              "strokeWidth": 1.5,
-                              "padding": [
-                                0,
-                                12
-                              ],
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "Ndv3L",
-                                  "name": "Nhà thầu Value",
-                                  "fill": "$text-primary",
-                                  "textGrowth": "fixed-width",
-                                  "width": "fill_container",
-                                  "content": "NCC029 GND",
-                                  "fontFamily": "$font-main",
-                                  "fontSize": 13,
-                                  "fontWeight": "normal"
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "type": "frame",
                           "id": "TbR77",
                           "name": "Biển số xe",
                           "width": "fill_container",
@@ -1247,7 +1232,7 @@
                       "type": "frame",
                       "id": "FHkgS",
                       "name": "Vehicle Row 2",
-                      "width": 574,
+                      "width": 428,
                       "gap": 10,
                       "children": [
                         {
@@ -1292,56 +1277,6 @@
                                   "textGrowth": "fixed-width",
                                   "width": "fill_container",
                                   "content": "Phạm Thành Trung",
-                                  "fontFamily": "$font-main",
-                                  "fontSize": 13,
-                                  "fontWeight": "normal"
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "type": "frame",
-                          "id": "w7bNkk",
-                          "name": "Điện thoại",
-                          "width": "fill_container",
-                          "layout": "vertical",
-                          "gap": 6,
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "y43Rx",
-                              "name": "Điện thoại Label",
-                              "fill": "#DC2626",
-                              "content": "Điện thoại *",
-                              "fontFamily": "$font-main",
-                              "fontSize": 11,
-                              "fontWeight": "600"
-                            },
-                            {
-                              "type": "frame",
-                              "id": "aJAXr",
-                              "name": "Điện thoại Input",
-                              "width": "fill_container",
-                              "height": 44,
-                              "fill": "#FFF5F5",
-                              "cornerRadius": 7,
-                              "stroke": "#EF4444",
-                              "strokeWidth": 1.5,
-                              "padding": [
-                                0,
-                                12
-                              ],
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "Xj8VP",
-                                  "name": "Điện thoại Value",
-                                  "fill": "$text-primary",
-                                  "textGrowth": "fixed-width",
-                                  "width": "fill_container",
-                                  "content": "0973 824 235",
                                   "fontFamily": "$font-main",
                                   "fontSize": 13,
                                   "fontWeight": "normal"
@@ -6503,245 +6438,6 @@
                       ]
                     }
                   ]
-                },
-                {
-                  "type": "frame",
-                  "id": "BHbya",
-                  "name": "Order Identification Label Preview",
-                  "width": 380,
-                  "fill": "#FFFFFF",
-                  "cornerRadius": 4,
-                  "stroke": "#0F172A",
-                  "strokeWidth": 2,
-                  "layout": "vertical",
-                  "gap": 8,
-                  "padding": [
-                    12,
-                    14
-                  ],
-                  "children": [
-                    {
-                      "type": "frame",
-                      "id": "A4_Tag_Title_Box",
-                      "name": "A4 Tag Header",
-                      "width": "fill_container",
-                      "fill": "#0F172A",
-                      "padding": [
-                        6,
-                        10
-                      ],
-                      "justifyContent": "center",
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "A4_Tag_Title",
-                          "name": "A4 Tag Title",
-                          "fill": "#FFFFFF",
-                          "content": "TEM NHẬN DIỆN HÀNG HÓA (A4)",
-                          "fontFamily": "$font-main",
-                          "fontSize": 13,
-                          "fontWeight": "bold"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "A4_Tag_Row1",
-                      "name": "A4 Tag Row 1: Kho - Tên hàng - Người điều hành",
-                      "width": "fill_container",
-                      "gap": 6,
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "A4_Tag_Kho",
-                          "name": "Kho Text",
-                          "fill": "#0F172A",
-                          "content": "KHO: SPIDER (HUB-HCM)",
-                          "fontFamily": "$font-main",
-                          "fontSize": 10,
-                          "fontWeight": "bold"
-                        },
-                        {
-                          "type": "text",
-                          "id": "A4_Tag_TenHang",
-                          "name": "Tên hàng Text",
-                          "fill": "#0F172A",
-                          "content": "TÊN HÀNG: Vải cuộn may mặc",
-                          "fontFamily": "$font-main",
-                          "fontSize": 10,
-                          "fontWeight": "bold"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "A4_Tag_Row_DieuHanh",
-                      "name": "A4 Tag Row Điều Hành",
-                      "width": "fill_container",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "A4_Tag_DieuHanh_Val",
-                          "name": "Điều hành Text",
-                          "fill": "#1E293B",
-                          "content": "NGƯỜI ĐIỀU HÀNH: HCM - Minh 0363920977",
-                          "fontFamily": "$font-main",
-                          "fontSize": 10,
-                          "fontWeight": "600"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "A4_Tag_Barcode_Box",
-                      "name": "A4 Tag Barcode Box",
-                      "width": "fill_container",
-                      "fill": "#F8FAFC",
-                      "stroke": "#CBD5E1",
-                      "strokeWidth": 1,
-                      "layout": "vertical",
-                      "gap": 4,
-                      "padding": [
-                        8,
-                        12
-                      ],
-                      "justifyContent": "center",
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "A4_Tag_Barcode_Code",
-                          "name": "Mã đơn Text",
-                          "fill": "#0F172A",
-                          "content": "MÃ ĐƠN HÀNG: HCM2609-011",
-                          "fontFamily": "$font-main",
-                          "fontSize": 14,
-                          "fontWeight": "bold"
-                        },
-                        {
-                          "type": "text",
-                          "id": "A4_Tag_Barcode_Sim",
-                          "name": "Barcode Graphic Simulation",
-                          "fill": "#0F172A",
-                          "content": "||| | |||| ||| || |||||| | ||| |||| | |||",
-                          "fontFamily": "monospace",
-                          "fontSize": 18,
-                          "fontWeight": "bold"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "A4_Tag_Row_Ngay_ChungTu",
-                      "name": "A4 Tag Row Ngày & Chứng từ",
-                      "width": "fill_container",
-                      "justifyContent": "space_between",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "A4_Tag_NgayNhap",
-                          "name": "Ngày nhập Text",
-                          "fill": "#0F172A",
-                          "content": "NGÀY NHẬP: 03/09/2026",
-                          "fontFamily": "$font-main",
-                          "fontSize": 10,
-                          "fontWeight": "600"
-                        },
-                        {
-                          "type": "text",
-                          "id": "A4_Tag_ChungTu",
-                          "name": "Chứng từ Text",
-                          "fill": "#0F172A",
-                          "content": "CHỨNG TỪ: 030926-0025",
-                          "fontFamily": "$font-main",
-                          "fontSize": 10,
-                          "fontWeight": "600"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "A4_Tag_Row_Qty_Pallet",
-                      "name": "A4 Tag Row Số lượng & Palet",
-                      "width": "fill_container",
-                      "fill": "#EFF6FF",
-                      "cornerRadius": 4,
-                      "stroke": "#93C5FD",
-                      "strokeWidth": 1,
-                      "padding": [
-                        6,
-                        10
-                      ],
-                      "justifyContent": "space_between",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "A4_Tag_Qty",
-                          "name": "Số lượng Text",
-                          "fill": "#1D4ED8",
-                          "content": "SỐ LƯỢNG: 50 KIỆN",
-                          "fontFamily": "$font-main",
-                          "fontSize": 11,
-                          "fontWeight": "bold"
-                        },
-                        {
-                          "type": "text",
-                          "id": "A4_Tag_Pallet_Pair",
-                          "name": "Palet số / Tổng Text",
-                          "fill": "#B91C1C",
-                          "content": "PALET SỐ: 01  /  TỔNG SỐ: 05",
-                          "fontFamily": "$font-main",
-                          "fontSize": 11,
-                          "fontWeight": "bold"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "A4_Tag_Row_NguoiNhap",
-                      "name": "A4 Tag Row Người nhập",
-                      "width": "fill_container",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "A4_Tag_NguoiNhap_Text",
-                          "name": "Người nhập Text",
-                          "fill": "#334155",
-                          "content": "NGƯỜI NHẬP: LINH · THỦ KHO HUB-HCM",
-                          "fontFamily": "$font-main",
-                          "fontSize": 10,
-                          "fontWeight": "600"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "A4_Tag_Row_GiaoDen",
-                      "name": "A4 Tag Row Giao Đến",
-                      "width": "fill_container",
-                      "fill": "#FEF3C7",
-                      "cornerRadius": 4,
-                      "stroke": "#FDE68A",
-                      "strokeWidth": 1,
-                      "padding": [
-                        6,
-                        10
-                      ],
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "A4_Tag_GiaoDen_Text",
-                          "name": "Giao đến Text",
-                          "fill": "#92400E",
-                          "content": "GIAO ĐẾN: Magellan Hub - Đà Nẵng (Xe bo 43H)",
-                          "fontFamily": "$font-main",
-                          "fontSize": 11,
-                          "fontWeight": "bold"
-                        }
-                      ]
-                    }
-                  ]
                 }
               ]
             }
@@ -7888,7 +7584,12 @@
           "ref": "P7PKM",
           "name": "Warehouse Sidebar",
           "width": 256,
-          "height": "fill_container"
+          "height": "fill_container",
+          "descendants": {
+            "c6W7q": {
+              "content": "Xuất kho"
+            }
+          }
         },
         {
           "type": "frame",
@@ -18129,102 +17830,6 @@
                               "fontFamily": "$font-main",
                               "fontSize": 13,
                               "fontWeight": "700"
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "Bj2jL",
-                      "name": "Receiving Signoff",
-                      "width": "fill_container",
-                      "fill": "#FFFFFF",
-                      "cornerRadius": 10,
-                      "stroke": "$border-subtle",
-                      "strokeWidth": 1,
-                      "layout": "vertical",
-                      "gap": 10,
-                      "padding": 16,
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "cy8bv",
-                          "name": "Signoff Title",
-                          "fill": "$text-primary",
-                          "content": "Xác nhận bàn giao",
-                          "fontFamily": "$font-main",
-                          "fontSize": 13,
-                          "fontWeight": "750"
-                        },
-                        {
-                          "type": "text",
-                          "id": "hDb2U",
-                          "name": "Signoff Text",
-                          "fill": "$text-secondary",
-                          "textGrowth": "fixed-width",
-                          "width": "fill_container",
-                          "content": "Chữ ký thủ kho và lái xe",
-                          "fontFamily": "$font-main",
-                          "fontSize": 10,
-                          "fontWeight": "normal"
-                        },
-                        {
-                          "type": "frame",
-                          "id": "hOvMH",
-                          "name": "Signoff Boxes",
-                          "width": "fill_container",
-                          "gap": 8,
-                          "children": [
-                            {
-                              "type": "frame",
-                              "id": "uLFml",
-                              "name": "Thủ kho Sign Box",
-                              "width": "fill_container",
-                              "height": 72,
-                              "fill": "#F8FAFC",
-                              "cornerRadius": 7,
-                              "stroke": "$border-subtle",
-                              "strokeWidth": 1,
-                              "justifyContent": "center",
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "Vuz6r",
-                                  "name": "Thủ kho Sign Label",
-                                  "fill": "$text-secondary",
-                                  "content": "Thủ kho · Chưa ký",
-                                  "fontFamily": "$font-main",
-                                  "fontSize": 10,
-                                  "fontWeight": "600"
-                                }
-                              ]
-                            },
-                            {
-                              "type": "frame",
-                              "id": "G5sOSK",
-                              "name": "Lái xe Sign Box",
-                              "width": "fill_container",
-                              "height": 72,
-                              "fill": "#F8FAFC",
-                              "cornerRadius": 7,
-                              "stroke": "$border-subtle",
-                              "strokeWidth": 1,
-                              "justifyContent": "center",
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "TR0xW",
-                                  "name": "Lái xe Sign Label",
-                                  "fill": "$text-secondary",
-                                  "content": "Lái xe · Chưa ký",
-                                  "fontFamily": "$font-main",
-                                  "fontSize": 10,
-                                  "fontWeight": "600"
-                                }
-                              ]
                             }
                           ]
                         }
@@ -44491,7 +44096,7 @@
                       "fill": "#344054",
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "Chỉnh sửa · Xóa · Xác nhận đơn (sinh waybillCode)",
+                      "content": "Chỉnh sửa · Xóa · Xác nhận đơn (sinh waybillCode) => Tạo Draft là Pending luôn",
                       "lineHeight": 1.25,
                       "fontFamily": "Inter",
                       "fontSize": 10,
@@ -44592,7 +44197,7 @@
                           "id": "mqSfB",
                           "name": "Contract INBOUND Enum",
                           "fill": "#B54708",
-                          "content": "INBOUND",
+                          "content": "LƯU KHO",
                           "fontFamily": "Inter",
                           "fontSize": 10,
                           "fontWeight": "800",
@@ -44603,7 +44208,7 @@
                           "id": "S8aSQ",
                           "name": "Contract INBOUND Vietnamese",
                           "fill": "#475467",
-                          "content": "Đang nhập kho",
+                          "content": "Hàng đã nhập vô kho",
                           "fontFamily": "Inter",
                           "fontSize": 10,
                           "fontWeight": "600"
@@ -44655,7 +44260,7 @@
                           "id": "P9Wb1",
                           "name": "Contract COMPLETED_INBOUND Enum",
                           "fill": "#027A48",
-                          "content": "COMPLETED_INBOUND",
+                          "content": "ĐÃ XUẤT KHO",
                           "fontFamily": "Inter",
                           "fontSize": 10,
                           "fontWeight": "800",
@@ -44666,7 +44271,7 @@
                           "id": "rJAUO",
                           "name": "Contract COMPLETED_INBOUND Vietnamese",
                           "fill": "#475467",
-                          "content": "Đã nhập kho",
+                          "content": "Đã xuất ra khỏi kho",
                           "fontFamily": "Inter",
                           "fontSize": 10,
                           "fontWeight": "600"
@@ -44743,7 +44348,7 @@
                       "fill": "#344054",
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "Read-only · Xem lịch sử kiểm toán",
+                      "content": "Read-only · Xem lịch sử kiểm toán => Cho quản trị viên",
                       "lineHeight": 1.25,
                       "fontFamily": "Inter",
                       "fontSize": 10,
