@@ -72,8 +72,17 @@ Tại đây chỉ lưu trữ:
 
 ---
 
+## 📜 Quy Chuẩn Thiết Kế Bảng Cuộn Ngang (Horizontal Scroll Table Standard)
+
+Khi thiết kế hoặc code các bảng dữ liệu nhiều cột (vượt quá độ rộng màn hình hoặc bị chia không gian bởi sidebar/panel chứng từ):
+- **Tham chiếu chuẩn**: [`references/table-horizontal-scroll-pattern.md`](./references/table-horizontal-scroll-pattern.md) và [`.agents/rules/table-horizontal-scroll.md`](../.agents/rules/table-horizontal-scroll.md).
+- **Quy tắc bất biến**: Thanh cuộn ngang **BẮT BUỘC PHẢI NẰM BÊN TRONG BẢNG** (`relative overflow-x-auto border rounded-base`), tuyệt đối không vẽ thanh cuộn tách rời bên ngoài như một widget riêng lẻ.
+
+---
+
 ## 🛠️ Quy trình Làm việc với Pencil MCP
 1. **Đọc trạng thái Canvas**: Sử dụng `get_app_state` hoặc `execute` với `Get(...)`.
 2. **Convert từ Live Web**: Sử dụng `browser` tool hoặc Playwright E2E runner kết hợp `execute` layout.
 3. **Chỉnh sửa / Bổ sung**: Sử dụng `execute` tool theo chuẩn pen schema.
 4. **Xuất file**: Sử dụng `TakeScreenshot` hoặc `Export([nodeIds], format, "./pencil-workspace/exports")`.
+

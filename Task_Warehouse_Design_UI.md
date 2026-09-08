@@ -44,48 +44,54 @@ Mọi agent (`pencil-ui-designer`, `ui-ux-flow-designer`, frontend/backend) bắ
 ### 🔴 QUY TẮC CÁC TRƯỜNG BẮT BUỘC (RED-BORDER REQUIRED FIELDS)
 Căn cứ theo bản scan nghiệp vụ thực tế `docs_scan/required_field_border_red.png`, hệ thống quy định rõ ràng danh sách các trường **BẮT BUỘC (VIỀN ĐỎ)** và các trường phụ trợ:
 
-#### A. Khối Header Thông Tin Chuyến Xe / Đợt Tiếp Nhận:
+#### A. Khối Header Thông Tin Tiếp Nhận Tại Cửa Kho (Siêu Gọn):
 | STT | Tên trường | Tình trạng | Mô tả nghiệp vụ & Quy tắc |
 | :---: | :--- | :---: | :--- |
-| 1 | **Ngày/tháng/năm** | 🔴 **Bắt buộc** | Ngày lập kế hoạch đóng hàng hoặc ngày nhận hàng tại Hub (Default: Ngày hiện tại). |
-| 2 | **Nhà thầu** | 🔴 **Bắt buộc** | Tên đơn vị vận chuyển / nhà thầu phụ (VD: `SPIDER`, Xe nội bộ, Đối tác 3PL). |
-| 3 | **Biển số xe** | 🔴 **Bắt buộc** | Biển kiểm soát phương tiện vận tải (VD: `43H30703`). |
-| 4 | **Họ tên người nhận** | 🔴 **Bắt buộc** | Họ tên lái xe hoặc người đại diện tiếp nhận lô hàng (VD: `Bùi Ngọc Tân`). |
-| 5 | **Điện thoại** | 🔴 **Bắt buộc** | Số điện thoại liên hệ của lái xe / người nhận (VD: `0964248662`). |
-| * | *Hotline điều phối 3 miền* | ℹ️ *Thông tin hỗ trợ* | Hotline người phụ trách sự cố: Kho miền Nam, Kho miền Trung, Kho miền Bắc (VD: `Ngô Văn Sang 0328188606`). |
+| 1 | **Ngày/tháng/năm** | 🔴 **Bắt buộc** | Ngày nhận hàng tại Hub (Default: Ngày hiện tại). |
+| 2 | **Biển số xe** | 🔴 **Bắt buộc** | Biển kiểm soát phương tiện vận tải (VD: `43H30703` hoặc `50H-756.14`). |
+| 3 | **Họ tên người nhận/tài xế** | 🔴 **Bắt buộc** | Họ tên lái xe hoặc người đại diện tiếp nhận/giao lô hàng (VD: `Phạm Thành Trung`). |
 
-#### B. Khối Dòng Hàng Hóa (Table Row Items):
+*(Đã tinh gọn loại bỏ: Nhà thầu, Điện thoại, Kế hoạch đóng hàng rườm rà, và Hotline điều hành khỏi header tiếp nhận sàn kho).*
+
+#### B. Khối Dòng Hàng Hóa Cốt Lõi (Inline Editable Table - Rút Gọn Cột):
 | STT | Tên cột trên Bảng | Tình trạng | Quy tắc nghiệp vụ |
 | :---: | :--- | :---: | :--- |
 | 1 | `STT` | Tự động | Số thứ tự tăng dần 1, 2, 3... |
-| 2 | `Điều hành` | Tùy chọn / Tự động | Người điều phối phụ trách đơn (VD: `HCM - Minh 0363920977`, `NAV-Vũ...`). Hệ thống tự động map theo Dispatcher tạo đơn. |
-| 3 | `Mã đơn hàng` | 🔴 **Bắt buộc / Tự động** | Internal code readonly do server sinh, ví dụ `HCM-LTV-2609-011`. Mã bill/chứng từ khách hàng lưu riêng, không dùng thay internal code. |
-| 4 | `Khách hàng` | Tùy chọn / Tự điền | Mã khách hàng và tên đối tác gửi hàng (VD: `KH0124MASAN`, `KH0954MINH ĐĂNG`...). |
-| 5 | `Địa chỉ nhận hàng` | 🔴 **Bắt buộc** | Tên kho, địa chỉ chi tiết nơi lấy/nhận hàng (VD: Kho khách hoặc Hub trung chuyển `Spider Warehousing...`). |
-| 6 | `Ngày cần bốc hàng` | Tùy chọn | Ngày giờ hẹn bốc hàng (VD: `7H sáng 3/9/2026`). |
-| 7 | `Tên hàng` | 🔴 **Bắt buộc** | Mô tả hàng hóa tổng quan (VD: *Nguyên Liệu*, *đồ chơi*, *Can thực phẩm*, *Vải cuộn*...). Tuyệt đối **KHÔNG** nhập SKU. |
-| 8 | `Khối lượng: Số thùng` | 🔴 **Bắt buộc** | Số lượng kiện/thùng đóng gói (Integer $\ge 1$). |
-| 9 | `Khối lượng: Số kg` | 🔴 **Bắt buộc** | Tổng trọng lượng Gross weight (Kg $> 0$). |
-| 10 | `Khối lượng: Số khối` | 🔴 **Bắt buộc** | Tổng thể tích hàng hóa ($m^3$ / CBM $> 0$). |
-| 11 | `Ngày cần giao hàng` | Tùy chọn | Lịch hẹn giao hàng đến đích (VD: `13h00 ngày 05/09/2026`). |
-| 12 | `Địa chỉ giao hàng` | 🔴 **Bắt buộc** | Điểm đến chặng cuối (Dropdown 3 chế độ: Free text khách lẻ, Hub L1 kho chính, hoặc Tuyến vệ tinh Xe bo). |
-| 13 | `Đã soạn` (Trạm/Tỉnh đích) | Tùy chọn / Gợi ý | Tên tỉnh/thành hoặc Hub đích tóm tắt phục vụ phân loại nhanh tại sàn kho (VD: *ninh bình*, *hà nam*, *nghệ an*, *huế*, *đà nẵng*...). |
-| 14 | `Ghi chú` | Tùy chọn | Lưu ý bốc xếp, cồng kềnh, quy cách kiện lẻ (VD: *43 cuộn | khoảng 1 tấn | 3,4 m³*). |
+| 2 | `Mã đơn hàng` | 🔴 **Bắt buộc / Tự động** | Internal code readonly do server sinh, ví dụ `HCM-LTV-2609-011`. |
+| 3 | `Địa chỉ nhận hàng` | 🔴 **Bắt buộc** | Tên kho, địa chỉ chi tiết nơi lấy/nhận hàng (Kho khách hoặc Hub hiện tại). |
+| 4 | `Tên hàng` | 🔴 **Bắt buộc** | Mô tả hàng hóa tổng quan (VD: *Nguyên Liệu*, *Vải cuộn*...). Tuyệt đối **KHÔNG** nhập SKU. |
+| 5 | `Khối lượng: Số thùng` | 🔴 **Bắt buộc** | Số lượng kiện/thùng đóng gói (Integer $\ge 1$). |
+| 6 | `Khối lượng: Số kg` | 🔴 **Bắt buộc** | Tổng trọng lượng Gross weight (Kg $> 0$). |
+| 7 | `Khối lượng: Số khối` | 🔴 **Bắt buộc** | Tổng thể tích hàng hóa ($m^3$ / CBM $> 0$). |
+| 8 | `Địa chỉ giao hàng` | 🔴 **Bắt buộc** | Điểm đến chặng cuối (Dropdown 3 chế độ: Free text khách lẻ, Hub L1 kho chính, hoặc Tuyến vệ tinh Xe bo 34 tỉnh thành). |
+| 9 | `Ghi chú` | Tùy chọn | Lưu ý bốc xếp, cồng kềnh, quy cách kiện lẻ... |
+| 10 | `Thao tác` | Action Buttons | `[🖨️ In tem]` (In tem nhận dạng dán pallet dòng này) \| `[➕ Nhân bản]` \| `[🗑️ Xóa]`. |
+
+*(Đã loại bỏ 5 cột điều phối văn phòng: Điều hành, Khách hàng, Ngày cần bốc, Ngày cần giao, Đã soạn; tối ưu mật độ hiển thị nhiều dòng hàng).*
 
 ---
 
-## 👥 2. PHÂN QUYỀN & PHẠM VI TRUY CẬP (RBAC & HUB SCOPING)
+## 🧭 2. CẤU TRÚC ĐIỀU HƯỚNG KHO (WAREHOUSE 3-MENU NAVIGATION)
+
+Phân hệ Quản lý Kho được tổ chức tinh gọn thành **3 menu chức năng cốt lõi**:
+1. **`Nhập kho`** (`/dashboard/warehouse/inbound`): Nhập hàng từ khách (Mode 1) hoặc tiếp nhận xe luân chuyển từ Hub khác về (Mode 2).
+2. **`Xuất kho`** (`/dashboard/warehouse/outbound`): Lập danh sách xuất xe tuyến / xe bo, gom đơn (kể cả đơn `DRAFT`), cập nhật lại thông số tải trọng và bàn giao.
+3. **`Đơn hàng`** (`/dashboard/warehouse/orders`): Bảng danh sách tổng hợp toàn bộ các lô hàng tại Hub, hỗ trợ tra cứu, lọc và in ấn lại chứng từ.
+
+---
+
+## 👥 3. PHÂN QUYỀN & PHẠM VI TRUY CẬP (RBAC & HUB SCOPING)
 
 | Vai trò (Role) | Mã Enum | Phạm vi dữ liệu (Hub Scoping) | Quyền hạn trên màn hình Kho |
 | :--- | :--- | :--- | :--- |
 | **Warehouse Manager** | `RoleEnum.WAREHOUSE_MANAGER` | **Strict Hub Scope** (`currentUser.hubId`) | Toàn quyền tạo đơn nhập kho, lập kế hoạch đóng hàng xuất xe, kiểm đếm hàng, in chứng từ, xác nhận nhập/xuất kho tại Hub của mình. Không can thiệp Hub khác. |
 | **Dispatcher** | `RoleEnum.DISPATCHER` | Toàn mạng lưới | Chỉ xem (Read-only) tiến độ nhập/xuất kho để điều phối chuyến xe. |
 | **Fleet Manager** | `RoleEnum.FLEET_MANAGER` | Toàn mạng lưới xe | Chỉ xem (Read-only) kế hoạch hàng về và kế hoạch đóng hàng để bố trí phương tiện. |
-| **Super Admin** | `RoleEnum.SUPER_ADMIN` | Toàn hệ thống | Quản trị, giám sát toàn diện và cấu hình hệ thống. |
+| **Super Admin** | `RoleEnum.SUPER_ADMIN` | Toàn hệ thống | Quản trị, giám sát toàn diện, cấu hình hệ thống, và **độc quyền xem lịch sử kiểm toán (Audit Trail)**. |
 
 ---
 
-## 🔄 3. HAI CHẾ ĐỘ TẠO ĐƠN NHẬP KHO (DUAL-MODE SPECIFICATION)
+## 🔄 4. HAI CHẾ ĐỘ TẠO ĐƠN NHẬP KHO (DUAL-MODE SPECIFICATION)
 
 Khi người dùng (Warehouse Manager) bấm nút **"Tạo mới đơn nhập kho"**, hệ thống cung cấp Tab chuyển đổi giữa 2 chế độ:
 
@@ -95,10 +101,10 @@ graph TD
     SwitchMode -->|Khách mang hàng tới kho| Mode1["Mode 1: Mới hoàn toàn (Direct Customer)"]
     SwitchMode -->|Hàng chuyển từ Hub khác| Mode2["Mode 2: Luân chuyển nội bộ (Hub Transfer)"]
     
-    Mode1 --> Form1["Nhập thông tin xe/tài xế + Bảng hàng (Excel Paste / Row entry)"]
+    Mode1 --> Form1["Nhập thông tin xe/tài xế + Bảng hàng (Inline Editable Grid)"]
     Mode2 --> Form2["Chọn TRIP_ID (IN_TRANSIT) ➔ Modal chọn đơn ➔ Bảng hàng (Cho phép thêm dòng nhận bổ sung)"]
     
-    Form1 --> Submit1["Xác nhận đơn ➔ Trạng thái PENDING_INBOUND (Sinh waybillId)"]
+    Form1 --> Submit1["Xác nhận đơn ➔ Trạng thái PENDING_INBOUND / LƯU KHO"]
     Form2 --> Submit2["Xác nhận đơn ➔ Chuyển trạng thái nhập kho"]
 ```
 
@@ -108,10 +114,10 @@ graph TD
 | :--- | :--- | :--- |
 | **Nguồn hàng** | Khách hàng giao trực tiếp đến Hub. | Xe tuyến chở hàng từ Hub khác đến. |
 | **Địa chỉ nhận hàng (Pickup Address)** | **Nhập tự do (Free text)** do khách cung cấp. | **Tự động điền (Read-only)**: Lấy `hubs.address` từ `currentUser.hubId`. |
-| **Thông tin xe / Tài xế** | **Bắt buộc nhập (Red Border)**: Biển số xe, Họ tên tài xế, SĐT, Nhà thầu phụ. | **Không cần nhập tay**: Tự động trích xuất khi chọn `TRIP_ID`. |
-| **Cách nạp dữ liệu** | - Nhập từng dòng trực tiếp trên Grid.<br>- Copy từ Excel (`Ctrl+C` ➔ `Ctrl+V`).<br>- Import file Excel (.xlsx). | - Chọn từ danh sách `TRIP_ID` đang `IN_TRANSIT`.<br>- Modal chọn 1 hoặc nhiều đơn trong Trip.<br>- Hỗ trợ **nhận thêm hàng dọc đường** (bấm nút "Thêm dòng"). |
+| **Thông tin xe / Tài xế** | **Bắt buộc nhập (Red Border)**: Biển số xe, Họ tên tài xế/người giao. *(Đã bỏ hẳn Nhà thầu, SĐT)*. | **Không cần nhập tay**: Tự động trích xuất khi chọn `TRIP_ID`. |
+| **Cách nạp dữ liệu** | - Nhập từng dòng trực tiếp trên Grid (Inline Editable).<br>- Nút `[+ Thêm 1 dòng đơn mới]` tự tạo đơn.<br>- Copy từ Excel (`Ctrl+C` ➔ `Ctrl+V`).<br>- Import file Excel (.xlsx). | - Chọn từ danh sách `TRIP_ID` đang `IN_TRANSIT`.<br>- Modal chọn 1 hoặc nhiều đơn trong Trip.<br>- Hỗ trợ **nhận thêm hàng dọc đường** (bấm nút "Thêm dòng"). |
 | **Mã đơn hàng nội bộ** | Readonly `Tự sinh khi lưu` nếu flow được RBAC cho phép tạo canonical Order; server sinh theo Hub + initials + `YYMM` + counter. | Readonly, giữ nguyên code của Order nguồn; tuyệt đối không sinh mã mới khi nhận qua Hub. |
-| **Trạng thái khởi tạo** | `PENDING_INBOUND` (Sinh mã vận đơn `waybillId`). | Cập nhật tiến trình luân chuyển của đơn trong chuyến. |
+| **Trạng thái khởi tạo** | `DRAFT` ➔ Xác nhận chuyển sang `PENDING_INBOUND` / `LƯU KHO` luôn. | Cập nhật tiến trình luân chuyển của đơn trong chuyến. |
 
 ---
 
@@ -247,81 +253,103 @@ Màn hình chính sau khi đã nạp đơn:
 ```mermaid
 stateDiagram-v2
     [*] --> DRAFT: Tạo đơn (Nháp)
-    DRAFT --> PENDING_INBOUND: Xác nhận đơn (Sinh waybillId)
+    DRAFT --> PENDING_INBOUND: Tạo xong là Pending luôn (sinh waybillId)
     
     state "Chặng 1: First-Mile / Inbound (Hub khởi tạo)" as Phase1 {
-        PENDING_INBOUND --> INBOUND: Xe/Khách đến kho, quét mã kiểm đếm
-        INBOUND --> COMPLETED_INBOUND: Hoàn tất kiểm đếm, cất lưu kho
+        PENDING_INBOUND --> LUU_KHO: Kiểm đếm, nhận hàng vô kho (INBOUND)
+        LUU_KHO --> DA_XUAT_KHO: Hoàn tất xuất kho (COMPLETED_INBOUND)
     }
 
     state "Chặng 2: Middle-Mile / Transfer (Luân chuyển N-Hubs)" as Phase2 {
-        COMPLETED_INBOUND --> IN_TRANSIT: Đóng trip trung chuyển (Hub A ➔ Hub B/C)
-        IN_TRANSIT --> INBOUND: Xe đến Hub kế tiếp (Tiếp tục nhập kho)
+        DA_XUAT_KHO --> IN_TRANSIT: Xe lăn bánh chuyển Hub (Hub A ➔ Hub B/C)
+        IN_TRANSIT --> LUU_KHO: Xe đến Hub kế tiếp (Nhập kho tiếp nhận)
     }
 
     state "Chặng 3: Last-Mile / Outbound Delivery (Giao chặng cuối)" as Phase3 {
-        COMPLETED_INBOUND --> OUT_FOR_DELIVERY: Xuất kho giao hàng (Bàn giao Xe bo/Shipper)
+        DA_XUAT_KHO --> OUT_FOR_DELIVERY: Xuất giao xe bo / shipper
         OUT_FOR_DELIVERY --> COMPLETED_OUTBOUND: Giao thành công & Ký nhận POD
     }
 
     COMPLETED_OUTBOUND --> [*]
 ```
 
-### Ma trận hiển thị dữ liệu & Nút bấm theo từng trạng thái:
+### Ma trận hiển thị dữ liệu & Nút bấm theo từng trạng thái (Đã Chuẩn Hóa Thuật Ngữ):
 
-| Giai đoạn | Trạng thái (`status`) | Actor chính | Dữ liệu trọng tâm trên UI | Các nút thao tác nghiệp vụ (Action Buttons) |
+| Giai đoạn | Trạng thái (`status`) | Nhãn hiển thị thuần Việt | Actor chính | Các nút thao tác nghiệp vụ (Action Buttons) |
 | :--- | :--- | :--- | :--- | :--- |
-| **0. Khởi tạo** | `DRAFT` | Warehouse Manager / Khách hàng | Mã tạm, Khách hàng, Tên hàng, Số thùng, Khối lượng (Số kg, $m^3$), Ngày tạo | `[Chỉnh sửa]`, `[Xóa]`, `[Xác nhận đơn]` *(sinh mã `waybillId`)* |
-| **1. Nhập kho** | `PENDING_INBOUND` | System / Dispatcher / Warehouse | `waybillId`, Mã đơn hàng, Tên/SĐT khách, Địa chỉ nhận, Giờ dự kiến | `[Bắt đầu nhập kho]`, `[In phiếu nhập]`, `[In Tem A4]`, `[Hủy đơn]` |
-| | `INBOUND` | Warehouse Manager / Nhân viên kho | Vị trí bin/kệ dự kiến, Số lượng khai báo vs. Thực tế kiểm đếm, Tình trạng hàng, Ảnh chụp | `[Quét mã kiểm đếm]`, `[Ghi nhận bất thường]`, `[Hoàn tất nhập kho]` |
-| | `COMPLETED_INBOUND` | Warehouse Manager | Vị trí lưu kho (Zone/Khu vực), Thời gian nhập kho, Số lượng đã lưu kho | `[Lập kế hoạch đóng hàng]`, `[Điều chuyển Hub khác]`, `[Bàn giao đi giao]` |
-| **2. Trung chuyển** | `IN_TRANSIT` | Dispatcher / Tài xế xe tuyến | `tripId`, Biển số xe, Tên tài xế, Hub đi ➔ Hub đến, Giờ khởi hành & ETA | `[Theo dõi lộ trình]`, `[Xác nhận đến Hub đích]` |
-| **3. Giao hàng** | `OUT_FOR_DELIVERY` | Tài xế giao hàng (Xe bo / Shipper) | Người nhận, Địa chỉ giao hàng, Tiền COD/Cước, Tài xế phụ trách | `[Gọi khách]`, `[Cập nhật trạng thái giao]`, `[Báo giao thất bại]`, `[Xác nhận giao thành công]` |
-| **4. Hoàn tất** | `COMPLETED_OUTBOUND` | System / Tài xế / Khách hàng | Giờ giao thành công, Ảnh chứng từ POD, Chữ ký người nhận, Trạng thái thanh toán | `[Xem chi tiết đơn]`, `[In biên bản bàn giao/POD]`, `[Lịch sử hành trình]` |
+| **0. Khởi tạo** | `DRAFT` | **Đơn nháp** | Warehouse Manager | `[Chỉnh sửa]`, `[Xóa]`, `[Xác nhận đơn]` *(Tạo Draft là sang Pending / Lưu kho luôn)* |
+| **1. Nhập kho** | `PENDING_INBOUND` | **Chờ tiếp nhận** | System / Warehouse | `[Bắt đầu nhập kho]`, `[In phiếu nhập]`, `[🖨️ In Tem A4]`, `[Hủy đơn]` |
+| | `INBOUND` | **`LƯU KHO`** (*Hàng đã nhập vô kho*) | Warehouse Manager / Nhân viên kho | `[Quét mã kiểm đếm]`, `[🖨️ In Tem A4]`, `[Ghi nhận bất thường]`, `[Hoàn tất nhập kho]` |
+| | `COMPLETED_INBOUND` | **`ĐÃ XUẤT KHO`** (*Đã xuất ra khỏi kho*) | Warehouse Manager | `[Lập kế hoạch xuất]`, `[Điều chuyển Hub khác]`, `[Bàn giao xe bo/xe tuyến]` |
+| **2. Trung chuyển** | `IN_TRANSIT` | **Đang vận chuyển** | Dispatcher / Tài xế xe tuyến | `[Theo dõi lộ trình]`, `[Xác nhận đến Hub đích]` |
+| **3. Giao hàng** | `OUT_FOR_DELIVERY` | **Đang giao hàng** | Tài xế giao hàng (Xe bo / Shipper) | `[Gọi khách]`, `[Cập nhật trạng thái giao]`, `[Báo giao thất bại]`, `[Xác nhận giao thành công]` |
+| **4. Hoàn tất** | `COMPLETED_OUTBOUND` | **Giao thành công** | System / Tài xế / Khách hàng | `[Xem chi tiết đơn]`, `[In biên bản bàn giao/POD]`, `[Lịch sử hành trình]` |
+| **Auditing** | *Toàn bộ* | **Lịch sử kiểm toán (Audit Trail)** | **SUPER_ADMIN (Độc quyền Read-only)** | `[Xem lịch sử kiểm toán]` *(Chỉ dành cho Quản trị viên, ẩn với thủ kho)* |
 
 ---
 
-## 🖨️ 7. QUY CÁCH CHỨNG TỪ & IN ẤN TẠI KHO (DOCUMENT & PRINT TEMPLATES)
+## 📤 7. QUY CHUẨN MÀN HÌNH XUẤT KHO (OUTBOUND DISPATCH BOARD)
 
-Hệ thống kho yêu cầu tạo và in 5 loại chứng từ chuẩn hóa phục vụ vận hành:
+Màn hình Xuất kho (`/dashboard/warehouse/outbound`) phục vụ bàn giao hàng cho xe tuyến hoặc xe bo:
+1. **Tìm kiếm & Nạp đơn hàng linh hoạt (Hỗ trợ cả đơn `DRAFT`)**:
+   - Bộ lọc tìm kiếm cho phép chọn và gán cả những đơn hàng đang ở trạng thái **`DRAFT`** để giải quyết tình huống thực tế tại sàn kho: hàng giao đến là chất xe đi ngay mà không cần chờ thủ tục phê duyệt văn phòng.
+2. **Nút `[🔄 Cập nhật lại thông số]` (Parameter Reload Button)**:
+   - Nút bố trí nổi bật tại Toolbar phía trên bảng hàng xuất.
+   - Khi bấm, hệ thống thực hiện query refetch tức thì, tải lại thông số tải trọng mới nhất (Số thùng, Số kg cân lại, Số khối $m^3$) từ hệ thống để đảm bảo số liệu xuất kho luôn chuẩn xác trước giờ xe lăn bánh.
 
-### 7.1. Phiếu Nhập Kho (Inbound Receiving Slip):
-- Quy tắc sinh mã phiếu: `DDMMYY-xxxx` (VD: `280826-0025`).
-- Thông tin bắt buộc: Ngày tháng, Tài xế giao, Biển số xe, Nhập tại Hub nào.
-- Bảng chi tiết: Mã đơn hàng, Tên mặt hàng, Số lượng, Đơn vị tính (KG/Thùng), Dòng lũy kế tổng.
-- Ô ký nhận pháp lý 2 bên: **Thủ kho nhận hàng** (Ký & họ tên) và **Lái xe / Người giao hàng** (Ký & họ tên).
+---
 
-### 7.2. Phiếu Xuất Kho (Outbound Dispatch Slip):
-- Dùng khi xuất hàng chuyển Hub hoặc bàn giao xe tuyến. Có thông tin xe nhận, danh sách kiện hàng và trọng lượng xuất kho.
+## 🖨️ 8. QUY CÁCH CHỨNG TỪ & IN ẤN TẠI KHO (DOCUMENT & PRINT TEMPLATES)
 
-### 7.3. Phiếu Giao Hàng (Delivery Note / POD):
-- Dùng khi xuất kho cho xe bo hoặc shipper giao chặng cuối. Có ô ký nhận và xác nhận thanh toán/COD của khách hàng.
+Hệ thống kho yêu cầu tạo và in các chứng từ chuẩn hóa phục vụ vận hành:
 
-### 7.4. Tem Nhận Diện Hàng Hóa Khổ A4 (Pallet / Cargo Identification Label):
-Căn cứ chuẩn theo file mẫu `docs_scan/TEM NHẬN DIỆN HÀNG HÓA THÀNH A4.xlsx`, tem được thiết kế khổ A4 tiêu chuẩn dán trực tiếp lên pallet hoặc kiện hàng lớn tại kho, hiển thị đầy đủ 11 mục thông tin:
+### 8.1. Tem Nhận Diện Hàng Hóa Khổ A4 (Pallet / Cargo Identification Label):
+Căn cứ chuẩn theo file mẫu `docs_scan/TEM NHẬN DIỆN HÀNG HÓA THÀNH A4.xlsx`, tem được thiết kế khổ A4 tiêu chuẩn dán trực tiếp lên pallet hoặc kiện hàng lớn tại kho. Toàn bộ thông tin `xxx` đều dùng biến động theo đơn hàng/dòng hàng:
 
 ```
 +-------------------------------------------------------------------------------+
 |                           TEM NHẬN DIỆN HÀNG HÓA                              |
-+-------------------+-----------------------------------+-----------------------+
-| KHO : SPIDER      | TÊN HÀNG: [Tên mặt hàng tổng quan] | NGƯỜI ĐIỀU HÀNH :     |
-|                   |                                   | [Tên & SĐT Điều phối] |
-+-------------------+-----------------------------------+-----------------------+
-| MÃ ĐƠN HÀNG : [Mã đơn hàng khách hàng] - [Barcode/QR code to rõ]              |
++-------------------+-----------------------------------------------------------+
+| KHO : [Hub Name]  | TÊN HÀNG: [Tên mặt hàng tổng quan]                        |
++-------------------+-----------------------------------------------------------+
+| MÃ ĐƠN HÀNG : [orderCode]  -  [Barcode / QR Code to rõ quét PDA]              |
 +---------------------------------------+---------------------------------------+
-| NGÀY NHẬP : [DD/MM/YYYY]              | CHỨNG TỪ : [Số phiếu DDMMYY-xxxx]     |
+| NGÀY NHẬP : [DD/MM/YYYY]              |                                       |
 +---------------------------------------+---------------------------------------+
-| SỐ LƯỢNG : [Số thùng / kiện đóng gói]                                         |
+| SỐ LƯỢNG : [Số kiện trên pallet] / [Tổng số lượng tạo của đơn] (VD: 10/80)    |
 +---------------------------------------+---------------------------------------+
-| PALET SỐ : [Số thứ tự Pallet]        | TỔNG SỐ PALET : [Tổng số Pallet]      |
+| PALET SỐ : [Pallet Index]             | TỔNG SỐ PALET : [Total Pallets]       |
 +---------------------------------------+---------------------------------------+
 | NGƯỜI NHẬP : [Họ tên thủ kho tiếp nhận tại Hub]                               |
 +-------------------------------------------------------------------------------+
-| GIAO ĐẾN : [Địa chỉ giao / Tỉnh thành / Hub hoặc Xe bo nhận tiếp]             |
+| GIAO ĐẾN : [Địa chỉ giao / Tỉnh thành / Hub chính hoặc Tuyến Xe bo nhận tiếp] |
 +-------------------------------------------------------------------------------+
 ```
 
-### 7.5. Bảng Kế Hoạch Đóng Hàng Xe Tuyến (Loading Dispatch Sheet):
+> **Quy tắc hiển thị biến động của Tem A4**:
+> - `KHO : [Hub Name]`: Tên Hub của tài khoản thủ kho đang tiếp nhận (`currentUser.hub.name`).
+> - `TÊN HÀNG`: Tên hàng từ dòng hàng tương ứng (tuyệt đối không có SKU).
+> - `MÃ ĐƠN HÀNG`: Mã `orderCode` do server sinh, in kèm Barcode/QR Code to rõ.
+> - `NGÀY NHẬP`: Định dạng `DD/MM/YYYY`.
+> - `SỐ LƯỢNG`: Dạng `[Số kiện pallet này] / [Tổng số lượng tạo của đơn]` (Ví dụ `10/80`, với `/80` là tổng số lượng kiện được tạo ban đầu của đơn hàng).
+> - `PALET SỐ`: Chỉ số pallet hiện tại và tổng số pallet của lô hàng.
+> - `NGƯỜI NHẬP`: Họ tên thủ kho đang đăng nhập (`currentUser.fullName`).
+> - `GIAO ĐẾN`: Địa chỉ giao hàng hoặc Tuyến Xe bo nhận tiếp.
+
+### 8.2. Phiếu Nhập Kho (Inbound Receiving Slip):
+- Quy tắc sinh mã phiếu: `DDMMYY-xxxx` (VD: `280826-0025`).
+- Thông tin bắt buộc: Ngày tháng, Biển số xe, Họ tên tài xế giao, Nhập tại Hub nào.
+- Bảng chi tiết: Mã đơn hàng, Tên mặt hàng, Số lượng, Đơn vị tính (KG/Thùng), Dòng lũy kế tổng.
+- Ô ký nhận pháp lý 2 bên: **Thủ kho nhận hàng** (Ký & họ tên) và **Lái xe / Người giao hàng** (Ký & họ tên).
+
+### 8.3. Phiếu Xuất Kho (Outbound Dispatch Slip):
+- Dùng khi xuất hàng chuyển Hub hoặc bàn giao xe tuyến. Có thông tin xe nhận, danh sách kiện hàng và trọng lượng xuất kho.
+
+### 8.4. Phiếu Giao Hàng (Delivery Note / POD):
+- Dùng khi xuất kho cho xe bo hoặc shipper giao chặng cuối. Có ô ký nhận và xác nhận thanh toán/COD của khách hàng.
+
+### 8.5. Bảng Kế Hoạch Đóng Hàng Xe Tuyến (Loading Dispatch Sheet):
+- In khổ A4 ngang theo `docs_scan/Kế Hoạch Đóng Hàng Xe 43H30703 Spider 3.9 K.xlsx` khi gom chuyến xe tuyến lớn.
 - Căn cứ theo `docs_scan/Kế Hoạch Đóng Hàng Xe 43H30703 Spider 3.9 K.xlsx`.
 - In khổ A4 ngang phục vụ tài xế và thủ kho kiểm đếm khi chất hàng lên xe.
 - Có đầy đủ thông tin: Tiêu đề Kế Hoạch Đóng Hàng, Thông tin xe, Nhà thầu, Lái xe, Bảng 14 cột chi tiết, Hàng tổng khối lượng (`SUBTOTAL`), và khối thông tin Hotline Điều Phối 3 Miền xử lý sự cố dọc đường.

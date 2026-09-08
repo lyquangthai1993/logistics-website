@@ -151,7 +151,7 @@ Implementation touchpoints tối thiểu:
 
 - Identity: `id`, `waybillCode` (`DDMMYY-xxxx`, nullable khi draft), `mode`, `status`, `version`.
 - Scope: `hubId` FK bắt buộc và server-derived; `sourceTripId` nullable; `receivedAt` bắt buộc khi confirm.
-- Snapshot xe: `contractorName`, `vehicleLicensePlate`, `receiverOrDriverName`, `driverPhone`. Mode 2 lấy từ Trip và readonly; Mode 1 nhập tay.
+- Snapshot xe: `vehicleLicensePlate`, `receiverOrDriverName` (Đã bỏ hẳn `contractorName`/`subContractor` và `driverPhone` theo quyết định tinh gọn sàn kho). Mode 2 lấy từ Trip và readonly; Mode 1 nhập tay.
 - Audit: `createdByUserId`, `confirmedByUserId`, `startedInboundByUserId`, `completedByUserId` và timestamps tương ứng; `cancelledBy/reason` nếu hủy.
 - Không lưu năm URL PDF trên bảng này.
 
@@ -238,6 +238,7 @@ Notification phải enqueue sau khi transaction chính commit (outbox hoặc Bul
 - Normalization initials: tên nhiều khoảng trắng, dấu tiếng Việt, `Đ/đ`, dấu gạch/apostrophe; thiếu full name/hub/prefix và Hub inactive đều bị chặn.
 - Time boundary tại 23:59:59 → 00:00:00 theo `Asia/Ho_Chi_Minh`; soft-deleted code không được cấp lại; batch create rollback không để lại Orders nửa chừng.
 - WM không có hub bị chặn bằng thông báo Việt; WM Hub A không query/mutate/generate document của Hub B; SA override có audit.
+- E2E Inter-Hub Transfer Suite (`12-warehouse-inter-hub-transfer.spec.ts`): Luân chuyển toàn trình qua 3 tài khoản thủ kho (`warehouse_hyn` ➔ `warehouse_dad` ➔ `warehouse_hcm`) và Super Admin (`admin`); kiểm chứng luân chuyển hàng hóa, strict hub scoping cách ly dữ liệu, nạp đơn từ chuyến Mode 2, in tem A4 động và kiểm toán vòng đời N-Hubs.
 - Trip nhiều orders, nhiều stops, partial unload; chỉ allocation của current hub được chọn; nhận trùng trả conflict.
 - Paste Excel có merged/blank cells, decimal `1.280`/`1,280`/`5,0`, quá 200 dòng, sai thứ tự cột và formula injection.
 - Import file kiểm MIME/size; không thực thi formula/macro; preview lỗi theo row/cell trước submit.
@@ -363,21 +364,14 @@ export class WaybillEntity extends AbstractBaseEntity {
   @Column({ type: Number, nullable: true })
   tripId: number | null;               // FK → trip (Mode 2 only)
 
-  // ─── Thông tin xe/tài xế/nhà thầu (Red Border Fields) ───
+  // ─── Thông tin xe/tài xế (Siêu gọn) ───
   @Column({ type: String, nullable: true })
-  vehicleLicensePlate: string | null;  // 🔴 Biển số xe (VD: 43H30703)
+  vehicleLicensePlate: string | null;  // 🔴 Biển số xe (VD: 43H30703 hoặc 50H-756.14)
 
   @Column({ type: String, nullable: true })
-  driverName: string | null;           // 🔴 Họ tên tài xế
+  receiverName: string | null;         // 🔴 Họ tên người nhận/lái xe (VD: Bùi Ngọc Tân hoặc Phạm Thành Trung)
 
-  @Column({ type: String, nullable: true })
-  driverPhone: string | null;          // 🔴 SĐT tài xế (VD: 0964248662)
-
-  @Column({ type: String, nullable: true })
-  receiverName: string | null;         // 🔴 Họ tên người nhận/lái xe (VD: Bùi Ngọc Tân)
-
-  @Column({ type: String, nullable: true })
-  subContractor: string | null;        // 🔴 Nhà thầu vận chuyển (VD: SPIDER)
+  // (Đã bỏ hẳn subContractor và driverPhone khỏi entity và DTO theo yêu cầu tinh gọn sàn kho)
 
   // Địa chỉ nhận hàng là snapshot theo từng item, không lặp ở header.
 
@@ -539,8 +533,9 @@ useCancelWaybill()              // PATCH /v1/waybills/:id/cancel
 **File mới**: `frontend/src/features/warehouse/components/warehouse-create-dialog.tsx`
 
 Tab "Mới hoàn toàn" (Mode 1):
-- Header 5 trường theo mẫu: receivedAt, subContractor, vehicleLicensePlate, receiverOrDriverName, driverPhone
-- `<WaybillGridInput />` component
+- Header siêu gọn 3 trường: `receivedAt`, `vehicleLicensePlate`, `receiverOrDriverName` (Đã bỏ hẳn `subContractor`, `driverPhone`).
+- `<WaybillGridInput />` component: Bảng 10 cột rút gọn, Inline Editable Table, mật độ nén gọn.
+- Nút `[+ Thêm 1 dòng đơn mới]`: Nhập xong tự động tạo đơn kho.
 - Sticky Footer: [Hủy] [Lưu nháp] [Xác nhận đơn →]
 
 Tab "Luân chuyển nội bộ" (Mode 2):
@@ -548,24 +543,24 @@ Tab "Luân chuyển nội bộ" (Mode 2):
 - `<TripSelectionModal />` → checkbox chọn đơn
 - `<WaybillGridInput readonly vehicleSection />` + nút "+ Thêm hàng bổ sung"
 
-### 2.3 WaybillGridInput
+### 2.3 WaybillGridInput (Inline Editable Table)
 
 **File mới**: `frontend/src/features/warehouse/components/waybill-grid-input.tsx`
 
-15 cột vật lý (14 cột nghiệp vụ + `Thao tác`), được gom thành 8 nhóm nhập liệu lõi; thứ tự chi tiết phải theo Excel loading plan và canvas đã duyệt:
+Bảng 10 cột cốt lõi rút gọn phục vụ thao tác thực chiến tại sàn kho (đã loại bỏ 5 cột điều phối văn phòng: Điều hành, Khách hàng, Ngày cần bốc, Ngày cần giao, Đã soạn):
 
-| STT | Tên cột | Control |
-|---|---|---|
-| 1 | STT | Auto-increment |
-| 2 | Mã đơn hàng | readonly; `Tự sinh khi lưu` hoặc code Order nguồn |
-| 3 | Địa chỉ nhận hàng | text / readonly (Mode 2) |
-| 4 | Tên hàng | text input (NO SKU) |
-| 5.1 | Số thùng (kiện) | number int |
-| 5.2 | Số kg | number decimal |
-| 5.3 | Số m³ (CBM) | number decimal |
-| 6 | Địa chỉ giao hàng | **3-mode selector** |
-| 7 | Ghi chú | text input |
-| 8 | Thao tác | [+] [⧉] [🗑] icons |
+| STT | Tên cột | Control | Ghi chú |
+|---|---|---|---|
+| 1 | STT | Auto-increment | 1, 2, 3... |
+| 2 | Mã đơn hàng | readonly | `Tự sinh khi lưu` hoặc code Order nguồn |
+| 3 | Địa chỉ nhận hàng | text / readonly | Mode 1: Nhập tay; Mode 2: Lấy Hub hiện tại |
+| 4 | Tên hàng | text input | Mô tả tổng quan (NO SKU) |
+| 5.1 | Số thùng (kiện) | number int | Đơn vị đóng gói vận chuyển ($\ge 1$) |
+| 5.2 | Số kg | number decimal | Gross weight (Kg $> 0$) |
+| 5.3 | Số m³ (CBM) | number decimal | Thể tích ($m^3 > 0$) |
+| 6 | Địa chỉ giao hàng | **3-mode selector** | Free text / Hub chính L1 / Tuyến Xe bo |
+| 7 | Ghi chú | text input | Ghi chú bốc xếp, cồng kềnh... |
+| 8 | Thao tác | Action buttons | `[🖨️ In tem]` (In tem A4 từng dòng) \| `[➕]` \| `[🗑️]` |
 
 Tab key: chuyển ô đúng thứ tự → xuống dòng mới cuối hàng.
 
