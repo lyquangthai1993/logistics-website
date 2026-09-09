@@ -7853,7 +7853,7 @@
                           "id": "c4l7O",
                           "name": "Create Inbound Label",
                           "fill": "#FFFFFF",
-                          "content": "+ Tạo đơn nhập mới",
+                          "content": "Tạo đơn nhập mới",
                           "fontFamily": "$font-main",
                           "fontSize": 12.5,
                           "fontWeight": "700"
@@ -7889,7 +7889,7 @@
                           "id": "VPXtx",
                           "name": "Transfer Inbound Label",
                           "fill": "#FFFFFF",
-                          "content": "🚚 Nhận luân chuyển nội bộ",
+                          "content": "Nhận luân chuyển nội bộ",
                           "fontFamily": "$font-main",
                           "fontSize": 12.5,
                           "fontWeight": "700"
@@ -19749,7 +19749,7 @@
                           "id": "ob_btn_m1_txt",
                           "name": "M1 Text",
                           "fill": "#FFFFFF",
-                          "content": "+ Xuất cho khách hàng",
+                          "content": "Xuất cho khách hàng",
                           "fontFamily": "$font-main",
                           "fontSize": 12.5,
                           "fontWeight": "700"
@@ -19785,7 +19785,7 @@
                           "id": "ob_btn_m2_txt",
                           "name": "M2 Text",
                           "fill": "#FFFFFF",
-                          "content": "🚚 Xuất luân chuyển nội bộ",
+                          "content": "Xuất luân chuyển nội bộ",
                           "fontFamily": "$font-main",
                           "fontSize": 12.5,
                           "fontWeight": "700"

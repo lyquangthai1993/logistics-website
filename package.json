@@ -7,6 +7,9 @@
     "dev": "node scripts/start-dev.js",
     "backend": "npm run start:dev --prefix backend",
     "frontend": "npm run dev --prefix frontend",
-    "install:all": "npm install --prefix backend && npm install --prefix frontend"
+    "install:all": "npm install --prefix backend && npm install --prefix frontend",
+    "test:e2e": "npm run e2e --prefix frontend",
+    "test:e2e:check": "npm run e2e:check --prefix frontend",
+    "test:e2e:report": "npm run e2e:report --prefix frontend"
   }
 }
