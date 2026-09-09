@@ -20,15 +20,17 @@ The frontend is architected on top of the **[next-shadcn-dashboard-starter](http
 
 ```
 Orchestrator Agent (this skill)
-├── Sub-Agent D: Runtime Log Tracer         → e2e/00-runtime-log-tracer.spec.ts  ← RUN FIRST
-├── Sub-Agent A: Console Health Inspector   → e2e/01-console-health.spec.ts
-├── Sub-Agent B: Login Flow Tester          → e2e/02-login-flow.spec.ts (Auth & Error Sanitization)
-├── Sub-Agent C: RBAC Route Guard Validator → e2e/03-rbac-routing.spec.ts
-└── Sub-Agent E: Viewport & Table UX Suite  → e2e/11-*-no-hscroll.spec.ts (or responsive specs)
+├── Sub-Agent D: Runtime Log Tracer          → e2e/00-runtime-log-tracer.spec.ts  ← RUN FIRST
+├── Sub-Agent A: Console Health Inspector    → e2e/01-console-health.spec.ts
+├── Sub-Agent B: Login Flow Tester           → e2e/02-login-flow.spec.ts (Auth & Error Sanitization)
+├── Sub-Agent C: RBAC Route Guard Validator  → e2e/03-rbac-routing.spec.ts
+├── Sub-Agent E: Viewport & Table UX Suite   → e2e/11-*-no-hscroll.spec.ts (or responsive specs)
+└── Sub-Agent F: Visual & Pen Matching Agent → e2e/13-*-visual-validation.spec.ts (Pencil .pen Matcher)
 ```
 
 > **Sub-Agent D runs first** — surfaces backend/network issues early to prevent cascading timeouts in B, C, and E.
 > **Sub-Agent B strictly validates Error Sanitization** — asserts localized Vietnamese error messages and verifies that raw technical keys/codes (e.g. `incorrectEmailOrPassword`, `notFound`, `emailNotExists`, `email:`, `password:`) are NEVER rendered in the UI.
+> **Sub-Agent F strictly validates Visual & Design Pen Matching** — captures screenshots of all screens/modals and cross-checks them against vector design specs in `pencil-workspace/pens/*.pen` (evaluating width constraints, #0F3D62 Navy headers, column layouts, dynamic counter pills, and zero redundant icons). Read [`visual-pen-matcher`](../visual-pen-matcher/SKILL.md) for the 5-dimension rubric.
 
 ---
 
@@ -99,7 +101,8 @@ frontend/
 │   ├── 01-console-health.spec.ts    # Sub-Agent A (Console errors, JS exceptions)
 │   ├── 02-login-flow.spec.ts        # Sub-Agent B (Authentication for 4 roles)
 │   ├── 03-rbac-routing.spec.ts      # Sub-Agent C (Route guards & role matrices)
-│   └── 11-orders-table-no-hscroll.spec.ts # Sub-Agent E (Viewport x Sidebar Matrix)
+│   ├── 11-orders-table-no-hscroll.spec.ts # Sub-Agent E (Viewport x Sidebar Matrix)
+│   └── 13-warehouse-ui-visual-validation.spec.ts # Sub-Agent F (Visual & Pen Canvas Matching)
 └── playwright-report/                # HTML reports & screenshot artifacts
 ```
 
@@ -182,10 +185,13 @@ npm run e2e:multi-account# Multi-account dispatch & notification sync (06b-realt
 # ── C. Run Viewport & Table UX Matrix ──
 npx playwright test e2e/11-orders-table-no-hscroll.spec.ts
 
-# ── D. Run ALL Test Suites ──
+# ── D. Run Visual & Pen Canvas Matching Suite (Sub-Agent F) ──
+npx playwright test e2e/13-warehouse-ui-visual-validation.spec.ts
+
+# ── E. Run ALL Test Suites ──
 npm run e2e              # Automatically runs pre-flight check then executes all specs
 
-# ── E. Debug / Headed Mode ──
+# ── F. Debug / Headed Mode ──
 npm run e2e:debug        # Launches Playwright Inspector in headed browser
 ```
 
