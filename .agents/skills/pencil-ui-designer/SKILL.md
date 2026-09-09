@@ -87,6 +87,26 @@ When given a live URL (e.g. `http://localhost:3000/auth/sign-in`, `http://localh
 
 ---
 
+### 4. 🧭 Multi-Step Interactive Flow Design Standards (Agent-Oriented Design Rules)
+To ensure AI coding agents can unambiguously interpret and implement multi-step flows (Page ➔ Modal 1 ➔ Modal 2 ➔ Loaded Grid State):
+
+1. **Explicit Node Archetype Prefixes**:
+   - `[PAGE] <NodeId> - <Description>`: Top-level route / workspace page (e.g. `[PAGE] dd8X5 - Nhập kho luân chuyển`).
+   - `[MODAL_STEP_1] <NodeId> - <Description>`: Step 1 dialog (e.g. `[MODAL_STEP_1] WH_CASE_02B_TRIP_MODAL - Chọn chuyến xe`).
+   - `[MODAL_STEP_2] <NodeId> - <Description>`: Step 2 dialog (e.g. `[MODAL_STEP_2] WH_CASE_03_MODAL - Chọn đơn hàng từ chuyến`).
+   - `[STATE_LOADED] <NodeId> - <Description>`: Page state populated with selected items.
+
+2. **Trigger Action Naming on Buttons**:
+   - Name interactive button layers with clear transition targets:
+     - `[TRIGGER: OPEN_MODAL -> WH_CASE_02B_TRIP_MODAL]`
+     - `[TRIGGER: NEXT_STEP -> WH_CASE_03_MODAL]`
+     - `[TRIGGER: CONFIRM_INTO_GRID -> dd8X5]`
+
+3. **Unified Stepper Progression**:
+   - Every frame in a multi-step workflow MUST contain a shared Stepper component indicating the active step (`1. Chọn chuyến ➔ 2. Chọn đơn ➔ 3. Xác nhận lên lưới`), signaling to coding agents that this is a cohesive State Machine (`step = 1 | 2 | 3`).
+
+---
+
 ## 🛠️ Pencil MCP Tool Reference
 
 | Tool | Key Action / Parameter | Purpose |
