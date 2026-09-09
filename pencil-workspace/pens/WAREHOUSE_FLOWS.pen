@@ -3519,7 +3519,7 @@
                           "id": "JDwLo",
                           "name": "Add Row Label",
                           "fill": "#FFFFFF",
-                          "content": "+ Thêm 1 dòng đơn mới",
+                          "content": "Thêm 1 dòng đơn mới",
                           "fontFamily": "$font-main",
                           "fontSize": 13,
                           "fontWeight": "600"
@@ -8350,7 +8350,7 @@
                       "type": "frame",
                       "id": "q6c7s",
                       "name": "Board Table Header Cell 0",
-                      "width": 200,
+                      "width": 160,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
@@ -8360,7 +8360,7 @@
                           "name": "Th 0 Text",
                           "fill": "#64748B",
                           "content": "MÃ VẬN ĐƠN",
-                          "fontFamily": "$font-main",
+                          "fontFamily": "-main",
                           "fontSize": 11,
                           "fontWeight": "700"
                         }
@@ -8370,7 +8370,7 @@
                       "type": "frame",
                       "id": "JolJq",
                       "name": "Board Table Header Cell 1",
-                      "width": 320,
+                      "width": 200,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
@@ -8379,28 +8379,8 @@
                           "id": "inb_th_c1_txt",
                           "name": "Th 1 Text",
                           "fill": "#64748B",
-                          "content": "KHÁCH HÀNG / NGUỒN GỬI",
-                          "fontFamily": "$font-main",
-                          "fontSize": 11,
-                          "fontWeight": "700"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "xYyTx",
-                      "name": "Board Table Header Cell 2",
-                      "width": 220,
-                      "height": "fill_container",
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "inb_th_c2_txt",
-                          "name": "Th 2 Text",
-                          "fill": "#64748B",
-                          "content": "TRẠNG THÁI",
-                          "fontFamily": "$font-main",
+                          "content": "TÊN HÀNG HÓA",
+                          "fontFamily": "-main",
                           "fontSize": 11,
                           "fontWeight": "700"
                         }
@@ -8409,8 +8389,28 @@
                     {
                       "type": "frame",
                       "id": "obzoH",
-                      "name": "Board Table Header Cell 4",
-                      "width": 160,
+                      "name": "Board Table Header Cell 2",
+                      "width": 170,
+                      "height": "fill_container",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "inb_th_c2_txt",
+                          "name": "Th 2 Text",
+                          "fill": "#64748B",
+                          "content": "SỐ KIỆN / TẢI TRỌNG",
+                          "fontFamily": "-main",
+                          "fontSize": 11,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "xYyTx",
+                      "name": "Board Table Header Cell 3",
+                      "width": 140,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
@@ -8419,8 +8419,8 @@
                           "id": "inb_th_c3_txt",
                           "name": "Th 3 Text",
                           "fill": "#64748B",
-                          "content": "SỐ KIỆN / TẢI TRỌNG",
-                          "fontFamily": "$font-main",
+                          "content": "TRẠNG THÁI",
+                          "fontFamily": "-main",
                           "fontSize": 11,
                           "fontWeight": "700"
                         }
@@ -8429,8 +8429,8 @@
                     {
                       "type": "frame",
                       "id": "CrcPc",
-                      "name": "Board Table Header Cell 5",
-                      "width": 236,
+                      "name": "Board Table Header Cell 4",
+                      "width": 140,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
@@ -8440,7 +8440,48 @@
                           "name": "Th 4 Text",
                           "fill": "#64748B",
                           "content": "LOẠI NHẬP KHO",
-                          "fontFamily": "$font-main",
+                          "fontFamily": "-main",
+                          "fontSize": 11,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "inb_th_c5_notes",
+                      "name": "Board Table Header Cell 5",
+                      "width": 180,
+                      "height": "fill_container",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "inb_th_c5_txt",
+                          "name": "Th 5 Text",
+                          "fill": "#64748B",
+                          "content": "GHI CHÚ",
+                          "fontFamily": "-main",
+                          "fontSize": 11,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "inb_th_c6_actions",
+                      "name": "Board Table Header Cell 6",
+                      "width": 180,
+                      "height": "fill_container",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "inb_th_c6_txt",
+                          "name": "Th 6 Text",
+                          "fill": "#64748B",
+                          "content": "THAO TÁC",
+                          "fontFamily": "-main",
                           "fontSize": 11,
                           "fontWeight": "700"
                         }
@@ -8468,7 +8509,7 @@
                       "type": "frame",
                       "id": "sG8mj",
                       "name": "Code Cell",
-                      "width": 200,
+                      "width": 160,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
@@ -8486,18 +8527,38 @@
                     },
                     {
                       "type": "frame",
-                      "id": "ZzxYq",
-                      "name": "Customer Cell",
-                      "width": 320,
+                      "id": "dnXt0_goods",
+                      "name": "Goods Description Cell",
+                      "width": 200,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
                         {
                           "type": "text",
-                          "id": "inb_r1_c1_txt",
-                          "name": "Customer Text",
+                          "id": "dnXt0_goods_txt",
+                          "name": "Goods Text",
                           "fill": "#0F172A",
-                          "content": "VICO Việt Nam · KCN Tân Bình",
+                          "content": "Vải cuộn công nghiệp",
+                          "fontFamily": "-main",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "yINfq",
+                      "name": "Qty Cell",
+                      "width": 170,
+                      "height": "fill_container",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "inb_r1_c3_txt",
+                          "name": "Qty Text",
+                          "fill": "#0F172A",
+                          "content": "50 kiện · 1.280 kg",
                           "fontFamily": "$font-main",
                           "fontSize": 12,
                           "fontWeight": "600"
@@ -8508,7 +8569,7 @@
                       "type": "frame",
                       "id": "Z7BJt",
                       "name": "Status Cell",
-                      "width": 220,
+                      "width": 140,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
@@ -8539,29 +8600,9 @@
                     },
                     {
                       "type": "frame",
-                      "id": "yINfq",
-                      "name": "Qty Cell",
-                      "width": 160,
-                      "height": "fill_container",
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "inb_r1_c3_txt",
-                          "name": "Qty Text",
-                          "fill": "#0F172A",
-                          "content": "50 kiện · 1.280 kg",
-                          "fontFamily": "$font-main",
-                          "fontSize": 12,
-                          "fontWeight": "600"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
                       "id": "L6sYgJ",
                       "name": "Type Cell",
-                      "width": 236,
+                      "width": 140,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
@@ -8581,9 +8622,97 @@
                               "id": "inb_r1_type_txt",
                               "name": "Type Text",
                               "fill": "#2563EB",
-                              "content": "👤 Khách gửi tại kho",
+                              "content": "Khách gửi",
                               "fontFamily": "$font-main",
                               "fontSize": 11,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "dnXt0_notes",
+                      "name": "Notes Cell",
+                      "width": 180,
+                      "height": "fill_container",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "dnXt0_notes_txt",
+                          "name": "Notes Text",
+                          "fill": "#64748B",
+                          "content": "Giao giờ hành chính, liên hệ cổng 2",
+                          "fontFamily": "-main",
+                          "fontSize": 11,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "dnXt0_actions",
+                      "name": "Actions Cell",
+                      "width": 180,
+                      "height": "fill_container",
+                      "gap": 6,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "dnXt0_actions_btn_0",
+                          "name": "Button Kiểm đếm",
+                          "height": 28,
+                          "fill": "#0F3D62",
+                          "cornerRadius": 6,
+                          "stroke": "#0F3D62",
+                          "strokeWidth": 1,
+                          "padding": [
+                            0,
+                            8
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "dnXt0_actions_btn_txt_0",
+                              "name": "Button Text",
+                              "fill": "#FFFFFF",
+                              "content": "Kiểm đếm",
+                              "fontFamily": "-main",
+                              "fontSize": 10.5,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "dnXt0_actions_btn_1",
+                          "name": "Button In tem",
+                          "height": 28,
+                          "fill": "#EFF6FF",
+                          "cornerRadius": 6,
+                          "stroke": "#BFDBFE",
+                          "strokeWidth": 1,
+                          "padding": [
+                            0,
+                            8
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "dnXt0_actions_btn_txt_1",
+                              "name": "Button Text",
+                              "fill": "#2563EB",
+                              "content": "In tem",
+                              "fontFamily": "-main",
+                              "fontSize": 10.5,
                               "fontWeight": "600"
                             }
                           ]
@@ -8612,7 +8741,7 @@
                       "type": "frame",
                       "id": "AEgg5",
                       "name": "Code Cell",
-                      "width": 200,
+                      "width": 160,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
@@ -8630,18 +8759,38 @@
                     },
                     {
                       "type": "frame",
-                      "id": "JKAfT",
-                      "name": "Customer Cell",
-                      "width": 320,
+                      "id": "k6UN3_goods",
+                      "name": "Goods Description Cell",
+                      "width": 200,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
                         {
                           "type": "text",
-                          "id": "inb_r2_c1_txt",
-                          "name": "Customer Text",
+                          "id": "k6UN3_goods_txt",
+                          "name": "Goods Text",
                           "fill": "#0F172A",
-                          "content": "CJ Logistics · Từ Polaris Hub",
+                          "content": "Linh kiện điện tử & cáp",
+                          "fontFamily": "-main",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "rCP67",
+                      "name": "Qty Cell",
+                      "width": 170,
+                      "height": "fill_container",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "inb_r2_c3_txt",
+                          "name": "Qty Text",
+                          "fill": "#0F172A",
+                          "content": "20 kiện · 650 kg",
                           "fontFamily": "$font-main",
                           "fontSize": 12,
                           "fontWeight": "600"
@@ -8652,7 +8801,7 @@
                       "type": "frame",
                       "id": "EbprH",
                       "name": "Status Cell",
-                      "width": 220,
+                      "width": 140,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
@@ -8683,29 +8832,9 @@
                     },
                     {
                       "type": "frame",
-                      "id": "rCP67",
-                      "name": "Qty Cell",
-                      "width": 160,
-                      "height": "fill_container",
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "inb_r2_c3_txt",
-                          "name": "Qty Text",
-                          "fill": "#0F172A",
-                          "content": "20 kiện · 650 kg",
-                          "fontFamily": "$font-main",
-                          "fontSize": 12,
-                          "fontWeight": "600"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
                       "id": "U8UTH",
                       "name": "Type Cell",
-                      "width": 236,
+                      "width": 140,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
@@ -8725,9 +8854,97 @@
                               "id": "inb_r2_type_txt",
                               "name": "Type Text",
                               "fill": "#0F172A",
-                              "content": "🚚 Luân chuyển (TRIP-018)",
+                              "content": "Luân chuyển",
                               "fontFamily": "$font-main",
                               "fontSize": 11,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "k6UN3_notes",
+                      "name": "Notes Cell",
+                      "width": 180,
+                      "height": "fill_container",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "k6UN3_notes_txt",
+                          "name": "Notes Text",
+                          "fill": "#64748B",
+                          "content": "Hàng giá trị cao, bảo quản khô ráo",
+                          "fontFamily": "-main",
+                          "fontSize": 11,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "k6UN3_actions",
+                      "name": "Actions Cell",
+                      "width": 180,
+                      "height": "fill_container",
+                      "gap": 6,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "k6UN3_actions_btn_0",
+                          "name": "Button Kiểm đếm",
+                          "height": 28,
+                          "fill": "#0F3D62",
+                          "cornerRadius": 6,
+                          "stroke": "#0F3D62",
+                          "strokeWidth": 1,
+                          "padding": [
+                            0,
+                            8
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "k6UN3_actions_btn_txt_0",
+                              "name": "Button Text",
+                              "fill": "#FFFFFF",
+                              "content": "Kiểm đếm",
+                              "fontFamily": "-main",
+                              "fontSize": 10.5,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "k6UN3_actions_btn_1",
+                          "name": "Button In tem",
+                          "height": 28,
+                          "fill": "#EFF6FF",
+                          "cornerRadius": 6,
+                          "stroke": "#BFDBFE",
+                          "strokeWidth": 1,
+                          "padding": [
+                            0,
+                            8
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "k6UN3_actions_btn_txt_1",
+                              "name": "Button Text",
+                              "fill": "#2563EB",
+                              "content": "In tem",
+                              "fontFamily": "-main",
+                              "fontSize": 10.5,
                               "fontWeight": "600"
                             }
                           ]
@@ -8756,7 +8973,7 @@
                       "type": "frame",
                       "id": "lKmbs",
                       "name": "Code Cell",
-                      "width": 200,
+                      "width": 160,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
@@ -8774,18 +8991,38 @@
                     },
                     {
                       "type": "frame",
-                      "id": "jUyiE",
-                      "name": "Customer Cell",
-                      "width": 320,
+                      "id": "p0sBWY_goods",
+                      "name": "Goods Description Cell",
+                      "width": 200,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
                         {
                           "type": "text",
-                          "id": "inb_r3_c1_txt",
-                          "name": "Customer Text",
+                          "id": "p0sBWY_goods_txt",
+                          "name": "Goods Text",
                           "fill": "#0F172A",
-                          "content": "Star Fashion · Bình Dương",
+                          "content": "Quần áo thời trang may sẵn",
+                          "fontFamily": "-main",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "u1f8n4",
+                      "name": "Qty Cell",
+                      "width": 170,
+                      "height": "fill_container",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "inb_r3_c3_txt",
+                          "name": "Qty Text",
+                          "fill": "#0F172A",
+                          "content": "12 kiện · 420 kg",
                           "fontFamily": "$font-main",
                           "fontSize": 12,
                           "fontWeight": "600"
@@ -8796,7 +9033,7 @@
                       "type": "frame",
                       "id": "UlAtj",
                       "name": "Status Cell",
-                      "width": 220,
+                      "width": 140,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
@@ -8827,29 +9064,9 @@
                     },
                     {
                       "type": "frame",
-                      "id": "u1f8n4",
-                      "name": "Qty Cell",
-                      "width": 160,
-                      "height": "fill_container",
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "inb_r3_c3_txt",
-                          "name": "Qty Text",
-                          "fill": "#0F172A",
-                          "content": "12 kiện · 420 kg",
-                          "fontFamily": "$font-main",
-                          "fontSize": 12,
-                          "fontWeight": "600"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
                       "id": "H20Fgp",
                       "name": "Type Cell",
-                      "width": 236,
+                      "width": 140,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
@@ -8869,9 +9086,97 @@
                               "id": "inb_r3_type_txt",
                               "name": "Type Text",
                               "fill": "#2563EB",
-                              "content": "👤 Khách gửi tại kho",
+                              "content": "Khách gửi",
                               "fontFamily": "$font-main",
                               "fontSize": 11,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "p0sBWY_notes",
+                      "name": "Notes Cell",
+                      "width": 180,
+                      "height": "fill_container",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "p0sBWY_notes_txt",
+                          "name": "Notes Text",
+                          "fill": "#64748B",
+                          "content": "Kiểm tra niêm phong pallet cẩn thận",
+                          "fontFamily": "-main",
+                          "fontSize": 11,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "p0sBWY_actions",
+                      "name": "Actions Cell",
+                      "width": 180,
+                      "height": "fill_container",
+                      "gap": 6,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "p0sBWY_actions_btn_0",
+                          "name": "Button Chi tiết",
+                          "height": 28,
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 6,
+                          "stroke": "#E2E8F0",
+                          "strokeWidth": 1,
+                          "padding": [
+                            0,
+                            8
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "p0sBWY_actions_btn_txt_0",
+                              "name": "Button Text",
+                              "fill": "#334155",
+                              "content": "Chi tiết",
+                              "fontFamily": "-main",
+                              "fontSize": 10.5,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "p0sBWY_actions_btn_1",
+                          "name": "Button In tem",
+                          "height": 28,
+                          "fill": "#EFF6FF",
+                          "cornerRadius": 6,
+                          "stroke": "#BFDBFE",
+                          "strokeWidth": 1,
+                          "padding": [
+                            0,
+                            8
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "p0sBWY_actions_btn_txt_1",
+                              "name": "Button Text",
+                              "fill": "#2563EB",
+                              "content": "In tem",
+                              "fontFamily": "-main",
+                              "fontSize": 10.5,
                               "fontWeight": "600"
                             }
                           ]
@@ -8900,7 +9205,7 @@
                       "type": "frame",
                       "id": "Cj30i",
                       "name": "Code Cell",
-                      "width": 200,
+                      "width": 160,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
@@ -8918,18 +9223,38 @@
                     },
                     {
                       "type": "frame",
-                      "id": "I1Bw2Y",
-                      "name": "Customer Cell",
-                      "width": 320,
+                      "id": "WWP7j_goods",
+                      "name": "Goods Description Cell",
+                      "width": 200,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
                         {
                           "type": "text",
-                          "id": "inb_r4_c1_txt",
-                          "name": "Customer Text",
+                          "id": "WWP7j_goods_txt",
+                          "name": "Goods Text",
                           "fill": "#0F172A",
-                          "content": "MKT Packaging · Từ Magellan Hub",
+                          "content": "Bao bì carton sóng",
+                          "fontFamily": "-main",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "tBjo3",
+                      "name": "Qty Cell",
+                      "width": 170,
+                      "height": "fill_container",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "inb_r4_c3_txt",
+                          "name": "Qty Text",
+                          "fill": "#0F172A",
+                          "content": "15 kiện · 580 kg",
                           "fontFamily": "$font-main",
                           "fontSize": 12,
                           "fontWeight": "600"
@@ -8940,7 +9265,7 @@
                       "type": "frame",
                       "id": "exBh5",
                       "name": "Status Cell",
-                      "width": 220,
+                      "width": 140,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
@@ -8971,29 +9296,9 @@
                     },
                     {
                       "type": "frame",
-                      "id": "tBjo3",
-                      "name": "Qty Cell",
-                      "width": 160,
-                      "height": "fill_container",
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "inb_r4_c3_txt",
-                          "name": "Qty Text",
-                          "fill": "#0F172A",
-                          "content": "15 kiện · 580 kg",
-                          "fontFamily": "$font-main",
-                          "fontSize": 12,
-                          "fontWeight": "600"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
                       "id": "f7wzLF",
                       "name": "Type Cell",
-                      "width": 236,
+                      "width": 140,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
@@ -9013,9 +9318,97 @@
                               "id": "inb_r4_type_txt",
                               "name": "Type Text",
                               "fill": "#0F172A",
-                              "content": "🚚 Luân chuyển (TRIP-022)",
+                              "content": "Luân chuyển",
                               "fontFamily": "$font-main",
                               "fontSize": 11,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "WWP7j_notes",
+                      "name": "Notes Cell",
+                      "width": 180,
+                      "height": "fill_container",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "WWP7j_notes_txt",
+                          "name": "Notes Text",
+                          "fill": "#64748B",
+                          "content": "Tránh ẩm ướt, xếp tối đa 4 tầng",
+                          "fontFamily": "-main",
+                          "fontSize": 11,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "WWP7j_actions",
+                      "name": "Actions Cell",
+                      "width": 180,
+                      "height": "fill_container",
+                      "gap": 6,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "WWP7j_actions_btn_0",
+                          "name": "Button Chi tiết",
+                          "height": 28,
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 6,
+                          "stroke": "#E2E8F0",
+                          "strokeWidth": 1,
+                          "padding": [
+                            0,
+                            8
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "WWP7j_actions_btn_txt_0",
+                              "name": "Button Text",
+                              "fill": "#334155",
+                              "content": "Chi tiết",
+                              "fontFamily": "-main",
+                              "fontSize": 10.5,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "WWP7j_actions_btn_1",
+                          "name": "Button In tem",
+                          "height": 28,
+                          "fill": "#EFF6FF",
+                          "cornerRadius": 6,
+                          "stroke": "#BFDBFE",
+                          "strokeWidth": 1,
+                          "padding": [
+                            0,
+                            8
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "WWP7j_actions_btn_txt_1",
+                              "name": "Button Text",
+                              "fill": "#2563EB",
+                              "content": "In tem",
+                              "fontFamily": "-main",
+                              "fontSize": 10.5,
                               "fontWeight": "600"
                             }
                           ]
@@ -9044,7 +9437,7 @@
                       "type": "frame",
                       "id": "UCxHw",
                       "name": "Code Cell",
-                      "width": 200,
+                      "width": 160,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
@@ -9062,21 +9455,41 @@
                     },
                     {
                       "type": "frame",
-                      "id": "oitpo",
-                      "name": "Customer Cell",
-                      "width": 320,
+                      "id": "Oo95v_goods",
+                      "name": "Goods Description Cell",
+                      "width": 200,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
                         {
                           "type": "text",
-                          "id": "inb_r5_c1_txt",
-                          "name": "Customer Text",
+                          "id": "Oo95v_goods_txt",
+                          "name": "Goods Text",
+                          "fill": "#0F172A",
+                          "content": "Hạt nhựa tái sinh PVC",
+                          "fontFamily": "-main",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "E7yVx",
+                      "name": "Qty Cell",
+                      "width": 170,
+                      "height": "fill_container",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "inb_r5_c3_txt",
+                          "name": "Qty Text",
                           "fill": "#64748B",
-                          "content": "VICO Việt Nam · Bản nháp tiếp nhận",
+                          "content": "8 kiện · 210 kg",
                           "fontFamily": "$font-main",
                           "fontSize": 12,
-                          "fontWeight": "500"
+                          "fontWeight": "600"
                         }
                       ]
                     },
@@ -9084,7 +9497,7 @@
                       "type": "frame",
                       "id": "XNElu",
                       "name": "Status Cell",
-                      "width": 220,
+                      "width": 140,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
@@ -9115,29 +9528,9 @@
                     },
                     {
                       "type": "frame",
-                      "id": "E7yVx",
-                      "name": "Qty Cell",
-                      "width": 160,
-                      "height": "fill_container",
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "inb_r5_c3_txt",
-                          "name": "Qty Text",
-                          "fill": "#64748B",
-                          "content": "8 kiện · 210 kg",
-                          "fontFamily": "$font-main",
-                          "fontSize": 12,
-                          "fontWeight": "600"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
                       "id": "uXlVD",
                       "name": "Type Cell",
-                      "width": 236,
+                      "width": 140,
                       "height": "fill_container",
                       "alignItems": "center",
                       "children": [
@@ -9157,9 +9550,97 @@
                               "id": "inb_r5_type_txt",
                               "name": "Type Text",
                               "fill": "#2563EB",
-                              "content": "👤 Khách gửi tại kho",
+                              "content": "Khách gửi",
                               "fontFamily": "$font-main",
                               "fontSize": 11,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Oo95v_notes",
+                      "name": "Notes Cell",
+                      "width": 180,
+                      "height": "fill_container",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Oo95v_notes_txt",
+                          "name": "Notes Text",
+                          "fill": "#64748B",
+                          "content": "Chờ khách xác nhận số lượng thực tế",
+                          "fontFamily": "-main",
+                          "fontSize": 11,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Oo95v_actions",
+                      "name": "Actions Cell",
+                      "width": 180,
+                      "height": "fill_container",
+                      "gap": 6,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "Oo95v_actions_btn_0",
+                          "name": "Button Kiểm đếm",
+                          "height": 28,
+                          "fill": "#0F3D62",
+                          "cornerRadius": 6,
+                          "stroke": "#0F3D62",
+                          "strokeWidth": 1,
+                          "padding": [
+                            0,
+                            8
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Oo95v_actions_btn_txt_0",
+                              "name": "Button Text",
+                              "fill": "#FFFFFF",
+                              "content": "Kiểm đếm",
+                              "fontFamily": "-main",
+                              "fontSize": 10.5,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Oo95v_actions_btn_1",
+                          "name": "Button Chi tiết",
+                          "height": 28,
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 6,
+                          "stroke": "#E2E8F0",
+                          "strokeWidth": 1,
+                          "padding": [
+                            0,
+                            8
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Oo95v_actions_btn_txt_1",
+                              "name": "Button Text",
+                              "fill": "#334155",
+                              "content": "Chi tiết",
+                              "fontFamily": "-main",
+                              "fontSize": 10.5,
                               "fontWeight": "600"
                             }
                           ]
