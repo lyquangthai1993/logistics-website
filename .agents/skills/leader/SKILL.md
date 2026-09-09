@@ -70,6 +70,17 @@ Before implementing features or modifying workflows, agents MUST reference:
 > - **Filter & Counter Parity (1:1 Parity)**: Số lượng ghi trên Tab (ví dụ: `Chờ nhập kho (N)`) bắt buộc phải khớp 100% với số lượng bản ghi trả về và render trong bảng danh sách khi bấm vào Tab đó.
 > - **Ambiguity Protocol (Hỏi ngay khi không rõ)**: Nếu bất kỳ công thức tính toán, trạng thái mapping, hoặc logic đếm counter nào trong thiết kế / yêu cầu chưa rõ ràng, **BẮT BUỘC PHẢI DỪNG LẠI, KIỂM TRA VÀ HỎI LẠI USER NGAY**, tuyệt đối không tự ý giả định, tự sinh số mẫu hay hardcode số ngẫu nhiên vào code/UI.
 
+> [!IMPORTANT]
+> **TWO-TIER HUB HIERARCHY & DELIVERY DESTINATION MODES (QUY TẮC PHÂN TẦNG MẠNG LƯỚI HUB & HÌNH THỨC GIAO HÀNG):**
+> Mạng lưới kho vận TMS quản lý theo cấu trúc phân cấp 2 tầng (`hub.level`):
+> 1. **Hub Cấp 1 (`level = 1`)**: Trung tâm trung chuyển khu vực chính (Regional Linehaul Hubs: *Polaris Hub - Hưng Yên*, *Magellan Hub - Đà Nẵng*, *Andromeda Hub - HCM*). Phục vụ luân chuyển xe tải lớn/container liên vùng và lưu kho trung tâm.
+> 2. **Hub Cấp 2 / Trạm Xe Bo (`level = 2`)**: Điểm giao nhận / tuyến xe bo vệ tinh (Last-Mile / Urban Feeder Stations: ví dụ *XB-KH-02 · gom hàng tuyến nội thành*, *Xe bo Tuyến Hà Nội*, *Xe bo Tuyến HCM*...). Phục vụ xe bo gom hàng và trả hàng chặng cuối theo tuyến tỉnh thành.
+>
+> **3 Hình thức giao nhận trong Lưới bảng kho (`deliveryMode`)**:
+> - **`DIRECT_CUSTOMER` (Khách tự nhận / Giao thẳng)**: Nhập địa chỉ giao hàng tận nơi cho khách (Textarea).
+> - **`HUB_L1` (Hub cấp 1 - Node uGTVE)**: Chọn đích đến từ danh sách **Hub Cấp 1** (`level = 1`) để điều chuyển trung tâm.
+> - **`XE_BO` (Xe bo - Node SzHh3)**: Chọn tuyến/trạm xe bo từ danh sách **Hub Cấp 2** (`level = 2`) để gom/phân phối tuyến nội thành.
+
 ---
 
 ## 🧾 Order Code Generation (STRICT PRECONDITION)
