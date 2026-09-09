@@ -27145,6 +27145,874 @@
       "height": 0,
       "stroke": "#000000",
       "strokeWidth": 1
+    },
+    {
+      "type": "frame",
+      "id": "WB_DETAIL_FRAME_01",
+      "x": 9168,
+      "y": 1784.899336658108,
+      "name": "Nhập kho · Chi tiết mã vận đơn",
+      "clip": true,
+      "width": 1440,
+      "height": 1000,
+      "fill": "#0B1220B3",
+      "layout": "none",
+      "children": [
+        {
+          "type": "frame",
+          "id": "wb_modal_dialog",
+          "x": 330,
+          "y": 70,
+          "name": "Modal Dialog · Chi tiết vận đơn",
+          "width": 780,
+          "height": 860,
+          "fill": "#FFFFFF",
+          "cornerRadius": 12,
+          "stroke": "#CBD5E1",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000033",
+            "offset": {
+              "x": 0,
+              "y": 20
+            },
+            "blur": 40
+          },
+          "children": [
+            {
+              "type": "frame",
+              "id": "wb_header",
+              "name": "Modal Header",
+              "width": "fill_container",
+              "height": 76,
+              "fill": "#FFFFFF",
+              "stroke": "#E2E8F0",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "padding": [
+                16,
+                24
+              ],
+              "layout": "vertical",
+              "gap": 4,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "wb_header_row1",
+                  "name": "Header Row 1",
+                  "width": "fill_container",
+                  "height": 28,
+                  "alignItems": "center",
+                  "justifyContent": "space_between",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "wb_header_title_grp",
+                      "name": "Title Group",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "wb_ico_doc",
+                          "width": 20,
+                          "height": 20,
+                          "icon": "file-text",
+                          "library": "lucide",
+                          "fill": "#175CD3"
+                        },
+                        {
+                          "type": "text",
+                          "id": "wb_title_text",
+                          "content": "Mã Vận Đơn: HCM-LTV-2609-011",
+                          "fontFamily": "$font-main",
+                          "fontSize": 16,
+                          "fontWeight": "700",
+                          "fill": "#0F172A"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "wb_badge_status",
+                          "height": 22,
+                          "fill": "#EFF8FF",
+                          "cornerRadius": 6,
+                          "stroke": "#B2DDFF",
+                          "strokeWidth": 1,
+                          "padding": [
+                            0,
+                            8
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "wb_badge_status_lbl",
+                              "content": "CHỜ NHẬP KHO",
+                              "fontFamily": "$font-main",
+                              "fontSize": 11,
+                              "fontWeight": "700",
+                              "fill": "#175CD3"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "wb_btn_close",
+                      "name": "Button Close",
+                      "width": 28,
+                      "height": 28,
+                      "cornerRadius": 6,
+                      "fill": "#F1F5F9",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "wb_ico_close",
+                          "width": 16,
+                          "height": 16,
+                          "icon": "x",
+                          "library": "lucide",
+                          "fill": "#64748B"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "wb_header_subtitle",
+                  "content": "Chi tiết danh mục kiện vận tải & thông số hàng hóa tiếp nhận tại kho (NO-SKU Rule)",
+                  "fontFamily": "$font-main",
+                  "fontSize": 12,
+                  "fill": "#64748B"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "wb_body",
+              "name": "Modal Body",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "padding": 20,
+              "gap": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "wb_meta_grid",
+                  "name": "Meta Info Grid",
+                  "width": "fill_container",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "wb_meta_card_route",
+                      "name": "Card Tuyến Đường",
+                      "width": "fill_container",
+                      "fill": "#F8FAFC",
+                      "cornerRadius": 8,
+                      "stroke": "#E2E8F0",
+                      "strokeWidth": 1,
+                      "padding": 12,
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "wb_lbl_route_title",
+                          "content": "Tuyến Vận Chuyển",
+                          "fontFamily": "$font-main",
+                          "fontSize": 11,
+                          "fontWeight": "600",
+                          "fill": "#64748B"
+                        },
+                        {
+                          "type": "text",
+                          "id": "wb_lbl_route_val",
+                          "content": "Polaris Hub ➔ Andromeda Hub",
+                          "fontFamily": "$font-main",
+                          "fontSize": 13,
+                          "fontWeight": "700",
+                          "fill": "#0F172A"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "wb_meta_card_vehicle",
+                      "name": "Card Phương Tiện",
+                      "width": "fill_container",
+                      "fill": "#F8FAFC",
+                      "cornerRadius": 8,
+                      "stroke": "#E2E8F0",
+                      "strokeWidth": 1,
+                      "padding": 12,
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "wb_lbl_veh_title",
+                          "content": "Phương Tiện & Tài Xế",
+                          "fontFamily": "$font-main",
+                          "fontSize": 11,
+                          "fontWeight": "600",
+                          "fill": "#64748B"
+                        },
+                        {
+                          "type": "text",
+                          "id": "wb_lbl_veh_val",
+                          "content": "Xe: 50H-756.14 · TX: Phạm Thành Trung",
+                          "fontFamily": "$font-main",
+                          "fontSize": 13,
+                          "fontWeight": "700",
+                          "fill": "#0F172A"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "wb_meta_card_type",
+                      "name": "Card Loại Tiếp Nhận",
+                      "width": "fill_container",
+                      "fill": "#F8FAFC",
+                      "cornerRadius": 8,
+                      "stroke": "#E2E8F0",
+                      "strokeWidth": 1,
+                      "padding": 12,
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "wb_lbl_type_title",
+                          "content": "Hình Thức Tiếp Nhận",
+                          "fontFamily": "$font-main",
+                          "fontSize": 11,
+                          "fontWeight": "600",
+                          "fill": "#64748B"
+                        },
+                        {
+                          "type": "text",
+                          "id": "wb_lbl_type_val",
+                          "content": "Luân chuyển Hub · Lô #TRIP-104",
+                          "fontFamily": "$font-main",
+                          "fontSize": 13,
+                          "fontWeight": "700",
+                          "fill": "#155EEF"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "wb_table_section",
+                  "name": "Section Bảng Kê Hàng Hóa",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "wb_table_sec_header",
+                      "name": "Table Section Header",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "wb_t_sec_left",
+                          "gap": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "wb_ico_pkg",
+                              "width": 16,
+                              "height": 16,
+                              "icon": "package",
+                              "library": "lucide",
+                              "fill": "#0F172A"
+                            },
+                            {
+                              "type": "text",
+                              "id": "wb_t_sec_title",
+                              "content": "DANH MỤC HÀNG HÓA VẬN TẢI (2 DÒNG HÀNG)",
+                              "fontFamily": "$font-main",
+                              "fontSize": 12,
+                              "fontWeight": "700",
+                              "fill": "#0F172A"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "wb_t_sec_badge_rule",
+                          "content": "Tuân thủ NO-SKU Rule",
+                          "fontFamily": "$font-main",
+                          "fontSize": 11,
+                          "fontWeight": "600",
+                          "fill": "#059669"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "wb_cargo_table",
+                      "name": "Cargo Table Container",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "stroke": "#E2E8F0",
+                      "strokeWidth": 1,
+                      "cornerRadius": 8,
+                      "clip": true,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "wb_th_row",
+                          "name": "Table Header Row",
+                          "width": "fill_container",
+                          "height": 38,
+                          "fill": "#F1F5F9",
+                          "stroke": "#E2E8F0",
+                          "strokeWidth": {
+                            "bottom": 1
+                          },
+                          "alignItems": "center",
+                          "padding": [
+                            0,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "wb_th_stt",
+                              "content": "STT",
+                              "width": 45,
+                              "fontFamily": "$font-main",
+                              "fontSize": 11,
+                              "fontWeight": "700",
+                              "fill": "#475569"
+                            },
+                            {
+                              "type": "text",
+                              "id": "wb_th_name",
+                              "content": "Tên mặt hàng vận chuyển",
+                              "width": "fill_container",
+                              "fontFamily": "$font-main",
+                              "fontSize": 11,
+                              "fontWeight": "700",
+                              "fill": "#475569"
+                            },
+                            {
+                              "type": "text",
+                              "id": "wb_th_qty",
+                              "content": "Số kiện",
+                              "width": 80,
+                              "textAlign": "right",
+                              "fontFamily": "$font-main",
+                              "fontSize": 11,
+                              "fontWeight": "700",
+                              "fill": "#475569"
+                            },
+                            {
+                              "type": "text",
+                              "id": "wb_th_wt",
+                              "content": "Khối lượng",
+                              "width": 100,
+                              "textAlign": "right",
+                              "fontFamily": "$font-main",
+                              "fontSize": 11,
+                              "fontWeight": "700",
+                              "fill": "#475569"
+                            },
+                            {
+                              "type": "text",
+                              "id": "wb_th_vol",
+                              "content": "Thể tích",
+                              "width": 80,
+                              "textAlign": "right",
+                              "fontFamily": "$font-main",
+                              "fontSize": 11,
+                              "fontWeight": "700",
+                              "fill": "#475569"
+                            },
+                            {
+                              "type": "text",
+                              "id": "wb_th_mode",
+                              "content": "Hình thức giao",
+                              "width": 120,
+                              "textAlign": "center",
+                              "fontFamily": "$font-main",
+                              "fontSize": 11,
+                              "fontWeight": "700",
+                              "fill": "#475569"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "wb_tr_1",
+                          "name": "Table Row 1",
+                          "width": "fill_container",
+                          "height": 48,
+                          "fill": "#FFFFFF",
+                          "stroke": "#E2E8F0",
+                          "strokeWidth": {
+                            "bottom": 1
+                          },
+                          "alignItems": "center",
+                          "padding": [
+                            0,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "wb_td_1_stt",
+                              "content": "01",
+                              "width": 45,
+                              "fontFamily": "$font-main",
+                              "fontSize": 12,
+                              "fill": "#64748B"
+                            },
+                            {
+                              "type": "text",
+                              "id": "wb_td_1_name",
+                              "content": "Vải cuộn công nghiệp dệt may cao cấp",
+                              "width": "fill_container",
+                              "fontFamily": "$font-main",
+                              "fontSize": 13,
+                              "fontWeight": "600",
+                              "fill": "#0F172A"
+                            },
+                            {
+                              "type": "text",
+                              "id": "wb_td_1_qty",
+                              "content": "30 kiện",
+                              "width": 80,
+                              "textAlign": "right",
+                              "fontFamily": "$font-main",
+                              "fontSize": 13,
+                              "fontWeight": "600",
+                              "fill": "#0F172A"
+                            },
+                            {
+                              "type": "text",
+                              "id": "wb_td_1_wt",
+                              "content": "900.0 kg",
+                              "width": 100,
+                              "textAlign": "right",
+                              "fontFamily": "$font-main",
+                              "fontSize": 13,
+                              "fontWeight": "600",
+                              "fill": "#0F172A"
+                            },
+                            {
+                              "type": "text",
+                              "id": "wb_td_1_vol",
+                              "content": "2.7 m³",
+                              "width": 80,
+                              "textAlign": "right",
+                              "fontFamily": "$font-main",
+                              "fontSize": 13,
+                              "fill": "#64748B"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "wb_td_1_mode_wrap",
+                              "width": 120,
+                              "justifyContent": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "wb_badge_m1",
+                                  "height": 22,
+                                  "fill": "#ECFDF5",
+                                  "cornerRadius": 4,
+                                  "stroke": "#A7F3D0",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    0,
+                                    6
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "wb_badge_m1_lbl",
+                                      "content": "Giao tận nơi",
+                                      "fontFamily": "$font-main",
+                                      "fontSize": 10,
+                                      "fontWeight": "600",
+                                      "fill": "#067647"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "wb_tr_2",
+                          "name": "Table Row 2",
+                          "width": "fill_container",
+                          "height": 48,
+                          "fill": "#F8FAFC",
+                          "stroke": "#E2E8F0",
+                          "strokeWidth": {
+                            "bottom": 1
+                          },
+                          "alignItems": "center",
+                          "padding": [
+                            0,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "wb_td_2_stt",
+                              "content": "02",
+                              "width": 45,
+                              "fontFamily": "$font-main",
+                              "fontSize": 12,
+                              "fill": "#64748B"
+                            },
+                            {
+                              "type": "text",
+                              "id": "wb_td_2_name",
+                              "content": "Phụ liệu may mặc đóng thùng carton",
+                              "width": "fill_container",
+                              "fontFamily": "$font-main",
+                              "fontSize": 13,
+                              "fontWeight": "600",
+                              "fill": "#0F172A"
+                            },
+                            {
+                              "type": "text",
+                              "id": "wb_td_2_qty",
+                              "content": "20 kiện",
+                              "width": 80,
+                              "textAlign": "right",
+                              "fontFamily": "$font-main",
+                              "fontSize": 13,
+                              "fontWeight": "600",
+                              "fill": "#0F172A"
+                            },
+                            {
+                              "type": "text",
+                              "id": "wb_td_2_wt",
+                              "content": "600.0 kg",
+                              "width": 100,
+                              "textAlign": "right",
+                              "fontFamily": "$font-main",
+                              "fontSize": 13,
+                              "fontWeight": "600",
+                              "fill": "#0F172A"
+                            },
+                            {
+                              "type": "text",
+                              "id": "wb_td_2_vol",
+                              "content": "1.8 m³",
+                              "width": 80,
+                              "textAlign": "right",
+                              "fontFamily": "$font-main",
+                              "fontSize": 13,
+                              "fill": "#64748B"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "wb_td_2_mode_wrap",
+                              "width": 120,
+                              "justifyContent": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "wb_badge_m2",
+                                  "height": 22,
+                                  "fill": "#EFF8FF",
+                                  "cornerRadius": 4,
+                                  "stroke": "#B2DDFF",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    0,
+                                    6
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "wb_badge_m2_lbl",
+                                      "content": "Hub Cấp 1",
+                                      "fontFamily": "$font-main",
+                                      "fontSize": 10,
+                                      "fontWeight": "600",
+                                      "fill": "#175CD3"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "wb_tf_row",
+                          "name": "Table Summary Row",
+                          "width": "fill_container",
+                          "height": 42,
+                          "fill": "#EFF8FF",
+                          "alignItems": "center",
+                          "padding": [
+                            0,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "wb_tf_lbl",
+                              "content": "TỔNG CỘNG VẬN ĐƠN",
+                              "width": "fill_container",
+                              "fontFamily": "$font-main",
+                              "fontSize": 12,
+                              "fontWeight": "700",
+                              "fill": "#175CD3"
+                            },
+                            {
+                              "type": "text",
+                              "id": "wb_tf_qty",
+                              "content": "50 kiện",
+                              "width": 80,
+                              "textAlign": "right",
+                              "fontFamily": "$font-main",
+                              "fontSize": 13,
+                              "fontWeight": "700",
+                              "fill": "#175CD3"
+                            },
+                            {
+                              "type": "text",
+                              "id": "wb_tf_wt",
+                              "content": "1,500.0 kg",
+                              "width": 100,
+                              "textAlign": "right",
+                              "fontFamily": "$font-main",
+                              "fontSize": 13,
+                              "fontWeight": "700",
+                              "fill": "#175CD3"
+                            },
+                            {
+                              "type": "text",
+                              "id": "wb_tf_vol",
+                              "content": "4.5 m³",
+                              "width": 80,
+                              "textAlign": "right",
+                              "fontFamily": "$font-main",
+                              "fontSize": 13,
+                              "fontWeight": "700",
+                              "fill": "#175CD3"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "wb_tf_space",
+                              "width": 120
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "wb_notes_card",
+                  "name": "Card Ghi Chú Tiếp Nhận",
+                  "width": "fill_container",
+                  "fill": "#FFFBEB",
+                  "stroke": "#FDE68A",
+                  "strokeWidth": 1,
+                  "cornerRadius": 8,
+                  "padding": 12,
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "wb_notes_title_row",
+                      "gap": 6,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "wb_ico_note",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "info",
+                          "library": "lucide",
+                          "fill": "#B45309"
+                        },
+                        {
+                          "type": "text",
+                          "id": "wb_notes_title",
+                          "content": "Lưu Ý Điều Vận & Xử Lý Kho",
+                          "fontFamily": "$font-main",
+                          "fontSize": 11,
+                          "fontWeight": "700",
+                          "fill": "#92400E"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "wb_notes_content",
+                      "content": "Hàng dệt may màng co nilon bảo vệ chống ẩm, dỡ cẩn thận và xếp vào line Pallet P-01 tại Cửa nhận số 02.",
+                      "fontFamily": "$font-main",
+                      "fontSize": 12,
+                      "fill": "#78350F"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "wb_footer",
+              "name": "Modal Footer",
+              "width": "fill_container",
+              "height": 64,
+              "fill": "#F8FAFC",
+              "stroke": "#E2E8F0",
+              "strokeWidth": {
+                "top": 1
+              },
+              "padding": [
+                0,
+                24
+              ],
+              "alignItems": "center",
+              "justifyContent": "space_between",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "wb_btn_print_a4",
+                  "name": "btn_print_pallet_a4",
+                  "height": 38,
+                  "fill": "#FFFFFF",
+                  "cornerRadius": 6,
+                  "stroke": "#CBD5E1",
+                  "strokeWidth": 1,
+                  "padding": [
+                    0,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "wb_ico_print",
+                      "width": 15,
+                      "height": 15,
+                      "icon": "printer",
+                      "library": "lucide",
+                      "fill": "#334155"
+                    },
+                    {
+                      "type": "text",
+                      "id": "wb_lbl_print",
+                      "content": "In tem Pallet A4",
+                      "fontFamily": "$font-main",
+                      "fontSize": 12,
+                      "fontWeight": "600",
+                      "fill": "#334155"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "wb_footer_right_grp",
+                  "name": "Action Buttons Right",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "wb_btn_dismiss",
+                      "name": "btn_dismiss",
+                      "height": 38,
+                      "fill": "#FFFFFF",
+                      "cornerRadius": 6,
+                      "stroke": "#CBD5E1",
+                      "strokeWidth": 1,
+                      "padding": [
+                        0,
+                        16
+                      ],
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "wb_lbl_dismiss",
+                          "content": "Đóng",
+                          "fontFamily": "$font-main",
+                          "fontSize": 13,
+                          "fontWeight": "500",
+                          "fill": "#64748B"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "wb_btn_start_tally",
+                      "name": "btn_start_tally",
+                      "height": 38,
+                      "fill": "#0F3D62",
+                      "cornerRadius": 6,
+                      "padding": [
+                        0,
+                        16
+                      ],
+                      "alignItems": "center",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "wb_ico_chk",
+                          "width": 15,
+                          "height": 15,
+                          "icon": "clipboard-check",
+                          "library": "lucide",
+                          "fill": "#FFFFFF"
+                        },
+                        {
+                          "type": "text",
+                          "id": "wb_lbl_start_tally",
+                          "content": "Bắt đầu kiểm đếm & Nhập kho ➔",
+                          "fontFamily": "$font-main",
+                          "fontSize": 13,
+                          "fontWeight": "600",
+                          "fill": "#FFFFFF"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "variables": {
