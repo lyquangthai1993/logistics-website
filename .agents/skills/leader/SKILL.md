@@ -71,6 +71,13 @@ Before implementing features or modifying workflows, agents MUST reference:
 > - **Ambiguity Protocol (Hỏi ngay khi không rõ)**: Nếu bất kỳ công thức tính toán, trạng thái mapping, hoặc logic đếm counter nào trong thiết kế / yêu cầu chưa rõ ràng, **BẮT BUỘC PHẢI DỪNG LẠI, KIỂM TRA VÀ HỎI LẠI USER NGAY**, tuyệt đối không tự ý giả định, tự sinh số mẫu hay hardcode số ngẫu nhiên vào code/UI.
 
 > [!IMPORTANT]
+> **REAL DATABASE DATA INTEGRATION POLICY (TUYỆT ĐỐI KHÔNG SỬ DỤNG MOCK DATA):**
+> - **Production-Grade Real DB Mandate**: Toàn bộ dự án Logistics TMS hiện tại **ĐÃ TRIỂN KHAI VÀ VẬN HÀNH TRÊN CƠ SỞ DỮ LIỆU THẬT (PostgreSQL trên Neon)**.
+> - **Zero Mock Data Rule**: Mọi màn hình UI, danh sách (Table), bảng quản lý (Board), bộ lọc phân tầng (Hub Cấp 1, Xe bo Cấp 2), ô tìm kiếm live search, thẻ chỉ số (KPI Stat Cards, Badges, Tab counts) và các luồng xác nhận/chuyển trạng thái **BẮT BUỘC PHẢI ĐỌC VÀ GHI DỮ LIỆU QUA BACKEND REST API THẬT KẾT NỐI DATABASE THẬT**.
+> - **No Hardcoded Fallbacks / Mock Arrays**: Tuyệt đối **KHÔNG** sử dụng mock data, fake rows, mảng dữ liệu mẫu hardcoded, hoặc demo fallback trong khối `.catch()` hay state khởi tạo. Khi API trả về rỗng (`[]`) hoặc gặp sự cố, hệ thống phải hiển thị trạng thái trống (Empty State) và thông báo toast lỗi một cách chuẩn chỉ.
+> - **Full State & Transaction Integrity**: Mọi thao tác nghiệp vụ (Nhập kho, Lưu kho, Luân chuyển liên Hub, Giao khách lẻ, Tạo chuyến xe, In tem nhãn Pallet) phải đồng bộ trực tiếp vào các bảng thực thể DB (`orders`, `trips`, `hubs`, `users`), đảm bảo tính nhất quán dữ liệu xuyên suốt toàn hệ thống.
+
+> [!IMPORTANT]
 > **TWO-TIER HUB HIERARCHY & DELIVERY DESTINATION MODES (QUY TẮC PHÂN TẦNG MẠNG LƯỚI HUB & HÌNH THỨC GIAO HÀNG):**
 > Mạng lưới kho vận TMS quản lý theo cấu trúc phân cấp 2 tầng (`hub.level`):
 > 1. **Hub Cấp 1 (`level = 1`)**: Trung tâm trung chuyển khu vực chính (Regional Linehaul Hubs: *Polaris Hub - Hưng Yên*, *Magellan Hub - Đà Nẵng*, *Andromeda Hub - HCM*). Phục vụ luân chuyển xe tải lớn/container liên vùng và lưu kho trung tâm.
@@ -202,6 +209,7 @@ Before writing or modifying any backend endpoint, frontend page, or data model, 
 7. **Listing & Pagination Confirmation**: Asked and confirmed with the User regarding Pagination vs. Flat List mechanisms for listing APIs? Never assume without confirmation.
 8. **Order Code Prerequisite**: Is the code generated server-side from the authenticated creator's Hub prefix, persisted full-name initials, `YYMM`, and an atomic monthly counter, with global uniqueness and no reuse?
 9. **Dynamic Counter & Metric Integrity**: Verified all UI numbers, KPI badges, and tab counters are dynamically computed via backend SQL/endpoints with 100% filter parity? Never assume or hardcode mock numbers; clarify with the User if any counter logic or lifecycle formula is ambiguous.
+10. **Real Database Data Mandate (Zero Mock Data)**: Are all UI components, dropdowns, tables, and submit flows connected 100% to real PostgreSQL backend APIs? Are all mock data arrays, demo fallback rows in `.catch()`, and hardcoded placeholders completely removed?
 
 ---
 
