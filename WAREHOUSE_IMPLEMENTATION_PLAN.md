@@ -1593,3 +1593,71 @@ cd frontend
 npm install react-hook-form @hookform/resolvers
 # zod đã có sẵn (^4.3.6) ✅
 ```
+
+---
+
+## 🚚 Phân Hệ Xuất Kho (Outbound Warehouse Flow) — v2.2 Canonical
+
+> **Nguồn gốc thiết kế**: Đối xứng từ luồng Nhập kho, thiết kế trên Pencil canvas (`WAREHOUSE_FLOWS.pen`), tuân thủ chuẩn triệt tiêu 5 cột văn phòng (Không có: Điều hành, Khách hàng, Ngày cần bốc, Ngày cần giao, Đã soạn).
+
+### 1. Sơ Đồ Luồng Tổng Thể (Outbound Workflow Architecture)
+
+```mermaid
+graph TD
+    BOARD[WH_OUTBOUND_BOARD\nDanh sách xuất kho] 
+    
+    BOARD -->|+ Xuất cho khách hàng| CUSTOMER[WH_OUTBOUND_CUSTOMER\nPhiếu xuất kho cho khách hàng\nTable Editable Grid + Lookup Mã đơn]
+    
+    CUSTOMER -->|Click 🔍 Mã đơn hàng| LOOKUP[WH_OUTBOUND_LOOKUP_MODAL\nModal Tra cứu hàng trong kho\nSearch + Filter + Pagination ➔ Nạp vào dòng]
+    
+    BOARD -->|🚚 Xuất luân chuyển| TRIP[WH_OUTBOUND_CREATE_TRIP\nLuân chuyển nội bộ - Bước 1\nJourney Stepper 3 bước\nChọn Hub đích + Xe]
+    
+    TRIP -->|Chọn hàng trong kho ➔| MODAL[WH_OUTBOUND_SELECT_MODAL\nLuân chuyển nội bộ - Bước 2\nModal chọn hàng LƯU KHO + DRAFT]
+    
+    MODAL -->|Xác nhận hàng đã chọn ➔| LOADED[WH_OUTBOUND_LOADED\nLuân chuyển nội bộ - Bước 3\nReview + In Loading Plan + Xác nhận]
+    
+    CUSTOMER -->|Xác nhận xuất kho| DONE[Chuyển trạng thái COMPLETED_INBOUND / ĐÃ XUẤT KHO]
+    LOADED -->|Xác nhận xuất kho| DONE
+```
+
+### 2. Hai Chế Độ Xuất Kho Chi Tiết
+
+#### Mode 1: Xuất cho khách hàng (`WH_OUTBOUND_CUSTOMER` + `WH_OUTBOUND_LOOKUP_MODAL`)
+- **Đối tượng nhận**: Khách hàng cụ thể (Người nhận, SĐT, Địa chỉ giao 3-mode selector).
+- **Dạng bảng**: **Editable Grid Table tương tự như lúc Nhập kho**, gồm các cột nghiệp vụ tinh gọn phục vụ thao tác sàn kho (đã loại bỏ 5 cột điều phối văn phòng: *Điều hành, Khách hàng, Ngày cần bốc, Ngày cần giao, Đã soạn*).
+- **Cơ chế Tra cứu (Lookup)**: Cột "Mã đơn hàng" có ô tìm kiếm kèm icon `[ 🔍 ]`. Khi click sẽ mở `WH_OUTBOUND_LOOKUP_MODAL`.
+- **Modal Tra Cứu Hàng Trong Kho (`WH_OUTBOUND_LOOKUP_MODAL`)**:
+  - **Ô tìm kiếm Freetext (`lm_search_row`)**: Tìm tự do theo 2 thuộc tính: Mã đơn hàng (`orderCode`) hoặc Tên hàng hóa (`cargoDescription`). Không phân tách trường tìm kiếm phức tạp.
+  - **Bộ lọc Trạng thái (`lm_filters`)**: Bộ lọc tinh gọn chỉ gồm các trạng thái tồn kho: `[Tất cả (48)]`, `[LƯU KHO (35)]`, `[DRAFT (13)]`.
+  - **Cột dữ liệu chuẩn hóa (7 cột)**: `MÃ ĐƠN HÀNG`, `TÊN HÀNG HÓA`, `SỐ KIỆN`, `SỐ KG`, `SỐ M³`, `TRẠNG THÁI`, `THAO TÁC`. (Đã loại bỏ `KHÁCH NHẬN & SĐT` do thông tin người nhận đã nằm ở Header phiếu xuất; tách bạch 3 cột vật lý).
+  - **Thanh phân trang (Pagination Bar)**: Hiển thị số dòng/trang, bộ nút chuyển trang đầy đủ (`[⏮][◀][1][2]...[▶][⏭]`).
+  - Nút `[Chọn đơn này ➔]` hoặc `[Xác nhận chọn đơn ➔]`: Đóng modal, toàn bộ thông tin đơn hàng tự động điền vào đúng dòng tương ứng trên table chính.
+- **Phía dưới bảng**: Nút `[+ Thêm dòng mới]` (thêm dòng để tra cứu tiếp đơn thứ 2, 3), nút `[🔄 Cập nhật lại thông số]`, footer tổng kết kiện/kg/m³.
+
+#### Mode 2: Xuất luân chuyển nội bộ (`WH_OUTBOUND_CREATE_TRIP` ➔ `WH_OUTBOUND_SELECT_MODAL` ➔ `WH_OUTBOUND_LOADED`)
+- Đối xứng hoàn toàn với Inbound Mode 2 (`dd8X5` ➔ `WH_CASE_03_MODAL` ➔ `WH_CASE_02_TRANSFER_LOADED`).
+- **Bước 1 (`WH_OUTBOUND_CREATE_TRIP`)**: Journey Stepper 3 bước · Chọn Hub đích + Biển số xe + Tài xế. Nút nổi bật `[🏪 Chọn hàng trong kho ➔]`.
+- **Bước 2 (`WH_OUTBOUND_SELECT_MODAL`)**: Modal chọn hàng loạt các đơn đang `LƯU KHO` hoặc `DRAFT` tại Hub hiện tại để chất lên xe.
+- **Bước 3 (`WH_OUTBOUND_LOADED`)**: Review danh sách hàng đã chất lên xe, in chứng từ **Loading Plan**, cập nhật lại thông số và `[✅ Xác nhận xuất kho]`.
+
+### 3. Chuẩn Triệt Tiêu 5 Cột Điều Phối Văn Phòng
+
+Toàn bộ các bảng thao tác kho (cả Nhập kho và Xuất kho, trên Desktop lẫn Mobile) tuân thủ nghiêm ngặt nguyên tắc:
+- **Chỉ giữ các cột cốt lõi**: `STT`, `Mã đơn hàng`, `Tên hàng hóa`, `Số kiện/thùng`, `Số kg`, `Số khối (m³)`, `Địa chỉ giao hàng`, `Ghi chú`, `Thao tác`.
+- **Cấm đưa 5 cột văn phòng vào bảng thao tác**:
+  1. ❌ `Điều hành`
+  2. ❌ `Khách hàng` (đã đưa lên Header phiếu hoặc hiển thị trong modal tra cứu)
+  3. ❌ `Ngày cần bốc`
+  4. ❌ `Ngày cần giao`
+  5. ❌ `Đã soạn`
+
+### 4. Quy Tắc Bất Biến /Leader: Không Quản Lý Vị Trí Kho (No Warehouse Bin/Location Management)
+
+- **Nguyên tắc cốt lõi**: Nghiệp vụ Hub/Kho trung chuyển TMS hiện tại **KHÔNG QUẢN LÝ VỊ TRÍ KHO CHI TIẾT** (không chia ô, kệ, tầng, dãy, bin, rack, zone ví dụ `Khu A-02`, `Kệ B-01`).
+- Hàng hóa chỉ được quản lý theo phạm vi Hub (`hubId`) và trạng thái tồn kho (`LƯU KHO`, `DRAFT`).
+- **Phạm vi áp dụng**: Tuyệt đối không thêm trường vị trí kho vào:
+  - Database schema / TypeORM Entity.
+  - DTOs (Create/Update/Filter).
+  - API response.
+  - Bảng dữ liệu / Modal tra cứu / Form giao diện UI.
+

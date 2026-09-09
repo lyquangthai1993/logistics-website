@@ -167,19 +167,65 @@ When generating or modifying `.pen` canvas files directly:
 When designing screens based on scanned documents (e.g. `docs_scan/form_create_new_don.JPG`, `docs_scan/mau_phieu_nhap_kho.JPG`):
 - **Exact Layout Reproduction**: Replicate the exact position of header titles, hotlines, vehicle summary boxes, column order, total/lũy kế rows, and signature boxes.
 - **Strict NO-SKU Policy**: Never introduce SKU/Barcode columns unless explicitly requested in the scan or task. Cargo is managed at consignment level (Package count, Gross Weight kg, Volume CBM, General cargo description).
-- **Exact Action Button Placement**: Place action buttons and toolbar controls according to the scanned workflow.
-
 ### 4. Mobile Responsiveness & Touch Target Invariants
 - Minimum touch target height for buttons, tabs, and interactive controls: **44px to 50px**.
 - Table handling on mobile viewports (< 640px): Render as **responsive Card lists** (`Cargo Item Cards`) with key badges, avoiding awkward horizontal full-page scrolling.
 - Sticky action bars: Place primary confirmation buttons at the bottom of the mobile screen (`Sticky Bottom Bar`, height $\ge 48px$) for easy single-thumb reach.
 
+### 5. Professional Product Microcopy & Operator Mindset (CRITICAL)
+Always adopt the dual mindset of a **Senior Software Product Designer** and an **Operational Warehouse/Dispatch Practitioner**. Eliminate meta-descriptions, prompt mirroring, and tutorial-style prose from all UI components:
+
+1. **Strictly Ban Prompt-Mirroring & Meta Prose on UI**:
+   - ❌ **NEVER** copy user prompt descriptions, technical implementation notes, or agent thoughts directly into UI subtitles, badges, or labels.
+   - *Bad Examples (Meta / Verbose / Prompt Copy to Avoid)*:
+     - Subtitle: `"Table dạng nhập kho · Click icon kính lúp tại Mã đơn hàng để mở Modal tra cứu kho và đưa vào dòng."` ❌
+     - Modal Title: `"TRA CỨU HÀNG TRONG KHO · CHỌN ĐƠN VÀO DÒNG 03"` ❌ (Prompt narrative in title)
+     - Column Header: `"MÃ ĐƠN HÀNG (TRA CỨU KHO) *"` ❌ (Tutorial in parentheses)
+     - Button: `"✅ Xác nhận nạp vào Dòng 03 ➔"` ❌ (Wireframe target annotation)
+     - Badge: `"Màn hình laptop 1440px · Cuộn ngang"` ❌
+     - Topbar Node: `lm_topbar_right: "TRA CỨU HÀNG TRONG KHO"` ❌ (Duplicate screen title on topbar right)
+   - *Good Examples (Concise, Clean, Professional Production Copy)*:
+     - Subtitle: `"Ghi nhận hàng rời kho Andromeda Hub và bàn giao cho khách hàng."` ✅
+     - Modal Title: `"Chọn đơn hàng từ kho"` ✅
+     - Column Header: `"MÃ ĐƠN HÀNG *"` ✅ (Cell contains search trigger `[ 🔍 Bấm tìm đơn... ]`)
+     - Button: `"Xác nhận chọn đơn ➔"` ✅
+     - Badge: `"Đã chọn 2 / 48 đơn"` ✅
+     - Row Placeholder: `"—"` ✅
+     - Search Input: `"Tìm mã vận đơn, tên hàng..."` ✅
+
+2. **Context-Aware Information Hierarchy (No Blind Copying from Scans/Excel)**:
+   - Understand the distinct business context of each screen (Inbound vs. Outbound vs. Audit).
+   - ❌ **NEVER** blindly copy headers, cards, or titles from scanned documents into screens where they do not belong.
+     - *Concrete Lesson*: Do NOT copy the `"KẾ HOẠCH ĐÓNG HÀNG / HOTLINE ĐIỀU HÀNH 3 MIỀN"` card from an outbound line-haul spreadsheet into an Inbound receiving screen (`Tạo đơn nhập kho`).
+   - Strip out office-only dispatching clutter (`Điều hành`, `Khách hàng` in item rows, `Ngày cần bốc`, `Ngày cần giao`, `Đã soạn`) from physical warehouse operational grids. Keep tables focused on physical cargo metrics (`Mã đơn`, `Tên hàng`, `Số kiện`, `KG`, `M³`, `Điểm giao`, `Ghi chú`).
+
+3. **High Data-to-Ink Ratio & Visual Affordance**:
+   - Let icons and UI affordances speak rather than explanatory paragraphs:
+     - A search icon `🔍` in an input indicates searchable lookup; do not add a text paragraph explaining "Click here to search".
+     - Color-coded badges (`🟡 LƯU KHO`, `⚫ DRAFT`, `🟢 ĐÃ XUẤT KHO`) convey status instantly; do not write verbose explanations of status logic.
+   - Every text node must be concise, crisp, action-oriented, and respect real warehouse operator workflow speed (operators scan screens in 1-2 seconds; verbose copy slows them down and creates visual noise).
+
+4. **Topbar Architecture & Global Header Invariants (Zero Redundant Labels)**:
+   - ❌ **NEVER** inject screen title text banners or state labels on the right side of Topbars (e.g. `lm_topbar_right: "TRA CỨU HÀNG TRONG KHO"`, `"PHIẾU XUẤT KHO MỚI · KHÁCH HÀNG"`, `"BƯỚC 2: CHỌN HÀNG TRONG KHO..."`).
+   - *Why this is an AI Anti-Pattern*: AI agents suffer from "Diagram Labeling Syndrome" — treating screens like presentation slides where every corner must have a label to prove to the reviewer what the agent just built. In production web apps, screen identity is already conveyed by the Breadcrumb and Page Title. Putting duplicate capitalized titles on the topbar right creates clutter and screams amateur wireframing.
+   - *Production Topbar Standard*:
+     - **Left**: Clean Breadcrumb (e.g. `Kho  /  Xuất kho  /  Tạo phiếu xuất`) or Back button (`← Danh sách xuất kho`).
+     - **Right**: Reserved strictly for global system utilities (Global Search, Notification bell, User Profile / Hub Identity) or left completely empty and clean.
+     - **Modal Dialogs**: Modals sit on top of a backdrop; the underlying topbar must NEVER carry the modal's title.
+
 ---
 
 ## 🛡️ Anti-Patterns & Safety Rules
 - ❌ **FATAL: NEVER use `"text"` property on text nodes**: ALWAYS use `"content": "..."`.
+- ❌ **NO Meta/Prompt-Mirroring Copy**: NEVER dump prompt instructions, user requirements, or UI architectural notes into visible UI text, subtitles, or badges.
+- ❌ **NO Topbar Right Screen Labels (`_topbar_right`)**: NEVER print duplicate screen titles, step names, or mode banners on the top-right of Topbars.
+- ❌ **NO Blind Scan/Excel Cloning**: NEVER paste irrelevant headers, title cards (e.g. "Kế hoạch đóng hàng" in an Inbound screen), or office dispatch fields into warehouse operational tables without domain validation.
+- ❌ **NO Warehouse Location / Bin Columns**: NEVER add "Vị trí kho" or bin/rack/shelf columns (e.g. Khu A, Kệ B). Warehouse items are tracked strictly by Hub scope and status (`LƯU KHO`, `DRAFT`), not internal slotting locations.
+- ❌ **NO Verbose Instruction Prose**: Avoid tutorial paragraphs on operational screens. Use standard UI affordances, clear icons, concise placeholders, and quantitative badges instead.
 - ❌ **NO Empty Dark Blocks**: Never render pitch-black frames with invisible labels. Always apply high-contrast colors (`#0F172A` text on `#FFFFFF` / `#F8FAFC` surfaces).
 - ❌ **NO Missing Text Fill**: Always supply an explicit `fill` hex color (e.g. `fill: "#0F172A"`).
 - ❌ **NO Percentage Sizing**: Never use `"100%"`, `"50%"`, `"vh"`, `"calc()"` in `.pen` node dimensions. Use `"fill_container"` or explicit integer pixel values.
 - ❌ **NO Arbitrary Sizing**: Snap layout dimensions, paddings, and gaps to the Tailwind 4px grid (4, 8, 12, 16, 20, 24, 32).
+
+
 

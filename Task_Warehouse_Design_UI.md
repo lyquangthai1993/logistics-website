@@ -108,85 +108,82 @@ graph TD
     Form2 --> Submit2["Xác nhận đơn ➔ Chuyển trạng thái nhập kho"]
 ```
 
-### Bảng so sánh chi tiết giữa 2 Mode:
+## 📐 4. QUY CÁCH BẢNG THAO TÁC SÀN KHO (10 CỘT CHUẨN)
 
-| Tiêu chí | Mode 1: Mới hoàn toàn (Khách gửi) | Mode 2: Luân chuyển nội bộ (Hub-to-Hub) |
-| :--- | :--- | :--- |
-| **Nguồn hàng** | Khách hàng giao trực tiếp đến Hub. | Xe tuyến chở hàng từ Hub khác đến. |
-| **Địa chỉ nhận hàng (Pickup Address)** | **Nhập tự do (Free text)** do khách cung cấp. | **Tự động điền (Read-only)**: Lấy `hubs.address` từ `currentUser.hubId`. |
-| **Thông tin xe / Tài xế** | **Bắt buộc nhập (Red Border)**: Biển số xe, Họ tên tài xế/người giao. *(Đã bỏ hẳn Nhà thầu, SĐT)*. | **Không cần nhập tay**: Tự động trích xuất khi chọn `TRIP_ID`. |
-| **Cách nạp dữ liệu** | - Nhập từng dòng trực tiếp trên Grid (Inline Editable).<br>- Nút `[+ Thêm 1 dòng đơn mới]` tự tạo đơn.<br>- Copy từ Excel (`Ctrl+C` ➔ `Ctrl+V`).<br>- Import file Excel (.xlsx). | - Chọn từ danh sách `TRIP_ID` đang `IN_TRANSIT`.<br>- Modal chọn 1 hoặc nhiều đơn trong Trip.<br>- Hỗ trợ **nhận thêm hàng dọc đường** (bấm nút "Thêm dòng"). |
-| **Mã đơn hàng nội bộ** | Readonly `Tự sinh khi lưu` nếu flow được RBAC cho phép tạo canonical Order; server sinh theo Hub + initials + `YYMM` + counter. | Readonly, giữ nguyên code của Order nguồn; tuyệt đối không sinh mã mới khi nhận qua Hub. |
-| **Trạng thái khởi tạo** | `DRAFT` ➔ Xác nhận chuyển sang `PENDING_INBOUND` / `LƯU KHO` luôn. | Cập nhật tiến trình luân chuyển của đơn trong chuyến. |
+### 4.1. Bảng 10 Cột Vận Hành Sàn Kho (Đã Loại Bỏ 5 Cột Điều Phối Văn Phòng):
+> **Quyết định chuẩn hóa**: Để tối ưu thao tác nhập/xuất tại sàn kho và tăng mật độ hiển thị dòng hàng, hệ thống **đã loại bỏ hoàn toàn 5 cột điều phối văn phòng** khỏi tất cả các bảng thao tác (cả Inbound và Outbound):
+> ❌ `Điều hành` · ❌ `Khách hàng` · ❌ `Ngày cần bốc` · ❌ `Ngày cần giao` · ❌ `Đã soạn`.
 
----
+Bảng rút gọn thành **10 cột cốt lõi phục vụ thực chiến**:
+1. `STT` (Auto 01, 02, 03...)
+2. `Mã đơn hàng *` (Readonly server-generated đối với Inbound mới; hoặc ô Search có icon 🔍 tra cứu kho đối với Xuất kho)
+3. `Địa chỉ nhận hàng *` (Kho gửi / Điểm lấy hàng)
+4. `Tên hàng *` (Mô tả tổng quan, cấm SKU)
+5. `Khối lượng: Số thùng/kiện *` (Integer $\ge 1$)
+6. `Khối lượng: Số kg *` (Gross weight $> 0$)
+7. `Khối lượng: Số khối ($m^3$) *` (CBM $> 0$)
+8. `Địa chỉ giao hàng *` (Dropdown 3 chế độ: Free text, Hub L1, Xe bo)
+9. `Ghi chú` (Lưu ý bốc dỡ)
+10. `Thao tác` (`[🖨️ In tem]` / `[🗑️ Xóa dòng]`)
 
-## 📐 4. QUY CÁCH BẢNG NHẬP LIỆU & BẢNG KẾ HOẠCH ĐÓNG HÀNG (EXCEL-MATCHING SPEC)
-
-Màn hình bảng nhập liệu và bảng kế hoạch đóng hàng xuất xe phải tuân thủ nghiêm ngặt thứ tự và định dạng các cột sau:
-
-### 4.1. Bảng 8 Cột Cốt Lõi Trên Modal Nhập Hàng Nhanh (Inbound Grid Quick Entry):
-Dành cho thao tác tạo mới đơn hàng nhanh tại kho (`form_create_new_don.JPG`):
-
-| STT | Tên cột trên UI | Kiểu nhập liệu (Control Type) | Bắt buộc (Required) | Quy tắc nghiệp vụ & Giá trị |
-| :---: | :--- | :--- | :---: | :--- |
-| **1** | **STT** | Text (Auto-increment) | Tự động | 1, 2, 3... |
-| **2** | **Mã đơn hàng** | Readonly / System Generated | 🔴 **Bắt buộc / Tự động** | Hiển thị `Tự sinh khi lưu` trước khi tạo; sau create hiển thị code dạng `HCM-LTV-2609-011`. Mode 2 dùng lại code nguồn. |
-| **3** | **Địa chỉ nhận hàng** | Text Input (Mode 1) / Readonly (Mode 2) | 🔴 **Bắt buộc** | Mode 1: Khách nhập; Mode 2: Tự lấy Hub hiện tại. |
-| **4** | **Tên hàng** | Text Input | 🔴 **Bắt buộc** | Mô tả hàng hóa tổng quan (VD: Thùng carton bánh kẹo, Vải cuộn...). Tuyệt đối không ghi SKU. |
-| **5** | **Khối lượng** *(Group Header)* | *Gồm 3 cột con bên dưới* | 🔴 **Bắt buộc** | Nhóm chỉ số tải trọng vận tải: |
-| 5.1 | — *Số thùng (kiện)* | Number Input (Integer $\ge 1$) | 🔴 **Bắt buộc** | Đơn vị đóng gói vận chuyển. |
-| 5.2 | — *Số kg* | Number Input (Decimal $> 0$) | 🔴 **Bắt buộc** | Tổng khối lượng hàng (Gross weight). |
-| 5.3 | — *Số khối ($m^3$ / CBM)* | Number Input (Decimal $> 0$) | 🔴 **Bắt buộc** | Tổng thể tích hàng hóa. |
-| **6** | **Địa chỉ giao hàng** | **Dropdown 3 Chế độ (3-in-1 Selector)** | 🔴 **Bắt buộc** | Cho phép chọn 1 trong 3 phân loại đích (xem mục 4.3). |
-| **7** | **Ghi chú** | Text Input | Tùy chọn | Yêu cầu bảo quản, lưu ý bốc xếp, cồng kềnh... |
-| **8** | **Thao tác** | Action Icons | N/A | Icon [Thêm dòng], [Nhân bản], [Xóa dòng]. |
-
-### 4.2. Bảng 14 Cột Kế Hoạch Đóng Hàng & Xuất Hàng Xe Tuyến (Outbound Loading Board):
-Dành cho bảng điều phối đóng hàng lên xe tuyến theo tài liệu chuẩn `Kế Hoạch Đóng Hàng Xe 43H30703 Spider 3.9 K.xlsx`:
-1. `STT` (Auto `=ROW()-10`)
-2. `Điều hành` (Dispatcher phụ trách)
-3. `Mã đơn hàng` 🔴
-4. `Khách hàng` (Mã KH + Tên KH)
-5. `Địa chỉ nhận hàng` 🔴
-6. `Ngày cần bốc hàng`
-7. `Tên hàng` 🔴
-8. `Khối lượng - Số thùng` 🔴
-9. `Khối lượng - Số kg` 🔴 (Hàng tổng: `=SUBTOTAL(9, ...)`)
-10. `Khối lượng - Số khối` 🔴 (Hàng tổng: `=SUBTOTAL(9, ...)`)
-11. `Ngày cần giao hàng`
-12. `Địa chỉ giao hàng` 🔴
-13. `Đã soạn` (Tên trạm / Tỉnh giao hàng ngắn gọn)
-14. `Ghi chú`
-
-### 4.3. Chi tiết cột "Địa chỉ giao hàng" (Delivery Destination Selector):
+### 4.2. Chi tiết cột "Địa chỉ giao hàng" (Delivery Destination Selector):
 Cột này bắt buộc có bộ chuyển đổi 3 lựa chọn (Segmented Tab hoặc Dropdown Category):
 1. **Nhập địa chỉ thông thường (Free Text)**: Nhập số nhà, tên đường, phường/xã, quận/huyện cụ thể để giao chặng cuối cho khách lẻ.
 2. **Hub cấp 1 (Dropdown Kho chính)**: Chọn các Hub trung tâm trong hệ thống (VD: Hub Hà Nội, Hub Đà Nẵng, Hub Sài Gòn).
 3. **Hub cấp 2 / "Xe bo" (Dropdown Tuyến vệ tinh)**: Quản lý theo chuẩn định danh `/leader`: **`Xe bo Tuyến <Tên Tỉnh/Thành>`** ứng với **34 đơn vị hành chính cấp tỉnh Việt Nam** (6 TP trực thuộc TW + 28 Tỉnh) sau sáp nhập 1/7/2025 - 2026 (VD: *Xe bo Tuyến HCM, Xe bo Tuyến Hà Nội, Xe bo Tuyến Đà Nẵng, Xe bo Tuyến Hải Phòng, Xe bo Tuyến Cần Thơ, Xe bo Tuyến Huế, Xe bo Tuyến Hưng Yên, Xe bo Tuyến Đồng Nai, Xe bo Tuyến Khánh Hòa...*).
 
-### 4.4. Hỗ trợ thao tác Excel (Excel Grid Interaction):
+### 4.3. Hỗ trợ thao tác Excel (Excel Grid Interaction):
 - **Copy-Paste thông minh**: Cho phép người dùng chọn vùng dữ liệu trên Excel (`Ctrl+C`), click vào ô đầu tiên trên Grid và bấm `Ctrl+V`. Hệ thống tự động phân tách Tab/Dấu cách thành các dòng và cột tương ứng.
 - **Import Excel File**: Nút tải file mẫu `.xlsx`, nút tải file lên hệ thống để tự động nạp bảng.
 - **Xem lại & Chỉnh sửa**: Sau khi paste/import, người dùng được toàn quyền sửa từng ô trực tiếp trên bảng hoặc xóa từng dòng trước khi bấm "Xác nhận đơn".
 
-### 4.5. Cơ chế Cuộn Ngang & Hai Phiên Bản Màn Hình (Horizontal Scroll & 2 Viewport Versions):
-Khi bảng có quá nhiều cột thông tin (lên tới 14–15 cột dữ liệu bao gồm điều hành, khách hàng, ngày bốc, các chỉ số tải trọng, ngày giao, trạm đích, ghi chú, thao tác), giao diện hỗ trợ cơ chế cuộn ngang thông minh cùng 2 trạng thái hiển thị:
-
+### 4.4. Cơ chế Hiển Thị Viewport (10 Cột Chuẩn Vận Hành):
 1. **Phiên bản Toàn màn hình (Fullscreen Table — Frame `WH_FULLSCREEN_TABLE` - 1920x1100px)**:
-   - Dành cho màn hình độ phân giải cao hoặc khi người dùng bấm nút **[⛶ Toàn màn hình]**.
    - Chiều rộng vùng làm việc mở rộng đến ~1616px.
-   - Hiển thị **trọn vẹn toàn bộ 15 cột** cùng lúc với khoảng đệm thoải mái, không phát sinh cuộn ngang, giúp người điều phối và thủ kho bao quát toàn bộ tiến độ đóng hàng trong 1 cái nhìn duy nhất.
+   - Hiển thị **trọn vẹn toàn bộ 10 cột chuẩn vận hành** cùng lúc với khoảng đệm thoải mái, không phát sinh cuộn ngang, tối ưu cho màn hình kho lớn.
 
-2. **Phiên bản Màn hình Thực tế của Người dùng (Standard Screen View — Frame `WH_VIEWPORT_SCROLL_VIEW` - 1440x1100px)**:
-   - Mô phỏng thực tế màn hình làm việc thông dụng (1440px) có thanh Sidebar (256px) và padding trang, chiều rộng hiển thị thực tế của bảng bị giới hạn ở mức **1136px**.
-   - Bảng được bao bọc trong vùng cuộn ngang (`overflow-x: auto` / `data-slot="scroll-area-viewport"`).
-   - **Thực tế hiển thị**: Nhìn thấy được 10/15 cột ban đầu (STT, Điều hành, Mã đơn, Khách hàng, Địa chỉ nhận, Ngày bốc, Tên hàng, Số thùng, Số kg, Số khối).
-   - **Các cột bị che khuất**: Cột 11 đến 15 (Ngày giao, Địa chỉ giao, Đã soạn, Ghi chú, Thao tác) nằm ngoài khung nhìn và hiển thị dần khi người dùng cuộn ngang.
-   - **UI Feedback trực quan**:
-     - Thanh cuộn ngang (Horizontal Scrollbar Track) màu xám nhạt với thanh trượt bo tròn (Scroll Thumb `#94A3B8`).
-     - Badge thông báo tiến độ cuộn nổi bật: `👉 Đang hiển thị 10/15 cột · Cuộn ngang ➔` với nút bấm nhanh `[⛶ Mở rộng toàn màn hình]` ở góc phải trên của bảng.
-     - Ghim cố định (Sticky Column) cho cột STT và Mã đơn hàng khi cuộn ngang để không bị mất ngữ cảnh dòng dữ liệu.
+2. **Phiên bản Màn hình Chuẩn (Standard Screen View — Frame `WH_VIEWPORT_SCROLL_VIEW` - 1440x1100px)**:
+   - Chiều rộng khung nhìn ~1136px khi có thanh Sidebar (256px).
+   - Bảng được bao bọc trong vùng cuộn ngang (`overflow-x: auto`), ghim cố định (Sticky Column) cho cột STT và Mã đơn hàng khi cuộn ngang để không bị mất ngữ cảnh dòng dữ liệu.
+
+---
+
+## 📦 4b. QUY TRÌNH XUẤT KHO (OUTBOUND WORKFLOW SPECIFICATION)
+
+> Sơ đồ kiến trúc luồng Xuất kho đối xứng hoàn toàn với Nhập kho, đã hoàn thiện trên Canvas `WAREHOUSE_FLOWS.pen`:
+
+```mermaid
+graph TD
+    BOARD[WH_OUTBOUND_BOARD\nDanh sách xuất kho] 
+    
+    BOARD -->|+ Xuất cho khách hàng| CUSTOMER[WH_OUTBOUND_CUSTOMER\nPhiếu xuất kho cho khách hàng\nTable Editable Grid + Lookup Mã đơn]
+    
+    CUSTOMER -->|Click 🔍 Mã đơn hàng| LOOKUP[WH_OUTBOUND_LOOKUP_MODAL\nModal Tra cứu hàng trong kho\nSearch + Filter + Pagination ➔ Nạp vào dòng]
+    
+    BOARD -->|🚚 Xuất luân chuyển| TRIP[WH_OUTBOUND_CREATE_TRIP\nLuân chuyển nội bộ - Bước 1\nJourney Stepper 3 bước\nChọn Hub đích + Xe]
+    
+    TRIP -->|Chọn hàng trong kho ➔| MODAL[WH_OUTBOUND_SELECT_MODAL\nLuân chuyển nội bộ - Bước 2\nModal chọn hàng LƯU KHO + DRAFT]
+    
+    MODAL -->|Xác nhận hàng đã chọn ➔| LOADED[WH_OUTBOUND_LOADED\nLuân chuyển nội bộ - Bước 3\nReview + In Loading Plan + Xác nhận]
+    
+    CUSTOMER -->|Xác nhận xuất kho| DONE[Chuyển trạng thái COMPLETED_INBOUND / ĐÃ XUẤT KHO]
+    LOADED -->|Xác nhận xuất kho| DONE
+```
+
+**2 Chế độ Xuất kho:**
+- **Mode 1: Xuất cho khách hàng (`WH_OUTBOUND_CUSTOMER`)**: Dạng Editable Grid Table như lúc nhập kho, cột Mã đơn hàng cho phép gõ hoặc click icon `🔍` để mở Modal Tra cứu kho (`WH_OUTBOUND_LOOKUP_MODAL`) có phân trang (Pagination), sau đó confirm nạp thông tin đơn vào đúng dòng.
+  - **Quy cách Modal Tra cứu hàng trong kho (`WH_OUTBOUND_LOOKUP_MODAL`)**:
+    - **Ô tìm kiếm Freetext (`lm_search_row`)**: Tìm tự do theo Mã đơn hàng (`orderCode`) hoặc Tên hàng hóa (`cargoDescription`). Không chia trường rườm rà.
+    - **Bộ lọc Trạng thái (`lm_filters`)**: Bộ lọc tinh gọn chỉ gồm các trạng thái lưu kho: `[Tất cả (48)]`, `[LƯU KHO (35)]`, `[DRAFT (13)]`.
+    - **QUY TẮC BẤT BIẾN /LEADER - KHÔNG QUẢN LÝ VỊ TRÍ KHO & KHÔNG CẦN CỘT KHÁCH NHẬN**: Hệ thống kho vận TMS không quản lý vị trí chi tiết (ô, kệ, khu, bin, rack). Thông tin người nhận đã nằm ở Header phiếu xuất. Bảng danh sách hàng lưu kho gồm **7 cột tinh chuẩn**:
+      1. `Mã đơn hàng`
+      2. `Tên hàng hóa`
+      3. `Số kiện` (Tách bạch)
+      4. `Số kg` (Tách bạch)
+      5. `Số m³` (Tách bạch)
+      6. `Trạng thái` (`LƯU KHO`, `DRAFT`)
+      7. `Thao tác` (`[Chọn đơn này ➔]` / `[✓ Đã ở Dòng XX]`)
+- **Mode 2: Luân chuyển nội bộ (`WH_OUTBOUND_CREATE_TRIP` ➔ `WH_OUTBOUND_SELECT_MODAL` ➔ `WH_OUTBOUND_LOADED`)**: Stepper 3 bước chọn Hub đích/xe ➔ chọn hàng loạt đơn trong kho đưa lên xe ➔ review, in Loading Plan và xác nhận xuất.
 
 ---
 

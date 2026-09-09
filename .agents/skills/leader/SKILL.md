@@ -53,6 +53,15 @@ Before implementing features or modifying workflows, agents MUST reference:
 >   4. **Số khối ($m^3$ / CBM)**: Tổng thể tích hàng hóa.
 > - Tuyệt đối **KHÔNG** tự ý thiết kế sub-entity SKU, bảng `items/skus`, hay các trường input SKU vào DTO/Entity/UI trừ khi có yêu cầu chỉ định rõ ràng từ người dùng.
 
+> [!IMPORTANT]
+> **NO WAREHOUSE LOCATION / BIN / RACK MANAGEMENT RULE (KHÔNG QUẢN LÝ VỊ TRÍ KHO):**
+> - Hệ thống kho vận TMS **KHÔNG QUẢN LÝ VỊ TRÍ KHO CHI TIẾT** (No bin/rack/shelf/aisle location tracking, ví dụ: Khu A-02, Kệ B-01...).
+> - Hàng hóa trong kho chỉ quản lý ở cấp độ: **Kho lưu trữ hiện tại (Hub / Warehouse scope)** và **Trạng thái lưu kho (Inventory Status: `LƯU KHO`, `DRAFT`)** cùng các chỉ số vật lý (Số kiện, Kg, $m^3$).
+> - **Tiêu chí tìm kiếm / tra cứu hàng xuất kho (Outbound Search Criteria)** gói gọn đúng 2 tiêu chí:
+>   1. **Freetext**: Tìm kiếm tự do theo Mã đơn hàng (`orderCode`) hoặc Tên hàng hóa (`cargoDescription`).
+>   2. **Trạng thái**: Lọc theo trạng thái đơn hàng trong kho (`Tất cả`, `LƯU KHO`, `DRAFT`).
+> - Tuyệt đối **KHÔNG** thêm cột "Vị trí kho" / "Vị trí lưu" hay các trường `binLocation`, `rackNumber`, `zoneId`, `shelfId` vào Database Entity, TypeORM migrations, DTOs, API contracts, Table columns hay Form UI.
+
 ---
 
 ## 🧾 Order Code Generation (STRICT PRECONDITION)
