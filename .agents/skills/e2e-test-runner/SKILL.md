@@ -105,30 +105,102 @@ frontend/
 
 ---
 
-## 🚀 Commands & Execution
+## 🚀 Step-by-Step Testing Workflow
+
+Every E2E test session MUST follow this 4-step sequence:
+
+```
+Step 1: Start Dev Servers (Root folder: npm run dev)
+   │
+   ▼
+Step 2: Pre-Flight Health Check (frontend/: npm run e2e:check)
+   │
+   ▼
+Step 3: Run Playwright Test Suites (frontend/: npm run e2e or targeted specs)
+   │
+   ▼
+Step 4: Review Reports & Teardown (frontend/: npm run e2e:report)
+```
+
+---
+
+### Step 1: Start Dev Servers at Root Folder (`npm run dev`)
+
+E2E tests require **BOTH** the NestJS Backend (`http://localhost:3001`) and the Next.js Frontend (`http://localhost:3000`) to be running.
+Always use the root orchestrator instead of manually launching each folder:
 
 ```bash
-# 0. MUST RUN FIRST: Mandatory Pre-Flight Server Check (Verifies http://localhost:3000 & http://localhost:3001 are UP)
-node scripts/check-servers.mjs
-# or: npm run e2e:check
+# In ROOT folder: d:\Projects\logistics-website
+npm run dev
+```
 
-# 1. Run server & network health check first
+#### What `npm run dev` does under the hood (`scripts/start-dev.js`):
+1. **Spawns NestJS Backend** (`npm run start:dev` inside `./backend` on port `3001`).
+2. **Polls Backend Health Endpoint** (`http://localhost:3001/api`) with a 2-minute timeout until active.
+3. **Spawns Next.js Frontend** (`npm run dev` inside `./frontend` on port `3000`) once backend is ready.
+4. **Multiplexes Logs** with color tags (`[BACKEND]` in blue, `[FRONTEND]` in magenta).
+5. **Unified Lifecycle**: Sending `Ctrl+C` (SIGINT/SIGTERM) gracefully shuts down both child processes together.
+
+> 💡 **For AI Agents / Automated Runners**:
+> If servers are not already running, execute `npm run dev` from root directory as a background task (`IsDaemon: true`). Wait for logs confirming both Backend and Frontend have initialized before running tests.
+
+---
+
+### Step 2: Pre-Flight Server Verification
+
+Before running Playwright, always verify both servers are responsive:
+
+```bash
+# In frontend folder: d:\Projects\logistics-website\frontend
+cd frontend
+npm run e2e:check
+# (Runs node scripts/check-servers.mjs to verify ports 3000 & 3001)
+```
+
+- If check **FAILS**: Return to Step 1 and run `npm run dev` at the root folder.
+- If check **PASSES**: Proceed to Step 3.
+
+---
+
+### Step 3: Run Playwright Test Suites
+
+Execute test suites from the `frontend/` directory:
+
+```bash
+# In frontend folder: d:\Projects\logistics-website\frontend
+
+# ── A. Run Server & Runtime Log Tracer (RUN FIRST) ──
 npx playwright test e2e/00-runtime-log-tracer.spec.ts
 
-# 2. Run core auth & health suites
-npx playwright test e2e/01-console-health.spec.ts
-npx playwright test e2e/02-login-flow.spec.ts
-npx playwright test e2e/03-rbac-routing.spec.ts
+# ── B. Run Individual Core Suites ──
+npm run e2e:console      # Sub-Agent A: Console health & JS exceptions (01-console-health.spec.ts)
+npm run e2e:login        # Sub-Agent B: Login flow & error sanitization (02-login-flow.spec.ts)
+npm run e2e:rbac         # Sub-Agent C: RBAC routing & route guards (03-rbac-routing.spec.ts)
+npm run e2e:websocket    # Real-time WebSocket notifications (06c-websocket-realtime-notification.spec.ts)
+npm run e2e:multi-account# Multi-account dispatch & notification sync (06b-realtime-multi-account-notification.spec.ts)
 
-# 3. Run Viewport & Table UX Matrix
+# ── C. Run Viewport & Table UX Matrix ──
 npx playwright test e2e/11-orders-table-no-hscroll.spec.ts
 
-# Run all suites (automatically executes pre-flight check first)
-npm run e2e
+# ── D. Run ALL Test Suites ──
+npm run e2e              # Automatically runs pre-flight check then executes all specs
 
-# View interactive HTML report with failure traces & screenshots
-npx playwright show-report playwright-report
+# ── E. Debug / Headed Mode ──
+npm run e2e:debug        # Launches Playwright Inspector in headed browser
 ```
+
+---
+
+### Step 4: View Reports & Teardown
+
+```bash
+# In frontend folder:
+npm run e2e:report
+# or: npx playwright show-report playwright-report
+```
+
+- **Inspect Failures**: The HTML report contains action traces, network waterfalls, console logs, and visual screenshots.
+- **Teardown**: Press `Ctrl+C` in the root terminal running `npm run dev` to stop both backend and frontend servers cleanly.
 
 ---
 
@@ -149,10 +221,17 @@ Default password: `secret` (configured in `.env.local`).
 
 1. **Pre-flight Port Gate & Clean Restart Protocol (MANDATORY STEP 0)**:
    - **Always clean restart dev servers** whenever middleware/proxy (`src/proxy.ts`), core auth stores, or server configs are changed to avoid stale Turbopack/Next.js memory caches.
-   - **ALWAYS** run `node scripts/check-servers.mjs` (or `npm run e2e:check`) before executing any Playwright spec.
-   - Probes `http://localhost:3000` (Frontend Next.js) and `http://localhost:3001` (Backend NestJS).
-   - If **either server is offline**, START both servers using root package.json:
-     - `npm run dev` (runs `start-dev.js` orchestrator from root folder `d:\Projects\logistics-website`)
+   - **Verify server status**: Run `npm run e2e:check` inside `frontend/` (or `node scripts/check-servers.mjs`).
+   - If **either server is offline**:
+     1. Navigate to root directory: `d:\Projects\logistics-website`.
+     2. Run `npm run dev` (spawns `scripts/start-dev.js` which boots NestJS on 3001, waits for healthy state, then boots Next.js on 3000).
+     3. Verify `npm run e2e:check` passes before launching test runner.
+   - If a port is occupied by a zombie process on Windows:
+     ```powershell
+     netstat -ano | findstr :3000
+     netstat -ano | findstr :3001
+     taskkill /PID <PID> /F
+     ```
 2. **Infra Gate**:
    - Run Sub-Agent D (`00-runtime-log-tracer.spec.ts`). If it fails, check backend API latency and SSR error overlays.
 3. **Table UX Gate**:

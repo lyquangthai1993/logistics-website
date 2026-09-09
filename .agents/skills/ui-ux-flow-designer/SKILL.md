@@ -205,3 +205,21 @@ const handleAction = async (id: number) => {
 const apiMessage = err.response?.data?.message;
 toast.error(apiMessage || 'Thao tác thất bại. Vui lòng thử lại.');
 ```
+
+---
+
+## 🎨 Button Microcopy & Zero Redundant Icons Standard
+
+When designing or implementing interactive buttons, tabs, and badges:
+1. **Strict Ban on Double Icons**: NEVER place both an Icon component (`<IconPlus />`, `<IconTruck />`, etc.) AND an emoji or symbol (`+`, `🚚`, `📦`, `🔄`, `🖨️`, `✕`, `🔍`, `✓`) inside the text label of the same button.
+2. **Clean Component Composition**:
+   - ✅ `<Button><IconPlus className="h-4 w-4 mr-1" /> Tạo đơn nhập mới</Button>` (Clean, modern)
+   - ❌ `<Button><IconPlus className="h-4 w-4 mr-1" /> + Tạo đơn nhập mới</Button>` (Double `+` icon)
+   - ✅ `<Button><IconTruck className="h-4 w-4 mr-1" /> Nhận luân chuyển nội bộ</Button>` (Clean)
+   - ❌ `<Button><IconTruck className="h-4 w-4 mr-1" /> 🚚 Nhận luân chuyển nội bộ</Button>` (Double truck icon)
+   - ✅ `<Button variant="outline"><IconRefresh className="h-4 w-4 mr-1" /> Cập nhật lại thông số</Button>`
+   - ❌ `<Button variant="outline"><IconRefresh className="h-4 w-4 mr-1" /> 🔄 Cập nhật lại thông số</Button>`
+3. **Modal Close / Back Buttons**:
+   - ✅ `<Button variant="outline"><IconX className="h-4 w-4 mr-1" /> Quay lại danh sách</Button>`
+   - ❌ `<Button variant="outline"><IconX className="h-4 w-4 mr-1" /> ✕ Quay lại danh sách</Button>`
+

@@ -109,6 +109,7 @@ Each dimension is scored by counting **checkpoint violations**. Each violation d
 | Checkpoint | Points Deducted on Violation | Auto-FAIL? |
 |---|---|---|
 | **Broken line breaks / awkward text wrapping (chữ không cùng hàng, rớt dòng cụt lủn trong table headers, cells, badge/button labels, input labels)** — Được đánh giá là **TỆ** về mặt typography | -3 per broken text wrap | No |
+| Redundant / double icons on buttons or badges (e.g. combining an icon node/component with an emoji or symbol like `+`, `🚚`, `📦`, `🔄`, `🖨️`, `✕` inside the text label) | -2 per occurrence | No |
 | Touch targets (buttons, tabs, checkboxes) < 44px height on mobile viewport | -2 per element type | No |
 | Full-page horizontal scroll exists at 375px (iPhone) viewport width | -3 | No |
 | Non-relevant data fields for current status are not hidden/collapsible on mobile | -2 | No |

@@ -62,6 +62,14 @@ Before implementing features or modifying workflows, agents MUST reference:
 >   2. **Trạng thái**: Lọc theo trạng thái đơn hàng trong kho (`Tất cả`, `LƯU KHO`, `DRAFT`).
 > - Tuyệt đối **KHÔNG** thêm cột "Vị trí kho" / "Vị trí lưu" hay các trường `binLocation`, `rackNumber`, `zoneId`, `shelfId` vào Database Entity, TypeORM migrations, DTOs, API contracts, Table columns hay Form UI.
 
+> [!IMPORTANT]
+> **DYNAMIC COUNTER & METRIC INTEGRITY GOVERNANCE (QUY TẮC TOÀN VẸN CHỈ SỐ & COUNTER):**
+> - **Zero Arbitrary Numbers**: Các con số hiển thị trong giao diện (KPI Stat Cards, số lượng trong Tab filter, Badges, Table summary row, tổng khối lượng $Kg$, thể tích $m^3$, số kiện) **KHÔNG PHẢI LÀ SỐ NGẪU NHIÊN HAY PLACEHOLDER TĨNH**. Mỗi con số đều phản ánh một chỉ số nghiệp vụ có thật (Business Metric) gắn liền với vòng đời đơn hàng / chuyến xe.
+> - **End-to-End Dynamic Handling**: Mọi counter và metric bắt buộc phải có logic tính toán dynamic xuyên suốt 3 tầng: Backend SQL/Aggregation Query (chuẩn hóa Hub scoping & status condition) ➔ API Contract / DTO ➔ Reactive State trên Frontend (TanStack Query / Zustand / Component State).
+> - **Nullish Coalescing Rule**: Tuyệt đối **KHÔNG** dùng falsy fallback `||` (ví dụ: `kpiStats.waitingInbound || 52`) vì khi dữ liệu thực tế bằng `0` (falsy) sẽ bị ghi đè thành số cứng `52`. Bắt buộc dùng Nullish Coalescing `?? 0` (`kpiStats.waitingInbound ?? 0`).
+> - **Filter & Counter Parity (1:1 Parity)**: Số lượng ghi trên Tab (ví dụ: `Chờ nhập kho (N)`) bắt buộc phải khớp 100% với số lượng bản ghi trả về và render trong bảng danh sách khi bấm vào Tab đó.
+> - **Ambiguity Protocol (Hỏi ngay khi không rõ)**: Nếu bất kỳ công thức tính toán, trạng thái mapping, hoặc logic đếm counter nào trong thiết kế / yêu cầu chưa rõ ràng, **BẮT BUỘC PHẢI DỪNG LẠI, KIỂM TRA VÀ HỎI LẠI USER NGAY**, tuyệt đối không tự ý giả định, tự sinh số mẫu hay hardcode số ngẫu nhiên vào code/UI.
+
 ---
 
 ## 🧾 Order Code Generation (STRICT PRECONDITION)
@@ -182,6 +190,7 @@ Before writing or modifying any backend endpoint, frontend page, or data model, 
 6. **External 3PL Handling**: For `isExternalVehicleNeeded = true`, are email subjects and UI badges prefixed with `🚨 [XE THUÊ NGOÀI]` / `[EXTERNAL VEHICLE]`?
 7. **Listing & Pagination Confirmation**: Asked and confirmed with the User regarding Pagination vs. Flat List mechanisms for listing APIs? Never assume without confirmation.
 8. **Order Code Prerequisite**: Is the code generated server-side from the authenticated creator's Hub prefix, persisted full-name initials, `YYMM`, and an atomic monthly counter, with global uniqueness and no reuse?
+9. **Dynamic Counter & Metric Integrity**: Verified all UI numbers, KPI badges, and tab counters are dynamically computed via backend SQL/endpoints with 100% filter parity? Never assume or hardcode mock numbers; clarify with the User if any counter logic or lifecycle formula is ambiguous.
 
 ---
 

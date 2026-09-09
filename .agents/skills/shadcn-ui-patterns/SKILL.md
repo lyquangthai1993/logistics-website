@@ -372,12 +372,43 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 }
 ```
 
+## Button Icon & Microcopy Standard (Zero Redundant Icons)
+
+Never combine an Icon component with an emoji or duplicate symbol inside button text:
+
+```tsx
+// ✅ Correct: Clean icon component + action text
+<Button className="bg-[#0F3D62] text-white">
+  <IconPlus className="mr-1 h-4 w-4" /> Tạo đơn nhập mới
+</Button>
+
+<Button className="bg-slate-900 text-white">
+  <IconTruck className="mr-1 h-4 w-4" /> Nhận luân chuyển nội bộ
+</Button>
+
+<Button variant="outline">
+  <IconRefresh className="mr-1.5 h-4 w-4 text-blue-600" /> Cập nhật lại thông số
+</Button>
+
+<Button variant="outline">
+  <IconX className="mr-1.5 h-4 w-4" /> Quay lại danh sách
+</Button>
+
+// ❌ Incorrect: Redundant double icons / emojis
+<Button><IconPlus /> + Tạo đơn nhập mới</Button>
+<Button><IconTruck /> 🚚 Nhận luân chuyển nội bộ</Button>
+<Button><IconRefresh /> 🔄 Cập nhật lại thông số</Button>
+<Button><IconX /> ✕ Quay lại danh sách</Button>
+```
+
 ## Common Pitfalls
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
+| Dư thừa icon trên Button | Đặt cả Icon component lẫn emoji/kí tự '+' trong text | Xóa emoji/kí tự thừa trong text (e.g. `<IconPlus /> Tạo mới`) |
 | Component không styled | Chưa install component | `npx shadcn@latest add <component>` |
 | Tailwind class không work | Missing CSS import | Đảm bảo `@import "tailwindcss"` trong globals.css |
 | Form không validate | Thiếu zodResolver | Thêm `resolver: zodResolver(schema)` |
 | Dark mode không chuyển | Thiếu ThemeProvider | Wrap app với `ThemeProvider` |
 | Toast không hiển thị | Thiếu Toaster component | Thêm `<Toaster />` vào root layout |
+

@@ -213,10 +213,23 @@ Always adopt the dual mindset of a **Senior Software Product Designer** and an *
      - **Right**: Reserved strictly for global system utilities (Global Search, Notification bell, User Profile / Hub Identity) or left completely empty and clean.
      - **Modal Dialogs**: Modals sit on top of a backdrop; the underlying topbar must NEVER carry the modal's title.
 
+5. **Zero Redundant Icons & Clean Button Microcopy Standard (Strict Anti-Duplication Rule)**:
+   - ❌ **NEVER** combine a vector icon element (`type: "icon"`) with a duplicate emoji or symbol (`+`, `🚚`, `📦`, `🔄`, `🖨️`, `✕`, `🔍`, `✓`) inside the adjacent text label.
+   - *Why this is an AI Anti-Pattern*: An AI agent often adds both a Lucide icon node (e.g. `package-plus`) AND writes `"+ Tạo đơn nhập mới"` or `icon: "truck"` AND `"🚚 Nhận luân chuyển"`. This results in clumsy double-icons `[ 📦 + Tạo đơn... ]` or `[ 🚚 🚚 Nhận... ]` that look amateurish.
+   - *Clean Production Rules*:
+     - If button has an Icon node: The text node MUST contain clean text ONLY without symbols/emojis (e.g. `icon: "package-plus"`, `content: "Tạo đơn nhập mới"`).
+     - If button is text-only: Clean action verb (e.g. `content: "Tạo đơn nhập mới"` or `content: "+ Thêm"` only if no vector icon exists).
+     - Table / Toolbar Action Buttons:
+       - Refresh: `icon: "refresh-cw"` + `content: "Cập nhật lại thông số"` (NEVER `content: "🔄 Cập nhật..."`).
+       - Print: `icon: "printer"` + `content: "In tem A4"` (NEVER `content: "🖨️ In tem..."`).
+       - Close / Back: `icon: "x"` + `content: "Quay lại danh sách"` (NEVER `content: "✕ Quay lại..."`).
+       - Add Row: `icon: "plus"` + `content: "Thêm dòng hàng mới"` (NEVER `content: "+ Thêm dòng..."`).
+
 ---
 
 ## 🛡️ Anti-Patterns & Safety Rules
 - ❌ **FATAL: NEVER use `"text"` property on text nodes**: ALWAYS use `"content": "..."`.
+- ❌ **NO Redundant / Double Icons on Buttons**: NEVER combine an icon node with an emoji or symbol (e.g., `+`, `🚚`, `📦`, `🔄`, `🖨️`, `✕`) inside the text label. Use EITHER an icon node OR clean text.
 - ❌ **NO Meta/Prompt-Mirroring Copy**: NEVER dump prompt instructions, user requirements, or UI architectural notes into visible UI text, subtitles, or badges.
 - ❌ **NO Topbar Right Screen Labels (`_topbar_right`)**: NEVER print duplicate screen titles, step names, or mode banners on the top-right of Topbars.
 - ❌ **NO Blind Scan/Excel Cloning**: NEVER paste irrelevant headers, title cards (e.g. "Kế hoạch đóng hàng" in an Inbound screen), or office dispatch fields into warehouse operational tables without domain validation.
