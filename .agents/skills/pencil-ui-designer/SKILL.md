@@ -87,8 +87,8 @@ When given a live URL (e.g. `http://localhost:3000/auth/sign-in`, `http://localh
 
 ---
 
-### 4. 🧭 Multi-Step Interactive Flow Design Standards (Agent-Oriented Design Rules)
-To ensure AI coding agents can unambiguously interpret and implement multi-step flows (Page ➔ Modal 1 ➔ Modal 2 ➔ Loaded Grid State):
+### 4. 🧭 Multi-Step Interactive Flow & Design Handoff Standards (Agent-Oriented Design Rules)
+To ensure AI coding agents can unambiguously interpret and implement multi-step flows and card/modal archetypes without visual divergence:
 
 1. **Explicit Node Archetype Prefixes**:
    - `[PAGE] <NodeId> - <Description>`: Top-level route / workspace page (e.g. `[PAGE] dd8X5 - Nhập kho luân chuyển`).
@@ -96,14 +96,29 @@ To ensure AI coding agents can unambiguously interpret and implement multi-step 
    - `[MODAL_STEP_2] <NodeId> - <Description>`: Step 2 dialog (e.g. `[MODAL_STEP_2] WH_CASE_03_MODAL - Chọn đơn hàng từ chuyến`).
    - `[STATE_LOADED] <NodeId> - <Description>`: Page state populated with selected items.
 
-2. **Trigger Action Naming on Buttons**:
+2. **Container Layout Archetype Tags**:
+   - `[LAYOUT: CARD_LIST]` (or `[CARD_TEMPLATE: <NAME>]`): Designates a list of distinct card items (`layout: vertical` container containing child card frames). Signals to coding agents to render a vertical `<Card>` list, NEVER a generic `<table>`.
+   - `[LAYOUT: DATA_TABLE]`: Designates structured table grids with header rows and data cells.
+   - `[LAYOUT: FORM_GRID]`: Designates multi-column input forms.
+   - `[ACCENT: SELECTION_LEFT_BAR]`: Designates an active/selected card with a colored left accent border (`#2563EB`).
+
+3. **2-Tier Card Hierarchy Layering**:
+   - When designing card items (e.g., `trip_modal_dialog_card`), organize child frames into two explicit tiers:
+     - `tier_1_header`: Row with Code, Route, and Status Badges.
+     - `tier_2_details`: Sub-row with Operator details (Driver, Plate), Cargo Metrics (KG, CBM, Packages), and Action Button (`Chọn chuyến này ➔`).
+
+4. **Trigger Action Naming on Buttons**:
    - Name interactive button layers with clear transition targets:
      - `[TRIGGER: OPEN_MODAL -> WH_CASE_02B_TRIP_MODAL]`
      - `[TRIGGER: NEXT_STEP -> WH_CASE_03_MODAL]`
      - `[TRIGGER: CONFIRM_INTO_GRID -> dd8X5]`
 
-3. **Unified Stepper Progression**:
+5. **Unified Stepper Progression**:
    - Every frame in a multi-step workflow MUST contain a shared Stepper component indicating the active step (`1. Chọn chuyến ➔ 2. Chọn đơn ➔ 3. Xác nhận lên lưới`), signaling to coding agents that this is a cohesive State Machine (`step = 1 | 2 | 3`).
+
+6. **Automated Visual Verification Loop**:
+   - Every `.pen` design is cross-checked against live Next.js UI using [`visual-pen-matcher`](file:///d:/Projects/logistics-website/.agents/skills/visual-pen-matcher/SKILL.md) (Sub-Agent F) in Playwright E2E suites.
+
 
 ---
 
