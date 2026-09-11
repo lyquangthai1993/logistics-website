@@ -213,6 +213,29 @@ The agent MUST include a concise summary written in Vietnamese detailing what wa
 - **Root / Config**: [Cập nhật con trỏ submodule, tài liệu, rules/skills nếu có]
 ```
 
+#### Step 3.3 – Post-Push Deployment & Health Verification Rule (Max 5 Attempts)
+
+When instructed to check remote deployments (e.g. Render, Vercel) or ping service health after pushing:
+
+1. **Strict 5-Attempt Maximum Cap**:
+   - Polling checks MUST NEVER exceed **5 attempts** (e.g. intervals of 15–20s, total duration ≤ 1.5–2 minutes).
+   - NEVER loop indefinitely or set repeated long timers waiting forever.
+   - If after 5 checks the deployment is still `in_progress` or `building`, **STOP immediately**, report the latest status and dashboard URL to the user, and finish the response.
+
+2. **Strict Timeout on CLI HTTP Requests**:
+   - NEVER use bare `curl <url>` in PowerShell without a timeout — it aliases to `Invoke-WebRequest` and will hang indefinitely.
+   - ALWAYS specify a strict timeout:
+     ```powershell
+     # Use curl.exe with --max-time
+     curl.exe -s --max-time 10 <url>
+     # Or PowerShell Invoke-RestMethod with -TimeoutSec
+     Invoke-RestMethod -Uri <url> -TimeoutSec 10
+     ```
+
+3. **Early Exit on Terminal State**:
+   - If deploy status reaches `live`, `ready`, or `failed`, terminate polling immediately.
+   - In case of failure, fetch the failure logs (e.g. via Render MCP `list_logs`), display the exact error snippet, and report it to the user.
+
 ---
 
 ## 🔍 Security & Convention Checklist (Auditor Reference)
