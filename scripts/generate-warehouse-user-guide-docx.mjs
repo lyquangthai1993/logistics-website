@@ -47,6 +47,7 @@ function createHeading1(text) {
   return new Paragraph({
     text: text,
     heading: HeadingLevel.HEADING_1,
+    keepWithNext: true,
     spacing: { before: 350, after: 120 },
     run: {
       color: NAVY,
@@ -61,6 +62,7 @@ function createHeading2(text) {
   return new Paragraph({
     text: text,
     heading: HeadingLevel.HEADING_2,
+    keepWithNext: true,
     spacing: { before: 250, after: 80 },
     run: {
       color: BLUE,
@@ -149,22 +151,54 @@ function createTipBox(text) {
   });
 }
 
+function getPngDimensions(buf) {
+  if (
+    buf &&
+    buf.length >= 24 &&
+    buf[0] === 0x89 &&
+    buf[1] === 0x50 &&
+    buf[2] === 0x4e &&
+    buf[3] === 0x47
+  ) {
+    const width = buf.readUInt32BE(16);
+    const height = buf.readUInt32BE(20);
+    return { width, height };
+  }
+  return { width: 1440, height: 900 };
+}
+
+function calculateImageDimensions(buf, maxWidth = 570, maxHeight = 480) {
+  const { width: origWidth, height: origHeight } = getPngDimensions(buf);
+  let targetWidth = maxWidth;
+  let targetHeight = Math.round((origHeight / origWidth) * targetWidth);
+
+  if (targetHeight > maxHeight) {
+    targetHeight = maxHeight;
+    targetWidth = Math.round((origWidth / origHeight) * targetHeight);
+  }
+
+  return { width: targetWidth, height: targetHeight };
+}
+
 function createImageBox(imageFilename, caption) {
   const buf = getImage(imageFilename);
   if (!buf) {
     return [createBody(`[Ảnh: ${caption} không tìm thấy]`, { italics: true, color: 'EF4444' })];
   }
 
+  const { width, height } = calculateImageDimensions(buf, 570, 480);
+
   return [
     new Paragraph({
       alignment: AlignmentType.CENTER,
       spacing: { before: 120, after: 40 },
+      keepWithNext: true,
       children: [
         new ImageRun({
           data: buf,
           transformation: {
-            width: 580,
-            height: 326, // 16:9 ratio
+            width,
+            height,
           },
         }),
       ],
