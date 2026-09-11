@@ -9,14 +9,36 @@
 
 | Trường | Giá trị |
 |---|---|
-| **Phiên bản** | v0.9.0 |
-| **Ngày audit** | 2026-08-21 |
+| **Phiên bản** | v0.10.0 |
+| **Ngày audit** | 2026-09-11 |
 | **Người thực hiện** | Antigravity Multi-Agent Teamwork System |
 | **Môi trường** | Development / Staging / Production (Vercel + Render) |
 
 ---
 
 ## 🗂️ CHANGELOG PHIÊN BẢN
+
+### v0.10.0 — 2026-09-11
+- ✅ **Tùy Biến Nhập Tự Do "Mã Vận Đơn" & Kiểm Tra Trùng Lặp Thời Gian Thực (DB + Table Grid)**:
+  - **Backend API & Service**:
+    - Thêm endpoint `GET /api/v1/orders/check-code?code=...` kiểm tra tồn tại mã đơn hàng trong DB theo chuẩn REST (đặt trước `:id` route, bảo vệ bởi JWT Guard).
+    - Cập nhật `OrdersService.checkCodeExists(code)` thực hiện truy vấn case-insensitive trên bảng `order`.
+    - Bổ sung trường `orderCode?: string` vào `QuickCreateInboundOrderDto`.
+    - Cập nhật `WarehouseService.quickCreateInboundOrder()` và `WarehouseService.confirmInbound()`: Hỗ trợ mã vận đơn tùy biến từ khách hàng/kho, kiểm tra trùng lặp DB (ném lỗi `422 UnprocessableEntityException` nếu trùng mã) và giữ cơ chế tự sinh mã chuẩn nếu để trống.
+  - **Frontend Table Grid & Dialogs**:
+    - `WarehouseEditableGrid`: Chuẩn hóa tên cột thành **MÃ VẬN ĐƠN**, mở khóa `OrderCodeCell` cho phép nhập mã tự do, hỗ trợ dán clipboard/TSV từ Excel trực tiếp vào bảng kê, validate trùng lặp 2 lớp (local trên bảng kê + API check DB khi `onBlur`).
+    - `WarehouseExcelImportModal`: Tự động nhận diện cột `mã vận đơn`/`tracking`/`waybill`/`code` từ file Excel, hiển thị preview và cảnh báo trùng lặp.
+    - `OrderCreateDialog`: Tích hợp kiểm tra trùng lặp mã đơn/mã vận đơn với DB thời gian thực.
+  - **Nâng Cấp Nghiệp Vụ Kho Bãi & Luân Chuyển Hub**:
+    - Bổ sung bộ lọc khoảng thời gian `fromDate` và `toDate` cho các endpoints KPI thống kê kho và danh sách đơn hàng.
+    - Triển khai logic tự động tạo chuyến luân chuyển giữa các Hub (Inter-hub Transfer Trip) khi xác nhận xuất kho Outbound.
+  - **Triển Khai & Kiểm Chứng Độc Lập**:
+    - Backend Unit Tests: 8/8 test cases PASSED (`orders-waybill-code.spec.ts`).
+    - Backend Build: `npm run build` hoàn tất (Code 0).
+    - Frontend Build: `npm run typecheck` 0 lỗi, `npm run build` biên dịch 33/33 routes thành công (Code 0).
+    - Đồng bộ 3 Git repositories (`backend`, `frontend`, `root`) trên cả 2 nhánh `dev` và `master`.
+    - Render Production (`srv-da1db0vqj5pc73cpakr0`) & Dev (`srv-da1ae1c9v7es73auqd40`) đạt trạng thái **`LIVE`**, Live Health Check trả về `200 OK`.
+    - Chuẩn hóa tài liệu triển khai [`SERVICE_REGISTRY.md`](file:///d:/Projects/logistics-website/SERVICE_REGISTRY.md) và [`frontend/docs/deployment.md`](file:///d:/Projects/logistics-website/frontend/docs/deployment.md).
 
 ### v0.9.0 — 2026-08-21
 - ✅ **Nâng Cấp Toàn Diện Cơ Chế Quản Lý Token & Session Frontend (TMS Enterprise)**:

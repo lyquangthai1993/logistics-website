@@ -1,5 +1,5 @@
 # 📦 SERVICE REGISTRY — Logistics TMS
-> **Version**: 1.1 | **Last Updated**: 2026-08-17 | **Maintainer**: Thai Ly (`lyquangthai1993`)
+> **Version**: 1.2 | **Last Updated**: 2026-09-11 | **Maintainer**: Thai Ly (`lyquangthai1993`)
 >
 > Đây là **source of truth** cho toàn bộ service URLs, IDs, môi trường, và cấu hình deploy của hệ thống Logistics TMS.
 > Agents và developers phải đọc file này trước khi thao tác với bất kỳ service nào.
@@ -142,12 +142,12 @@
 | **Service ID** | `srv-da1db0vqj5pc73cpakr0` |
 | **Environment ID** | `evm-da1d6u0jo6nc738dsttg` |
 | **Branch** | `master` |
-| **Dockerfile** | ⚠️ Hiện là `./Dockerfile` — **cần đổi → `./Dockerfile.prod`** |
-| **Startup Script** | `startup.prod.sh` (sau khi đổi Dockerfile) |
+| **Dockerfile** | `./Dockerfile.prod` ✅ |
+| **Startup Script** | `startup.prod.sh` |
 | **Region** | Singapore (`sin`) |
 | **Plan** | Free |
 | **Auto Deploy** | Yes — on push to `master` |
-| **Status** | ⚠️ Deploy lỗi — đang fix Dockerfile |
+| **Status** | ✅ **LIVE** (`dep-dahrgvbtqb8s73c8nifg`) |
 
 | Link | URL |
 |---|---|
@@ -217,50 +217,46 @@
 
 ---
 
-## 📊 Trạng thái tổng hợp (2026-08-17)
+## 📊 Trạng thái tổng hợp (2026-09-11)
 
 | Hạng mục | Status | Ghi chú |
 |---|---|---|
-| GitHub backend branch `dev` | ✅ Tạo xong | Push từ `master` |
-| Render Dev — branch `dev` | ✅ Done | `srv-da1ae1c9v7es73auqd40` |
-| Render Dev — Deployed | ✅ Running | `https://logistics-website-backend-1jho.onrender.com` |
-| Render Prod — branch `master` | ✅ Done | `srv-da1db0vqj5pc73cpakr0` |
-| Render Prod — Env vars | ✅ Set | `DATABASE_URL`, `CORS`, `DOMAIN` đã có |
-| Render Prod — Dockerfile | ⚠️ **Cần sửa** | Đổi `./Dockerfile` → `./Dockerfile.prod` |
-| Render Prod — JWT/S3/Redis secrets | ⚠️ **Chưa set** | Cần thêm thủ công |
+| GitHub backend branch `dev` | ✅ Done | Đồng bộ với `master` |
+| Render Dev — branch `dev` | ✅ Live | `srv-da1ae1c9v7es73auqd40` (`dep-dahrgup5efls738cts5g`) |
+| Render Dev — URL | ✅ Running | `https://logistics-website-backend-1jho.onrender.com` |
+| Render Prod — branch `master` | ✅ Live | `srv-da1db0vqj5pc73cpakr0` (`dep-dahrgvbtqb8s73c8nifg`) |
+| Render Prod — Env vars | ✅ Set | `DATABASE_URL`, `CORS`, `DOMAIN`, Resend API đầy đủ |
+| Render Prod — Dockerfile | ✅ Done | Đã dùng `./Dockerfile.prod` |
+| Render Prod — URL | ✅ Running | `https://logistics-website-backend-1.onrender.com` (200 OK) |
 | Vercel env vars — tách 3 môi trường | ✅ Done | Production / Preview / Development |
 | Vercel Production `NEXT_PUBLIC_API_URL` | ✅ Done | Trỏ đúng Render Prod URL |
 | Vercel Preview `NEXT_PUBLIC_API_URL` | ✅ Done | Trỏ đúng Render Dev URL |
-| Vercel Production — Deploy | ✅ READY | `dpl_G6DadHTXfz7nYyqzuR17GLe2nCky` |
+| Vercel Production — Deploy | ✅ READY | `https://logistics-website-frontend-kappa.vercel.app` |
 | Vercel Preview — Auto Deploy | ✅ Active | Mỗi push vào `dev` tự trigger |
+| Live Warm-up 24/7 | ✅ Active | Cron job ping `/api/v1/health` giữ Render không ngủ |
 
 ---
 
-## 🔧 Pending Actions (còn lại)
+## 🔧 Triển khai & Vận hành (Operational Notes)
 
-### 1. Render Production — Đổi Dockerfile path
-> Dashboard: https://dashboard.render.com/web/srv-da1db0vqj5pc73cpakr0/settings
->
-> **Dockerfile Path**: `./Dockerfile` → `./Dockerfile.prod` → Save → Redeploy
+### 1. Quy trình Deploy Submodules (Chuẩn)
+Do hệ thống phân tách thành 3 Git repositories độc lập (`logistics-website`, `backend`, `frontend`), thứ tự triển khai khi có tính năng mới:
+1. Commit & Push trong `backend/` (`feature/*` → `dev` / `master`) → Kích hoạt Render auto-deploy.
+2. Commit & Push trong `frontend/` (`feature/*` → `dev` / `master`) → Kích hoạt Vercel auto-deploy.
+3. Cập nhật submodule pointers tại root repository (`logistics-website`), commit & push.
 
-### 2. Render Production — Set secrets còn thiếu
-Vào **Environment** tab của service production, thêm:
-```
-AUTH_JWT_SECRET         = <random 64-char string>
-AUTH_REFRESH_SECRET     = <random 64-char string>
-AUTH_FORGOT_SECRET      = <random 64-char string>
-AUTH_CONFIRM_EMAIL_SECRET = <random 64-char string>
-ACCESS_KEY_ID           = <supabase s3 access key>
-SECRET_ACCESS_KEY       = <supabase s3 secret key>
-AWS_DEFAULT_S3_BUCKET   = logistics-media
-AWS_S3_ENDPOINT         = https://<ref>.supabase.co/storage/v1/s3
-AWS_S3_PUBLIC_URL       = https://<ref>.supabase.co/storage/v1/object/public/logistics-media
-WORKER_HOST             = <upstash redis URL rediss://...>
+### 2. Kiểm tra trạng thái Deploy nhanh
+```bash
+# Kiểm tra Health Render Backend Production
+curl.exe -s --max-time 10 https://logistics-website-backend-1.onrender.com/
+
+# Kiểm tra Endpoint kiểm tra mã vận đơn mới
+curl.exe -s --max-time 10 https://logistics-website-backend-1.onrender.com/api/v1/orders/check-code?code=TEST-WAYBILL
 ```
 
 ### 3. (Optional) Tách Neon DB Production
-Tạo Neon project/branch riêng cho production tại https://console.neon.tech
-→ Cập nhật `DATABASE_URL` trong Render Production service
+Tạo Neon project/branch riêng cho production tại https://console.neon.tech nếu cần tách biệt môi trường dữ liệu test và live:
+→ Cập nhật `DATABASE_URL` trong Render Production service (`srv-da1db0vqj5pc73cpakr0`).
 
 ---
 
