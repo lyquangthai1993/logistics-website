@@ -11,5 +11,8 @@
     "test:e2e": "npm run e2e --prefix frontend",
     "test:e2e:check": "npm run e2e:check --prefix frontend",
     "test:e2e:report": "npm run e2e:report --prefix frontend"
+  },
+  "devDependencies": {
+    "docx": "^9.7.1"
   }
 }
