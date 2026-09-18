@@ -37,6 +37,27 @@ This skill provides a structured methodology for analyzing user roles, designing
 
 ---
 
+## 🏷️ Mandatory Operational Terminology & Zero Document Jargon Rule (STRICT)
+
+> ⚠️ **Zero Document Jargon Mandate**: When designing UI screens, wireframes, and component mockups, designers and agents MUST strictly eliminate internal technical/document jargon and developer prompt notes from all user-facing labels. All UI copy MUST use natural, professional Vietnamese logistics warehouse operational terminology (`thuật ngữ vận hành kho bãi thực tế`).
+
+### 1. Prohibited Internal Spec Jargon vs. Real Operational Equivalents:
+| ❌ Prohibited Technical/Doc Jargon | ✅ Required Operational Terminology | Operational Context |
+|---|---|---|
+| `Quy chuẩn kiện vận tải (No-SKU)` / `No-SKU` | `Kiện hàng vận tải` / `Danh sách kiện hàng` / `Thông tin hàng hóa` | Cargo item table & consignment headers |
+| `(First-mile Inbound)` | `Xe nhập kho` / `Chặng 1: Nhập kho` | First-mile leg in Timeline Stepper |
+| `(Middle-mile Transfer)` | `Trung chuyển liên Hub` / `Chặng 2: Trung chuyển` | Linehaul / Middle-mile transfer leg |
+| `(Last-mile Outbound)` | `Xe xuất kho` / `Chặng 3: Xuất kho` | Last-mile delivery leg |
+| `Đang xuất nhỏ giọt` | `Đang xuất từng phần` | Partial outbound stock status |
+| `Consignment Level` | `Theo lô hàng` / `Theo đơn vận chuyển` | Aggregated waybill level |
+| `(TASK-ORD-...)` / Code IDs | Omit entirely from UI copy | Developer tracking references |
+
+### 2. Strict Separation: Create View vs. Detail/Inspection View:
+- **Create View** (`/warehouse/inbound` create mode): Renders creation mode switch tabs (`Mới hoàn toàn` vs `Luân chuyển nội bộ`), receipt inputs (license plate, driver, date), editable grid (`WarehouseEditableGrid`), Excel paste, and `+ Thêm dòng` buttons.
+- **Detail View** (`WarehouseWaybillDetailModal`, slide-over viewers): Is an **audit and tracking inspection window**. NEVER render creation tabs, receipt form inputs, or editable grids. Must only present clean, read-only static tables, dynamic inventory summary cards (`Tổng nhập`, `Đã xuất`, `Tồn khả dụng`), and the 3-leg progress timeline.
+
+---
+
 ## 🎯 Target Roles & Operational Journeys (Spider Express)
 
 1. **DISPATCHER (Operational Coordinator)**:

@@ -260,10 +260,21 @@ Always adopt the dual mindset of a **Senior Software Product Designer** and an *
        - Close / Back: `icon: "x"` + `content: "Quay lại danh sách"` (NEVER `content: "✕ Quay lại..."`).
        - Add Row: `icon: "plus"` + `content: "Thêm dòng hàng mới"` (NEVER `content: "+ Thêm dòng..."`).
 
+6. **Zero Technical/Document Jargon & Real Operational Terminology Standard (STRICT)**:
+   - ❌ **NEVER** expose task spec labels, developer notes, or document jargon to end-users (e.g. `Quy chuẩn kiện vận tải (No-SKU)`, `(First-mile Inbound)`, `(Middle-mile Transfer)`, `(Last-mile Outbound)`, `Consignment Level`, `Đang xuất nhỏ giọt`, `(TASK-ORD-...)`).
+   - ✅ **ALWAYS** use professional Vietnamese logistics warehouse operational terminology (`thuật ngữ vận hành kho bãi thực tế`):
+     - `Tiến trình vận chuyển & Tồn kho` (instead of technical timeline headers).
+     - `1. Xe nhập kho`, `2. Trung chuyển liên Hub`, `3. Xe xuất kho` (instead of first/middle/last mile parenthetical jargon).
+     - `Đang xuất từng phần` (instead of `nhỏ giọt`).
+     - `Tổng nhập`, `Đã xuất`, `Tồn khả dụng`, `Xuất hoàn tất`.
+   - **Detail/Inspection Dialog Strict Rule**: Detail/Inspection dialogs (Waybill Detail, View Modal, Sheet drawer) are strictly read-only audit views. NEVER render creation tabs (`Mới hoàn toàn` / `Luân chuyển nội bộ`), receipt form inputs, or editable grids inside read-only inspection dialogs.
+
 ---
 
 ## 🛡️ Anti-Patterns & Safety Rules
 - ❌ **FATAL: NEVER use `"text"` property on text nodes**: ALWAYS use `"content": "..."`.
+- ❌ **NO Technical/Document Jargon in UI**: NEVER use spec notes or jargon (`(No-SKU)`, `(First-mile Inbound)`, `(Middle-mile Transfer)`, `(Last-mile Outbound)`, `Consignment Level`, `nhỏ giọt`, `(TASK-ORD-...)`) in user-facing UI copy. Use real logistics warehouse operational terms.
+- ❌ **NO Create-Mode Controls in Detail/Inspection Views**: NEVER render creation mode tabs, receipt form inputs, or editable grids inside read-only Detail views or Modals.
 - ❌ **NO Redundant / Double Icons on Buttons**: NEVER combine an icon node with an emoji or symbol (e.g., `+`, `🚚`, `📦`, `🔄`, `🖨️`, `✕`) inside the text label. Use EITHER an icon node OR clean text.
 - ❌ **NO Meta/Prompt-Mirroring Copy**: NEVER dump prompt instructions, user requirements, or UI architectural notes into visible UI text, subtitles, or badges.
 - ❌ **NO Topbar Right Screen Labels (`_topbar_right`)**: NEVER print duplicate screen titles, step names, or mode banners on the top-right of Topbars.

@@ -48,6 +48,8 @@ Each dimension is scored by counting **checkpoint violations**. Each violation d
 | Any field in UI has no spec origin (not in Task or docs_scan) | -3 per extra/phantom field | No |
 | Column/field order does not match scanned reference form | -2 | No |
 | Technical spec notes / designer prompt text drawn directly into UI frame instead of placed in a separate side-note panel outside the screen (e.g. Node SyY5O) | -3 per misplaced note | No |
+| **Technical/document spec jargon leaked into user-facing labels** (e.g. `(No-SKU)`, `(First-mile Inbound)`, `(Middle-mile Transfer)`, `(Last-mile Outbound)`, `Consignment Level`, `Đang xuất nhỏ giọt`, task IDs) instead of professional operational Vietnamese | -3 per occurrence | Yes (if >= 3 occurrences) |
+| **Create-mode controls leaked into read-only Detail/Inspection view** (e.g. creation tabs `Mới hoàn toàn`/`Luân chuyển`, receipt form inputs, editable grids, `+ Thêm dòng` buttons inside inspection dialogs) | -4 per occurrence | Yes |
 | SKU / Barcode / Ma san pham field present anywhere on screen | -10 (full dimension) | **YES** |
 | `.pen` vector file uses `"text"` property instead of `"content"` for text nodes (causing invisible labels in Pencil) | -10 (full dimension) | **YES** |
 
@@ -147,6 +149,8 @@ After scoring all 5 dimensions, produce a report using this exact format:
 
 ### Auto-FAIL Triggers (Blocking — zero tolerance)
 - [ ] D1: SKU field detected → [location on screen]
+- [ ] D1: Technical/document spec jargon leaked into UI labels (`(No-SKU)`, `(First-mile Inbound)`, etc. >= 3 occurrences)
+- [ ] D1: Create-mode controls (mode tabs, editable inputs, add row buttons) leaked into read-only Detail/Inspection view
 - [ ] D2: No state-switching logic found
 - [ ] D3: hubId scope not enforced
 - [ ] D4: SKU field detected in business rule check
@@ -196,6 +200,8 @@ Step 4: Repeat until CLEARED (score >= 40/50, 0 Auto-FAIL)
 - [ ] Read `leader` SKILL.md (No-SKU rule, role matrix, cargo fields)
 - [ ] Checked `rbac-matrix.md` for role access boundaries
 - [ ] Scored all 5 dimensions using checkpoint rubric
+- [ ] Verified ZERO technical/document jargon in UI labels (no `(No-SKU)`, `(First-mile Inbound)`, `(TASK-ORD-...)` — all labels must use natural Vietnamese logistics operational terms)
+- [ ] Verified Detail/Inspection views are strictly read-only (no create mode tabs, no editable inputs, no editable table grids)
 - [ ] Verified single-line text consistency (no broken line breaks / chữ rớt dòng cụt lủn trong table headers, cells, labels)
 - [ ] Verified Box Model Geometry (no text overflow / clipping / boundary bleed: text width must fit container without clipping)
 - [ ] Verified no spec notes or prompt nodes drawn inside UI frame (all notes must be in external side panel or markdown docs)
