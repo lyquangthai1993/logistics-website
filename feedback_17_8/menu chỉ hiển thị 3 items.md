@@ -18,7 +18,7 @@ CLICK vào xe => ra giao diện như nhập mới hoàn toàn
 
 
 =============================================
-tem nhận diện: bỏ người nhập
+tem nhận diện: bỏ thông tin người nhập, các ô khoanh đỏ thì để trống
 thêm thông tin mã QR vào nữa, ở góc trên - trái
 ===============================================
 

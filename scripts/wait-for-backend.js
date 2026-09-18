@@ -20,7 +20,7 @@ const https = require('https');
 const HEALTH_URL =
   process.argv[2] ||
   process.env.BACKEND_HEALTH_URL ||
-  'http://localhost:3001/api';
+  'http://localhost:4001/api';
 
 const TIMEOUT_MS = parseInt(process.argv[3] || process.env.WAIT_TIMEOUT_MS || '120000', 10);
 const INTERVAL_MS = parseInt(process.argv[4] || process.env.WAIT_INTERVAL_MS || '2000', 10);

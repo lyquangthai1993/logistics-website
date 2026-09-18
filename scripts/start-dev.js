@@ -27,7 +27,7 @@ const FRONTEND_DIR = path.join(ROOT, 'frontend');
 
 // Dynamically read backend/.env for port and api prefix if not specified in env
 const backendEnvPath = path.join(BACKEND_DIR, '.env');
-let backendPort = '3001';
+let backendPort = '4001';
 let apiPrefix = 'api';
 
 if (fs.existsSync(backendEnvPath)) {

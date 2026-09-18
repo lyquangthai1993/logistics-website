@@ -4,6 +4,10 @@
 - **Backend**: NestJS 11+ located in [`backend/`](file:///d:/Projects/logistics-website/backend) (PostgreSQL on Neon, TypeORM, Custom JWT Auth, Swagger) — **Independent Git Submodule** (`logistics-website-backend`).
 - **Frontend**: Next.js 15+ located in [`frontend/`](file:///d:/Projects/logistics-website/frontend) (App Router, React 19, Tailwind CSS, TanStack Query, Zustand) — **Independent Git Submodule** (`logistics-website-frontend`).
 - **Git Submodules Rule**: Root repo (`logistics-website`), `backend/`, and `frontend/` are 3 independent Git repositories. When creating a feature branch or committing code, you MUST create branches and commit **directly inside the corresponding submodule** (`backend/` and/or `frontend/`), never only at the root repository.
+- **Mandatory Project Repo Tracking on Task Start Rule**: Whenever starting any task, session, or feature implementation, `/leader` and all operating agents MUST ALWAYS activate and run tracking commands across all 3 project repositories (`root`, `backend/`, `frontend/`) before planning, dispatching, or modifying code:
+  - Run status check: `npm run repo:status` (or `git status -sb; git -C backend status -sb; git -C frontend status -sb`)
+  - Run branch tracking check: `npm run repo:tracking` (or `git branch -vv; git -C backend branch -vv; git -C frontend branch -vv`)
+  This guarantees: (1) Active branch alignment across root and submodules (prevents committing to `main`/`dev` or detached HEAD), (2) Upstream tracking synchronization (`[ahead N, behind M]`), and (3) Immediate detection of uncommitted/dirty working trees before changes occur.
 
 ## Safety & Governance Rules (STRICT)
 - **Language Policy**: Skill and agent guideline documentation MUST be written in English to minimize token consumption and maximize context efficiency.
@@ -28,7 +32,7 @@
 ## Registered Skills & Agents
 
 ### Specialized Skills
-- [`leader`](.agents/skills/leader/SKILL.md): **[READ FIRST]** Business domain Team Lead — single source of truth for dispatch flows, role permissions, and notification matrix (who gets notified when). MANDATORY activation before implementing status transitions, notifications, or any new business feature.
+- [`leader`](.agents/skills/leader/SKILL.md): **[READ FIRST]** Business domain Team Lead — single source of truth for dispatch flows, role permissions, and notification matrix (who gets notified when). MANDATORY activation before implementing status transitions, notifications, or any new business feature. Always activates project repo tracking commands (`npm run repo:status`, `npm run repo:tracking`) across all 3 repos upon start.
 - [`nestjs-best-practices`](file:///d:/Projects/logistics-website/.agents/skills/nestjs-best-practices/SKILL.md): Backend architecture, NestJS patterns, TypeORM migrations, DTOs, controllers, services. Decides **how** (technical) — not **what/who** (business logic).
 - [`nextjs-best-practices`](file:///d:/Projects/logistics-website/.agents/skills/nextjs-best-practices/SKILL.md): Frontend App Router structure, React 19, Zustand stores, TanStack Query v5 API integration.
 - [`ui-ux-flow-designer`](file:///d:/Projects/logistics-website/.agents/skills/ui-ux-flow-designer/SKILL.md): User flow analysis, wireframing, role-based interaction design (DISPATCHER, FLEET_MANAGER, WAREHOUSE_MANAGER, SUPER_ADMIN), and UI layout architecture. Works in direct tandem with [`pencil-ui-designer`](file:///d:/Projects/logistics-website/.agents/skills/pencil-ui-designer/SKILL.md) for vector canvas visual prototyping via Pencil MCP.

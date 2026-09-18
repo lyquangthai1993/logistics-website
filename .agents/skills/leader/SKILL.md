@@ -14,6 +14,19 @@ description: >-
 > All decisions regarding **who does what, lifecycle transitions, authorization boundaries, and notification triggers** MUST reference this skill first.
 > This skill defines **WHAT & WHY** (Business), while [`nestjs-best-practices`](../nestjs-best-practices/SKILL.md) and [`nextjs-best-practices`](../nextjs-best-practices/SKILL.md) define **HOW** (Technical Implementation).
 
+> [!IMPORTANT]
+> **MANDATORY PROJECT REPO TRACKING ON START (KÍCH HOẠT TRACKING CMD KHI START TASK):**
+> Whenever starting any business analysis, planning session, or task execution, the Leader and agents MUST ALWAYS activate and run tracking commands across all 3 project repositories (`root`, `backend/`, `frontend/`) before proceeding:
+> ```bash
+> npm run repo:status
+> npm run repo:tracking
+> ```
+> *(Or direct git: `git status -sb; git -C backend status -sb; git -C frontend status -sb` and `git branch -vv; git -C backend branch -vv; git -C frontend branch -vv`)*.
+> This guarantees:
+> 1. Active branch in `root`, `backend`, and `frontend` are explicitly tracked and aligned with the assigned feature branch (preventing accidental work on `main`/`dev` or detached HEAD).
+> 2. Sync status with remote tracking branches (`ahead`/`behind`) is surfaced immediately.
+> 3. Working tree dirtiness or uncommitted edits across submodules are identified before new changes begin.
+
 ---
 
 ## 📚 Business Sources of Truth
@@ -200,6 +213,7 @@ See [Notification Matrix in `notifications.md`](notifications.md)
 
 Before writing or modifying any backend endpoint, frontend page, or data model, verify:
 
+0. **Project Repo Tracking Check**: Executed `npm run repo:status` and `npm run repo:tracking` across all 3 repos (`root`, `backend/`, `frontend/`) to confirm clean state and active branch alignment?
 1. **Valid State Transition**: Does the new status conform to the Order/Trip State Machine?
 2. **Authorization Enforcement**: Is the executing role permitted per the [RBAC Matrix](../../rules/rbac-matrix.md)?
 3. **Notification Matrix Reference**: Checked [`notifications.md`](notifications.md) for recipients (In-app + Email)?

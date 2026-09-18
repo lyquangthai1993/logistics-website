@@ -83,7 +83,7 @@
 | `/v1/orders/:id` | PATCH | ✅ | ✅ | ❌ | ❌ |
 | `/v1/orders/:id/submit` | PATCH | ✅ | ✅ | ❌ | ❌ |
 | `/v1/orders/:id/no-vehicle` | PATCH | ✅ | ❌ | ✅ | ❌ |
-| `/v1/orders/:id` | DELETE | ✅ | ✅ | ❌ | ❌ |
+| `/v1/orders/:id` | DELETE | ✅ | ✅ | ❌ | ✅ *(Chỉ xóa đơn DRAFT)* |
 
 ---
 
