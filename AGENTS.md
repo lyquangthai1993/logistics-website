@@ -9,6 +9,12 @@
   - Run branch tracking check: `npm run repo:tracking` (or `git branch -vv; git -C backend branch -vv; git -C frontend branch -vv`)
   This guarantees: (1) Active branch alignment across root and submodules (prevents committing to `main`/`dev` or detached HEAD), (2) Upstream tracking synchronization (`[ahead N, behind M]`), and (3) Immediate detection of uncommitted/dirty working trees before changes occur.
 
+## Canonical Environments & Dev Domains ("domain dev" Mandate)
+Whenever the user refers to, asks for, or mentions **"domain dev"** (hoặc "domain môi trường dev", "môi trường dev"), all agents MUST immediately recognize and use the following canonical URLs:
+- **Frontend Dev Domain**: `https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app` (Vercel Dev Deployment)
+- **Backend Dev Domain**: `https://logistics-website-backend-1jho.onrender.com` (Render Dev Service `logistics-website-backend-1jho`)
+- **Backend Swagger API Docs**: `https://logistics-website-backend-1jho.onrender.com/docs`
+
 ## Safety & Governance Rules (STRICT)
 - **Language Policy**: Skill and agent guideline documentation MUST be written in English to minimize token consumption and maximize context efficiency.
 - **Secrets & Security**: NEVER commit/push `.env` files or credentials. Ensure secrets stay in `.env` (git-ignored).
