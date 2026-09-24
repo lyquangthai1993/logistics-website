@@ -9,11 +9,16 @@
   - Run branch tracking check: `npm run repo:tracking` (or `git branch -vv; git -C backend branch -vv; git -C frontend branch -vv`)
   This guarantees: (1) Active branch alignment across root and submodules (prevents committing to `main`/`dev` or detached HEAD), (2) Upstream tracking synchronization (`[ahead N, behind M]`), and (3) Immediate detection of uncommitted/dirty working trees before changes occur.
 
-## Canonical Environments & Dev Domains ("domain dev" Mandate)
-Whenever the user refers to, asks for, or mentions **"domain dev"** (hoặc "domain môi trường dev", "môi trường dev"), all agents MUST immediately recognize and use the following canonical URLs:
-- **Frontend Dev Domain**: `https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app` (Vercel Dev Deployment)
-- **Backend Dev Domain**: `https://logistics-website-backend-1jho.onrender.com` (Render Dev Service `logistics-website-backend-1jho`)
-- **Backend Swagger API Docs**: `https://logistics-website-backend-1jho.onrender.com/docs`
+## Canonical Environments & Deployment Domains ("domain dev" & "domain pro" Mandate)
+Whenever the user refers to, asks for, or mentions **"domain dev"** (hoặc "domain môi trường dev", "môi trường dev"), all agents MUST immediately recognize and use:
+- **Frontend Dev Domain**: `https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app` (Vercel Dev Deployment, branch `dev`)
+- **Backend Dev Domain**: `https://logistics-website-backend-1jho.onrender.com` (Render Dev Service `logistics-website-backend-1jho`, branch `dev`)
+- **Backend Swagger API Docs (Dev)**: `https://logistics-website-backend-1jho.onrender.com/docs`
+
+Whenever the user refers to, asks for, or mentions **"domain pro"** (hoặc "domain prod", "môi trường pro", "môi trường production"), all agents MUST immediately recognize and use:
+- **Frontend Pro Domain**: `https://logistics-website-frontend-kappa.vercel.app` (Vercel Production Deployment, branch `master`)
+- **Backend Pro Domain**: `https://logistics-website-backend-1.onrender.com` (Render Production Service `logistics-website-backend-1`, branch `master`)
+- **Backend Swagger API Docs (Pro)**: `https://logistics-website-backend-1.onrender.com/docs`
 
 ## Safety & Governance Rules (STRICT)
 - **Language Policy**: Skill and agent guideline documentation MUST be written in English to minimize token consumption and maximize context efficiency.
