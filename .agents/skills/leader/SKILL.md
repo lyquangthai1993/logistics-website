@@ -39,8 +39,7 @@ Before implementing features or modifying workflows, agents MUST reference:
 | **Workflow Plan** | Dispatch planning, product decisions, split shipment architecture | [`docs/order-dispatch-workflow-plan.md`](../../../docs/order-dispatch-workflow-plan.md) |
 | **Split Shipment Guide** | 1 Order across multiple Trips & Vehicle capacity allocation | [`docs/SPLIT_SHIPMENT_BUSINESS_INTERVIEW_GUIDE.md`](../../../docs/SPLIT_SHIPMENT_BUSINESS_INTERVIEW_GUIDE.md) |
 | **User Manual** | Operational user guide and workflow step-by-step | [`docs/user-guide/USER_MANUAL_HUONG_DAN_SU_DUNG.md`](../../../docs/user-guide/USER_MANUAL_HUONG_DAN_SU_DUNG.md) |
-| **RBAC Matrix** | 3-Layer permission enforcement (Sidebar, Route Guard, API Guard) | [`.agents/rules/rbac-matrix.md`](../../rules/rbac-matrix.md) |
-| **UI Compact Density** | Narrow layout, 4px card padding, compact gaps (<=12px), sticky action footers | [`.agents/rules/ui-compact-density.md`](../../rules/ui-compact-density.md) |
+| **UI Compact Density** | Narrow layout, Banned Classes (p-4, space-y-3), 4px card padding, compact gaps (<=8px), text-[10px] tables | [`.agents/rules/ui-compact-density.md`](../../rules/ui-compact-density.md) & [`ui-spacing-guard`](../ui-spacing-guard/SKILL.md) |
 
 ---
 

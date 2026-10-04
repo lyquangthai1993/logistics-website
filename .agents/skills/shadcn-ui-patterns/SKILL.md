@@ -411,4 +411,20 @@ Never combine an Icon component with an emoji or duplicate symbol inside button 
 | Form không validate | Thiếu zodResolver | Thêm `resolver: zodResolver(schema)` |
 | Dark mode không chuyển | Thiếu ThemeProvider | Wrap app với `ThemeProvider` |
 | Toast không hiển thị | Thiếu Toaster component | Thêm `<Toaster />` vào root layout |
+| Spacing quá rộng (p-4, space-y-4) | Dùng template mặc định của shadcn | Thay bằng `p-1` (Card), `p-2` (Dialog), `space-y-1.5`, `gap-2` theo [`ui-spacing-guard`](../ui-spacing-guard/SKILL.md) |
+
+## Compact Density & Spacing Rules for Shadcn UI
+
+Tất cả các component Shadcn UI trong TMS phải tuân thủ nghiêm ngặt quy chuẩn khoảng cách tinh gọn:
+- **`<Card />`**: Mặc định `[--card-spacing:--spacing(1)]` (4px). `<CardContent className="p-1">`. Tuyệt đối KHÔNG dùng `p-4` hay `p-6`.
+- **`<Dialog />` / `<Sheet />`**:
+  - Dialog Header: `py-1.5 px-2 border-b`
+  - Dialog Content / Body: `p-2` (tối đa `p-2.5`), `overflow-y-auto max-h-[80vh]`
+  - Dialog Footer: `py-1.5 px-2 border-t`
+  - Tuyệt đối KHÔNG dùng `p-6` hay `space-y-6` trong Dialog.
+- **`<Table />`**:
+  - Table Head (`th`): `py-1 px-1.5 text-[10px]`
+  - Table Cell (`td`): `py-1 px-1.5 text-[10px]`
+  - Monospace codes: `text-[11px] font-mono font-bold`
+- **Form Groups**: `space-y-1.5` hoặc `space-y-2`, Grid `gap-1.5` hoặc `gap-2`, Label margin `mb-1`.
 
