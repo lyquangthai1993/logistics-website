@@ -1,0 +1,377 @@
+{
+  "description": "Mock data test cases for Warehouse Inbound/Outbound Cargo Count & Multi-Hub Transfer Verification, including explicit expectations for Warehouse Orders Overview (/dashboard/warehouse/orders)",
+  "metadata": {
+    "version": "1.1.0",
+    "createdAt": "2026-10-04",
+    "originHub": { "id": 1, "code": "HUB-HCM-01", "name": "Andromeda Hub - HCM" },
+    "transitHub": { "id": 2, "code": "HUB-DAD-01", "name": "Magellan Hub - Đà Nẵng" },
+    "destinationHub": { "id": 3, "code": "HUB-HYN-01", "name": "Polaris Hub - Hưng Yên" },
+    "xeBoHubDad": { "id": 6, "code": "HUB-BO-DAD-01", "name": "Xe bo Tuyến Đà Nẵng", "level": 2 },
+    "xeBoHubHyn": { "id": 10, "code": "HUB-BO-HYN-01", "name": "Xe bo Tuyến Hưng Yên", "level": 2 },
+    "xeBoHubHcm": { "id": 4, "code": "HUB-BO-HCM-01", "name": "Xe bo Tuyến HCM", "level": 2 }
+  },
+  "testCases": [
+    {
+      "testCaseId": "TC-01-STANDARD-SCENARIO",
+      "name": "Kịch bản chuẩn từ Feedback: HCM nhập 4 dòng -> Xuất 1 TRIP đi Đà Nẵng (10k), Hưng Yên (7k), Xe Bo Đà Nẵng (3k)",
+      "inboundHCM": {
+        "licensePlate": "51C-991.01",
+        "driverName": "Nguyễn Văn Nhập HCM",
+        "items": [
+          {
+            "orderCode": "TEST-HCM-01-ROW1",
+            "goodsDescription": "Lô Hàng Thiết Bị Điện Tử",
+            "totalQuantity": 15,
+            "totalWeight": 75,
+            "totalVolume": 1.2,
+            "pickupAddress": "KCN Tân Bình, TP.HCM",
+            "deliveryAddress": "Kho Đà Nẵng - Liên Chiểu",
+            "destinationHubId": 2,
+            "deliveryMode": "HUB_L1"
+          },
+          {
+            "orderCode": "TEST-HCM-01-ROW2",
+            "goodsDescription": "Lô Hàng Gia Dụng Cao Cấp",
+            "totalQuantity": 12,
+            "totalWeight": 60,
+            "totalVolume": 0.9,
+            "pickupAddress": "KCN Sóng Thần, Bình Dương",
+            "deliveryAddress": "Kho Hưng Yên - Phố Nối",
+            "destinationHubId": 3,
+            "deliveryMode": "HUB_L1"
+          },
+          {
+            "orderCode": "TEST-HCM-01-ROW3",
+            "goodsDescription": "Lô Linh Kiện Máy Tính Tuyến Phố",
+            "totalQuantity": 8,
+            "totalWeight": 40,
+            "totalVolume": 0.6,
+            "pickupAddress": "Khu Công Nghệ Cao, TP.HCM",
+            "deliveryAddress": "Trạm Xe Bo Tuyến Đà Nẵng",
+            "destinationHubId": 6,
+            "deliveryMode": "XE_BO"
+          },
+          {
+            "orderCode": "TEST-HCM-01-ROW4",
+            "goodsDescription": "Lô Phụ Liệu May Mặc Lưu Kho",
+            "totalQuantity": 5,
+            "totalWeight": 25,
+            "totalVolume": 0.4,
+            "pickupAddress": "Chợ Tân Bình, TP.HCM",
+            "deliveryAddress": "Lưu kho HCM",
+            "destinationHubId": 1,
+            "deliveryMode": "DIRECT_CUSTOMER"
+          }
+        ]
+      },
+      "outboundHCM": {
+        "mode": "TRANSFER",
+        "licensePlate": "51H-882.11",
+        "driverName": "Trần Văn Trung Chuyển Bắc Nam",
+        "sharedTripCode": "SD-TEST-01",
+        "exportItems": [
+          { "orderCode": "TEST-HCM-01-ROW1", "quantityToExport": 10, "destinationHubId": 2, "deliveryMode": "HUB_L1" },
+          { "orderCode": "TEST-HCM-01-ROW2", "quantityToExport": 7, "destinationHubId": 3, "deliveryMode": "HUB_L1" },
+          { "orderCode": "TEST-HCM-01-ROW3", "quantityToExport": 3, "destinationHubId": 6, "deliveryMode": "XE_BO" }
+        ]
+      },
+      "expectedStates": {
+        "postOutboundHCMStock": {
+          "TEST-HCM-01-ROW1": 5,
+          "TEST-HCM-01-ROW2": 5,
+          "TEST-HCM-01-ROW3": 5,
+          "TEST-HCM-01-ROW4": 5
+        },
+        "inTransitTrip": {
+          "tripCode": "SD-TEST-01",
+          "totalLoadedPackages": 20,
+          "stops": [
+            { "hubId": 1, "status": "COMPLETED", "type": "ORIGIN" },
+            { "hubId": 2, "status": "PENDING", "type": "TRANSIT" },
+            { "hubId": 3, "status": "PENDING", "type": "DESTINATION" },
+            { "hubId": 6, "status": "PENDING", "type": "DESTINATION" }
+          ]
+        },
+        "postReceivingDaNang": {
+          "daNangReceivedPackages": 10,
+          "daNangHoldingStock": 10,
+          "xeBoDaNangStatus": "XE_BO",
+          "xeBoDaNangPackages": 3
+        },
+        "postReceivingHungYen": {
+          "hungYenReceivedPackages": 7,
+          "hungYenHoldingStock": 7
+        },
+        "warehouseOrdersPageExpectations": {
+          "atHCM_afterOutbound": {
+            "tab": "LƯU KHO",
+            "activeRowsCount": 4,
+            "rows": [
+              { "orderCode": "TEST-HCM-01-ROW1", "hubStock": 5, "totalWeight": 75, "totalVolume": 1.2, "hubStatus": "INBOUND" },
+              { "orderCode": "TEST-HCM-01-ROW2", "hubStock": 5, "totalWeight": 60, "totalVolume": 0.9, "hubStatus": "INBOUND" },
+              { "orderCode": "TEST-HCM-01-ROW3", "hubStock": 5, "totalWeight": 40, "totalVolume": 0.6, "hubStatus": "INBOUND" },
+              { "orderCode": "TEST-HCM-01-ROW4", "hubStock": 5, "totalWeight": 25, "totalVolume": 0.4, "hubStatus": "INBOUND" }
+            ],
+            "totalHubStock": 20
+          },
+          "atDaNang_afterReceiving": {
+            "tab": "LƯU KHO",
+            "activeRowsCount": 2,
+            "rows": [
+              { "orderCode": "TEST-HCM-01-ROW1", "hubStock": 10, "destinationHub": "Magellan Hub - Đà Nẵng", "hubStatus": "INBOUND" },
+              { "orderCode": "TEST-HCM-01-ROW3", "hubStock": 3, "destinationHub": "Xe bo Tuyến Đà Nẵng", "deliveryMode": "XE_BO", "hubStatus": "INBOUND" }
+            ],
+            "totalHubStock": 13
+          },
+          "atHungYen_afterReceiving": {
+            "tab": "LƯU KHO",
+            "activeRowsCount": 1,
+            "rows": [
+              { "orderCode": "TEST-HCM-01-ROW2", "hubStock": 7, "destinationHub": "Polaris Hub - Hưng Yên", "hubStatus": "INBOUND" }
+            ],
+            "totalHubStock": 7
+          }
+        }
+      }
+    },
+    {
+      "testCaseId": "TC-02-RANDOMIZED-A",
+      "name": "Kịch bản mở rộng A: HCM nhập 4 dòng (24, 18, 14, 9 kiện) -> Xuất 1 TRIP đi Đà Nẵng (16k), Hưng Yên (11k), Xe Bo Hưng Yên (6k)",
+      "inboundHCM": {
+        "licensePlate": "50E-123.45",
+        "driverName": "Lê Văn Tải 2",
+        "items": [
+          { "orderCode": "TEST-HCM-02-ROW1", "goodsDescription": "Vật Tư Y Tế Chuyên Dụng", "totalQuantity": 24, "totalWeight": 120, "totalVolume": 1.8, "destinationHubId": 2, "deliveryMode": "HUB_L1" },
+          { "orderCode": "TEST-HCM-02-ROW2", "goodsDescription": "Hóa Chất Công Nghiệp Nhẹ", "totalQuantity": 18, "totalWeight": 180, "totalVolume": 1.5, "destinationHubId": 3, "deliveryMode": "HUB_L1" },
+          { "orderCode": "TEST-HCM-02-ROW3", "goodsDescription": "Bao Bì Đóng Gói Phân Phối", "totalQuantity": 14, "totalWeight": 70, "totalVolume": 1.1, "destinationHubId": 10, "deliveryMode": "XE_BO" },
+          { "orderCode": "TEST-HCM-02-ROW4", "goodsDescription": "Màng Nhựa Chống Sốc", "totalQuantity": 9, "totalWeight": 45, "totalVolume": 0.7, "destinationHubId": 1, "deliveryMode": "DIRECT_CUSTOMER" }
+        ]
+      },
+      "outboundHCM": {
+        "mode": "TRANSFER",
+        "licensePlate": "51D-773.99",
+        "driverName": "Hoàng Văn Liên Tuyến",
+        "sharedTripCode": "SD-TEST-02",
+        "exportItems": [
+          { "orderCode": "TEST-HCM-02-ROW1", "quantityToExport": 16, "destinationHubId": 2, "deliveryMode": "HUB_L1" },
+          { "orderCode": "TEST-HCM-02-ROW2", "quantityToExport": 11, "destinationHubId": 3, "deliveryMode": "HUB_L1" },
+          { "orderCode": "TEST-HCM-02-ROW3", "quantityToExport": 6, "destinationHubId": 10, "deliveryMode": "XE_BO" }
+        ]
+      },
+      "expectedStates": {
+        "postOutboundHCMStock": {
+          "TEST-HCM-02-ROW1": 8,
+          "TEST-HCM-02-ROW2": 7,
+          "TEST-HCM-02-ROW3": 8,
+          "TEST-HCM-02-ROW4": 9
+        },
+        "inTransitTrip": {
+          "tripCode": "SD-TEST-02",
+          "totalLoadedPackages": 33
+        },
+        "postReceivingDaNang": {
+          "daNangReceivedPackages": 16,
+          "daNangHoldingStock": 16
+        },
+        "postReceivingHungYen": {
+          "hungYenReceivedPackages": 11,
+          "hungYenHoldingStock": 11,
+          "xeBoHungYenPackages": 6
+        },
+        "warehouseOrdersPageExpectations": {
+          "atHCM_afterOutbound": {
+            "tab": "LƯU KHO",
+            "activeRowsCount": 4,
+            "totalHubStock": 32
+          },
+          "atDaNang_afterReceiving": {
+            "tab": "LƯU KHO",
+            "activeRowsCount": 1,
+            "totalHubStock": 16
+          },
+          "atHungYen_afterReceiving": {
+            "tab": "LƯU KHO",
+            "activeRowsCount": 2,
+            "rows": [
+              { "orderCode": "TEST-HCM-02-ROW2", "hubStock": 11, "hubStatus": "INBOUND" },
+              { "orderCode": "TEST-HCM-02-ROW3", "hubStock": 6, "deliveryMode": "XE_BO", "destinationHub": "Xe bo Tuyến Hưng Yên", "hubStatus": "INBOUND" }
+            ],
+            "totalHubStock": 17
+          }
+        }
+      }
+    },
+    {
+      "testCaseId": "TC-03-RANDOMIZED-B",
+      "name": "Kịch bản mở rộng B: HCM nhập 3 dòng (30, 25, 20 kiện) -> Xuất 1 TRIP đi Đà Nẵng (18k), Hưng Yên (14k), Xe Bo Tuyến HCM (5k)",
+      "inboundHCM": {
+        "licensePlate": "51C-338.92",
+        "driverName": "Phạm Văn Tuyến",
+        "items": [
+          { "orderCode": "TEST-HCM-03-ROW1", "goodsDescription": "Thiết Bị Âm Thanh", "totalQuantity": 30, "totalWeight": 150, "totalVolume": 2.5, "destinationHubId": 2, "deliveryMode": "HUB_L1" },
+          { "orderCode": "TEST-HCM-03-ROW2", "goodsDescription": "Đèn Chiếu Sáng Led", "totalQuantity": 25, "totalWeight": 125, "totalVolume": 2.0, "destinationHubId": 3, "deliveryMode": "HUB_L1" },
+          { "orderCode": "TEST-HCM-03-ROW3", "goodsDescription": "Dây Cáp Điện Hạ Thế", "totalQuantity": 20, "totalWeight": 200, "totalVolume": 1.4, "destinationHubId": 4, "deliveryMode": "XE_BO" }
+        ]
+      },
+      "outboundHCM": {
+        "mode": "TRANSFER",
+        "licensePlate": "51B-556.77",
+        "driverName": "Đỗ Văn Trục Bắc Nam",
+        "sharedTripCode": "SD-TEST-03",
+        "exportItems": [
+          { "orderCode": "TEST-HCM-03-ROW1", "quantityToExport": 18, "destinationHubId": 2, "deliveryMode": "HUB_L1" },
+          { "orderCode": "TEST-HCM-03-ROW2", "quantityToExport": 14, "destinationHubId": 3, "deliveryMode": "HUB_L1" },
+          { "orderCode": "TEST-HCM-03-ROW3", "quantityToExport": 5, "destinationHubId": 4, "deliveryMode": "XE_BO" }
+        ]
+      },
+      "expectedStates": {
+        "postOutboundHCMStock": {
+          "TEST-HCM-03-ROW1": 12,
+          "TEST-HCM-03-ROW2": 11,
+          "TEST-HCM-03-ROW3": 15
+        },
+        "inTransitTrip": {
+          "tripCode": "SD-TEST-03",
+          "totalLoadedPackages": 37
+        },
+        "postReceivingDaNang": {
+          "daNangReceivedPackages": 18,
+          "daNangHoldingStock": 18
+        },
+        "postReceivingHungYen": {
+          "hungYenReceivedPackages": 14,
+          "hungYenHoldingStock": 14
+        },
+        "warehouseOrdersPageExpectations": {
+          "atHCM_afterOutbound": {
+            "tab": "LƯU KHO",
+            "activeRowsCount": 3,
+            "totalHubStock": 38
+          },
+          "atDaNang_afterReceiving": {
+            "tab": "LƯU KHO",
+            "activeRowsCount": 1,
+            "totalHubStock": 18
+          },
+          "atHungYen_afterReceiving": {
+            "tab": "LƯU KHO",
+            "activeRowsCount": 1,
+            "totalHubStock": 14
+          }
+        }
+      }
+    },
+    {
+      "testCaseId": "TC-04-EDGE-CASE-MISROUTED-RECEIVING",
+      "name": "Edge Case Đặc Biệt: Kho Đà Nẵng nhận đủ hàng của mình (10k) VÀ dỡ nhầm 2 kiện gửi cho Hưng Yên (discrepancy +2 tại Đà Nẵng, -2 tại Hưng Yên)",
+      "inboundHCM": {
+        "licensePlate": "51C-778.89",
+        "driverName": "Vũ Văn Cẩn Thận",
+        "items": [
+          { "orderCode": "TEST-HCM-04-DAD", "goodsDescription": "Hàng Tiêu Chuẩn Gửi Đà Nẵng", "totalQuantity": 20, "totalWeight": 100, "totalVolume": 1.5, "destinationHubId": 2, "deliveryMode": "HUB_L1" },
+          { "orderCode": "TEST-HCM-04-HYN", "goodsDescription": "Hàng Cao Cấp Gửi Hưng Yên", "totalQuantity": 15, "totalWeight": 90, "totalVolume": 1.2, "destinationHubId": 3, "deliveryMode": "HUB_L1" }
+        ]
+      },
+      "outboundHCM": {
+        "mode": "TRANSFER",
+        "licensePlate": "51E-999.01",
+        "driverName": "Bùi Văn Đường Dài",
+        "sharedTripCode": "SD-TEST-04",
+        "exportItems": [
+          { "orderCode": "TEST-HCM-04-DAD", "quantityToExport": 10, "destinationHubId": 2, "deliveryMode": "HUB_L1" },
+          { "orderCode": "TEST-HCM-04-HYN", "quantityToExport": 7, "destinationHubId": 3, "deliveryMode": "HUB_L1" }
+        ]
+      },
+      "discrepancyEvents": {
+        "daNangActualUnloaded": {
+          "TEST-HCM-04-DAD": { "expected": 10, "actual": 10, "discrepancy": 0 },
+          "TEST-HCM-04-HYN": { "expected": 0, "actual": 2, "discrepancy": 2, "reason": "Dỡ nhầm hàng của Hưng Yên tại Đà Nẵng" }
+        },
+        "hungYenActualUnloaded": {
+          "TEST-HCM-04-HYN": { "expected": 5, "actual": 5, "discrepancy": -2, "reason": "Thiếu 2 kiện do đã dỡ tại Đà Nẵng" }
+        }
+      },
+      "expectedStates": {
+        "daNangStock": { "TEST-HCM-04-DAD": 10, "TEST-HCM-04-HYN": 2, "totalHubStock": 12 },
+        "hungYenStock": { "TEST-HCM-04-HYN": 5, "totalHubStock": 5 },
+        "warehouseOrdersPageExpectations": {
+          "atDaNang_afterMisroutedReceiving": {
+            "tab": "LƯU KHO",
+            "activeRowsCount": 2,
+            "rows": [
+              { "orderCode": "TEST-HCM-04-DAD", "hubStock": 10, "hubStatus": "INBOUND" },
+              { "orderCode": "TEST-HCM-04-HYN", "hubStock": 2, "hubStatus": "INBOUND", "notes": "Hàng nhận dư từ chuyến SD-TEST-04" }
+            ],
+            "totalHubStock": 12
+          },
+          "atHungYen_afterReceivingShortage": {
+            "tab": "LƯU KHO",
+            "activeRowsCount": 1,
+            "rows": [
+              { "orderCode": "TEST-HCM-04-HYN", "hubStock": 5, "hubStatus": "INBOUND", "notes": "Hàng nhận thiếu 2 kiện" }
+            ],
+            "totalHubStock": 5
+          }
+        }
+      }
+    },
+    {
+      "testCaseId": "TC-05-MULTI-LINE-CONSIGNMENT-OUTBOUND",
+      "name": "Kịch bản Kiểm tra Issue 6 & Issue 7: Đơn hàng đa lô cùng mã vận đơn (BAT2609-335TH), không khóa chùm Dòng #1 và không gộp 1 dòng trên Phiếu Xuất Kho",
+      "inboundHCM": {
+        "licensePlate": "51C-668.99",
+        "driverName": "Lý Văn Sữa",
+        "items": [
+          {
+            "orderCode": "TEST-BAT2609-335TH",
+            "goodsDescription": "Sữa Tiệt Trùng Lô 1",
+            "totalQuantity": 20,
+            "totalWeight": 3,
+            "totalVolume": 2,
+            "destinationHubId": 1,
+            "deliveryMode": "DIRECT_CUSTOMER"
+          },
+          {
+            "orderCode": "TEST-BAT2609-335TH",
+            "goodsDescription": "Sữa Tiệt Trùng Lô 2",
+            "totalQuantity": 1,
+            "totalWeight": 0.5,
+            "totalVolume": 0.2,
+            "destinationHubId": 1,
+            "deliveryMode": "DIRECT_CUSTOMER"
+          }
+        ]
+      },
+      "outboundSelectionFlow": {
+        "step1": "Chọn dòng hàng Lô 1 (20k) gán vào Dòng #1 của phiếu xuất",
+        "step2_lookupModalCheck": {
+          "expectation": "Modal tra cứu hiển thị Lô 1 có nhãn 'Đã ở Dòng #1' VÀ Lô 2 (1k) VẪN HIỂN THỊ NÚT 'Chọn đơn này' (KHÔNG bị khóa chùm)",
+          "assertNotLocked": "Lô 2 is selectable"
+        },
+        "step3": "Chọn tiếp Lô 2 (1k) gán vào Dòng #2 của phiếu xuất"
+      },
+      "outboundExecution": {
+        "mode": "CUSTOMER",
+        "customerName": "Công ty TNHH Bách Hóa Sữa",
+        "customerPhone": "0987654321",
+        "deliveryAddress": "123 Đường Bến Cát, Phường Bến Cát, TP.HCM",
+        "licensePlate": "29C-888.88",
+        "driverName": "Nguyễn Văn Giao",
+        "exportRows": [
+          { "orderCode": "TEST-BAT2609-335TH", "goodsDescription": "Sữa Tiệt Trùng Lô 1", "quantityToExport": 20 },
+          { "orderCode": "TEST-BAT2609-335TH", "goodsDescription": "Sữa Tiệt Trùng Lô 2", "quantityToExport": 1 }
+        ]
+      },
+      "expectedReceiptModal": {
+        "documentCode": "PXK-HCM-YYMM-XXX",
+        "totalPackages": 21,
+        "itemsRenderedCount": 2,
+        "items": [
+          { "stt": 1, "orderCode": "TEST-BAT2609-335TH", "goodsDescription": "Sữa Tiệt Trùng Lô 1", "quantity": 20, "unit": "Kiện" },
+          { "stt": 2, "orderCode": "TEST-BAT2609-335TH", "goodsDescription": "Sữa Tiệt Trùng Lô 2", "quantity": 1, "unit": "Kiện" }
+        ],
+        "assertNoMergedRow": "Bảng kê hiển thị 2 dòng độc lập, tuyệt đối không gộp thành 1 dòng 'Sữa Tiệt Trùng Lô 1, Sữa Tiệt Trùng Lô 2' 21 kiện"
+      }
+    }
+  ]
+}

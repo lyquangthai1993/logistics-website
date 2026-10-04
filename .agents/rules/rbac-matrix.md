@@ -33,18 +33,18 @@
 
 | Nhóm | Menu | URL | SUPER_ADMIN | DISPATCHER | FLEET_MANAGER | WAREHOUSE_MANAGER |
 |---|---|---|:-----------:|:----------:|:-------------:|:-----------------:|
-| **Overview** | Dashboard | `/dashboard/overview` | ✅ | ✅ | ✅ | ✅ |
+| *(không nhãn – top-level)* | Dashboard | `/dashboard/overview` | ✅ | ✅ | ✅ | ❌ |
 | **Vận hành TMS** | Lệnh điều vận | `/dashboard/orders` | ✅ | ✅ | ❌ | ❌ |
 | **Vận hành TMS** | Phân công xe | `/dashboard/trips` | ✅ | ❌ | ✅ | ❌ |
 | **Vận hành TMS** | Quản lý đội xe | `/dashboard/fleet` | ✅ | ❌ | ✅ | ❌ |
-| **Vận hành TMS** | Inbound Kho | `/dashboard/warehouse` | ✅ | ❌ | ❌ | ✅ |
+| **Vận hành TMS** | Nhập kho | `/dashboard/warehouse/inbound` | ✅ | ❌ | ❌ | ✅ |
+| **Vận hành TMS** | Xuất kho | `/dashboard/warehouse/outbound` | ✅ | ❌ | ❌ | ✅ |
+| **Vận hành TMS** | Đơn hàng kho | `/dashboard/warehouse/orders` | ✅ | ❌ | ❌ | ✅ |
 | **Quản trị hệ thống** | Chi Nhánh Kho (Hubs) | `/dashboard/admin/hubs` | ✅ | ❌ | ❌ | ❌ |
 | **Quản trị hệ thống** | Người dùng | `/dashboard/users` | ✅ | ❌ | ❌ | ❌ |
-| **Không gian làm việc** | Kanban | `/dashboard/kanban` | ✅ | ✅ | ✅ | ✅ |
-| **Không gian làm việc** | Chat | `/dashboard/chat` | ✅ | ✅ | ✅ | ✅ |
-| **Không gian làm việc** | AI Chat | `/dashboard/ai-chat` | ✅ | ✅ | ✅ | ✅ |
-| **Elements** | Product Table | `/dashboard/product` | ✅ | ✅ | ✅ | ✅ |
-| **Elements** | Forms / React Query / Icons | `/dashboard/forms/*` | ✅ | ✅ | ✅ | ✅ |
+
+> `WAREHOUSE_MANAGER` chỉ thấy đúng 3 trang kho (hard filter trong `frontend/src/hooks/use-nav.ts`).
+> Nhóm demo "Không gian làm việc" (Kanban, Chat, AI Chat) và "Elements" đã bị gỡ khỏi sidebar (04/10); route mẫu vẫn còn trong source để tham khảo.
 
 ---
 
