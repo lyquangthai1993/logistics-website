@@ -10,9 +10,9 @@
 
 | Trường | Giá trị |
 |---|---|
-| **Phiên bản** | v1.4 |
-| **Cập nhật lần cuối** | 2026-08-20 |
-| **Cập nhật bởi** | Antigravity (Feature: Gán Hub cho WAREHOUSE_MANAGER) |
+| **Phiên bản** | v1.5 |
+| **Cập nhật lần cuối** | 2026-10-04 |
+| **Cập nhật bởi** | Antigravity (Feature: Hợp đồng gốc bất biến & Bảng kê chuyến theo kho) |
 
 ---
 
@@ -80,10 +80,32 @@
 | `/v1/orders` | GET | ✅ | ✅ | ✅ | ✅ |
 | `/v1/orders/:id` | GET | ✅ | ✅ | ✅ | ✅ |
 | `/v1/orders` | POST | ✅ | ✅ | ❌ | ❌ |
-| `/v1/orders/:id` | PATCH | ✅ | ✅ | ❌ | ❌ |
+| `/v1/orders/:id` | PATCH | ✅ | ✅ *(Chỉ sửa hợp đồng khi DRAFT)* | ❌ | ❌ |
+| `/v1/orders/:id/ledger` | GET | ✅ | ✅ | ✅ | ✅ |
+| `/v1/orders/:id/admin-override` | PATCH | ✅ *(Bắt buộc `auditReason`, ghi phiếu DCH)* | ❌ | ❌ | ❌ |
 | `/v1/orders/:id/submit` | PATCH | ✅ | ✅ | ❌ | ❌ |
 | `/v1/orders/:id/no-vehicle` | PATCH | ✅ | ❌ | ✅ | ❌ |
 | `/v1/orders/:id` | DELETE | ✅ | ✅ | ❌ | ✅ *(Chỉ xóa đơn DRAFT)* |
+
+> **Hợp đồng gốc bất biến**: Sau trạng thái DRAFT, mọi thay đổi trường hợp đồng (`totalQuantity/Weight/Volume`, kho đi/đến, địa chỉ, tên hàng...) qua `PATCH /orders/:id` đều bị chặn 403 — kể cả SUPER_ADMIN. SUPER_ADMIN chỉ điều chỉnh qua `PATCH /orders/:id/admin-override`.
+> Frontend: nút "Điều chỉnh hợp đồng gốc" trên trang chi tiết đơn chỉ hiện với `isSuperAdmin`; nút "Sửa" chỉ hiện khi đơn ở DRAFT.
+
+---
+
+### Warehouse Controller
+> **File**: `backend/src/orders/warehouse.controller.ts`
+> Nghiệp vụ: WAREHOUSE_MANAGER nhập/xuất kho theo phạm vi kho được gán (`user.hubId`). Bảng kê chuyến mở đọc cho các vai trò vận hành.
+
+| Endpoint | Method | SUPER_ADMIN | DISPATCHER | FLEET_MANAGER | WAREHOUSE_MANAGER |
+|---|---|:-----------:|:----------:|:-------------:|:-----------------:|
+| `/v1/warehouse/orders` | GET | ✅ | ✅ | ✅ | ✅ |
+| `/v1/warehouse/kpi` | GET | ✅ | ❌ | ❌ | ✅ |
+| `/v1/warehouse/inbound-trips` | GET | ✅ | ❌ | ❌ | ✅ |
+| `/v1/warehouse/trips/:tripCode/manifest` | GET | ✅ | ✅ | ✅ | ✅ |
+| `/v1/warehouse/inbound/quick-create` | POST | ✅ | ❌ | ❌ | ✅ |
+| `/v1/warehouse/inbound/batch-create` | POST | ✅ | ❌ | ❌ | ✅ |
+| `/v1/warehouse/inbound/confirm` | POST | ✅ | ❌ | ❌ | ✅ *(Kiểm đếm chọn lọc, ghi phiếu PNK)* |
+| `/v1/warehouse/outbound/confirm` | POST | ✅ | ❌ | ❌ | ✅ *(Ghi phiếu PXK / PGH)* |
 
 ---
 
@@ -263,6 +285,15 @@ Khi không chắc → tham chiếu skill `tms-domain-lead` trước khi implemen
 ---
 
 ## Changelog
+
+### v1.5 — 2026-10-04
+**Feature: Hợp đồng gốc bất biến & Bảng kê chuyến theo kho** (branch `feature/orders-master-contract`):
+- Thêm `GET /v1/orders/:id/ledger` (mọi vai trò đã đăng nhập) — sổ phiếu PNK/PXK/PGH/DCH của đơn.
+- Thêm `PATCH /v1/orders/:id/admin-override` (chỉ SUPER_ADMIN, bắt buộc `auditReason`).
+- `PATCH /v1/orders/:id`: chặn 403 sửa trường hợp đồng sau DRAFT cho mọi vai trò.
+- Thêm `GET /v1/warehouse/trips/:tripCode/manifest` (SUPER_ADMIN, DISPATCHER, FLEET_MANAGER, WAREHOUSE_MANAGER).
+- Bổ sung bảng Warehouse Controller vào ma trận API.
+- Frontend: nút "Điều chỉnh hợp đồng gốc" chỉ hiện với SUPER_ADMIN; Route/Sidebar không đổi.
 
 ### v1.4 — 2026-08-20
 **Feature: Gán Hub cho WAREHOUSE_MANAGER**:
