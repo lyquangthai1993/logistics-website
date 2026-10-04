@@ -4,20 +4,21 @@
 > **Áp dụng cho**: Logistics TMS (Spider Express TMS Fullstack)  
 > **Tài liệu tham chiếu**: [IMPLEMENT_STATUS_TRIP_AND_ORDER.md](file:///d:/Projects/logistics-website/IMPLEMENT_STATUS_TRIP_AND_ORDER.md), [AGENTS.md](file:///d:/Projects/logistics-website/AGENTS.md), [leader skill](file:///d:/Projects/logistics-website/.agents/skills/leader/SKILL.md), [ui-compact-density.md](file:///d:/Projects/logistics-website/.agents/rules/ui-compact-density.md)  
 > **Cập nhật ngày**: 04/10/2026 (Bổ sung Hạng mục 6: Xử lý lỗi mâu thuẫn trạng thái Filter DRAFT vs COMPLETED_INBOUND trong Modal Tra Cứu Kho)  
+> **Trạng thái**: ✅ **ĐÃ HOÀN THÀNH 100% CÁC HẠNG MỤC (Nghiệm thu 04/10/2026)**  
 
 ---
 
 ## 📑 MỤC LỤC
 1. [Tổng Quan Đánh Giá Từ Góc Nhìn Leader](#1-tổng-quan-đánh-giá-từ-góc-nhìn-leader)
-2. [Chi Tiết Đánh Giá Hiện Trạng Từng Hạng Mục](#2-chi-tiết-đánh-giá-hiện-trạng-từng-hạng-mục)
-   - [Hạng mục 1: Tối giản Bảng Danh Sách — Bỏ Cột "Loại tiếp nhận" & "Loại xuất kho"](#hạng-mục-1-tối-giản-bảng-danh-sách--bỏ-cột-loại-tiếp-nhận--loại-xuất-kho)
-   - [Hạng mục 2: Bỏ Button "Nhận luân chuyển nội bộ" Tại Màn Hình Nhập Kho](#hạng-mục-2-bỏ-button-nhận-luân-chuyển-nội-bộ-tại-màn-hình-nhập-kho)
-   - [Hạng mục 3: Tái Cấu Trúc UX Cột "Địa Chỉ Giao" Khi Tạo Mới Xuất Kho](#hạng-mục-3-tái-cấu-trúc-ux-cột-địa-chỉ-giao-khi-tạo-mới-xuất-kho)
-   - [Hạng mục 4: Loại Bỏ Cột "Tỉnh/TP" Khi Tạo Mới Xuất Kho (Khác Với Nhập Kho Có Cột Này)](#hạng-mục-4-loại-bỏ-cột-tỉnhtp-khi-tạo-mới-xuất-kho-khác-với-nhập-kho-có-cột-này)
-   - [Hạng mục 5: Khắc Phục Lỗi "In Phiếu Xuất" Chỉ Hiện 1 Đơn Cho Chuyến Xe Nhiều Đơn](#hạng-mục-5-khắc-phục-lỗi-in-phiếu-xuất-chỉ-hiện-1-đơn-cho-chuyến-xe-nhiều-đơn)
-   - [Hạng mục 6: Sửa Lỗi Xung Đột Trạng Thái Filter "DRAFT" Với Dòng Hàng Hiển Thị "COMPLETED_INBOUND" Trong Modal Tra Cứu Kho](#hạng-mục-6-sửa-lỗi-xung-đột-trạng-thái-filter-draft-với-dòng-hàng-hiển-thị-completed_inbound-trong-modal-tra-cứu-kho)
+2. [Chi Tiết Đánh Giá Hiện Trạng Từng Hạng Mục (Đã hoàn thành 04/10/2026)](#2-chi-tiết-đánh-giá-hiện-trạng-từng-hạng-mục)
+   - [[04/10/2026] Hạng mục 1: Tối giản Bảng Danh Sách — Bỏ Cột "Loại tiếp nhận" & "Loại xuất kho"](#04102026-hạng-mục-1-tối-giản-bảng-danh-sách--bỏ-cột-loại-tiếp-nhận--loại-xuất-kho-đã-hoàn-thành-04102026)
+   - [[04/10/2026] Hạng mục 2: Bỏ Button "Nhận luân chuyển nội bộ" Tại Màn Hình Nhập Kho](#04102026-hạng-mục-2-bỏ-button-nhận-luân-chuyển-nội-bộ-tại-màn-hình-nhập-kho-đã-hoàn-thành-04102026)
+   - [[04/10/2026] Hạng mục 3: Tái Cấu Trúc UX Cột "Địa Chỉ Giao" Khi Tạo Mới Xuất Kho](#04102026-hạng-mục-3-tái-cấu-trúc-ux-cột-địa-chỉ-giao-khi-tạo-mới-xuất-kho-đã-hoàn-thành-04102026)
+   - [[04/10/2026] Hạng mục 4: Loại Bỏ Cột "Tỉnh/TP" Khi Tạo Mới Xuất Kho](#04102026-hạng-mục-4-loại-bỏ-cột-tỉnhtp-khi-tạo-mới-xuất-kho-khác-với-nhập-kho-có-cột-này-đã-hoàn-thành-04102026)
+   - [[04/10/2026] Hạng mục 5: Khắc Phục Lỗi "In Phiếu Xuất" Chỉ Hiện 1 Đơn Cho Chuyến Xe Nhiều Đơn](#04102026-hạng-mục-5-khắc-phục-lỗi-in-phiếu-xuất-chỉ-hiện-1-đơn-cho-chuyến-xe-nhiều-đơn-đã-hoàn-thành-04102026)
+   - [[04/10/2026] Hạng mục 6: Sửa Lỗi Xung Đột Trạng Thái Filter "DRAFT" Với Dòng Hàng Hiển Thị "COMPLETED_INBOUND"](#04102026-hạng-mục-6-sửa-lỗi-xung-đột-trạng-thái-filter-draft-với-dòng-hàng-hiển-thị-completed_inbound-trong-modal-tra-cứu-kho-đã-hoàn-thành-04102026)
 3. [Bảng Ma Trận So Sánh: Trước & Sau Nâng Cấp](#3-bảng-ma-trận-so-sánh-trước--sau-nâng-cấp)
-4. [Kế Hoạch Triển Khai Kỹ Thuật & Thứ Tự Ưu Tiên](#4-kế-hoạch-triển-khai-kỹ-thuật--thứ-tự-ưu-tiên)
+4. [Kế Hoạch Triển Khai Kỹ Thuật & Tiến Độ Thực Hiện](#4-kế-hoạch-triển-khai-kỹ-thuật--tiến-độ-thực-hiện)
 5. [Tiêu Chí Nghiệm Thu (Definition of Done - DoD)](#5-tiêu-chí-nghiệm-thu-definition-of-done---dod)
 
 ---
@@ -36,7 +37,7 @@ Qua quá trình rà soát trực tiếp mã nguồn Frontend (`frontend/src/app/
 
 ## 2. CHI TIẾT ĐÁNH GIÁ HIỆN TRẠNG TỪNG HẠNG MỤC
 
-### HẠNG MỤC 1: Tối giản Bảng Danh Sách — Bỏ Cột "Loại tiếp nhận" & "Loại xuất kho"
+### [04/10/2026] HẠNG MỤC 1: Tối giản Bảng Danh Sách — Bỏ Cột "Loại tiếp nhận" & "Loại xuất kho" (✅ Đã hoàn thành 04/10/2026)
 
 #### 1. Hiện trạng trong Codebase:
 - **Nhập kho (`frontend/src/app/dashboard/warehouse/inbound/page.tsx`)**:
@@ -59,7 +60,7 @@ Qua quá trình rà soát trực tiếp mã nguồn Frontend (`frontend/src/app/
 
 ---
 
-### HẠNG MỤC 2: Bỏ Button "Nhận luân chuyển nội bộ" Tại Màn Hình Nhập Kho
+### [04/10/2026] HẠNG MỤC 2: Bỏ Button "Nhận luân chuyển nội bộ" Tại Màn Hình Nhập Kho (✅ Đã hoàn thành 04/10/2026)
 
 #### 1. Hiện trạng trong Codebase:
 - Tại `frontend/src/app/dashboard/warehouse/inbound/page.tsx`:
@@ -85,7 +86,7 @@ Qua quá trình rà soát trực tiếp mã nguồn Frontend (`frontend/src/app/
 
 ---
 
-### HẠNG MỤC 3: Tái Cấu Trúc UX Cột "Địa Chỉ Giao" Khi Tạo Mới Xuất Kho
+### [04/10/2026] HẠNG MỤC 3: Tái Cấu Trúc UX Cột "Địa Chỉ Giao" Khi Tạo Mới Xuất Kho (✅ Đã hoàn thành 04/10/2026)
 
 #### 1. Hiện trạng trong Codebase:
 - Tại `frontend/src/features/warehouse/components/warehouse-editable-grid.tsx` (dòng 1030–1085):
@@ -127,7 +128,7 @@ Qua quá trình rà soát trực tiếp mã nguồn Frontend (`frontend/src/app/
 
 ---
 
-### HẠNG MỤC 4: Loại Bỏ Cột "Tỉnh/TP" Khi Tạo Mới Xuất Kho (Khác Với Nhập Kho Có Cột Này)
+### [04/10/2026] HẠNG MỤC 4: Loại Bỏ Cột "Tỉnh/TP" Khi Tạo Mới Xuất Kho (Khác Với Nhập Kho Có Cột Này) (✅ Đã hoàn thành 04/10/2026)
 
 #### 1. Hiện trạng trong Codebase:
 - Tại `frontend/src/features/warehouse/components/warehouse-editable-grid.tsx` (dòng 1583–1588):
@@ -164,7 +165,7 @@ Qua quá trình rà soát trực tiếp mã nguồn Frontend (`frontend/src/app/
 
 ---
 
-### HẠNG MỤC 5: Khắc Phục Lỗi "In Phiếu Xuất" Chỉ Hiện 1 Đơn Cho Chuyến Xe Nhiều Đơn
+### [04/10/2026] HẠNG MỤC 5: Khắc Phục Lỗi "In Phiếu Xuất" Chỉ Hiện 1 Đơn Cho Chuyến Xe Nhiều Đơn & Tinh Chỉnh Phiếu Xuất (✅ Đã hoàn thành 04/10/2026)
 
 #### 1. Hiện trạng trong Codebase:
 - Tại `frontend/src/app/dashboard/warehouse/outbound/page.tsx` (dòng 641–670):
@@ -212,7 +213,7 @@ Qua quá trình rà soát trực tiếp mã nguồn Frontend (`frontend/src/app/
 
 ---
 
-### HẠNG MỤC 6: Sửa Lỗi Xung Đột Trạng Thái Filter "DRAFT" Với Dòng Hàng Hiển Thị "COMPLETED_INBOUND" Trong Modal Tra Cứu Kho
+### [04/10/2026] HẠNG MỤC 6: Sửa Lỗi Xung Đột Trạng Thái Filter "DRAFT" Với Dòng Hàng Hiển Thị "COMPLETED_INBOUND" Trong Modal Tra Cứu Kho (✅ Đã hoàn thành 04/10/2026)
 
 #### 1. Lời Văn Phản Hồi Từ Người Dùng (User Quote):
 > *"ở modal 'Tra Cứu & Chọn Đơn Hàng Từ Kho', sao lại confuse cái status 'DRAFT' ở chỗ trạng thái filter với 'COMPLETED_INBOUND' đang thể hiện ở dòng hàng hóa"*
@@ -265,7 +266,7 @@ Qua quá trình rà soát trực tiếp mã nguồn Frontend (`frontend/src/app/
 
 ---
 
-## 4. KẾ HOẠCH TRIỂN KHAI KỸ THUẬT & THỨ TỰ ƯU TIÊN
+## 4. KẾ HOẠCH TRIỂN KHAI KỸ THUẬT & TIẾN ĐỘ THỰC HIỆN
 
 ```mermaid
 flowchart TD
@@ -276,28 +277,48 @@ flowchart TD
     P5 --> P6["GIAI ĐOẠN 6: Kiểm thử E2E & Nghiệm thu Toàn diện"]
 ```
 
+| Ngày hoàn thành | Giai đoạn | Hạng mục thực hiện | Trạng thái | Ghi chú mã nguồn & file kỹ thuật |
+|---|---|---|---|---|
+| **04/10/2026** | **GIAI ĐOẠN 1** | Dọn dẹp Bảng & Header UI (Bỏ cột Loại tiếp nhận/xuất kho, cân đối `colSpan = 6`, bỏ nút Nhận luân chuyển) | ✅ Đã hoàn thành | `inbound/page.tsx`, `outbound/page.tsx` |
+| **04/10/2026** | **GIAI ĐOẠN 2** | Bỏ Cột Tỉnh/TP Khi Tạo Mới Xuất Kho (`isOutboundMode = true`) | ✅ Đã hoàn thành | `frontend/src/features/warehouse/components/warehouse-editable-grid.tsx` |
+| **04/10/2026** | **GIAI ĐOẠN 3** | Khắc phục Lỗi In Phiếu Xuất Tổng (Phiếu xuất N đơn, hiển thị mã chuyến xe `SD...`) | ✅ Đã hoàn thành | `warehouse-outbound-receipt-modal.tsx`, `outbound/page.tsx` |
+| **04/10/2026** | **GIAI ĐOẠN 4** | Tái cấu trúc UX Cột Địa Chỉ Giao (Popover Hub L1 lên trước, Tuyến Xe bo sau; bảo toàn Hợp đồng gốc) | ✅ Đã hoàn thành | `warehouse-editable-grid.tsx`, `WarehouseDestinationModal` |
+| **04/10/2026** | **GIAI ĐOẠN 5** | Sửa Lỗi Modal Tra Cứu Kho (Đọc `row.hubStatus`, hiển thị badge tiếng Việt, tab "Đơn nháp") | ✅ Đã hoàn thành | `warehouse-lookup-modal.tsx`, Backend `GET /warehouse/orders` |
+| **04/10/2026** | **GIAI ĐOẠN 6** | Tinh chỉnh Phiếu xuất kho: Bỏ mã đơn dưới tiêu đề, số lượng xuất theo chuyến (`tripTx.quantity`), bỏ mặc định "01 BỘ CT", chuẩn hóa "Nhập/Xuất tại kho" theo Hub thực tế | ✅ Đã hoàn thành | `warehouse-outbound-receipt-modal.tsx`, `warehouse-inbound-receipt-modal.tsx` |
+| **04/10/2026** | **GIAI ĐOẠN 7** | Chuẩn hóa nghiệp vụ Bảng Xuất Kho: Chuyến xe đã xuất hiển thị "Đã xử lý", dòng con hiển thị số lượng thực xuất & badge "Đã xuất kho", khóa checkbox | ✅ Đã hoàn thành | `outbound/page.tsx`, `columns.tsx`, `backend/src/orders/warehouse.service.ts` |
+| **04/10/2026** | **NGHIỆM THU** | Typecheck 0 lỗi (`npm run typecheck`), không mock data, chuẩn Compact Density | ✅ Đã nghiệm thu | Toàn bộ Frontend & Backend |
+
 ---
 
 ## 5. TIÊU CHÍ NGHIỆM THU (DEFINITION OF DONE - DoD)
 
-1. **Về Giao diện Danh sách (Board Tables)**:
-   - [ ] Bảng Nhập kho không còn cột "Loại tiếp nhận", layout bảng cân đối với `colSpan = 6`.
-   - [ ] Bảng Xuất kho không còn cột "Loại xuất kho", layout bảng cân đối với `colSpan = 6`.
-   - [ ] Header Nhập kho chỉ còn duy nhất nút "Tạo đơn nhập mới", không còn nút "Nhận luân chuyển nội bộ".
-2. **Về Form Tạo Mới Xuất Kho (No Province Column in Outbound Grid)**:
-   - [ ] Bảng tạo mới xuất kho (`WarehouseEditableGrid` khi `isOutboundMode = true`) **KHÔNG CÒN CỘT "TỈNH / TP"**.
-   - [ ] Bảng tạo mới nhập kho (`isOutboundMode = false`) **VẪN CÓ CỘT "TỈNH / TP"** bình thường.
-3. **Về Bảng kê In Phiếu Xuất (Printing Parity)**:
-   - [ ] Chuyến xe có N đơn hàng khi bấm "In phiếu xuất" phải hiển thị đầy đủ N dòng đơn hàng.
-   - [ ] Tổng số kiện, tổng kg, tổng m³ ở hàng chân trang (Footer) khớp chính xác 100% với số liệu của chuyến xe.
-4. **Về UX Cột Địa Chỉ Giao (Outbound Delivery Address)**:
-   - [ ] Khi chọn "Địa chỉ thường": Tự động hiển thị đúng địa chỉ giao hàng ban đầu từ luồng nhập kho.
-   - [ ] Khi chọn "Thay đổi địa chỉ": Popover mở ra mượt mà, hiển thị danh sách Hub Cấp 1 lên trước, Xe bo hiển thị sau, có ô tìm kiếm nhanh.
-   - [ ] Thao tác thay đổi đích xuất kho không làm mất hoặc ghi đè địa chỉ giao gốc của đơn hàng trong Database.
-5. **Về Modal Tra Cứu Kho (Lookup Modal Status Parity)**:
-   - [ ] Khi chọn tab "Đơn nháp", dòng hàng hiển thị badge "Đơn nháp" / "Chờ nhập kho", **tuyệt đối không hiển thị `COMPLETED_INBOUND`**.
-   - [ ] Trạng thái đọc chính xác theo `hubStatus` của Hub người xem.
-   - [ ] Tab filter hiển thị nhãn tiếng Việt `Đơn nháp ({meta.draftCount})`.
-6. **Về Tính Ổn Định & Tuân Thủ Quy Chuẩn**:
-   - [ ] Không phát sinh lỗi console, không sử dụng mock data.
-   - [ ] Tuân thủ tuyệt đối quy chuẩn [ui-compact-density.md](file:///d:/Projects/logistics-website/.agents/rules/ui-compact-density.md).
+1. **[04/10/2026] Về Giao diện Danh sách (Board Tables)**:
+   - [x] **[04/10/2026]** Bảng Nhập kho không còn cột "Loại tiếp nhận", layout bảng cân đối với `colSpan = 6`. *(Đã hoàn thành - File: `frontend/src/app/dashboard/warehouse/inbound/page.tsx`)*
+   - [x] **[04/10/2026]** Bảng Xuất kho không còn cột "Loại xuất kho", layout bảng cân đối với `colSpan = 6`. *(Đã hoàn thành - File: `frontend/src/app/dashboard/warehouse/outbound/page.tsx`)*
+   - [x] **[04/10/2026]** Header Nhập kho chỉ còn duy nhất nút "Tạo đơn nhập mới", không còn nút "Nhận luân chuyển nội bộ". *(Đã hoàn thành - File: `frontend/src/app/dashboard/warehouse/inbound/page.tsx`)*
+2. **[04/10/2026] Về Form Tạo Mới Xuất Kho (No Province Column in Outbound Grid)**:
+   - [x] **[04/10/2026]** Bảng tạo mới xuất kho (`WarehouseEditableGrid` khi `isOutboundMode = true`) **KHÔNG CÒN CỘT "TỈNH / TP"**. *(Đã hoàn thành - File: `frontend/src/features/warehouse/components/warehouse-editable-grid.tsx`)*
+   - [x] **[04/10/2026]** Bảng tạo mới nhập kho (`isOutboundMode = false`) **VẪN CÓ CỘT "TỈNH / TP"** bình thường. *(Đã hoàn thành - File: `frontend/src/features/warehouse/components/warehouse-editable-grid.tsx`)*
+3. **[04/10/2026] Về Bảng kê In Phiếu Xuất (Printing Parity & Receipt Tuning)**:
+   - [x] **[04/10/2026]** Chuyến xe có N đơn hàng khi bấm "In phiếu xuất" phải hiển thị đầy đủ N dòng đơn hàng. *(Đã hoàn thành - File: `warehouse-outbound-receipt-modal.tsx`, `outbound/page.tsx`)*
+   - [x] **[04/10/2026]** Tổng số kiện, tổng kg, tổng m³ ở hàng chân trang (Footer) khớp chính xác 100% với số liệu của chuyến xe. *(Đã hoàn thành - File: `warehouse-outbound-receipt-modal.tsx`)*
+   - [x] **[04/10/2026]** Bỏ dòng mã đơn dưới tiêu đề "PHIẾU XUẤT KHO" theo yêu cầu người dùng. *(Đã hoàn thành - File: `warehouse-outbound-receipt-modal.tsx`)*
+   - [x] **[04/10/2026]** Khi in lại phiếu từ lịch sử giao dịch chuyến xe, số lượng xuất lấy chuẩn xác số kiện thực tế đã xuất trong chuyến đó (`tripTx.quantity`), không lấy tổng kiện toàn đơn. *(Đã hoàn thành - File: `outbound/page.tsx`)*
+   - [x] **[04/10/2026]** Khử giá trị mặc định `"01 BỘ CT"` khi đơn hàng không có chứng từ đi kèm (thay bằng `"—"`). *(Đã hoàn thành - File: `warehouse-outbound-receipt-modal.tsx`, `outbound/page.tsx`)*
+4. **[04/10/2026] Về UX Cột Địa Chỉ Giao (Outbound Delivery Address)**:
+   - [x] **[04/10/2026]** Khi chọn "Địa chỉ thường": Tự động hiển thị đúng địa chỉ giao hàng ban đầu từ luồng nhập kho. *(Đã hoàn thành - File: `warehouse-editable-grid.tsx`)*
+   - [x] **[04/10/2026]** Khi chọn "Thay đổi địa chỉ": Popover mở ra mượt mà, hiển thị danh sách Hub Cấp 1 lên trước, Xe bo hiển thị sau, có ô tìm kiếm nhanh. *(Đã hoàn thành - File: `warehouse-editable-grid.tsx`, `WarehouseDestinationModal`)*
+   - [x] **[04/10/2026]** Thao tác thay đổi đích xuất kho không làm mất hoặc ghi đè địa chỉ giao gốc của đơn hàng trong Database (`destinationHubId` lưu riêng trong transaction, không ghi đè `order.deliveryAddress`). *(Đã hoàn thành - Backend & Frontend)*
+5. **[04/10/2026] Về Modal Tra Cứu Kho (Lookup Modal Status Parity)**:
+   - [x] **[04/10/2026]** Khi chọn tab "Đơn nháp", dòng hàng hiển thị badge "Đơn nháp" / "Chờ nhập kho", **tuyệt đối không hiển thị `COMPLETED_INBOUND`**. *(Đã hoàn thành - File: `warehouse-lookup-modal.tsx`)*
+   - [x] **[04/10/2026]** Trạng thái đọc chính xác theo `hubStatus` của Hub người xem (`row.hubStatus ?? row.status`). *(Đã hoàn thành - File: `warehouse-lookup-modal.tsx`)*
+   - [x] **[04/10/2026]** Tab filter hiển thị nhãn tiếng Việt `Đơn nháp ({meta.draftCount})`. *(Đã hoàn thành - File: `warehouse-lookup-modal.tsx`)*
+6. **[04/10/2026] Về Chuẩn Hóa Nghiệp Vụ Bảng Xuất Kho (Dispatched Trip Normalization)**:
+   - [x] **[04/10/2026]** Chuyến xe đã xuất kho hoàn tất từ Hub xuất (như `SD31`) hiển thị đúng badge `🟢 Đã xử lý` (`COMPLETED`), không nhầm lẫn với lượng tồn còn lại của đơn hàng trong kho. *(Đã hoàn thành - File: `outbound/page.tsx`, `columns.tsx`)*
+   - [x] **[04/10/2026]** Khóa checkbox chọn chuyến xe (`disabled={!canExport}`) kèm tooltip khi chuyến đã xuất kho, ngăn chặn thao tác xuất trùng. *(Đã hoàn thành - File: `outbound/page.tsx`)*
+   - [x] **[04/10/2026]** Dòng con chi tiết (sub-row) của xe hiển thị chính xác số lượng thực xuất trên chuyến đó (`tripTx.quantity`), kèm chú thích `(đã xuất/tổng đơn)` nếu xuất từng phần. *(Đã hoàn thành - File: `outbound/page.tsx`)*
+   - [x] **[04/10/2026]** Dòng con của chuyến xe đã xuất hiển thị badge `🟣 Đã xuất kho` (`COMPLETED_INBOUND`), không hiển thị `LƯU KHO`. *(Đã hoàn thành - File: `outbound/page.tsx`, `columns.tsx`)*
+   - [x] **[04/10/2026]** In phiếu xuất từ dòng con truyền chính xác mã chuyến `tripCode` để lấy đúng giao dịch xuất kho và mã phiếu xuất `PXK-...`. *(Đã hoàn thành - File: `outbound/page.tsx`)*
+7. **[04/10/2026] Về Tính Ổn Định & Tuân Thủ Quy Chuẩn**:
+   - [x] **[04/10/2026]** Không phát sinh lỗi console, không sử dụng mock data. *(Đã hoàn thành - 100% Clean Types & Dynamic API)*
+   - [x] **[04/10/2026]** Tuân thủ tuyệt đối quy chuẩn [ui-compact-density.md](file:///d:/Projects/logistics-website/.agents/rules/ui-compact-density.md). *(Đã hoàn thành)*
