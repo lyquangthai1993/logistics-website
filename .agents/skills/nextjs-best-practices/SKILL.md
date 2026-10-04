@@ -32,6 +32,14 @@ This skill provides guidelines and patterns for developing modern, performant Ne
    - NEVER combine vector icon components with duplicate emojis/symbols in button text (`<Button><IconPlus /> Tạo mới</Button>`, NEVER `<Button><IconPlus /> + Tạo mới</Button>`).
 8. **Real Database Data Mandate (Zero Mock Data)**:
    - All UI components, tables, filters, modals, and KPI cards MUST connect directly to real backend REST endpoints. NEVER use fake mock arrays or hardcoded fallbacks in `.catch()` blocks.
+9. **UI Compact Density & Narrow Spacing Mandate (MANDATORY)**:
+   - To maximize information density for logistics warehouse and dispatch operations (zero wasted whitespace), all UI components must enforce compact spacing:
+   - **Card & Container Padding**: Base Card spacing is strictly 4px (`[--card-spacing:--spacing(1)]` in `components/ui/card.tsx`). Use `p-1` and `py-0` for operational cards. NEVER use bloated padding (`p-4`, `p-5`, `p-6`, `p-8`).
+   - **Narrow Gaps**: Section and grid gaps must be compact: `space-y-2` (8px) to `space-y-3` (12px), `gap-2` to `gap-3`. NEVER use `space-y-6` or `gap-6`.
+   - **Input & Label Specs**: Input/Button heights `h-8` to `h-9`. Label margin `mb-1`.
+   - **Compact Typography Scale (Max Visible Items)**: Table data cells = `text-[10px]`, headers/badges = `text-[10px]`, order/trip codes = `text-[11px] font-mono font-bold`, cell padding = `py-1 px-2` (drops row height to ~26px to maximize visible items on screen), inputs = `text-[11px] h-8 to h-9`, card base font = `text-xs`.
+   - **Sticky Cohesion**: Operational action footers must use `sticky bottom-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs border-t` so warehouse operators never scroll to find action triggers.
+   - Reference: [`.agents/rules/ui-compact-density.md`](../../rules/ui-compact-density.md).
 
 ---
 

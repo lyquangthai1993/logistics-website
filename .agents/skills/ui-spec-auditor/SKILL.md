@@ -113,6 +113,7 @@ Each dimension is scored by counting **checkpoint violations**. Each violation d
 | **Text overflow / clipping / boundary bleed (chữ bị cắt cụt lủn, tràn mép container do độ rộng chuỗi vượt quá kích thước ô/card/nút chứa nó)** — Bắt buộc kiểm tra Box Model Geometry (`text.length * fontSize * 0.58 > parent.width`) | -4 per overflowing element | No (-5 if critical word clipped) |
 | **Broken line breaks / awkward text wrapping (chữ không cùng hàng, rớt dòng cụt lủn trong table headers, cells, badge/button labels, input labels)** — Được đánh giá là **TỆ** về mặt typography | -3 per broken text wrap | No |
 | Redundant / double icons on buttons or badges (e.g. combining an icon node/component with an emoji or symbol like `+`, `🚚`, `📦`, `🔄`, `🖨️`, `✕` inside the text label) | -2 per occurrence | No |
+| **Violates UI Compact Density / Bloated Spacing** (Card padding > 4px, `p-4`/`p-6` on operational cards, section gaps > 12px, missing sticky action footer on data-heavy views) per [`.agents/rules/ui-compact-density.md`](../../rules/ui-compact-density.md) | -3 per bloated section | No |
 | Touch targets (buttons, tabs, checkboxes) < 44px height on mobile viewport | -2 per element type | No |
 | Full-page horizontal scroll exists at 375px (iPhone) viewport width | -3 | No |
 | Non-relevant data fields for current status are not hidden/collapsible on mobile | -2 | No |

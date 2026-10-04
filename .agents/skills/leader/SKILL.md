@@ -40,6 +40,7 @@ Before implementing features or modifying workflows, agents MUST reference:
 | **Split Shipment Guide** | 1 Order across multiple Trips & Vehicle capacity allocation | [`docs/SPLIT_SHIPMENT_BUSINESS_INTERVIEW_GUIDE.md`](../../../docs/SPLIT_SHIPMENT_BUSINESS_INTERVIEW_GUIDE.md) |
 | **User Manual** | Operational user guide and workflow step-by-step | [`docs/user-guide/USER_MANUAL_HUONG_DAN_SU_DUNG.md`](../../../docs/user-guide/USER_MANUAL_HUONG_DAN_SU_DUNG.md) |
 | **RBAC Matrix** | 3-Layer permission enforcement (Sidebar, Route Guard, API Guard) | [`.agents/rules/rbac-matrix.md`](../../rules/rbac-matrix.md) |
+| **UI Compact Density** | Narrow layout, 4px card padding, compact gaps (<=12px), sticky action footers | [`.agents/rules/ui-compact-density.md`](../../rules/ui-compact-density.md) |
 
 ---
 
@@ -224,6 +225,7 @@ Before writing or modifying any backend endpoint, frontend page, or data model, 
 8. **Order Code Prerequisite**: Is the code generated server-side from the authenticated creator's Hub prefix, persisted full-name initials, `YYMM`, and an atomic monthly counter, with global uniqueness and no reuse?
 9. **Dynamic Counter & Metric Integrity**: Verified all UI numbers, KPI badges, and tab counters are dynamically computed via backend SQL/endpoints with 100% filter parity? Never assume or hardcode mock numbers; clarify with the User if any counter logic or lifecycle formula is ambiguous.
 10. **Real Database Data Mandate (Zero Mock Data)**: Are all UI components, dropdowns, tables, and submit flows connected 100% to real PostgreSQL backend APIs? Are all mock data arrays, demo fallback rows in `.catch()`, and hardcoded placeholders completely removed?
+11. **UI Compact Density & Narrow Spacing**: Are Card paddings set to 4px (`p-1`/`py-0`), section/grid gaps <= 12px (`gap-2`/`gap-3`), table font sizes set to `text-[10px]`, and action footers pinned with `sticky bottom-0` for cohesive operational density?
 
 ---
 
