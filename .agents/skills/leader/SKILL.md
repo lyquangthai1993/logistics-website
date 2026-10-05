@@ -27,6 +27,14 @@ description: >-
 > 2. Sync status with remote tracking branches (`ahead`/`behind`) is surfaced immediately.
 > 3. Working tree dirtiness or uncommitted edits across submodules are identified before new changes begin.
 
+> [!IMPORTANT]
+> **FEATURE BRANCH BASE BRANCH & QUALITY GATE PROMOTION MANDATE (QUY TẮC RẼ NHÁNH TỪ DEV & CỔNG NGHIỆM THU):**
+> 1. **Mandatory Base Branch (`dev`)**: Mọi nhánh tính năng mới (`feature/<scope>-<name>`) hoặc sửa lỗi (`fix/<scope>-<name>`) BẮT BUỘC phải rẽ nhánh từ `dev` (sau khi đã chạy `git checkout dev && git pull origin dev` trong các submodule và root). TUYỆT ĐỐI KHÔNG rẽ nhánh trực tiếp từ `master` (trừ trường hợp khẩn cấp `hotfix/<name>` cho Production).
+> 2. **3-Stage Promotion Pipeline**:
+>    - **Stage 1 (Phát triển)**: Code trên branch tính năng, commit trực tiếp trong submodule (`backend/` và/hoặc `frontend/`), và push feature branch lên remote.
+>    - **Stage 2 (Merge dev & Kiểm thử E2E)**: Merge feature branch vào `dev`, push lên `origin/dev`, đợi Vercel & Render dev đạt trạng thái `READY`. Bắt buộc chạy kiểm thử tự động Playwright E2E trên Domain Dev.
+>    - **Stage 3 (Promote lên master)**: CHỈ KHI 100% test E2E trên dev đạt PASS, mới checkout `master`, pull `origin/master`, merge `dev` vào `master`, và push lên `origin/master` (tuân thủ thứ tự submodule-first: `backend/`, `frontend/`, rồi mới đến `root`).
+
 ---
 
 ## 📚 Business Sources of Truth

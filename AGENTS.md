@@ -8,6 +8,12 @@
   - Run status check: `npm run repo:status` (or `git status -sb; git -C backend status -sb; git -C frontend status -sb`)
   - Run branch tracking check: `npm run repo:tracking` (or `git branch -vv; git -C backend branch -vv; git -C frontend branch -vv`)
   This guarantees: (1) Active branch alignment across root and submodules (prevents committing to `main`/`dev` or detached HEAD), (2) Upstream tracking synchronization (`[ahead N, behind M]`), and (3) Immediate detection of uncommitted/dirty working trees before changes occur.
+- **Feature Branch Base Branch & Quality Gate Promotion Mandate (Base from `dev` Rule)**:
+  - **Mandatory Base Branch**: All feature branches (`feature/<scope>-<name>`) and bugfix branches (`fix/<scope>-<name>`) MUST ALWAYS branch off from `dev` (after running `git checkout dev && git pull origin dev` inside target submodules and root). NEVER branch off directly from `master` (except for emergency production `hotfix/<name>` branches).
+  - **Strict 3-Stage Promotion Pipeline**:
+    1. **Develop on Feature Branch**: Implement, commit directly inside target submodule (`backend/` and/or `frontend/`), and push feature branch to remote.
+    2. **Merge to `dev` & E2E Automated Verification**: Merge feature branch into `dev`, push to `origin/dev`, and wait for deployment `READY` on **Domain Dev**. Execute automated Playwright E2E suites against Dev environment.
+    3. **Promote to `master` (Production-Ready Gate)**: ONLY after 100% of E2E verification tests PASS on `dev`, checkout `master`, pull `origin/master`, merge `dev` into `master`, and push to `origin/master` (strictly submodule-first: `backend/`, `frontend/`, then `root`).
 
 ## Canonical Environments & Deployment Domains ("domain dev" & "domain pro" Mandate)
 Whenever the user refers to, asks for, or mentions **"domain dev"** (hoặc "domain môi trường dev", "môi trường dev"), all agents MUST immediately recognize and use:
