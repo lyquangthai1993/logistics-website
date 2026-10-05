@@ -42,6 +42,7 @@ function loadQueueState() {
       return {
         currentTask: data.currentTask || null,
         pendingClarification: data.pendingClarification || null,
+        decisions: Array.isArray(data.decisions) ? data.decisions : [],
         queue: Array.isArray(data.queue) ? data.queue : [],
         history: Array.isArray(data.history) ? data.history : [],
       };
@@ -49,7 +50,7 @@ function loadQueueState() {
   } catch (err) {
     console.error('Lỗi khi đọc file task-queue.json, khởi tạo mới:', err.message);
   }
-  return { currentTask: null, pendingClarification: null, queue: [], history: [] };
+  return { currentTask: null, pendingClarification: null, decisions: [], queue: [], history: [] };
 }
 
 // Ghi trạng thái hàng đợi xuống file vật lý an toàn
@@ -64,11 +65,13 @@ function saveQueueState(state) {
             taskMode: state.currentTask.taskMode,
             taskBadge: state.currentTask.taskBadge,
             imagePaths: state.currentTask.imagePaths || [],
+            decision: state.currentTask.decision || null,
             startTime: state.currentTask.startTime,
             status: state.currentTask.status || 'running',
           }
         : null,
       pendingClarification: state.pendingClarification || null,
+      decisions: (state.decisions || []).slice(-15),
       queue: state.queue || [],
       history: (state.history || []).slice(-10),
       updatedAt: new Date().toISOString(),
@@ -119,7 +122,31 @@ async function recoverInterruptedTasks() {
       saveQueueState(queueState);
     }
 
-    // 2. Nếu trong hàng đợi còn task tồn đọng trên đĩa
+    // 2. Nếu có câu hỏi làm rõ đang chờ trước khi bot restart
+    if (queueState.pendingClarification) {
+      const pending = queueState.pendingClarification;
+      console.log(`[Crash Recovery] Khôi phục câu hỏi chờ xác nhận: "${pending.question}"`);
+      const buttons = (pending.options || []).map((opt, idx) => [
+        {
+          text: `👉 ${idx + 1}. ${opt.slice(0, 36)}`,
+          callback_data: `clarify_opt_${idx}`,
+        },
+      ]);
+      buttons.push([{ text: '🛑 Hủy yêu cầu này', callback_data: '/cancel' }]);
+
+      await sendTelegramMessage(
+        pending.chatId || ALLOWED_CHAT_ID,
+        `⚠️ <b>[KHÔI PHỤC] YÊU CẦU ĐANG CHỜ BẠN CHỌN PHƯƠNG ÁN:</b>\n\n` +
+        `📝 <b>Yêu cầu gốc:</b> <i>${escapeHtml(pending.originalPrompt)}</i>\n\n` +
+        `🤔 <b>Câu hỏi từ Kỹ sư AI:</b>\n<b>${escapeHtml(pending.question)}</b>\n\n` +
+        (pending.options || []).map((opt, idx) => `  ▫️ <b>Phương án ${idx + 1}:</b> ${escapeHtml(opt)}`).join('\n') +
+        `\n\n💡 <i>Vui lòng bấm chọn phương án hoặc gõ trực tiếp câu trả lời:</i>`,
+        'HTML',
+        { inline_keyboard: buttons }
+      );
+    }
+
+    // 3. Nếu trong hàng đợi còn task tồn đọng trên đĩa
     if (taskQueue.length > 0) {
       console.log(`[Queue Recovery] Đã khôi phục ${taskQueue.length} task từ file task-queue.json.`);
       await sendTelegramMessage(
@@ -845,22 +872,26 @@ async function processNextQueueItem() {
     next.chatId,
     `▶️ <b>Bắt đầu thực thi [${modeLabel}] từ hàng đợi (còn lại ${taskQueue.length} task)...</b>`
   );
-  await runAgyTask(next.chatId, next.rawPrompt, next.imagePaths, next.taskMode, next.id);
+  await runAgyTask(next.chatId, next.rawPrompt, next.imagePaths, next.taskMode, next.id, next.decision);
 }
 
 // Đẩy task vào hàng đợi hoặc chạy ngay nếu bot đang rảnh (lưu đĩa cứng tức thì)
-async function enqueueTask(chatId, rawPrompt, imagePathsOrContinue = [], maybeTaskMode = 'task') {
+async function enqueueTask(chatId, rawPrompt, imagePathsOrContinue = [], maybeTaskMode = 'task', maybeDecision = null) {
   let imagePaths = [];
   let taskMode = 'task';
+  let decision = maybeDecision || null;
 
   if (typeof imagePathsOrContinue === 'boolean') {
     taskMode = imagePathsOrContinue ? 'continue' : (maybeTaskMode || 'task');
     imagePaths = Array.isArray(arguments[3]) ? arguments[3] : [];
+    decision = arguments[4] || null;
   } else if (Array.isArray(imagePathsOrContinue)) {
     imagePaths = imagePathsOrContinue;
     taskMode = maybeTaskMode || 'task';
+    decision = maybeDecision || null;
   } else {
     taskMode = maybeTaskMode || 'task';
+    decision = maybeDecision || null;
   }
 
   const taskId = `task_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
@@ -870,6 +901,7 @@ async function enqueueTask(chatId, rawPrompt, imagePathsOrContinue = [], maybeTa
     rawPrompt,
     taskMode,
     imagePaths,
+    decision,
     timestamp: Date.now(),
   };
 
@@ -893,11 +925,11 @@ async function enqueueTask(chatId, rawPrompt, imagePathsOrContinue = [], maybeTa
     return;
   }
 
-  await runAgyTask(chatId, rawPrompt, imagePaths, taskMode, taskId);
+  await runAgyTask(chatId, rawPrompt, imagePaths, taskMode, taskId, decision);
 }
 
 // Thực thi task qua Antigravity CLI (agy)
-async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task', taskId = null) {
+async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task', taskId = null, decision = null) {
   const sessionStrategy = determineSessionStrategy(rawPrompt, taskMode, queueState);
   const isContinue = sessionStrategy.isContinue;
   const startTime = Date.now();
@@ -966,6 +998,7 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
     isContinue,
     process: child,
     imagePaths,
+    decision: decision || null,
     status: 'running',
     progressMessageId,
     stdoutBuffer: '',
@@ -1053,6 +1086,7 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
         id: currentTask.id,
         rawPrompt: currentTask.rawPrompt || rawPrompt,
         taskMode: currentTask.taskMode || taskMode,
+        decision: currentTask.decision || null,
         exitCode: code,
         duration: timeStr,
         completedAt: new Date().toISOString(),
@@ -1177,6 +1211,7 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
         id: currentTask.id,
         rawPrompt: currentTask.rawPrompt || rawPrompt,
         taskMode: currentTask.taskMode || taskMode,
+        decision: currentTask.decision || null,
         error: err.message,
         status: 'error',
         completedAt: new Date().toISOString(),
@@ -1202,6 +1237,17 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
 // Xử lý hủy task
 async function cancelCurrentTask(chatId) {
   if (queueState.pendingClarification) {
+    if (!Array.isArray(queueState.decisions)) queueState.decisions = [];
+    queueState.decisions.push({
+      id: queueState.pendingClarification.id,
+      originalPrompt: queueState.pendingClarification.originalPrompt,
+      question: queueState.pendingClarification.question,
+      options: queueState.pendingClarification.options,
+      chosenOption: null,
+      selectionMode: null,
+      status: 'cancelled',
+      selectedAt: new Date().toISOString(),
+    });
     queueState.pendingClarification = null;
     saveQueueState(queueState);
     await sendTelegramMessage(chatId, '🗑️ Đã hủy câu hỏi làm rõ đang chờ xác nhận.', 'HTML', TASK_ACTIONS_KEYBOARD);
@@ -1361,6 +1407,21 @@ async function handleMessage(msg) {
   // Nếu có câu hỏi làm rõ đang chờ mà người dùng gõ tin nhắn phản hồi trực tiếp (không bắt đầu bằng lệnh /)
   if (queueState.pendingClarification && !text.startsWith('/')) {
     const pending = queueState.pendingClarification;
+
+    // Ghi nhận quyết định vào danh sách decisions trong task-queue.json
+    if (!Array.isArray(queueState.decisions)) queueState.decisions = [];
+    queueState.decisions.push({
+      id: pending.id,
+      originalPrompt: pending.originalPrompt,
+      question: pending.question,
+      options: pending.options,
+      chosenOption: text,
+      selectedOptionIndex: null,
+      selectionMode: 'text',
+      status: 'chosen',
+      selectedAt: new Date().toISOString(),
+    });
+
     queueState.pendingClarification = null;
     saveQueueState(queueState);
 
@@ -1375,7 +1436,11 @@ async function handleMessage(msg) {
       chatId,
       `Câu trả lời làm rõ cho vấn đề "${pending.question}": "${text}". Hãy tiếp tục thực thi yêu cầu gốc "${pending.originalPrompt}" theo định hướng này và hoàn tất dứt điểm!`,
       [],
-      'continue'
+      'continue',
+      {
+        question: pending.question,
+        chosen: text,
+      }
     );
     return;
   }
@@ -1514,11 +1579,14 @@ async function handleMessage(msg) {
   }
 
   if (text.startsWith('/queue')) {
-    if (!currentTask && taskQueue.length === 0) {
-      await sendTelegramMessage(chatId, '🟢 <b>Hàng đợi trống!</b> Hiện không có task nào đang chạy hoặc chờ.', 'HTML', TASK_ACTIONS_KEYBOARD);
+    if (!currentTask && taskQueue.length === 0 && !queueState.pendingClarification) {
+      await sendTelegramMessage(chatId, '🟢 <b>Hàng đợi trống!</b> Hiện không có task nào đang chạy, chờ hoặc cần xác nhận.', 'HTML', TASK_ACTIONS_KEYBOARD);
       return;
     }
     let msg = '📋 <b>TRẠNG THÁI HÀNG ĐỢI TÁC VỤ (Persistent Queue):</b>\n\n';
+    if (queueState.pendingClarification) {
+      msg += `❓ <b>Đang chờ bạn chọn phương án:</b>\n<i>${escapeHtml(queueState.pendingClarification.question)}</i>\n\n`;
+    }
     if (currentTask) {
       const elapsed = Math.round((Date.now() - currentTask.startTime) / 1000);
       msg += `▶️ <b>Đang chạy [${currentTask.taskBadge || 'Task'}]:</b> <i>${escapeHtml(currentTask.rawPrompt || currentTask.prompt)}</i> <code>(⏱️ ${elapsed}s)</code>\n\n`;
@@ -1531,10 +1599,18 @@ async function handleMessage(msg) {
         else if (t.taskMode === 'continue') mode = 'Continue';
         msg += `${i + 1}. [${mode}] <i>${escapeHtml(t.rawPrompt)}</i>\n`;
       });
-    } else {
-      msg += '<i>Hàng đợi đang trống (0 task chờ).</i>';
+      msg += '\n';
+    } else if (!currentTask && !queueState.pendingClarification) {
+      msg += '<i>Hàng đợi đang trống (0 task chờ).</i>\n\n';
     }
-    await sendTelegramMessage(chatId, msg, 'HTML', TASK_ACTIONS_KEYBOARD);
+
+    if (queueState.decisions && queueState.decisions.length > 0) {
+      const lastDecision = queueState.decisions[queueState.decisions.length - 1];
+      if (lastDecision.status === 'chosen') {
+        msg += `💡 <b>Quyết định gần nhất:</b> Đã chọn phương án <i>"${escapeHtml(lastDecision.chosenOption)}"</i>`;
+      }
+    }
+    await sendTelegramMessage(chatId, msg.trim(), 'HTML', TASK_ACTIONS_KEYBOARD);
     return;
   }
 
@@ -1663,6 +1739,21 @@ async function handleCallbackQuery(cb) {
 
       const chosen = pending.options[optIdx];
       const originalPrompt = pending.originalPrompt;
+
+      // Ghi nhận quyết định vào danh sách decisions trong task-queue.json
+      if (!Array.isArray(queueState.decisions)) queueState.decisions = [];
+      queueState.decisions.push({
+        id: pending.id,
+        originalPrompt,
+        question: pending.question,
+        options: pending.options,
+        chosenOption: chosen,
+        selectedOptionIndex: optIdx + 1,
+        selectionMode: 'button',
+        status: 'chosen',
+        selectedAt: new Date().toISOString(),
+      });
+
       queueState.pendingClarification = null;
       saveQueueState(queueState);
 
@@ -1677,7 +1768,11 @@ async function handleCallbackQuery(cb) {
         chatId,
         `Tôi chọn phương án: "${chosen}". Hãy tiếp tục thực thi yêu cầu "${originalPrompt}" theo phương án này và hoàn tất dứt điểm!`,
         [],
-        'continue'
+        'continue',
+        {
+          question: pending.question,
+          chosen,
+        }
       );
       return;
     }
