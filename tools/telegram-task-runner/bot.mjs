@@ -41,6 +41,7 @@ function loadQueueState() {
       const data = JSON.parse(raw);
       return {
         currentTask: data.currentTask || null,
+        pendingClarification: data.pendingClarification || null,
         queue: Array.isArray(data.queue) ? data.queue : [],
         history: Array.isArray(data.history) ? data.history : [],
       };
@@ -48,7 +49,7 @@ function loadQueueState() {
   } catch (err) {
     console.error('Lỗi khi đọc file task-queue.json, khởi tạo mới:', err.message);
   }
-  return { currentTask: null, queue: [], history: [] };
+  return { currentTask: null, pendingClarification: null, queue: [], history: [] };
 }
 
 // Ghi trạng thái hàng đợi xuống file vật lý an toàn
@@ -67,6 +68,7 @@ function saveQueueState(state) {
             status: state.currentTask.status || 'running',
           }
         : null,
+      pendingClarification: state.pendingClarification || null,
       queue: state.queue || [],
       history: (state.history || []).slice(-10),
       updatedAt: new Date().toISOString(),
@@ -673,6 +675,18 @@ ${modeSpecificPrompt}
 - TUYỆT ĐỐI KHÔNG xuất hàng trăm dòng mã nguồn vào câu trả lời Telegram; chỉ trích dẫn diff ngắn (tối đa 15-20 dòng) và tên file kèm link.
 - Nếu yêu cầu là kiểm tra/tra cứu thông tin (như kiểm tra server, kiểm tra git, tra cứu code), hãy kiểm tra trực tiếp và trả lời ngay, TUYỆT ĐỐI KHÔNG tự ý chạy toàn bộ quy trình build dự án (nest build / next build) gây tốn thời gian.
 - Dùng gạch đầu dòng ngắn, bảng biểu nhỏ gọn, trạng thái rõ ràng (PASS/FAIL/READY, số liệu cụ thể) để tối ưu cho việc đọc nhanh trên điện thoại.
+6. QUY TẮC BẮT BUỘC HỎI LẠI KHI YÊU CẦU MƠ HỒ HOẶC RỦI RO CAO:
+- Nếu yêu cầu của người dùng thuộc 1 trong các trường hợp sau:
+  a) Quá mơ hồ, thiếu thông tin cốt lõi (ví dụ: không rõ sửa ở màn hình nào, không rõ áp dụng cho vai trò/module nào, hoặc có từ 2 giải pháp kiến trúc đối lập nhau).
+  b) Rủi ro cao: Sửa DB schema / Migration dữ liệu lớn, thay đổi logic phân quyền RBAC cốt lõi, xóa folder/file quan trọng, hoặc deploy thẳng Production.
+- BẠN TUYỆT ĐỐI KHÔNG TỰ ĐOÁN ĐỂ CODE BỪA LÀM HỎNG HỆ THỐNG!
+- HÃY DỪNG LẠI NGAY VÀ XUẤT RA CÂU HỎI THEO ĐÚNG CÚ PHÁP ĐẶC BIỆT DƯỚI ĐÂY:
+[CẦN_XÁC_NHẬN]
+Câu hỏi: <Nội dung câu hỏi ngắn gọn, nêu rõ vấn đề chưa rõ hoặc rủi ro>
+- Lựa chọn 1: <Phương án A - Nêu rõ ưu/nhược điểm ngắn gọn>
+- Lựa chọn 2: <Phương án B - Nêu rõ ưu/nhược điểm ngắn gọn>
+[HẾT_XÁC_NHẬN]
+(Bot Telegram sẽ tự động bắt block này và chuyển thành các nút bấm tương tác để người dùng click chọn!).
 
 YÊU CẦU CỦA NGƯỜI DÙNG:
 "${rawPrompt}"
@@ -944,6 +958,58 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
       // Loại bỏ các câu mở đầu máy móc thừa nếu có
       cleanOutput = cleanOutput.replace(/^(Tôi đã tiếp nhận.*?\n+|Chào bạn.*?\n+)/gi, '').trim();
 
+      // Kiểm tra xem AI có yêu cầu xác nhận / làm rõ không
+      const clarifyMatch = cleanOutput.match(/\[CẦN_XÁC_NHẬN\]([\s\S]*?)\[HẾT_XÁC_NHẬN\]/i);
+      if (clarifyMatch) {
+        const block = clarifyMatch[1].trim();
+        let question = '';
+        const options = [];
+
+        const lines = block.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+        for (const line of lines) {
+          if (/^câu hỏi:\s*/i.test(line)) {
+            question = line.replace(/^câu hỏi:\s*/i, '').trim();
+          } else if (/^[-*•]\s*(?:lựa chọn\s*\d*:\s*)?/i.test(line)) {
+            const optText = line.replace(/^[-*•]\s*(?:lựa chọn\s*\d*:\s*)?/i, '').trim();
+            if (optText) options.push(optText);
+          }
+        }
+
+        if (!question) {
+          question = lines[0] || 'Vui lòng xác nhận định hướng thực hiện:';
+        }
+
+        // Lưu câu hỏi chờ xác nhận vào queueState
+        queueState.pendingClarification = {
+          id: `clarify_${Date.now()}`,
+          chatId,
+          question,
+          options,
+          originalPrompt: rawPrompt,
+          timestamp: Date.now(),
+        };
+        saveQueueState(queueState);
+
+        // Tạo các nút bấm tương tác cho từng phương án
+        const buttons = options.map((opt, idx) => [
+          {
+            text: `👉 ${idx + 1}. ${opt.slice(0, 36)}`,
+            callback_data: `clarify_opt_${idx}`,
+          },
+        ]);
+        buttons.push([{ text: '🛑 Hủy yêu cầu này', callback_data: '/cancel' }]);
+
+        let clarifyMsg =
+          `❓ <b>YÊU CẦU CẦN LÀM RÕ / XÁC NHẬN</b> <code>(⏱️ ${timeStr})</code>\n\n` +
+          `📝 <b>Yêu cầu gốc:</b> <i>${escapeHtml(rawPrompt)}</i>\n\n` +
+          `🤔 <b>Câu hỏi từ Kỹ sư AI:</b>\n<b>${escapeHtml(question)}</b>\n\n` +
+          options.map((opt, idx) => `  ▫️ <b>Phương án ${idx + 1}:</b> ${escapeHtml(opt)}`).join('\n') +
+          `\n\n💡 <i>Vui lòng bấm chọn phương án bên dưới (hoặc gõ trực tiếp câu trả lời vào nhóm):</i>`;
+
+        await sendTelegramMessage(chatId, clarifyMsg, 'HTML', { inline_keyboard: buttons });
+        return;
+      }
+
       // Loại bỏ triệt để mọi câu kết vu vơ, câu hỏi tiếp theo, slogan thừa ở cuối
       cleanOutput = cleanOutput.replace(/(\n+.*?(Bạn muốn thực hiện bước nào|Hệ thống đã sẵn sàng|Hệ thống đã được tối ưu|Chúc bạn|Nếu bạn cần thêm|Vui lòng cho tôi biết|Bạn có muốn)[\s\S]*$)/gi, '').trim();
 
@@ -1012,6 +1078,12 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
 
 // Xử lý hủy task
 async function cancelCurrentTask(chatId) {
+  if (queueState.pendingClarification) {
+    queueState.pendingClarification = null;
+    saveQueueState(queueState);
+    await sendTelegramMessage(chatId, '🗑️ Đã hủy câu hỏi làm rõ đang chờ xác nhận.', 'HTML', TASK_ACTIONS_KEYBOARD);
+  }
+
   if (!currentTask || !currentTask.process) {
     if (taskQueue.length > 0) {
       const count = taskQueue.length;
@@ -1162,6 +1234,28 @@ async function handleMessage(msg) {
   if (!text) return;
 
   console.log(`[Telegram Msg] [${msg.chat.title || msg.from?.username || chatId}]: ${text}`);
+
+  // Nếu có câu hỏi làm rõ đang chờ mà người dùng gõ tin nhắn phản hồi trực tiếp (không bắt đầu bằng lệnh /)
+  if (queueState.pendingClarification && !text.startsWith('/')) {
+    const pending = queueState.pendingClarification;
+    queueState.pendingClarification = null;
+    saveQueueState(queueState);
+
+    await sendTelegramMessage(
+      chatId,
+      `✅ <b>Đã ghi nhận câu trả lời của bạn:</b> <i>${escapeHtml(text)}</i>\n\n▶️ <i>Đang tiếp tục thực thi tác vụ...</i>`,
+      'HTML',
+      TASK_ACTIONS_KEYBOARD
+    );
+
+    await enqueueTask(
+      chatId,
+      `Câu trả lời làm rõ cho vấn đề "${pending.question}": "${text}". Hãy tiếp tục thực thi yêu cầu gốc "${pending.originalPrompt}" theo định hướng này và hoàn tất dứt điểm!`,
+      [],
+      'continue'
+    );
+    return;
+  }
 
   if (text.startsWith('/start') || text.startsWith('/help')) {
     const helpMsg =
@@ -1424,6 +1518,37 @@ async function handleCallbackQuery(cb) {
     const commandText = cb.data;
 
     if (ALLOWED_CHAT_ID && String(chatId) !== String(ALLOWED_CHAT_ID)) {
+      return;
+    }
+
+    // Xử lý khi người dùng bấm vào các lựa chọn của câu hỏi làm rõ
+    if (commandText && commandText.startsWith('clarify_opt_')) {
+      const optIdx = parseInt(commandText.replace('clarify_opt_', ''), 10);
+      const pending = queueState.pendingClarification;
+
+      if (!pending || !pending.options || !pending.options[optIdx]) {
+        await sendTelegramMessage(chatId, '⚠️ Yêu cầu xác nhận này đã hoàn tất hoặc không còn hiệu lực.', 'HTML', TASK_ACTIONS_KEYBOARD);
+        return;
+      }
+
+      const chosen = pending.options[optIdx];
+      const originalPrompt = pending.originalPrompt;
+      queueState.pendingClarification = null;
+      saveQueueState(queueState);
+
+      await sendTelegramMessage(
+        chatId,
+        `✅ <b>Đã chọn phương án ${optIdx + 1}:</b> <i>${escapeHtml(chosen)}</i>\n\n▶️ <i>Đang tiếp tục thực thi yêu cầu...</i>`,
+        'HTML',
+        TASK_ACTIONS_KEYBOARD
+      );
+
+      await enqueueTask(
+        chatId,
+        `Tôi chọn phương án: "${chosen}". Hãy tiếp tục thực thi yêu cầu "${originalPrompt}" theo phương án này và hoàn tất dứt điểm!`,
+        [],
+        'continue'
+      );
       return;
     }
 
