@@ -60,6 +60,7 @@ function saveQueueState(state) {
       currentTask: state.currentTask
         ? {
             id: state.currentTask.id,
+            conversationId: state.currentTask.conversationId || null,
             chatId: state.currentTask.chatId,
             rawPrompt: state.currentTask.rawPrompt,
             taskMode: state.currentTask.taskMode,
@@ -72,8 +73,28 @@ function saveQueueState(state) {
         : null,
       pendingClarification: state.pendingClarification || null,
       decisions: (state.decisions || []).slice(-15),
-      queue: state.queue || [],
-      history: (state.history || []).slice(-10),
+      queue: (state.queue || []).map((t) => ({
+        id: t.id,
+        chatId: t.chatId,
+        rawPrompt: t.rawPrompt,
+        taskMode: t.taskMode,
+        targetConversationId: t.targetConversationId || null,
+        imagePaths: t.imagePaths || [],
+        decision: t.decision || null,
+        timestamp: t.timestamp,
+        isRecovered: t.isRecovered || false,
+      })),
+      history: (state.history || []).slice(-10).map((h) => ({
+        id: h.id,
+        conversationId: h.conversationId || null,
+        rawPrompt: h.rawPrompt,
+        taskMode: h.taskMode,
+        decision: h.decision || null,
+        exitCode: h.exitCode,
+        duration: h.duration,
+        completedAt: h.completedAt,
+        status: h.status,
+      })),
       updatedAt: new Date().toISOString(),
     };
     fs.writeFileSync(QUEUE_FILE, JSON.stringify(payload, null, 2), 'utf-8');
@@ -102,7 +123,8 @@ async function recoverInterruptedTasks() {
         interrupted.chatId || ALLOWED_CHAT_ID,
         `⚠️ <b>PHÁT HIỆN TASK BỊ GIÁN ĐOẠN GIỮA CHỪNG:</b>\n\n` +
         `📝 <i>${escapeHtml(interrupted.rawPrompt)}</i>\n\n` +
-        `🔄 <i>Hệ thống vừa khởi động lại. Đang tự động khôi phục và tiếp tục phiên làm việc (agy --continue)...</i>`,
+        (interrupted.conversationId ? `🆔 <b>Session:</b> <code>${interrupted.conversationId}</code>\n\n` : '') +
+        `🔄 <i>Hệ thống vừa khởi động lại. Đang tự động khôi phục và tiếp tục phiên làm việc...</i>`,
         'HTML',
         TASK_ACTIONS_KEYBOARD
       );
@@ -113,6 +135,7 @@ async function recoverInterruptedTasks() {
         chatId: interrupted.chatId || ALLOWED_CHAT_ID,
         rawPrompt: interrupted.rawPrompt,
         taskMode: 'continue',
+        targetConversationId: interrupted.conversationId || null,
         imagePaths: interrupted.imagePaths || [],
         timestamp: Date.now(),
         isRecovered: true,
@@ -663,16 +686,58 @@ async function checkSystemHealth(chatId) {
   });
 }
 
-// Trích xuất n dòng log cuối từ buffer (loại bỏ escape code ANSI màu)
+// Trích xuất n dòng log cuối từ buffer (loại bỏ escape code ANSI màu, format NDJSON đẹp mắt)
 function getTailLog(buffer, maxLines = 6) {
   if (!buffer) return '';
   const clean = buffer.replace(/\u001b\[[0-9;]*[a-zA-Z]/g, '');
-  const lines = clean.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  return lines.slice(-maxLines).join('\n');
+  const rawLines = clean.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+
+  const formattedLines = [];
+  for (let i = rawLines.length - 1; i >= 0 && formattedLines.length < maxLines * 2; i--) {
+    const line = rawLines[i];
+    if (line.startsWith('{') && line.endsWith('}')) {
+      try {
+        const parsed = JSON.parse(line);
+        if (parsed.event === 'step_update' && parsed.step_update) {
+          const su = parsed.step_update;
+          if (su.step_type === 'tool' && su.tool_info) {
+            const toolName = su.tool_name || su.tool_info.name || 'tool';
+            const action = su.tool_info.parameters?.toolAction || su.tool_info.parameters?.toolSummary || su.tool_info.parameters?.CommandLine || '';
+            const statusBadge = su.state === 'DONE' ? '✅' : su.state === 'ERROR' ? '❌' : '⚡';
+            formattedLines.unshift(`${statusBadge} [Tool: ${toolName}] ${action}`.trim());
+            continue;
+          } else if (su.step_type === 'agent_response' && su.text_delta) {
+            const snippet = su.text_delta.trim().slice(0, 80);
+            if (snippet) {
+              formattedLines.unshift(`💬 [AI] ${snippet}`);
+              continue;
+            }
+          }
+        } else if (parsed.event === 'init') {
+          const convShort = (parsed.conversation_id || '').slice(0, 8);
+          formattedLines.unshift(`🆔 [Khởi tạo session] ${convShort}...`);
+          continue;
+        } else if (parsed.event === 'result') {
+          formattedLines.unshift(`🏁 [Kết quả] Trạng thái: ${parsed.result?.status || 'DONE'}`);
+          continue;
+        }
+      } catch {}
+    }
+    // Nếu là dòng log thông thường không phải stream JSON
+    if (!line.startsWith('{"event"')) {
+      formattedLines.unshift(line);
+    }
+  }
+
+  return formattedLines.slice(-maxLines).join('\n');
 }
 
-// Phân tích thông minh: Nên bắt đầu Session mới sạch sẽ hay tiếp tục (--continue) phiên trước
+// Phân tích thông minh: Nên bắt đầu Session mới sạch sẽ hay tiếp tục (--conversation / --continue) phiên trước
 function determineSessionStrategy(prompt, explicitMode, state) {
+  // Tìm session gần nhất có conversationId trong lịch sử
+  const lastHistoryWithConv = [...(state.history || [])].reverse().find((h) => h.conversationId);
+  const lastConvId = lastHistoryWithConv?.conversationId || null;
+
   // 1. Nếu người dùng dùng rõ lệnh /continue:
   if (explicitMode === 'continue') {
     const lastHistory = state.history && state.history[state.history.length - 1];
@@ -681,6 +746,7 @@ function determineSessionStrategy(prompt, explicitMode, state) {
       if (elapsedMins > 30) {
         return {
           isContinue: false,
+          targetConversationId: null,
           reason: `Phiên trước đã dừng > ${Math.round(elapsedMins)} phút. Tự động mở session mới để tránh lỗi stale context.`,
           sessionBadge: '✨ Phiên mới (Auto-Reset)',
         };
@@ -688,7 +754,8 @@ function determineSessionStrategy(prompt, explicitMode, state) {
     }
     return {
       isContinue: true,
-      reason: 'Lệnh /continue chỉ định tiếp tục phiên làm việc trước',
+      targetConversationId: lastConvId,
+      reason: lastConvId ? `Lệnh /continue nối tiếp phiên ${lastConvId.slice(0, 8)}...` : 'Lệnh /continue chỉ định tiếp tục phiên trước',
       sessionBadge: '🔄 Nối tiếp phiên trước',
     };
   }
@@ -697,6 +764,7 @@ function determineSessionStrategy(prompt, explicitMode, state) {
   if (explicitMode === 'task') {
     return {
       isContinue: false,
+      targetConversationId: null,
       reason: 'Lệnh /task luôn bắt đầu phiên mới sạch (Zero Context Bloat)',
       sessionBadge: '✨ Phiên mới (Clean)',
     };
@@ -722,7 +790,8 @@ function determineSessionStrategy(prompt, explicitMode, state) {
   if (hasContinueKeyword && isRecent) {
     return {
       isContinue: true,
-      reason: 'Phát hiện từ khóa nối tiếp công việc vừa làm (<10 phút)',
+      targetConversationId: lastConvId,
+      reason: lastConvId ? `Phát hiện từ khóa nối tiếp phiên ${lastConvId.slice(0, 8)}... (<10 phút)` : 'Phát hiện từ khóa nối tiếp công việc vừa làm (<10 phút)',
       sessionBadge: '🔄 Nối tiếp phiên trước',
     };
   }
@@ -730,19 +799,49 @@ function determineSessionStrategy(prompt, explicitMode, state) {
   // Mặc định cho mọi trường hợp: Khởi tạo Session mới sạch sẽ
   return {
     isContinue: false,
+    targetConversationId: null,
     reason: 'Mặc định phiên mới (Tối ưu tốc độ, zero context bloat)',
     sessionBadge: '✨ Phiên mới (Clean)',
   };
 }
 
 // Trích xuất thông tin tiến độ và hành động mới nhất của Antigravity AI từ brain transcript
-function getLatestAgyProgress(taskStartTime = 0, isContinue = false) {
+function getLatestAgyProgress(taskStartTime = 0, isContinue = false, activeConversationId = null) {
   let stepInfo = null;
   let totalSteps = 0;
 
   try {
     const brainDir = path.join(process.env.USERPROFILE || '', '.gemini', 'antigravity', 'brain');
     if (fs.existsSync(brainDir)) {
+      // 1. Nếu đã có activeConversationId xác định chính xác
+      if (activeConversationId) {
+        const transcriptPath = path.join(brainDir, activeConversationId, '.system_generated', 'logs', 'transcript.jsonl');
+        if (fs.existsSync(transcriptPath)) {
+          const raw = fs.readFileSync(transcriptPath, 'utf-8');
+          const lines = raw.trim().split(/\r?\n/).filter(Boolean);
+          totalSteps = lines.length;
+
+          for (let i = lines.length - 1; i >= Math.max(0, lines.length - 20); i--) {
+            try {
+              const item = JSON.parse(lines[i]);
+              if (item.tool_calls && Array.isArray(item.tool_calls) && item.tool_calls.length > 0) {
+                const tc = item.tool_calls[0];
+                const toolName = tc.name || 'tool';
+                const action = tc.args?.toolAction || tc.args?.toolSummary || tc.args?.CommandLine || '';
+                stepInfo = {
+                  stepIndex: item.step_index || i,
+                  toolName,
+                  action: typeof action === 'string' ? action.replace(/^"|"$/g, '') : '',
+                };
+                break;
+              }
+            } catch {}
+          }
+          return { stepInfo, totalSteps };
+        }
+      }
+
+      // 2. Fallback duyệt tìm theo thư mục mtime mới nhất
       const entries = fs.readdirSync(brainDir, { withFileTypes: true })
         .filter((d) => d.isDirectory() && d.name !== 'tempmediaStorage')
         .map((d) => {
@@ -872,26 +971,53 @@ async function processNextQueueItem() {
     next.chatId,
     `▶️ <b>Bắt đầu thực thi [${modeLabel}] từ hàng đợi (còn lại ${taskQueue.length} task)...</b>`
   );
-  await runAgyTask(next.chatId, next.rawPrompt, next.imagePaths, next.taskMode, next.id, next.decision);
+  await runAgyTask(
+    next.chatId,
+    next.rawPrompt,
+    next.imagePaths,
+    next.taskMode,
+    next.id,
+    next.decision,
+    next.targetConversationId || null
+  );
 }
 
 // Đẩy task vào hàng đợi hoặc chạy ngay nếu bot đang rảnh (lưu đĩa cứng tức thì)
-async function enqueueTask(chatId, rawPrompt, imagePathsOrContinue = [], maybeTaskMode = 'task', maybeDecision = null) {
+async function enqueueTask(
+  chatId,
+  rawPrompt,
+  imagePathsOrContinue = [],
+  maybeTaskMode = 'task',
+  maybeDecision = null,
+  maybeTargetConversationId = null
+) {
   let imagePaths = [];
   let taskMode = 'task';
   let decision = maybeDecision || null;
+  let targetConversationId = maybeTargetConversationId || null;
 
   if (typeof imagePathsOrContinue === 'boolean') {
     taskMode = imagePathsOrContinue ? 'continue' : (maybeTaskMode || 'task');
     imagePaths = Array.isArray(arguments[3]) ? arguments[3] : [];
     decision = arguments[4] || null;
+    targetConversationId = arguments[5] || null;
   } else if (Array.isArray(imagePathsOrContinue)) {
     imagePaths = imagePathsOrContinue;
     taskMode = maybeTaskMode || 'task';
     decision = maybeDecision || null;
+    targetConversationId = maybeTargetConversationId || null;
   } else {
     taskMode = maybeTaskMode || 'task';
     decision = maybeDecision || null;
+    targetConversationId = maybeTargetConversationId || null;
+  }
+
+  // Tự động phân tích xem prompt có truyền UUID conversation cụ thể không (ví dụ: /continue <uuid> <nội dung>)
+  if (taskMode === 'continue' && !targetConversationId) {
+    const uuidMatch = (rawPrompt || '').match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
+    if (uuidMatch) {
+      targetConversationId = uuidMatch[1];
+    }
   }
 
   const taskId = `task_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
@@ -900,6 +1026,7 @@ async function enqueueTask(chatId, rawPrompt, imagePathsOrContinue = [], maybeTa
     chatId,
     rawPrompt,
     taskMode,
+    targetConversationId,
     imagePaths,
     decision,
     timestamp: Date.now(),
@@ -917,7 +1044,8 @@ async function enqueueTask(chatId, rawPrompt, imagePathsOrContinue = [], maybeTa
     await sendTelegramMessage(
       chatId,
       `📥 <b>Đã lưu vào hàng đợi (#${queuePos}) - [${modeLabel}]</b>\n\n` +
-      `📝 <i>${escapeHtml(rawPrompt)}</i>${imagePaths.length > 0 ? ` <i>(${imagePaths.length} ảnh)</i>` : ''}\n\n` +
+      `📝 <i>${escapeHtml(rawPrompt)}</i>${imagePaths.length > 0 ? ` <i>(${imagePaths.length} ảnh)</i>` : ''}\n` +
+      (targetConversationId ? `🆔 <b>Mục tiêu Session:</b> <code>${targetConversationId.slice(0, 8)}...</code>\n\n` : '\n') +
       `💾 <i>Đã lưu xuống file vật lý (task-queue.json) - an toàn tuyệt đối khi bot restart!</i>`,
       'HTML',
       TASK_ACTIONS_KEYBOARD
@@ -925,13 +1053,14 @@ async function enqueueTask(chatId, rawPrompt, imagePathsOrContinue = [], maybeTa
     return;
   }
 
-  await runAgyTask(chatId, rawPrompt, imagePaths, taskMode, taskId, decision);
+  await runAgyTask(chatId, rawPrompt, imagePaths, taskMode, taskId, decision, targetConversationId);
 }
 
 // Thực thi task qua Antigravity CLI (agy)
-async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task', taskId = null, decision = null) {
+async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task', taskId = null, decision = null, passedTargetConvId = null) {
   const sessionStrategy = determineSessionStrategy(rawPrompt, taskMode, queueState);
   const isContinue = sessionStrategy.isContinue;
+  const targetConvId = passedTargetConvId || sessionStrategy.targetConversationId || null;
   const startTime = Date.now();
   const id = taskId || `task_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
   const finalPrompt = buildTaskPrompt(rawPrompt, imagePaths, taskMode);
@@ -945,21 +1074,25 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
 
   const startMsg =
     `⏳ <b>[${taskBadge}] Đang thực thi...</b> <code>(⏱️ 0s)</code>\n` +
-    `⚙️ <b>Ngữ cảnh:</b> <i>${sessionStrategy.sessionBadge}</i> <code>(${escapeHtml(sessionStrategy.reason)})</code>\n\n` +
+    `⚙️ <b>Ngữ cảnh:</b> <i>${sessionStrategy.sessionBadge}</i> <code>(${escapeHtml(sessionStrategy.reason)})</code>\n` +
+    (targetConvId ? `🆔 <b>Session:</b> <code>${targetConvId.slice(0, 8)}...</code>\n\n` : `\n`) +
     `📝 <i>${escapeHtml(rawPrompt)}</i>${imagePaths.length > 0 ? ` <i>(${imagePaths.length} ảnh)</i>` : ''}\n\n` +
     `💡 <i>Tự động cập nhật mỗi 30s | Bấm <b>[⚡ Tiến độ]</b> bên dưới để tra cứu ngay.</i>`;
   const sentStartRes = await sendTelegramMessage(chatId, startMsg, 'HTML', TASK_ACTIONS_KEYBOARD);
   const progressMessageId = sentStartRes?.result?.message_id || null;
 
-  // Chuẩn bị tham số gọi agy (luôn gắn --add-dir vào workspace)
+  // Chuẩn bị tham số gọi agy (luôn gắn --add-dir vào workspace, dùng stream-json để bắt session ID & tools)
   const args = [
+    '--output-format', 'stream-json',
     '--add-dir', WORKSPACE_DIR,
     '--dangerously-skip-permissions',
     '--print', finalPrompt,
     '--print-timeout', '30m'
   ];
 
-  if (isContinue) {
+  if (targetConvId) {
+    args.unshift('--conversation', targetConvId);
+  } else if (isContinue) {
     args.unshift('--continue');
   }
 
@@ -967,7 +1100,7 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
     args.push('--model', AGY_MODEL);
   }
 
-  console.log(`[Task Start] [${taskBadge}] [ID: ${id}] [Session: ${sessionStrategy.sessionBadge}] Executing agy in ${WORKSPACE_DIR} (Images: ${imagePaths.length})`);
+  console.log(`[Task Start] [${taskBadge}] [ID: ${id}] [Session: ${sessionStrategy.sessionBadge}] [TargetConv: ${targetConvId || 'new'}] Executing agy in ${WORKSPACE_DIR} (Images: ${imagePaths.length})`);
 
   // Bật hiệu ứng "đang gõ..." liên tục trên Telegram để người dùng biết bot đang hoạt động
   const typingInterval = setInterval(async () => {
@@ -990,6 +1123,7 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
 
   currentTask = {
     id,
+    conversationId: targetConvId || null,
     chatId,
     rawPrompt,
     taskMode,
@@ -1003,6 +1137,8 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
     progressMessageId,
     stdoutBuffer: '',
     stderrBuffer: '',
+    latestStepInfo: null,
+    totalSteps: 0,
   };
 
   // Cập nhật trạng thái running xuống file vật lý
@@ -1011,12 +1147,77 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
 
   let stdoutBuffer = '';
   let stderrBuffer = '';
+  let stdoutLineBuffer = '';
+  let agyConversationId = targetConvId || null;
+  let finalResultResponse = '';
 
   child.stdout.on('data', (data) => {
     const text = data.toString();
     stdoutBuffer += text;
     if (currentTask) currentTask.stdoutBuffer = (currentTask.stdoutBuffer || '') + text;
     process.stdout.write(text);
+
+    // Phân tích NDJSON từ output-format stream-json
+    stdoutLineBuffer += text;
+    const lines = stdoutLineBuffer.split(/\r?\n/);
+    stdoutLineBuffer = lines.pop(); // Giữ lại phần dòng chưa hoàn chỉnh
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+        try {
+          const parsed = JSON.parse(trimmed);
+
+          // 1. Bắt conversation_id ngay từ event "init" hoặc bất kỳ event nào
+          const convId = parsed.conversation_id || parsed.init?.conversation_id || parsed.result?.conversation_id || parsed.step_update?.conversation_id;
+          if (convId && !agyConversationId) {
+            agyConversationId = convId;
+            if (currentTask) {
+              currentTask.conversationId = convId;
+              queueState.currentTask = currentTask;
+              saveQueueState(queueState);
+            }
+            console.log(`[Session Captured] Conversation ID: ${convId}`);
+          }
+
+          // 2. Bắt step_update trực tiếp từ tiến trình agy
+          if (parsed.event === 'step_update' && parsed.step_update) {
+            const su = parsed.step_update;
+            if (currentTask) {
+              if (su.step_type === 'tool' && su.tool_info) {
+                const toolName = su.tool_name || su.tool_info.name || 'tool';
+                const action = su.tool_info.parameters?.toolAction || su.tool_info.parameters?.toolSummary || su.tool_info.parameters?.CommandLine || '';
+                currentTask.latestStepInfo = {
+                  stepIndex: su.step_index,
+                  toolName,
+                  action: typeof action === 'string' ? action.replace(/^"|"$/g, '') : '',
+                  state: su.state,
+                };
+              }
+              if (typeof su.step_index === 'number') {
+                currentTask.totalSteps = Math.max(currentTask.totalSteps || 0, su.step_index + 1);
+              }
+            }
+          }
+
+          // 3. Bắt event result để lấy response hoàn chỉnh
+          if (parsed.event === 'result' && parsed.result) {
+            if (typeof parsed.result.response === 'string') {
+              finalResultResponse = parsed.result.response;
+            }
+            if (parsed.result.conversation_id && !agyConversationId) {
+              agyConversationId = parsed.result.conversation_id;
+              if (currentTask) {
+                currentTask.conversationId = agyConversationId;
+                queueState.currentTask = currentTask;
+                saveQueueState(queueState);
+              }
+            }
+          }
+        } catch {}
+      }
+    }
   });
 
   child.stderr.on('data', (data) => {
@@ -1036,13 +1237,25 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
       const s = elapsed % 60;
       const timeStr = m > 0 ? `${m}m ${s}s` : `${s}s`;
 
-      const { stepInfo, totalSteps } = getLatestAgyProgress(startTime, isContinue);
+      let stepInfo = currentTask.latestStepInfo || null;
+      let totalSteps = currentTask.totalSteps || 0;
+
+      if (!stepInfo) {
+        const fromBrain = getLatestAgyProgress(startTime, isContinue, currentTask.conversationId);
+        stepInfo = fromBrain.stepInfo;
+        totalSteps = fromBrain.totalSteps;
+      }
+
       const tail = getTailLog(currentTask.stdoutBuffer || stdoutBuffer, 5);
 
       let progressText =
         `⏳ <b>[${taskBadge}] Đang thực thi...</b> <code>(⏱️ ${timeStr})</code>\n\n` +
         `📝 <i>${escapeHtml(rawPrompt.length > 120 ? rawPrompt.slice(0, 117) + '...' : rawPrompt)}</i>\n` +
         `━━━━━━━━━━━━━━━━━━━━\n`;
+
+      if (currentTask.conversationId) {
+        progressText += `🆔 <b>Session:</b> <code>${currentTask.conversationId.slice(0, 8)}...</code>\n`;
+      }
 
       if (stepInfo) {
         progressText += `📍 <b>Bước hiện tại (#${stepInfo.stepIndex}):</b> <code>${escapeHtml(stepInfo.toolName)}</code>\n`;
@@ -1079,11 +1292,13 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
 
     const wasCancelled = currentTask?.wasCancelled;
     const targetMsgId = currentTask?.progressMessageId || progressMessageId;
+    const finalConvId = currentTask?.conversationId || agyConversationId || null;
     
     // Ghi vào lịch sử và xóa currentTask trên file vật lý
     if (currentTask) {
       queueState.history.push({
         id: currentTask.id,
+        conversationId: finalConvId,
         rawPrompt: currentTask.rawPrompt || rawPrompt,
         taskMode: currentTask.taskMode || taskMode,
         decision: currentTask.decision || null,
@@ -1110,7 +1325,7 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
     if (wasCancelled) {
       await sendTelegramMessage(chatId, `🛑 <b>Task đã bị hủy bởi người dùng!</b> (⏱️ ${timeStr})`, 'HTML', TASK_ACTIONS_KEYBOARD);
     } else if (code === 0) {
-      let cleanOutput = stdoutBuffer.trim();
+      let cleanOutput = (finalResultResponse || stdoutBuffer).trim();
 
       // Loại bỏ các câu mở đầu máy móc thừa nếu có
       cleanOutput = cleanOutput.replace(/^(Tôi đã tiếp nhận.*?\n+|Chào bạn.*?\n+)/gi, '').trim();
@@ -1136,9 +1351,10 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
           question = lines[0] || 'Vui lòng xác nhận định hướng thực hiện:';
         }
 
-        // Lưu câu hỏi chờ xác nhận vào queueState
+        // Lưu câu hỏi chờ xác nhận vào queueState (kèm session conversationId)
         queueState.pendingClarification = {
           id: `clarify_${Date.now()}`,
+          conversationId: finalConvId,
           chatId,
           question,
           options,
@@ -1178,7 +1394,13 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
       // Chuyển đổi Markdown sang định dạng Telegram HTML chuẩn
       const formattedHtml = markdownToTelegramHtml(cleanOutput);
 
-      let messageText = `🎯 <b>KẾT QUẢ THỰC HIỆN</b> <i>(⏱️ ${timeStr})</i>\n\n${formattedHtml}`;
+      let messageText = `🎯 <b>KẾT QUẢ THỰC HIỆN</b> <i>(⏱️ ${timeStr})</i>\n`;
+      if (finalConvId) {
+        messageText += `🆔 <b>Session ID:</b> <code>${finalConvId}</code>\n\n`;
+      } else {
+        messageText += `\n`;
+      }
+      messageText += formattedHtml;
 
       const diffStat = getGitDiffStat();
       if (diffStat) {
@@ -1209,6 +1431,7 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
     if (currentTask) {
       queueState.history.push({
         id: currentTask.id,
+        conversationId: currentTask.conversationId || agyConversationId || null,
         rawPrompt: currentTask.rawPrompt || rawPrompt,
         taskMode: currentTask.taskMode || taskMode,
         decision: currentTask.decision || null,
@@ -1440,7 +1663,8 @@ async function handleMessage(msg) {
       {
         question: pending.question,
         chosen: text,
-      }
+      },
+      pending.conversationId || null
     );
     return;
   }
@@ -1550,7 +1774,14 @@ async function handleMessage(msg) {
     const s = elapsed % 60;
     const timeStr = m > 0 ? `${m}m ${s}s` : `${s}s`;
 
-    const { stepInfo, totalSteps } = getLatestAgyProgress(currentTask.startTime, currentTask.isContinue);
+    let stepInfo = currentTask.latestStepInfo || null;
+    let totalSteps = currentTask.totalSteps || 0;
+
+    if (!stepInfo) {
+      const fromBrain = getLatestAgyProgress(currentTask.startTime, currentTask.isContinue, currentTask.conversationId);
+      stepInfo = fromBrain.stepInfo;
+      totalSteps = fromBrain.totalSteps;
+    }
     const tail = getTailLog(currentTask.stdoutBuffer || '', 8) || 'Đang xử lý ngầm (chưa có output mới)...';
 
     let logMsg =
@@ -1558,6 +1789,10 @@ async function handleMessage(msg) {
       `🎯 <b>Task [${currentTask.taskBadge || 'Task'}]:</b>\n` +
       `<i>${escapeHtml(currentTask.rawPrompt || currentTask.prompt)}</i>\n` +
       `━━━━━━━━━━━━━━━━━━━━\n`;
+
+    if (currentTask.conversationId) {
+      logMsg += `🆔 <b>Session ID:</b> <code>${escapeHtml(currentTask.conversationId)}</code>\n`;
+    }
 
     if (stepInfo) {
       logMsg += `📍 <b>Bước hiện tại:</b> <code>${escapeHtml(stepInfo.toolName)}</code> (#${stepInfo.stepIndex})\n`;
@@ -1589,7 +1824,8 @@ async function handleMessage(msg) {
     }
     if (currentTask) {
       const elapsed = Math.round((Date.now() - currentTask.startTime) / 1000);
-      msg += `▶️ <b>Đang chạy [${currentTask.taskBadge || 'Task'}]:</b> <i>${escapeHtml(currentTask.rawPrompt || currentTask.prompt)}</i> <code>(⏱️ ${elapsed}s)</code>\n\n`;
+      const convShort = currentTask.conversationId ? ` [Session: <code>${currentTask.conversationId.slice(0, 8)}...</code>]` : '';
+      msg += `▶️ <b>Đang chạy [${currentTask.taskBadge || 'Task'}]:</b> <i>${escapeHtml(currentTask.rawPrompt || currentTask.prompt)}</i>${convShort} <code>(⏱️ ${elapsed}s)</code>\n\n`;
     }
     if (taskQueue.length > 0) {
       msg += `⏳ <b>Đang chờ trong hàng đợi (${taskQueue.length} task - lưu trên đĩa):</b>\n`;
@@ -1597,7 +1833,8 @@ async function handleMessage(msg) {
         let mode = 'Task';
         if (t.taskMode === 'fix') mode = 'Fix';
         else if (t.taskMode === 'continue') mode = 'Continue';
-        msg += `${i + 1}. [${mode}] <i>${escapeHtml(t.rawPrompt)}</i>\n`;
+        const targetConv = t.targetConversationId ? ` [Session: <code>${t.targetConversationId.slice(0, 8)}...</code>]` : '';
+        msg += `${i + 1}. [${mode}] <i>${escapeHtml(t.rawPrompt)}</i>${targetConv}\n`;
       });
       msg += '\n';
     } else if (!currentTask && !queueState.pendingClarification) {
@@ -1607,9 +1844,15 @@ async function handleMessage(msg) {
     if (queueState.decisions && queueState.decisions.length > 0) {
       const lastDecision = queueState.decisions[queueState.decisions.length - 1];
       if (lastDecision.status === 'chosen') {
-        msg += `💡 <b>Quyết định gần nhất:</b> Đã chọn phương án <i>"${escapeHtml(lastDecision.chosenOption)}"</i>`;
+        msg += `💡 <b>Quyết định gần nhất:</b> Đã chọn phương án <i>"${escapeHtml(lastDecision.chosenOption)}"</i>\n`;
       }
     }
+
+    const lastHistory = queueState.history && queueState.history[queueState.history.length - 1];
+    if (lastHistory && lastHistory.conversationId) {
+      msg += `\n🆔 <b>Session gần nhất:</b> <code>${lastHistory.conversationId}</code> (${lastHistory.duration})\n`;
+    }
+
     await sendTelegramMessage(chatId, msg.trim(), 'HTML', TASK_ACTIONS_KEYBOARD);
     return;
   }
@@ -1772,7 +2015,8 @@ async function handleCallbackQuery(cb) {
         {
           question: pending.question,
           chosen,
-        }
+        },
+        pending.conversationId || null
       );
       return;
     }

@@ -68,9 +68,13 @@ Spec & Analysis reference: [`docs/feedback_05_10_split_shipment_inbound_aggregat
   - In `renderTripCell`: Rendered prominent multi-vehicle badges (`+{multiTruckCount - 1} xe` and `+{multiTruckCount - 1} trip`) with detailed multi-line hover tooltip listing all intake vehicles, drivers, and trip codes.
   - Action triggers: Provided dual triggers on consolidated rows (accordion "Xem dòng / Thu gọn" + modal inspect eye icon).
 - [x] E2E Automated Verification (`frontend/e2e/29-feedback-05-10-split-shipment-inbound-aggregation.spec.ts`):
-  - API ratio parity test: Verified `hubStock <= totalQuantity` across all grouped warehouse orders.
-  - Multi-truck receiving test: Verified 2-truck intake (`76-H720-335` & `60-B1 15594`) consolidates into 1 parent row with algebraic sums (100 pkgs, 2.100 kg, 15 m³) and 2 distinct vehicle trips preserved.
-  - Browser UI test: Validates multi-vehicle badge and Master-Detail line expansion.
+  - API ratio parity test: Verified `hubStock <= totalQuantity` across all grouped warehouse orders (Passed 100%).
+  - Multi-truck receiving test: Verified 2-truck intake (`76-H720-335` & `60-B1 15594`) consolidates into 1 parent row with algebraic sums (100 pkgs, 2.100 kg, 15 m³) and 2 distinct vehicle trips preserved (Passed 100%).
+  - Browser UI test: Validates multi-vehicle badge (`+1 trip`, `+1 xe`) and Master-Detail line expansion (Passed 100%).
+  - **Visual Evidence Screenshots Generated & Verified**:
+    - [`06_split_shipment_inbound_aggregation_master.png`](../docs/feedback_evidence/05_10/06_split_shipment_inbound_aggregation_master.png): Consolidated master row (1 row, `2 dòng hàng`, `+1 trip`/`+1 xe`, `100 / 100 kiện`, `2.100 kg`, `15 m³`).
+    - [`07_split_shipment_inbound_aggregation_expanded.png`](../docs/feedback_evidence/05_10/07_split_shipment_inbound_aggregation_expanded.png): Expanded child lines (`Dòng 1`: 70 pkgs / 1.600 kg on `76-H720-335`; `Dòng 2`: 30 pkgs / 500 kg on `60-B1 15594`).
+    - [`08_split_shipment_inbound_waybill_detail_modal.png`](../docs/feedback_evidence/05_10/08_split_shipment_inbound_waybill_detail_modal.png): Waybill inspection modal displaying full audit history and inventory balance.
 
 ## Follow-up & Verification Status
 - [x] **Run migration on DB**: Migration `1789040000000-AddQuantityAllocatedToTrip` confirmed executed on Neon DB (`trip.quantityAllocated integer NULL`).

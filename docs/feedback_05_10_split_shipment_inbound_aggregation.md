@@ -108,15 +108,26 @@ Mã đơn: MCD2610-0001 ──────────┤
 
 ---
 
-## 📋 5. Kế Hoạch Triển Khai (Action Items)
+## 📋 5. Kế Hoạch Triển Khai (Action Items) — Đã Hoàn Thành 100%
 
-- [ ] **Backend (`warehouse.service.ts`)**:
+- [x] **Backend (`warehouse.service.ts`)**:
   - Chuẩn hóa lại logic `aggregateOrderGroup`: Đảm bảo `hubStock` và `totalQuantity` được tính đúng tỷ lệ $\sum \text{tồn} / \sum \text{tổng nhận}$, triệt tiêu triệt để hiện tượng `200 / 100 kiện`.
   - Tối ưu mảng `trips`: Trả về đầy đủ danh sách các chuyến xe tiếp nhận kèm thông tin BKS và lái xe.
-- [ ] **Frontend (`WarehouseOrdersPage`)**:
-  - Cập nhật hiển thị cột Chuyến xe: Khi `trips.length > 1`, hiển thị badge `N chuyến xe` nổi bật, click mở popover xem danh sách các xe.
-  - Tối ưu hóa UI thu gọn/mở rộng (Accordion): Mặc định hiển thị dòng cha tổng hợp rõ ràng; chỉ mở rộng dòng con khi người dùng chủ động bấm xem chi tiết từng xe.
+- [x] **Frontend (`WarehouseOrdersPage`)**:
+  - Cập nhật hiển thị cột Chuyến xe: Khi `trips.length > 1`, hiển thị badge `+N xe` và `+N trip` nổi bật kèm tooltip danh sách các xe tiếp nhận.
+  - Tối ưu hóa UI thu gọn/mở rộng (Accordion): Mặc định hiển thị dòng cha tổng hợp rõ ràng; chỉ mở rộng dòng con khi người dùng bấm "Xem dòng".
   - Kiểm tra tính nhất quán giữa Modal in tem A4 (`PalletLabelA4Modal`) và Modal chi tiết vận đơn (`WarehouseWaybillDetailModal`).
-- [ ] **Kiểm thử tự động Playwright E2E**:
-  - Viết kịch bản E2E tạo 1 mã vận đơn với 2 chuyến xe nhập kho khác nhau.
-  - Xác minh dòng tổng hợp cộng dồn chính xác số kiện, kg, $m^3$, và hiển thị badge đa xe trên môi trường Dev.
+- [x] **Kiểm thử tự động Playwright E2E**:
+  - Viết kịch bản E2E tạo 1 mã vận đơn với 2 chuyến xe nhập kho khác nhau (`29-feedback-05-10-split-shipment-inbound-aggregation.spec.ts`).
+  - Xác minh dòng tổng hợp cộng dồn chính xác số kiện, kg, $m^3$, và hiển thị badge đa xe trên môi trường Dev (Pass 3/3 tests).
+
+---
+
+## 📸 6. Bằng Chứng Nghiệm Thu Thực Tế (Visual Evidence Artifacts)
+
+| STT | Ảnh chụp minh chứng | Ý nghĩa & Tiêu chí nghiệm thu được chứng minh |
+| :---: | :--- | :--- |
+| **01** | [`06_split_shipment_inbound_aggregation_master.png`](./feedback_evidence/05_10/06_split_shipment_inbound_aggregation_master.png) | **Dòng Tổng Hợp Gộp (Consolidated Master Row)**:<br>• Đơn phân chuyến 2 xe chỉ xuất hiện **duy nhất 1 dòng cha**.<br>• Huy hiệu `2 dòng hàng`, tên hàng hợp nhất `VẢI CUỘN MAY MẶC, PHỤ LIỆU MAY MẶC`.<br>• Cột chuyến xe hiển thị badge đa xe: `+1 trip` và `+1 xe`.<br>• **Tồn kho chuẩn xác tuyệt đối**: `100 / 100 kiện` (Xóa bỏ hoàn toàn lỗi tỷ lệ `200 / 100 kiện`).<br>• Khối lượng và thể tích cộng dồn đại số: `2.100 kg` và `15 m³`. |
+| **02** | [`07_split_shipment_inbound_aggregation_expanded.png`](./feedback_evidence/05_10/07_split_shipment_inbound_aggregation_expanded.png) | **Bung Dòng Chi Tiết Theo Xe (Master-Detail Accordion)**:<br>• Bấm "Xem dòng" mở rộng 2 dòng con bảo lưu đầy đủ lịch sử tiếp nhận từng xe.<br>• **Dòng 1**: Xe `76-H720-335` (Tài xế Nguyễn Văn Xe 1) chở `70 / 70 kiện`, `1.600 kg`, `10 m³`.<br>• **Dòng 2**: Xe `60-B1 15594` (Tài xế Trần Văn Xe 2) chở `30 / 30 kiện`, `500 kg`, `5 m³`.<br>• Hỗ trợ in tem A4 lẻ và xem chi tiết độc lập từng dòng. |
+| **03** | [`08_split_shipment_inbound_waybill_detail_modal.png`](./feedback_evidence/05_10/08_split_shipment_inbound_waybill_detail_modal.png) | **Modal Chi Tiết Vận Đơn (`WarehouseWaybillDetailModal`)**:<br>• Tổng đã nhập: `100 kiện`, Tổng đã xuất: `0 kiện`, Tồn kho khả dụng: `100 kiện`.<br>• Lưu trữ vết kiểm toán tiếp nhận từng đợt nhập kho của phương tiện.<br>• Phân định rõ ràng chế độ xem chi tiết kiểm đếm (Read-only Audit). |
+
