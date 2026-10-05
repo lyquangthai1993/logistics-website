@@ -51,12 +51,26 @@ Spec reference: `IMPLEMENT_STATUS_TRIP_AND_ORDER.md` (hub-scoped order status `C
 Spec & Analysis reference: [`docs/feedback_05_10_split_shipment_inbound_aggregation.md`](../docs/feedback_05_10_split_shipment_inbound_aggregation.md)
 
 **Findings (root cause & business questions)**
-- [ ] User tested: 1 waybill/order code (`MCD2610-0001`) received on 2 different trucks (`76-H720-335` & `60-B1 15594`).
-- [ ] User feedback: In inventory summary, it showed 2 rows instead of aggregating into 1 consolidated view.
-- [ ] Dev question: Same order code but cargo name, kg, m3 differ between trucks — how to merge?
-- [ ] Business rule (/leader): NEVER hard-merge DB records (destroys audit trail of vehicles/receipts). Use **Master - Detail model**: Consolidated parent row (algebraic sum of quantities, weights, volumes; distinct list of goods; vehicle count badge) + expandable line items per truck.
-- [ ] Bug identified: Ratio discrepancy on parent row (`200 / 100 kiện` where stock > total packages received) in `aggregateOrderGroup`.
-- [ ] UI gap: Parent row trip column only displayed 1 vehicle without a clear `+1 xe` badge indicating multi-truck consignment.
+- [x] User tested: 1 waybill/order code (`MCD2610-0001`) received on 2 different trucks (`76-H720-335` & `60-B1 15594`).
+- [x] User feedback: In inventory summary, it showed 2 rows instead of aggregating into 1 consolidated view.
+- [x] Dev question: Same order code but cargo name, kg, m3 differ between trucks — how to merge?
+- [x] Business rule (/leader): NEVER hard-merge DB records (destroys audit trail of vehicles/receipts). Use **Master - Detail model**: Consolidated parent row (algebraic sum of quantities, weights, volumes; distinct list of goods; vehicle count badge) + expandable line items per truck.
+- [x] Bug identified: Ratio discrepancy on parent row (`200 / 100 kiện` where stock > total packages received) in `aggregateOrderGroup`.
+- [x] UI gap: Parent row trip column only displayed 1 vehicle without a clear `+1 xe` badge indicating multi-truck consignment.
+
+**Fix & Standardization (Master-Detail aggregation, ratio parity, multi-vehicle badge)**
+- [x] Backend (`backend/src/orders/warehouse.service.ts`):
+  - In `aggregateOrderGroup`: Standardized stock ratio calculation where `normalizedTotalQty = Math.max(rawTotalQty, totalInbound, rawStock)` and `normalizedHubStock = Math.max(0, Math.min(rawStock, normalizedTotalQty))` to mathematically guarantee `hubStock <= totalQuantity` (permanently eliminating `200 / 100 kiện` bug).
+  - Also normalized individual child items so each line item strictly respects `stock <= totalQuantity`.
+  - Consolidated multi-vehicle tracking across `it.trips`, `it.vehicleLicensePlate`, and `it.inventoryTransactions`.
+- [x] Frontend (`frontend/src/app/dashboard/warehouse/orders/page.tsx`):
+  - In `renderStock`: Sanitized stock ratio formatting ensuring `stock <= total` with defensive clamp `Math.min(stock, total)`.
+  - In `renderTripCell`: Rendered prominent multi-vehicle badges (`+{multiTruckCount - 1} xe` and `+{multiTruckCount - 1} trip`) with detailed multi-line hover tooltip listing all intake vehicles, drivers, and trip codes.
+  - Action triggers: Provided dual triggers on consolidated rows (accordion "Xem dòng / Thu gọn" + modal inspect eye icon).
+- [x] E2E Automated Verification (`frontend/e2e/29-feedback-05-10-split-shipment-inbound-aggregation.spec.ts`):
+  - API ratio parity test: Verified `hubStock <= totalQuantity` across all grouped warehouse orders.
+  - Multi-truck receiving test: Verified 2-truck intake (`76-H720-335` & `60-B1 15594`) consolidates into 1 parent row with algebraic sums (100 pkgs, 2.100 kg, 15 m³) and 2 distinct vehicle trips preserved.
+  - Browser UI test: Validates multi-vehicle badge and Master-Detail line expansion.
 
 ## Follow-up & Verification Status
 - [x] **Run migration on DB**: Migration `1789040000000-AddQuantityAllocatedToTrip` confirmed executed on Neon DB (`trip.quantityAllocated integer NULL`).
