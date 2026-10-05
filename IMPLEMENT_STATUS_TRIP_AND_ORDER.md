@@ -1,5 +1,5 @@
 # ĐẶC TẢ THIẾT KẾ VÀ CHUẨN HÓA LOGIC TRẠNG THÁI ĐƠN HÀNG (ORDER) VÀ CHUYẾN XE (TRIP)
-> **Phiên bản**: v2.1.0 (Bổ sung Nguyên tắc Hợp đồng Gốc Bất biến - Master Contract & Phiếu Giao dịch Vận hành - Operational Invoices)  
+> **Phiên bản**: v2.2.0 (Bổ sung Chuẩn hóa Vòng đời Chuyến xe Nháp - TRIP Draft & Đồng bộ Bộ lọc Filter Tabs)  
 > **Áp dụng cho**: Logistics TMS (Spider Express TMS Fullstack)  
 > **Tài liệu tham chiếu**: [AGENTS.md](file:///d:/Projects/logistics-website/AGENTS.md), [leader skill](file:///d:/Projects/logistics-website/.agents/skills/leader/SKILL.md), [ui-compact-density.md](file:///d:/Projects/logistics-website/.agents/rules/ui-compact-density.md)
 
@@ -16,18 +16,24 @@ Trong hoạt động vận tải liên tỉnh và trung chuyển giữa các Hub
      - **Quản lý Kho Hưng Yên** khi xe đang trên đường hoặc chưa xác nhận dỡ hàng cần thấy: **`Đơn nháp` / `Chờ nhập kho`**.
      - **Quản lý Kho Hưng Yên** sau khi xe đến, kiểm đếm xong và bấm xác nhận nhập kho sẽ thấy: **`Đã nhập kho` (Lưu kho)**.
 
-2. **Chuyến xe (Trip) tối giản thành 2 trạng thái vận hành theo từng Kho**:
-   - Chuyến xe chỉ cần 2 trạng thái vận hành trực quan: **`Chờ xử lý`** và **`Đã xử lý`**.
-   - Bỏ trạng thái "Đơn nháp" của TRIP, thay bằng **`Chờ xử lý`**.
-   - Trạng thái Chuyến xe **thay đổi theo kho của người quản lý đang xem**:
-     - Khi Kho HCM gom hàng tạo chuyến và xuất bến ➔ Màn hình Kho HCM thấy TRIP là **`Đã xử lý`**.
-     - Khi chuyến xe đó chở hàng ghé qua Kho Hưng Yên và Kho Hà Nội ➔ Màn hình Kho Hưng Yên và Hà Nội thấy TRIP là **`Chờ xử lý`**.
-     - Kho Hưng Yên dỡ hàng và xác nhận nhập kho xong ➔ TRIP tại Kho Hưng Yên chuyển thành **`Đã xử lý`**.
-     - Lúc này, Kho Hà Nội vẫn thấy TRIP là **`Chờ xử lý`** cho tới khi Kho Hà Nội dỡ hàng và xác nhận xong ➔ TRIP tại Kho Hà Nội mới chuyển thành **`Đã xử lý`**.
+2. **Chuyến xe (Trip) chuẩn hóa thành 3 trạng thái vận hành theo từng Kho (Bao gồm Chuyến Nháp - TRIP Draft)**:
+   Trong thực tế vận hành, thủ kho/điều phối viên có nhu cầu lập kế hoạch gom hàng lên xe trước nhưng chưa xuất bến ngay (Lưu nháp chuyến xe). Vì vậy, Chuyến xe gồm 3 trạng thái vận hành trực quan:
+   - **`Bản nháp` (`DRAFT`)**:
+     - Chuyến xe được lưu tạm thời tại kho xuất phát (cấp trước mã định danh `SD...`, chỉ định xe/tài xế dự kiến, gán số lượng dự kiến `quantityAllocated`).
+     - **Chưa trừ tồn kho**: Tồn kho khả dụng tại kho chưa bị trừ vật lý (chỉ tạm giữ chỗ).
+     - **Cách ly hiển thị**: Chỉ kho lập chuyến nháp mới thấy chuyến này. Các trạm tiếp theo (Transit/Destination Hub) **tuyệt đối không thấy** chuyến nháp để tránh gây nhiễu bảng nhập kho.
+     - **Thao tác hỗ trợ**: Cho phép `Tiếp tục` (mở lại form để sửa/thêm hàng), `Hủy nháp` (xóa chuyến nháp, giải phóng hàng), hoặc `Xác nhận xuất` (chuyển sang chính thức).
+   - **`Chờ xử lý` (`PENDING`)**:
+     - Chuyến xe đã chính thức xuất bến, đang trên hành trình hoặc đã cập bến tại các trạm dừng tiếp theo (Transit/Destination Hub).
+     - Đang chờ thủ kho tại trạm dừng kiểm đếm, đối soát và bấm xác nhận tiếp nhận/nhập kho.
+   - **`Đã xử lý` (`COMPLETED`)**:
+     - Chuyến xe đã hoàn tất thủ tục vận hành tại trạm tương ứng:
+       - Tại Kho xuất phát (Origin Hub): Đã xác nhận xuất bến thành công (trừ tồn kho xuất).
+       - Tại Kho nhận/trung chuyển (Transit/Destination Hub): Đã kiểm đếm, dỡ hàng và xác nhận nhập kho thành công.
 
 3. **Định dạng mã Chuyến xe ngắn gọn, trực quan**:
    - Thay đổi định dạng mã Trip dài (`TRIP-2609-001`) thành định dạng số thứ tự đơn giản: **`SD1, SD2, ..., SD100, SD101...`** (Spider Delivery).
-   - Mã `SD...` sinh tự động tuần tự, duy nhất toàn hệ thống (Global Sequence).
+   - Mã `SD...` sinh tự động tuần tự, duy nhất toàn hệ thống (Global Sequence), được cấp phát ngay từ khi Lưu nháp chuyến xe.
 
 4. **Cơ chế Kiểm đếm & Bóc tách dòng hàng trên xe nhiều điểm đến (Multi-Stop Trip & Selective Tally)**:
    - Một chuyến xe xuất phát từ HCM chở 10 dòng hàng:
@@ -187,15 +193,17 @@ Khi mở màn hình Chi tiết đơn hàng (`/dashboard/orders/[id]`):
 
 ```mermaid
 stateDiagram-v2
-    [*] --> SD_CREATED: Kho HCM tạo Chuyến xe SD...
+    [*] --> SD_DRAFT: Kho HCM tạo Chuyến xe SD... (Lưu nháp)
+    SD_DRAFT --> SD_CANCELLED: Hủy nháp (xóa SD, giải phóng giữ chỗ)
+    SD_DRAFT --> SD_DRAFT: Tiếp tục chỉnh sửa danh sách hàng / gán xe
 
     state "Tại Kho HCM (Origin)" as HCM_STOP {
-        SD_CREATED --> HCM_COMPLETED: Kho HCM xuất kho luân chuyển
-        HCM_COMPLETED: Trạng thái tại HCM = "ĐÃ XỬ LÝ"
+        SD_DRAFT --> HCM_COMPLETED: Kho HCM bấm "Xác nhận xuất kho"
+        HCM_COMPLETED: Trạng thái tại HCM = "ĐÃ XỬ LÝ" (trừ tồn kho xuất)
     }
 
     state "Tại Kho Hưng Yên (Transit)" as HY_STOP {
-        HCM_COMPLETED --> HY_PENDING: Xe SD... đang đến / chờ dỡ
+        HCM_COMPLETED --> HY_PENDING: Xe SD... khởi hành đến Hưng Yên
         HY_PENDING: Trạng thái tại Hưng Yên = "CHỜ XỬ LÝ"
         HY_PENDING --> HY_COMPLETED: Hưng Yên kiểm đếm & bấm Nhập kho
         HY_COMPLETED: Trạng thái tại Hưng Yên = "ĐÃ XỬ LÝ"
@@ -212,16 +220,18 @@ stateDiagram-v2
 ```
 
 #### Quy tắc Điểm dừng Chuyến xe (`trip_stops` / `TripStopEntity`):
-1. **Tạo chuyến xe**: Tự động sinh mã tuần tự **`SD1, SD2...`** qua sequence `trip_code_sd_seq`.
-2. **Khởi tạo trạm dừng**: Chuyến xe chở hàng từ HCM qua Hưng Yên đến Hà Nội tự động có 3 `trip_stops`:
+1. **Lập chuyến xe nháp**: Tự động sinh mã tuần tự **`SD1, SD2...`** qua sequence `trip_code_sd_seq`. Khi ở trạng thái `DRAFT` (Bản nháp), chuyến xe chỉ tồn tại nội bộ tại Kho tạo; các trạm dừng tiếp theo (Transit/Destination) chưa thấy chuyến xe này.
+2. **Khởi tạo trạm dừng khi Xuất bến**: Khi bấm "Xác nhận xuất kho" (Confirm Outbound), chuyến xe chở hàng từ HCM qua Hưng Yên đến Hà Nội kích hoạt 3 `trip_stops`:
    - Trạm 1 (HCM): `stopSequence = 1`, `status = 'COMPLETED'` (**`Đã xử lý`** - vì đã xuất bến xong).
    - Trạm 2 (Hưng Yên): `stopSequence = 2`, `status = 'PENDING'` (**`Chờ xử lý`**).
    - Trạm 3 (Hà Nội): `stopSequence = 3`, `status = 'PENDING'` (**`Chờ xử lý`**).
 3. **Hiển thị độc lập**:
-   - Khi Quản lý Kho HCM xem chuyến xe ➔ Thấy **`Đã xử lý`**.
-   - Khi Quản lý Kho Hưng Yên xem chuyến xe ➔ Thấy **`Chờ xử lý`**.
-   - Khi Quản lý Kho Hà Nội xem chuyến xe ➔ Thấy **`Chờ xử lý`**.
-   - Khi Hưng Yên dỡ hàng xong và xác nhận ➔ `trip_stops[Hưng Yên].status = 'COMPLETED'` (**`Đã xử lý`**); lúc này Hà Nội vẫn giữ nguyên **`Chờ xử lý`**.
+   - Khi ở trạng thái Nháp: Chỉ Quản lý Kho HCM thấy chuyến ở tab **`Bản nháp`**.
+   - Khi xe đã xuất bến:
+     - Quản lý Kho HCM xem chuyến xe ➔ Thấy **`Đã xử lý`**.
+     - Quản lý Kho Hưng Yên xem chuyến xe ➔ Thấy **`Chờ xử lý`**.
+     - Quản lý Kho Hà Nội xem chuyến xe ➔ Thấy **`Chờ xử lý`**.
+     - Khi Hưng Yên dỡ hàng xong và xác nhận ➔ `trip_stops[Hưng Yên].status = 'COMPLETED'` (**`Đã xử lý`**); lúc này Hà Nội vẫn giữ nguyên **`Chờ xử lý`**.
 
 ---
 
@@ -280,9 +290,16 @@ Trong `WarehouseTripDetailModal`:
    - Thêm nút gạt: `Ẩn các dòng không thuộc kho này`.
    - Checkbox thông minh: Mặc định chọn dòng của Hub mình; giữ nguyên dòng của Hub khác trên xe.
    - Ghi nhận số lượng thực nhận vào Phiếu Tiếp Nhận (Inbound Receipt).
-3. **Bảng Điều Khiển Nhập/Xuất Kho**:
-   - Tối giản trạng thái Chuyến xe thành 2 nhãn: **`Chờ xử lý`** và **`Đã xử lý`**.
+3. **Bảng Điều Khiển Nhập/Xuất Kho (Chuẩn hóa Bộ lọc Tabs theo Trạng thái Chuyến xe)**:
+   - Hệ thống Filter Tabs tương ứng 1:1 với các trạng thái của TRIP:
+     - **`Tất cả (allCount)`**: Tổng số chuyến xe (`allCount = draftCount + pendingCount + completedCount`).
+     - **`Bản nháp (draftCount)`**: Chuyến xe lưu nháp tại kho (chưa xuất bến, hỗ trợ "Tiếp tục" / "Hủy nháp" / "Xác nhận xuất"). *Lưu ý: Chỉ kho tạo chuyến nháp mới thấy và có số đếm tab này.*
+     - **`Chờ xử lý (pendingCount)`**: Chuyến xe chính thức đang chờ kiểm đếm, đối soát, dỡ hàng (hoặc tại kho xuất là chuyến xe chờ bốc xếp).
+     - **`Đã xử lý (completedCount)`**: Chuyến xe đã hoàn tất thủ tục vận hành tại trạm (Xuất kho: đã xuất bến; Nhập kho: đã dỡ hàng và xác nhận nhập kho).
+   - Phân loại Nguồn/Loại chuyến xe (Sub-filters / Trip Types):
+     - `Tất cả loại`, `Khách gửi` (Direct Customer), `Luân chuyển` (Transfer Linehaul).
    - Hiển thị mã chuyến xe dạng **`SD1, SD2...`**.
+   - Phân trang hiển thị đơn vị chính xác theo cấp độ Chuyến xe: `... chuyến xe` (thay vì `... đơn hàng`).
 
 ### Phase 4: Kiểm thử E2E & Nghiệm thu Toàn diện (Verification)
 1. Kiểm thử kịch bản Hợp đồng Bất biến:
