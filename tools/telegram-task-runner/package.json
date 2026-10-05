@@ -1,0 +1,10 @@
+{
+  "name": "telegram-ai-task-runner",
+  "version": "1.0.0",
+  "description": "Control Antigravity AI Agent remotely via Telegram for Logistics TMS",
+  "type": "module",
+  "main": "bot.mjs",
+  "scripts": {
+    "start": "node bot.mjs"
+  }
+}

@@ -610,19 +610,6 @@
                           "fontSize": 24,
                           "fontWeight": "600",
                           "letterSpacing": -0.6
-                        },
-                        {
-                          "type": "text",
-                          "id": "C1bpa",
-                          "name": "Nhập email và mật khẩu được cung cấp bởi",
-                          "context": "p",
-                          "fill": "#525252",
-                          "content": "Nhập email và mật khẩu được cung cấp bởi quản trị viên",
-                          "lineHeight": 1.43,
-                          "textAlign": "center",
-                          "fontFamily": "Geist",
-                          "fontSize": 14,
-                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -1757,7 +1744,7 @@
                         {
                           "type": "text",
                           "id": "ySRmJ",
-                          "name": "Sub_0_1_Nhập email và mật khẩu được cung cấp bởi quản trị viên",
+                          "name": "Sub_0_1_Nhập địa chỉ email doanh nghiệp",
                           "context": "p",
                           "fill": "#64748b",
                           "textGrowth": "fixed-width",
