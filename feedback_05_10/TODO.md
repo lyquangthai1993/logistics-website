@@ -46,8 +46,13 @@ Spec reference: `IMPLEMENT_STATUS_TRIP_AND_ORDER.md` (hub-scoped order status `C
 - [x] RBAC matrix updated (v1.7).
 - [x] Verify: backend + frontend `tsc --noEmit` pass.
 
-## Follow-up (not done)
-- [ ] **Run migration before deploying backend**: `npm run migration:run` in `backend/` (dev DB, then prod). Without the column every trip query fails.
-- [ ] Manual check on the UI after deploy (Xuất kho tabs + Lưu nháp/Tiếp tục/Hủy nháp + in tem from Nhập kho / Đơn hàng kho).
+## Follow-up & Verification Status
+- [x] **Run migration on DB**: Migration `1789040000000-AddQuantityAllocatedToTrip` confirmed executed on Neon DB (`trip.quantityAllocated integer NULL`).
+- [x] **E2E Automation on Dev**: Playwright test suite `frontend/e2e/27-feedback-05-10-outbound-draft-and-parity.spec.ts` executed and PASSED 100% on dev domain (API counter parity, draft lifecycle create/cancel, UI board tabs, draft actions, 0 console errors).
+- [x] **Git Workflow Completed**:
+  - Feature branch `fix/feedback-05-10` created, committed, and pushed across all 3 repositories (`backend/`, `frontend/`, and root).
+  - Merged into `dev` across all 3 repos and pushed to `origin/dev`.
+  - Merged into `master` across all 3 repos and pushed to `origin/master`.
+  - All 3 repositories cleanly tracking `dev` in sync with remote.
+- [ ] Manual check on the UI (Xuất kho tabs + Lưu nháp/Tiếp tục/Hủy nháp + in tem from Nhập kho / Đơn hàng kho).
 - [ ] Known limitation: customer name/phone/address on the outbound note are not stored (neither by confirm nor by draft).
-- [ ] Commit in `backend/` + `frontend/` submodules (and root for RBAC doc) when requested.
