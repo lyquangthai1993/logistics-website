@@ -41,8 +41,9 @@ Spec reference: `IMPLEMENT_STATUS_TRIP_AND_ORDER.md` (hub-scoped order status `C
 - [x] DB (additive, approved): `trip.quantityAllocated int NULL` — migration `1789040000000-AddQuantityAllocatedToTrip`.
 - [x] Backend: `POST /v1/warehouse/outbound/draft` (allocates/keeps SD code, planned lines on `trip` rows status `PENDING`, origin stop `PENDING`, stock checked but not deducted); `DELETE /v1/warehouse/outbound/drafts/:tripCode` ("Hủy nháp"); `POST /outbound/confirm` accepts `draftTripCode` (reuses the SD code, replaces planned lines, deducts stock → "Đã xử lý").
 - [x] Backend: `GET /v1/warehouse/outbound-trips` = dispatched + drafts, `status` (`PENDING`/`COMPLETED`) + `type` filters, all counters from the same query.
-- [x] Frontend board: tabs `Tất cả / Chờ xử lý / Đã xử lý` + sub-filter `Tất cả loại / Xuất khách / Luân chuyển`; draft rows → "Tiếp tục" (reopen note) / "Hủy nháp"; batch "Xác nhận xuất" on selected drafts; printing only for dispatched trips; sub-row figures from the trip lines.
+- [x] Frontend board: tabs `Tất cả / Chờ xử lý / Đã xử lý` (Đã chốt loại bỏ hoàn toàn sub-filter `Xuất khách / Luân chuyển` theo yêu cầu người dùng); draft rows → "Tiếp tục" (reopen note) / "Hủy nháp"; batch "Xác nhận xuất" on selected drafts; printing only for dispatched trips; sub-row figures from the trip lines.
 - [x] Frontend: real "Lưu nháp" on the outbound note and transfer step 3 (step 1 disabled until goods are selected); inbound board ignores outbound/transfer draft trips of the same hub.
+- [x] Triệt tiêu sub-filter: Cập nhật cả 2 màn hình Nhập kho và Xuất kho chỉ dùng duy nhất các tab trạng thái TRIP (`Tất cả / Chờ xử lý / Đã xử lý`), loại bỏ hoàn toàn các nút `Xuất khách / Khách gửi / Luân chuyển`.
 - [x] RBAC matrix updated (v1.7).
 - [x] Verify: backend + frontend `tsc --noEmit` pass.
 

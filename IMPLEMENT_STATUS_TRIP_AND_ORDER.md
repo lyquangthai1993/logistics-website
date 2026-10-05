@@ -291,13 +291,11 @@ Trong `WarehouseTripDetailModal`:
    - Checkbox thông minh: Mặc định chọn dòng của Hub mình; giữ nguyên dòng của Hub khác trên xe.
    - Ghi nhận số lượng thực nhận vào Phiếu Tiếp Nhận (Inbound Receipt).
 3. **Bảng Điều Khiển Nhập/Xuất Kho (Chuẩn hóa Bộ lọc Tabs theo Trạng thái Chuyến xe)**:
-   - Hệ thống Filter Tabs tương ứng 1:1 với các trạng thái của TRIP:
-     - **`Tất cả (allCount)`**: Tổng số chuyến xe (`allCount = draftCount + pendingCount + completedCount`).
+   - Hệ thống Filter Tabs tương ứng 1:1 DUY NHẤT với các trạng thái vận hành của TRIP (Đã chốt loại bỏ hoàn toàn các sub-filter 'Xuất khách', 'Khách gửi', 'Luân chuyển' để triệt tiêu nhầm lẫn, tinh giản tối đa thao tác của thủ kho):
+     - **`Tất cả (allCount)`**: Tổng số chuyến xe (`allCount = pendingCount + completedCount` đối với Nhập kho, hoặc bao gồm bản nháp tại kho Xuất).
      - **`Bản nháp (draftCount)`**: Chuyến xe lưu nháp tại kho (chưa xuất bến, hỗ trợ "Tiếp tục" / "Hủy nháp" / "Xác nhận xuất"). *Lưu ý: Chỉ kho tạo chuyến nháp mới thấy và có số đếm tab này.*
      - **`Chờ xử lý (pendingCount)`**: Chuyến xe chính thức đang chờ kiểm đếm, đối soát, dỡ hàng (hoặc tại kho xuất là chuyến xe chờ bốc xếp).
      - **`Đã xử lý (completedCount)`**: Chuyến xe đã hoàn tất thủ tục vận hành tại trạm (Xuất kho: đã xuất bến; Nhập kho: đã dỡ hàng và xác nhận nhập kho).
-   - Phân loại Nguồn/Loại chuyến xe (Sub-filters / Trip Types):
-     - `Tất cả loại`, `Khách gửi` (Direct Customer), `Luân chuyển` (Transfer Linehaul).
    - Hiển thị mã chuyến xe dạng **`SD1, SD2...`**.
    - Phân trang hiển thị đơn vị chính xác theo cấp độ Chuyến xe: `... chuyến xe` (thay vì `... đơn hàng`).
 
