@@ -12,7 +12,8 @@
     "repo:tracking": "git branch -vv && git -C backend branch -vv && git -C frontend branch -vv",
     "test:e2e": "npm run e2e --prefix frontend",
     "test:e2e:check": "npm run e2e:check --prefix frontend",
-    "test:e2e:report": "npm run e2e:report --prefix frontend"
+    "test:e2e:report": "npm run e2e:report --prefix frontend",
+    "telegram:bot": "node tools/telegram-task-runner/bot.mjs"
   },
   "devDependencies": {
     "docx": "^9.7.1"
