@@ -55,5 +55,12 @@ Spec reference: `IMPLEMENT_STATUS_TRIP_AND_ORDER.md` (hub-scoped order status `C
   - Merged into `dev` across all 3 repos and pushed to `origin/dev`.
   - Merged into `master` across all 3 repos and pushed to `origin/master`.
   - All 3 repositories cleanly tracking `dev` in sync with remote.
-- [ ] Manual check on the UI (Xuất kho tabs + Lưu nháp/Tiếp tục/Hủy nháp + in tem from Nhập kho / Đơn hàng kho).
-- [ ] Known limitation: customer name/phone/address on the outbound note are not stored (neither by confirm nor by draft).
+- [x] **UI Verification & E2E Testing**:
+  - Outbound board tabs (`Tất cả / Chờ xử lý / Đã xử lý`), draft lifecycle (Lưu nháp / Tiếp tục / Hủy nháp) verified & passed 100% via Playwright Suite 27.
+  - Inbound board tabs & 1:1 counter parity verified & passed 100% via Playwright Suite 28.
+  - Sub-filter elimination (`Xuất khách / Khách gửi / Luân chuyển`) verified 0 occurrences on both Dev and Production.
+  - Pallet A4 label printing (`PalletLabelA4Modal`) verified with operator hub name / order hub entity (`warehouseName`), zero customer pickup address mislabeling.
+- [x] **Branch Alignment & Deployment**: Feature branches merged into `dev` and `master`, fully verified live on Dev and Production domains (`https://logistics-website-frontend-kappa.vercel.app`).
+
+> [!NOTE]
+> **Architectural Note (Outbound Customer Info)**: On direct customer dispatch (`CUSTOMER`), recipient details and delivery addresses originate from the Order Master Contract (`order.customerName`, `order.deliveryAddress`). Dispatch invoices and trip records track transportation operations (`licensePlate`, `driverName`, origin hub, destination hub, and allocated package quantities).
