@@ -47,6 +47,17 @@ Spec reference: `IMPLEMENT_STATUS_TRIP_AND_ORDER.md` (hub-scoped order status `C
 - [x] RBAC matrix updated (v1.7).
 - [x] Verify: backend + frontend `tsc --noEmit` pass.
 
+## 4. Multi-truck inbound order aggregation in warehouse inventory (`split_shipment_inbound_aggregation_issue.png`)
+Spec & Analysis reference: [`docs/feedback_05_10_split_shipment_inbound_aggregation.md`](../docs/feedback_05_10_split_shipment_inbound_aggregation.md)
+
+**Findings (root cause & business questions)**
+- [ ] User tested: 1 waybill/order code (`MCD2610-0001`) received on 2 different trucks (`76-H720-335` & `60-B1 15594`).
+- [ ] User feedback: In inventory summary, it showed 2 rows instead of aggregating into 1 consolidated view.
+- [ ] Dev question: Same order code but cargo name, kg, m3 differ between trucks — how to merge?
+- [ ] Business rule (/leader): NEVER hard-merge DB records (destroys audit trail of vehicles/receipts). Use **Master - Detail model**: Consolidated parent row (algebraic sum of quantities, weights, volumes; distinct list of goods; vehicle count badge) + expandable line items per truck.
+- [ ] Bug identified: Ratio discrepancy on parent row (`200 / 100 kiện` where stock > total packages received) in `aggregateOrderGroup`.
+- [ ] UI gap: Parent row trip column only displayed 1 vehicle without a clear `+1 xe` badge indicating multi-truck consignment.
+
 ## Follow-up & Verification Status
 - [x] **Run migration on DB**: Migration `1789040000000-AddQuantityAllocatedToTrip` confirmed executed on Neon DB (`trip.quantityAllocated integer NULL`).
 - [x] **E2E Automation on Dev**: Playwright test suite `frontend/e2e/27-feedback-05-10-outbound-draft-and-parity.spec.ts` executed and PASSED 100% on dev domain (API counter parity, draft lifecycle create/cancel, UI board tabs, draft actions, 0 console errors).
