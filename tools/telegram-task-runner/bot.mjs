@@ -304,6 +304,7 @@ const TASK_ACTIONS_KEYBOARD = {
     [
       { text: '📊 Git Status', callback_data: '/status' },
       { text: '📁 Git Diff', callback_data: '/diff' },
+      { text: '🩺 Health Check', callback_data: '/health' },
     ],
     [
       { text: '🌐 Mở Dev Web', url: 'https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app' },
@@ -316,6 +317,7 @@ const TASK_ACTIONS_KEYBOARD = {
 async function registerBotCommands() {
   try {
     const commands = [
+      { command: 'health', description: '🩺 Kiểm tra sức khỏe Server Dev & Pro' },
       { command: 'proweb', description: '🚀 Mở nhanh Web Production (Pro)' },
       { command: 'devweb', description: '🌐 Mở nhanh Web Development (Dev)' },
       { command: 'fix', description: '🔧 Sửa lỗi tính năng (giữ nguyên kiến trúc)' },
@@ -511,6 +513,127 @@ function getGitDiffStat() {
   } catch (err) {
     return null;
   }
+}
+
+// Kiểm tra sức khỏe và độ trễ toàn bộ hệ thống (Dev & Pro)
+async function checkSystemHealth(chatId) {
+  const endpoints = [
+    {
+      env: 'Dev',
+      type: 'Frontend',
+      name: 'Frontend Dev (Vercel)',
+      url: 'https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app',
+      linkUrl: 'https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app',
+      branch: 'dev',
+    },
+    {
+      env: 'Dev',
+      type: 'Backend',
+      name: 'Backend Dev (Render)',
+      url: 'https://logistics-website-backend-1jho.onrender.com/',
+      linkUrl: 'https://logistics-website-backend-1jho.onrender.com/docs',
+      branch: 'dev',
+    },
+    {
+      env: 'Pro',
+      type: 'Frontend',
+      name: 'Frontend Pro (Vercel)',
+      url: 'https://logistics-website-frontend-kappa.vercel.app',
+      linkUrl: 'https://logistics-website-frontend-kappa.vercel.app',
+      branch: 'master',
+    },
+    {
+      env: 'Pro',
+      type: 'Backend',
+      name: 'Backend Pro (Render)',
+      url: 'https://logistics-website-backend-1.onrender.com/',
+      linkUrl: 'https://logistics-website-backend-1.onrender.com/docs',
+      branch: 'master',
+    },
+  ];
+
+  const startTime = Date.now();
+
+  const results = await Promise.allSettled(
+    endpoints.map(async (ep) => {
+      const pingStart = Date.now();
+      try {
+        const res = await fetch(ep.url, {
+          method: 'GET',
+          signal: AbortSignal.timeout(8000),
+        });
+        const duration = Date.now() - pingStart;
+        return {
+          ...ep,
+          status: res.status,
+          duration,
+          ok: res.status >= 200 && res.status < 400,
+        };
+      } catch (err) {
+        const duration = Date.now() - pingStart;
+        return {
+          ...ep,
+          status: null,
+          error: err.name === 'TimeoutError' ? 'Timeout (>8s)' : err.message,
+          duration,
+          ok: false,
+        };
+      }
+    })
+  );
+
+  const totalDuration = ((Date.now() - startTime) / 1000).toFixed(2);
+  let okCount = 0;
+
+  const formatLine = (item) => {
+    let badge = '🔴';
+    let statusText = '';
+    if (item.ok) {
+      okCount++;
+      badge = '🟢';
+      statusText = `<b>${item.status} OK</b> <code>(${item.duration}ms)</code>`;
+    } else if (item.status) {
+      statusText = `<b>HTTP ${item.status}</b> <code>(${item.duration}ms)</code>`;
+    } else {
+      badge = item.error && item.error.includes('Timeout') ? '🟡' : '🔴';
+      statusText = `<i>${escapeHtml(item.error || 'Lỗi không xác định')}</i>`;
+    }
+
+    const actionText = item.type === 'Backend' ? 'Docs Swagger' : 'Mở Web';
+    return `▫️ <b>${item.name}:</b> ${badge} ${statusText}\n    ↳ <a href="${item.linkUrl}">${actionText}</a>`;
+  };
+
+  const devResults = results.slice(0, 2).map((r) => r.value || r.reason);
+  const proResults = results.slice(2, 4).map((r) => r.value || r.reason);
+
+  const summaryBadge = okCount === 4 ? '🟢 SẴN SÀNG 100%' : okCount >= 2 ? '🟡 CÓ DỊCH VỤ CHẬM / LỖI' : '🔴 CẢNH BÁO HỆ THỐNG';
+
+  const healthMsg =
+    `🩺 <b>KIỂM TRA SỨC KHỎE SERVER (${summaryBadge})</b>\n` +
+    `⏱️ <i>Đo đạc 4 dịch vụ song song trong ${totalDuration}s</i>\n` +
+    `━━━━━━━━━━━━━━━━━━━━\n\n` +
+    `🌐 <b>MÔI TRƯỜNG DEV (Branch: <code>dev</code>):</b>\n` +
+    `${devResults.map(formatLine).join('\n')}\n\n` +
+    `🚀 <b>MÔI TRƯỜNG PRO (Branch: <code>master</code>):</b>\n` +
+    `${proResults.map(formatLine).join('\n')}\n\n` +
+    `📊 <b>Tổng kết:</b> ${okCount}/4 dịch vụ phản hồi tốt.`;
+
+  await sendTelegramMessage(chatId, healthMsg, 'HTML', {
+    inline_keyboard: [
+      [
+        { text: '🔄 Đo lại (Health)', callback_data: '/health' },
+        { text: '📊 Git Status', callback_data: '/status' },
+      ],
+      [
+        { text: '🌐 Mở Dev Web', url: 'https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app' },
+        { text: '🚀 Mở Pro Web', url: 'https://logistics-website-frontend-kappa.vercel.app' },
+      ],
+      [
+        { text: '⚡ Xem Log', callback_data: '/log' },
+        { text: '📋 Hàng đợi', callback_data: '/queue' },
+      ],
+    ],
+  });
 }
 
 // Trích xuất n dòng log cuối từ buffer (loại bỏ escape code ANSI màu)
@@ -1282,6 +1405,8 @@ async function handleMessage(msg) {
       `<i>Xem trạng thái Git branch & file thay đổi của cả 3 repository.</i>\n\n` +
       `📁 <code>/diff</code>\n` +
       `<i>Xem thống kê các dòng code vừa sửa gần nhất (git diff --stat).</i>\n\n` +
+      `🩺 <code>/health</code> (hoặc <code>/ping</code>)\n` +
+      `<i>Kiểm tra kết nối và độ trễ 4 server Dev & Pro (Vercel + Render).</i>\n\n` +
       `🚀 <code>/proweb</code> (hoặc <code>/pro</code>)\n` +
       `<i>Mở nhanh link Web Production (Pro) & Swagger API Docs.</i>\n\n` +
       `🌐 <code>/devweb</code> (hoặc <code>/dev</code>)\n` +
@@ -1439,6 +1564,11 @@ async function handleMessage(msg) {
         TASK_ACTIONS_KEYBOARD
       );
     }
+    return;
+  }
+
+  if (text.startsWith('/health') || text.startsWith('/ping') || text.toLowerCase() === 'health' || text.toLowerCase() === 'ping') {
+    await checkSystemHealth(chatId);
     return;
   }
 
