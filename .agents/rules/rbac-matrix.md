@@ -10,9 +10,9 @@
 
 | Trường | Giá trị |
 |---|---|
-| **Phiên bản** | v1.5 |
-| **Cập nhật lần cuối** | 2026-10-04 |
-| **Cập nhật bởi** | Antigravity (Feature: Hợp đồng gốc bất biến & Bảng kê chuyến theo kho) |
+| **Phiên bản** | v1.7 |
+| **Cập nhật lần cuối** | 2026-10-05 |
+| **Cập nhật bởi** | Antigravity (Fix: Bảng chuyến xe xuất kho theo chuyến) |
 
 ---
 
@@ -101,11 +101,14 @@
 | `/v1/warehouse/orders` | GET | ✅ | ✅ | ✅ | ✅ |
 | `/v1/warehouse/kpi` | GET | ✅ | ❌ | ❌ | ✅ |
 | `/v1/warehouse/inbound-trips` | GET | ✅ | ❌ | ❌ | ✅ |
+| `/v1/warehouse/outbound-trips` | GET | ✅ | ❌ | ❌ | ✅ *(Chỉ chuyến xuất từ kho được gán)* |
 | `/v1/warehouse/trips/:tripCode/manifest` | GET | ✅ | ✅ | ✅ | ✅ |
 | `/v1/warehouse/inbound/quick-create` | POST | ✅ | ❌ | ❌ | ✅ |
 | `/v1/warehouse/inbound/batch-create` | POST | ✅ | ❌ | ❌ | ✅ |
 | `/v1/warehouse/inbound/confirm` | POST | ✅ | ❌ | ❌ | ✅ *(Kiểm đếm chọn lọc, ghi phiếu PNK)* |
-| `/v1/warehouse/outbound/confirm` | POST | ✅ | ❌ | ❌ | ✅ *(Ghi phiếu PXK / PGH)* |
+| `/v1/warehouse/outbound/confirm` | POST | ✅ | ❌ | ❌ | ✅ *(Ghi phiếu PXK / PGH; `draftTripCode` = xác nhận chuyến nháp)* |
+| `/v1/warehouse/outbound/draft` | POST | ✅ | ❌ | ❌ | ✅ *(Lưu nháp chuyến xuất — cấp mã SD, chưa trừ tồn)* |
+| `/v1/warehouse/outbound/drafts/:tripCode` | DELETE | ✅ | ❌ | ❌ | ✅ *(Hủy nháp — chỉ nháp của kho được gán)* |
 
 ---
 
@@ -285,6 +288,15 @@ Khi không chắc → tham chiếu skill `tms-domain-lead` trước khi implemen
 ---
 
 ## Changelog
+
+### v1.7 — 2026-10-05
+**Fix: Phiếu xuất nháp thật (feedback người dùng 05/10)**:
+- Thêm `POST /v1/warehouse/outbound/draft` và `DELETE /v1/warehouse/outbound/drafts/:tripCode` (SUPER_ADMIN, WAREHOUSE_MANAGER — WM chỉ thao tác nháp của kho được gán).
+- `GET /v1/warehouse/outbound-trips` thêm tham số `status` (`PENDING` = Chờ xử lý / `COMPLETED` = Đã xử lý). Sidebar/Route không đổi.
+
+### v1.6 — 2026-10-05
+**Fix: Bảng chuyến xe xuất kho theo chuyến (feedback 05/10)**:
+- Thêm `GET /v1/warehouse/outbound-trips` (SUPER_ADMIN, WAREHOUSE_MANAGER — WM chỉ thấy chuyến xuất từ kho được gán). Sidebar/Route không đổi.
 
 ### v1.5 — 2026-10-04
 **Feature: Hợp đồng gốc bất biến & Bảng kê chuyến theo kho** (branch `feature/orders-master-contract`):
