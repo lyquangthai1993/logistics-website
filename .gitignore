@@ -22,6 +22,9 @@ test-results/
 playwright-report/
 
 # MCP (Model Context Protocol) config files – may contain API keys
+*mcp*.json
+*mcp*.yaml
+*mcp*.yml
 mcp.json
 mcp_config.json
 mcp_config.yaml
