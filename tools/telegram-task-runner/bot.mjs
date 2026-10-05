@@ -519,8 +519,72 @@ function getTailLog(buffer, maxLines = 6) {
   return lines.slice(-maxLines).join('\n');
 }
 
+// Phân tích thông minh: Nên bắt đầu Session mới sạch sẽ hay tiếp tục (--continue) phiên trước
+function determineSessionStrategy(prompt, explicitMode, state) {
+  // 1. Nếu người dùng dùng rõ lệnh /continue:
+  if (explicitMode === 'continue') {
+    const lastHistory = state.history && state.history[state.history.length - 1];
+    if (lastHistory && lastHistory.completedAt) {
+      const elapsedMins = (Date.now() - new Date(lastHistory.completedAt).getTime()) / 60000;
+      if (elapsedMins > 30) {
+        return {
+          isContinue: false,
+          reason: `Phiên trước đã dừng > ${Math.round(elapsedMins)} phút. Tự động mở session mới để tránh lỗi stale context.`,
+          sessionBadge: '✨ Phiên mới (Auto-Reset)',
+        };
+      }
+    }
+    return {
+      isContinue: true,
+      reason: 'Lệnh /continue chỉ định tiếp tục phiên làm việc trước',
+      sessionBadge: '🔄 Nối tiếp phiên trước',
+    };
+  }
+
+  // 2. Nếu người dùng dùng lệnh /task: Luôn bắt đầu session mới 100% sạch sẽ
+  if (explicitMode === 'task') {
+    return {
+      isContinue: false,
+      reason: 'Lệnh /task luôn bắt đầu phiên mới sạch (Zero Context Bloat)',
+      sessionBadge: '✨ Phiên mới (Clean)',
+    };
+  }
+
+  // 3. Với lệnh /fix hoặc tin nhắn thông thường / caption ảnh:
+  const lower = (prompt || '').toLowerCase();
+  const continueKeywords = [
+    'tiếp tục', 'làm tiếp', 'sửa tiếp', 'tiếp theo', 'bổ sung thêm',
+    'vừa nãy', 'cái nãy', 'chỗ vừa rồi', 'vừa làm', 'sửa lại cái đó',
+    'đổi lại thành', 'bước tiếp', 'tiếp nha', 'làm nốt'
+  ];
+
+  const hasContinueKeyword = continueKeywords.some((kw) => lower.includes(kw));
+
+  const lastHistory = state.history && state.history[state.history.length - 1];
+  let isRecent = false;
+  if (lastHistory && lastHistory.completedAt) {
+    const elapsedMins = (Date.now() - new Date(lastHistory.completedAt).getTime()) / 60000;
+    isRecent = elapsedMins <= 10; // Trong vòng 10 phút
+  }
+
+  if (hasContinueKeyword && isRecent) {
+    return {
+      isContinue: true,
+      reason: 'Phát hiện từ khóa nối tiếp công việc vừa làm (<10 phút)',
+      sessionBadge: '🔄 Nối tiếp phiên trước',
+    };
+  }
+
+  // Mặc định cho mọi trường hợp: Khởi tạo Session mới sạch sẽ
+  return {
+    isContinue: false,
+    reason: 'Mặc định phiên mới (Tối ưu tốc độ, zero context bloat)',
+    sessionBadge: '✨ Phiên mới (Clean)',
+  };
+}
+
 // Trích xuất thông tin tiến độ và hành động mới nhất của Antigravity AI từ brain transcript
-function getLatestAgyProgress() {
+function getLatestAgyProgress(taskStartTime = 0, isContinue = false) {
   let stepInfo = null;
   let totalSteps = 0;
 
@@ -541,27 +605,33 @@ function getLatestAgyProgress() {
         .sort((a, b) => b.mtime - a.mtime);
 
       if (entries.length > 0) {
-        const transcriptPath = path.join(entries[0].full, '.system_generated', 'logs', 'transcript.jsonl');
-        if (fs.existsSync(transcriptPath)) {
-          const raw = fs.readFileSync(transcriptPath, 'utf-8');
-          const lines = raw.trim().split(/\r?\n/).filter(Boolean);
-          totalSteps = lines.length;
+        const newest = entries[0];
+        // Chỉ lấy transcript nếu là phiên continue HOẶC thư mục này được tạo/sửa trong phiên chạy hiện tại
+        const isCurrentSessionFolder = isContinue || (taskStartTime > 0 && newest.mtime >= taskStartTime - 3000);
 
-          for (let i = lines.length - 1; i >= Math.max(0, lines.length - 20); i--) {
-            try {
-              const item = JSON.parse(lines[i]);
-              if (item.tool_calls && Array.isArray(item.tool_calls) && item.tool_calls.length > 0) {
-                const tc = item.tool_calls[0];
-                const toolName = tc.name || 'tool';
-                const action = tc.args?.toolAction || tc.args?.toolSummary || tc.args?.CommandLine || '';
-                stepInfo = {
-                  stepIndex: item.step_index || i,
-                  toolName,
-                  action: typeof action === 'string' ? action.replace(/^"|"$/g, '') : '',
-                };
-                break;
-              }
-            } catch {}
+        if (isCurrentSessionFolder) {
+          const transcriptPath = path.join(newest.full, '.system_generated', 'logs', 'transcript.jsonl');
+          if (fs.existsSync(transcriptPath)) {
+            const raw = fs.readFileSync(transcriptPath, 'utf-8');
+            const lines = raw.trim().split(/\r?\n/).filter(Boolean);
+            totalSteps = lines.length;
+
+            for (let i = lines.length - 1; i >= Math.max(0, lines.length - 20); i--) {
+              try {
+                const item = JSON.parse(lines[i]);
+                if (item.tool_calls && Array.isArray(item.tool_calls) && item.tool_calls.length > 0) {
+                  const tc = item.tool_calls[0];
+                  const toolName = tc.name || 'tool';
+                  const action = tc.args?.toolAction || tc.args?.toolSummary || tc.args?.CommandLine || '';
+                  stepInfo = {
+                    stepIndex: item.step_index || i,
+                    toolName,
+                    action: typeof action === 'string' ? action.replace(/^"|"$/g, '') : '',
+                  };
+                  break;
+                }
+              } catch {}
+            }
           }
         }
       }
@@ -691,7 +761,8 @@ async function enqueueTask(chatId, rawPrompt, imagePathsOrContinue = [], maybeTa
 
 // Thực thi task qua Antigravity CLI (agy)
 async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task', taskId = null) {
-  const isContinue = taskMode === 'continue';
+  const sessionStrategy = determineSessionStrategy(rawPrompt, taskMode, queueState);
+  const isContinue = sessionStrategy.isContinue;
   const startTime = Date.now();
   const id = taskId || `task_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
   const finalPrompt = buildTaskPrompt(rawPrompt, imagePaths, taskMode);
@@ -704,7 +775,8 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
   }
 
   const startMsg =
-    `⏳ <b>[${taskBadge}] Đang thực thi...</b> <code>(⏱️ 0s)</code>\n\n` +
+    `⏳ <b>[${taskBadge}] Đang thực thi...</b> <code>(⏱️ 0s)</code>\n` +
+    `⚙️ <b>Ngữ cảnh:</b> <i>${sessionStrategy.sessionBadge}</i> <code>(${escapeHtml(sessionStrategy.reason)})</code>\n\n` +
     `📝 <i>${escapeHtml(rawPrompt)}</i>${imagePaths.length > 0 ? ` <i>(${imagePaths.length} ảnh)</i>` : ''}\n\n` +
     `💡 <i>Tự động cập nhật mỗi 30s | Bấm <b>[⚡ Tiến độ]</b> bên dưới để tra cứu ngay.</i>`;
   const sentStartRes = await sendTelegramMessage(chatId, startMsg, 'HTML', TASK_ACTIONS_KEYBOARD);
@@ -726,7 +798,7 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
     args.push('--model', AGY_MODEL);
   }
 
-  console.log(`[Task Start] [${taskBadge}] [ID: ${id}] Executing agy in ${WORKSPACE_DIR} (Images: ${imagePaths.length})`);
+  console.log(`[Task Start] [${taskBadge}] [ID: ${id}] [Session: ${sessionStrategy.sessionBadge}] Executing agy in ${WORKSPACE_DIR} (Images: ${imagePaths.length})`);
 
   // Bật hiệu ứng "đang gõ..." liên tục trên Telegram để người dùng biết bot đang hoạt động
   const typingInterval = setInterval(async () => {
@@ -754,6 +826,7 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
     taskMode,
     taskBadge,
     startTime,
+    isContinue,
     process: child,
     imagePaths,
     status: 'running',
@@ -793,7 +866,7 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
       const s = elapsed % 60;
       const timeStr = m > 0 ? `${m}m ${s}s` : `${s}s`;
 
-      const { stepInfo, totalSteps } = getLatestAgyProgress();
+      const { stepInfo, totalSteps } = getLatestAgyProgress(startTime, isContinue);
       const tail = getTailLog(currentTask.stdoutBuffer || stdoutBuffer, 5);
 
       let progressText =
@@ -802,10 +875,12 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
         `━━━━━━━━━━━━━━━━━━━━\n`;
 
       if (stepInfo) {
-        progressText += `📍 <b>Bước hiện tại:</b> <code>${escapeHtml(stepInfo.toolName)}</code> (#${stepInfo.stepIndex})\n`;
+        progressText += `📍 <b>Bước hiện tại (#${stepInfo.stepIndex}):</b> <code>${escapeHtml(stepInfo.toolName)}</code>\n`;
         if (stepInfo.action) {
           progressText += `⚡ <i>${escapeHtml(stepInfo.action)}</i>\n`;
         }
+      } else {
+        progressText += `📍 <b>Ngữ cảnh:</b> <i>${sessionStrategy.sessionBadge}</i>\n`;
       }
 
       if (tail) {
@@ -1191,7 +1266,7 @@ async function handleMessage(msg) {
     const s = elapsed % 60;
     const timeStr = m > 0 ? `${m}m ${s}s` : `${s}s`;
 
-    const { stepInfo, totalSteps } = getLatestAgyProgress();
+    const { stepInfo, totalSteps } = getLatestAgyProgress(currentTask.startTime, currentTask.isContinue);
     const tail = getTailLog(currentTask.stdoutBuffer || '', 8) || 'Đang xử lý ngầm (chưa có output mới)...';
 
     let logMsg =
@@ -1205,6 +1280,9 @@ async function handleMessage(msg) {
       if (stepInfo.action) {
         logMsg += `🔹 <b>Hành động:</b> <i>${escapeHtml(stepInfo.action)}</i>\n`;
       }
+    } else {
+      const modeText = currentTask.isContinue ? '🔄 Nối tiếp phiên trước' : '✨ Phiên mới sạch (Zero Context Bloat)';
+      logMsg += `📍 <b>Ngữ cảnh:</b> <i>${modeText}</i>\n`;
     }
     if (totalSteps > 0) {
       logMsg += `📊 <b>Số bước ghi nhận:</b> ${totalSteps} bước\n`;
@@ -1429,6 +1507,15 @@ process.on('SIGINT', async () => {
     } catch {}
   }
   process.exit(0);
+});
+
+// Bắt lỗi không mong muốn để bảo vệ bot không bao giờ crash ngầm
+process.on('unhandledRejection', (reason) => {
+  console.error('[Safety] Unhandled Rejection:', reason?.message || reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('[Safety] Uncaught Exception:', err?.message || err);
 });
 
 startPolling();
