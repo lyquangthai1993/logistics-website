@@ -224,12 +224,12 @@ When instructed to check remote deployments (e.g. Render, Vercel) or ping servic
 
 2. **Strict Timeout on CLI HTTP Requests**:
    - NEVER use bare `curl <url>` in PowerShell without a timeout — it aliases to `Invoke-WebRequest` and will hang indefinitely.
-   - ALWAYS specify a strict timeout:
+   - ALWAYS specify a strict timeout and avoid hiding status with bare `-s`:
      ```powershell
-     # Use curl.exe with --max-time
-     curl.exe -s --max-time 10 <url>
+     # Use curl.exe with -m timeout and -i to see HTTP response status
+     curl.exe -m 15 -i <url>
      # Or PowerShell Invoke-RestMethod with -TimeoutSec
-     Invoke-RestMethod -Uri <url> -TimeoutSec 10
+     Invoke-RestMethod -Uri <url> -TimeoutSec 15
      ```
 
 3. **Early Exit on Terminal State**:

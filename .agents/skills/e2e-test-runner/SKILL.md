@@ -245,3 +245,7 @@ Default password: `secret` (configured in `.env.local`).
    - Verify table renders cleanly without truncated text or clipped action buttons.
    - Verify horizontal scrolling is enabled within the table container when content exceeds width.
 4. **Capture Visual Evidence**: Always save screenshots at each breakpoint (`playwright-report/<page>-<width>px-sidebar-<state>.png`) for visual verification.
+5. **Dev Domain & Cloud Endpoint Anti-Hang Rule**:
+   - When verifying remote backend readiness on **Domain Dev** (`https://logistics-website-backend-1jho.onrender.com`), NEVER ping or check health using bare `curl -s` without timeout.
+   - Always use `curl.exe -m 15 -i <url>` or pass `{ signal: AbortSignal.timeout(15000) }` in Node/Playwright.
+   - Account for Render cold starts (up to 45–60s) with max 5 bounded attempts (15s timeout per attempt). NEVER loop indefinitely.

@@ -57,6 +57,11 @@ All operations performed by the `todo-agent` MUST strictly adhere to the project
    - Never combine an icon component with a duplicate emoji or symbol inside button/label text (e.g., use `<Button><IconPlus /> Tạo đơn</Button>`, NEVER `<Button><IconPlus /> + Tạo đơn</Button>`).
 6. **Real Database Data Mandate**:
    - Zero mock data, sample arrays, or fake fallback rows in `.catch()` blocks. All UI tables and KPIs connect to real PostgreSQL REST APIs.
+7. **Network & Health Check Execution Protocol (Anti-Hang Mandate)**:
+   - When verifying backend service readiness or pinging Dev/Pro endpoints (`https://logistics-website-backend-1jho.onrender.com`), NEVER run bare `curl -s` without timeout or without `.exe` in PowerShell.
+   - ALWAYS use `curl.exe -m 15 -i <url>` or `(Invoke-WebRequest -Uri <url> -TimeoutSec 15).Content`.
+   - Node.js test scripts must pass `signal: AbortSignal.timeout(15000)`.
+   - Polling checks must never loop indefinitely (max 5 attempts, 15-20s backoff).
 
 ---
 

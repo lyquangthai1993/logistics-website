@@ -52,6 +52,13 @@ Whenever the user refers to, asks for, or mentions **"domain pro"** (hoặc "dom
   - **Cohesive & Sticky Layout**: Interrelated operational blocks (e.g., Vehicle reception info and cargo table) must be tightly bonded together (`gap-2` / `space-y-1.5`). Action buttons (Save draft, Preview, Confirm receipt, Print) MUST be pinned with `sticky bottom-0 bg-white/dark:bg-slate-900 border-t p-1.5` so warehouse operators never scroll to find action triggers. Table headers MUST be `sticky top-0`.
   - Detailed spec & banned class table: See [`.agents/rules/ui-compact-density.md`](file:///d:/Projects/logistics-website/.agents/rules/ui-compact-density.md).
 - **RBAC Compliance**: Before adding/modifying any endpoint or menu, MUST reference [`rbac-matrix.md`](file:///d:/Projects/logistics-website/.agents/rules/rbac-matrix.md) — the system's authoritative permission matrix. Ensure all 3 layers are updated: Sidebar UI, Route Guard, API Guard.
+- **Network & Health Check Execution Protocol (Anti-Hang / Anti-Stuck Mandate)**:
+  - When inspecting, pinging, or health-checking remote services (`domain dev`, `domain pro`, Render, Vercel, external APIs) from CLI, scripts, or agent commands, **NEVER run bare `curl` without a timeout or without `.exe`** in PowerShell. In Windows PowerShell, `curl` aliases to `Invoke-WebRequest` without default timeouts, causing the terminal process to hang indefinitely when a cloud backend (e.g. Render Free Tier) is sleeping (cold start 45-60s) or rebuilding/deploying.
+  - **Strict CLI Mandates**:
+    - Always use explicit `curl.exe` with a bounded timeout (`-m 15` or `--max-time 15`) and visible status header (`-i` or `-sS -i`): `curl.exe -m 15 -i https://<domain>/api/v1/health`. NEVER use bare `curl -s <url>`.
+    - In native PowerShell, always set `-TimeoutSec`: `(Invoke-WebRequest -Uri "https://<domain>/api/v1/health" -TimeoutSec 15).Content`.
+    - In Node.js / Playwright / scripts, always supply an abort signal: `fetch(url, { signal: AbortSignal.timeout(15000) })`.
+    - Polling checks MUST NEVER loop indefinitely; cap polling at maximum 5 attempts with 15–20s backoff.
 
 ## Model Selection Strategy & Guidelines
 - 💻 **Code Development & Bug Fixing**: Prefer **Claude** (Claude Sonnet) for feature coding, refactoring, and complex logic tasks on both Backend and Frontend.
