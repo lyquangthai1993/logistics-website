@@ -14,9 +14,17 @@ if (fs.existsSync(envPath)) {
   process.loadEnvFile(envPath);
 }
 
+// Fallback: Tự động tìm DATABASE_URL từ backend/.env nếu chưa có
+if (!process.env.DATABASE_URL) {
+  const backendEnv = path.resolve(__dirname, '../../backend/.env');
+  if (fs.existsSync(backendEnv)) {
+    process.loadEnvFile(backendEnv);
+  }
+}
+
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const ALLOWED_CHAT_ID = process.env.TELEGRAM_ALLOWED_CHAT_ID;
-const WORKSPACE_DIR = process.env.WORKSPACE_PATH || 'D:\\Projects\\logistics-website';
+const WORKSPACE_DIR = process.env.WORKSPACE_PATH || 'C:\\Projects\\logistics-website';
 const DATABASE_URL = process.env.DATABASE_URL;
 const AGY_MODEL = process.env.AGY_MODEL;
 
@@ -629,6 +637,28 @@ async function executeAgyTask(task) {
   });
 }
 
+// Tự động kiểm tra và khởi tạo bảng hàng đợi telegram_tasks nếu chưa có
+async function initDatabase() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS telegram_tasks (
+      id SERIAL PRIMARY KEY,
+      chat_id VARCHAR(50),
+      sender_name VARCHAR(100),
+      raw_prompt TEXT NOT NULL,
+      image_file_ids JSONB DEFAULT '[]'::jsonb,
+      media_group_id VARCHAR(100),
+      status VARCHAR(20) DEFAULT 'PENDING',
+      feedback_dir TEXT,
+      result TEXT,
+      error TEXT,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      started_at TIMESTAMP WITH TIME ZONE,
+      completed_at TIMESTAMP WITH TIME ZONE
+    );
+    CREATE INDEX IF NOT EXISTS idx_telegram_tasks_status ON telegram_tasks(status, id ASC);
+  `);
+}
+
 // Vòng lặp lắng nghe hàng đợi tác vụ từ Neon PostgreSQL (Worker Loop)
 async function startWorker() {
   console.log(`=======================================================`);
@@ -639,6 +669,12 @@ async function startWorker() {
   console.log(`🐘 Neon DB Queue:     Connected`);
   console.log(`📋 Output Goal:       TODO.md in feedback_DD_MM folder`);
   console.log(`=======================================================\n`);
+
+  try {
+    await initDatabase();
+  } catch (err) {
+    console.warn('⚠️ Lỗi kiểm tra/khởi tạo bảng telegram_tasks:', err.message);
+  }
 
   while (true) {
     try {

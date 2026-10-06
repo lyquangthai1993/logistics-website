@@ -5,10 +5,13 @@
   "type": "module",
   "main": "bot.mjs",
   "scripts": {
-    "start": "node bot.mjs"
+    "start": "node bot.mjs",
+    "start-neon-worker": "node neon-worker.mjs",
+    "worker": "node neon-worker.mjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "logistics-website": "file:../..",
     "pg": "^8.23.1"
   }
 }
