@@ -1,57 +1,76 @@
 # Antigravity AI Telegram Task Runner
 
-Công cụ cho phép điều khiển và giao việc cho Antigravity AI Agent tự động phân tích code, fix bug, chạy test trong dự án `logistics-website` từ xa thông qua ứng dụng Telegram trên điện thoại/máy tính.
+Công cụ cho phép điều khiển và giao việc cho Antigravity AI Agent tự động phân tích nghiệp vụ TMS, rà soát mã nguồn, fix bug, chạy test trong dự án `logistics-website` từ xa thông qua ứng dụng Telegram.
 
 ---
 
-## 1. Cấu hình (`.env`)
+## 1. Kiến trúc Hai Phương Án (Architecture)
 
-File cấu hình được đặt tại `tools/telegram-task-runner/.env` (đã được cấu hình sẵn và tự động git-ignore để bảo mật):
+### Phương án 1 (Khuyên dùng - Cloud Webhook + Neon Queue + Local Worker)
+```
+Telegram Group (-5509877448) 
+   │
+   ▼ (Webhook)
+n8n Cloud trên Render (https://n8n-n0al.onrender.com)
+   │
+   ▼ (Lọc chat, Format prompt & Kích hoạt role /leader)
+Neon PostgreSQL (telegram_tasks queue)
+   │
+   ▼ (Polling FIFO, atomic status claim)
+Local Worker Daemon (neon-worker.mjs trên laptop)
+   │
+   ▼ (Chạy agy trong D:\Projects\logistics-website với skill /leader)
+Antigravity AI Engine
+   │
+   ▼ (Báo cáo trực tiếp tiến độ 25s, Git diff & Kết quả cuối cùng)
+Telegram Group + Cập nhật trạng thái COMPLETED trong Neon DB
+```
+
+### Phương án 2 (Direct Local Long-Polling)
+- Chạy trực tiếp `bot.mjs` trên máy local qua cơ chế `getUpdates`.
+
+---
+
+## 2. Cấu hình (`.env`)
+
+File cấu hình đặt tại `tools/telegram-task-runner/.env`:
 
 ```env
-TELEGRAM_BOT_TOKEN=your_bot_token_here
-TELEGRAM_ALLOWED_CHAT_ID=your_chat_or_group_id_here
-WORKSPACE_PATH=c:\Projects\logistics-website
+TELEGRAM_BOT_TOKEN=your_telegram_bot_token
+TELEGRAM_ALLOWED_CHAT_ID=-5509877448
+DATABASE_URL=postgresql://username:password@ep-host.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+WORKSPACE_PATH=D:\Projects\logistics-website
 ```
 
 ---
 
-## 2. Cách khởi động Bot
+## 3. Cách khởi động Local Worker (Phương án 1)
 
-Chạy một trong hai lệnh sau từ thư mục gốc dự án:
+1. **Khởi động 1-click**: Double click vào file `start-neon-worker.bat`.
+2. **Khởi động qua dòng lệnh**:
+   ```powershell
+   cd D:\Projects\logistics-website\tools\telegram-task-runner
+   node neon-worker.mjs
+   ```
 
-```powershell
-npm run telegram:bot
-```
-
-Hoặc:
-
-```powershell
-node tools/telegram-task-runner/bot.mjs
-```
-
-Khi bot khởi động thành công, nó sẽ gửi tin nhắn thông báo màu xanh `🟢 Antigravity AI Task Runner đã sẵn sàng!` vào nhóm Telegram `N8N Notification`.
-
----
-
-## 3. Danh sách lệnh trên Telegram
-
-| Lệnh | Ý nghĩa | Ví dụ |
-| :--- | :--- | :--- |
-| **Gửi ảnh + Chú thích** *(Khuyên dùng)* | Gửi ảnh chụp bug / giao diện kèm dòng chữ mô tả | Gửi ảnh chụp màn hình + chú thích: `Sửa lỗi căn giữa nút này và thu gọn padding như trong ảnh` |
-| `/task <yêu cầu>` | Giao task mới cho AI Agent thực hiện tự động | `/task Sửa lỗi layout mobile bảng xe trên trang waybills` |
-| `/continue <yêu cầu>` | Tiếp tục phiên làm việc trước để sửa thêm (hỗ trợ kèm ảnh) | `/continue Viết thêm unit test cho hàm vừa tạo` |
-| `/status` | Xem branch và trạng thái Git của cả 3 repo (`root`, `backend`, `frontend`) | `/status` |
-| `/diff` | Xem thống kê các file và dòng code vừa sửa (`git diff --stat`) | `/diff` |
-| `/proweb` | Mở nhanh link Web Production (Pro), Backend & Swagger API | `/proweb` (hoặc bấm `🚀 Mở Pro Web`) |
-| `/devweb` | Mở nhanh link Web Development (Dev), Backend & Swagger API | `/devweb` (hoặc bấm `🌐 Mở Dev Web`) |
-| `/cancel` | Hủy ngay lập tức task đang chạy | `/cancel` |
-| `/help` | Xem danh sách hướng dẫn lệnh | `/help` |
+Khi khởi động, worker sẽ:
+- Kết nối tới hàng đợi Neon PostgreSQL.
+- Tự động nhận diện `agy.exe` trên hệ thống.
+- Lắng nghe các tác vụ `PENDING`, tự động chuyển sang `IN_PROGRESS`.
+- Kích hoạt role `/leader` (TMS Domain Architecture Lead) để khảo sát codebase `D:\Projects\logistics-website`.
+- Báo cáo kết quả trực tiếp và cập nhật `COMPLETED` trong Neon DB.
 
 ---
 
-## 4. Cơ chế hoạt động & An toàn
+## 4. Cách sử dụng trên Telegram
 
-1. **Long Polling**: Bot kết nối trực tiếp đến máy chủ Telegram mà không cần cấu hình Port Forwarding, Domain hay Webhook.
-2. **Whitelist Chat ID**: Bot chỉ chấp nhận lệnh từ duy nhất Group/User được cấu hình (`-5509877448`), ngăn chặn truy cập trái phép.
-3. **Antigravity CLI (`agy`)**: Thực thi trong môi trường an toàn của workspace, tự động gửi báo cáo tóm tắt và diff file sau khi hoàn tất.
+Gửi tin nhắn hoặc yêu cầu trực tiếp vào nhóm Telegram `-5509877448`:
+- Gõ tự do hoặc kèm tiền tố:
+  - `/leader <yêu cầu>`
+  - `/task <yêu cầu>`
+  - `/fix <yêu cầu>`
+- Hệ thống sẽ phản hồi:
+  1. `⏳ [Task #X Đã ghi nhận vào hàng đợi]` (từ n8n Cloud).
+  2. `⏳ [Antigravity /leader] Đang thực thi Task #X...` (từ Local Worker).
+  3. Cập nhật tiến độ mỗi 25s (kèm bước công cụ đang chạy).
+  4. `🎯 [KẾT QUẢ TASK #X] - /leader HOÀN THÀNH` (kèm Git diff và thông số kỹ thuật).

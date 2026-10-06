@@ -5,3 +5,24 @@ task-images/
 uploads/
 task-queue*.json
 node_modules/
+
+# One-off migration scripts & database backups (contain database credentials)
+sydney_backup.json
+*.backup.json
+backup-sydney.mjs
+check-data-counts.mjs
+check-fk.mjs
+check-singapore-tables.mjs
+check-user.cjs
+clean-credentials.cjs
+clean-db.cjs
+fix-project.cjs
+init-singapore-db.mjs
+recreate-credentials.mjs
+reset-password-and-login.mjs
+restore-owner.cjs
+restore-relation.cjs
+restore-singapore-data.mjs
+setup-via-cookie.mjs
+update-published-version.cjs
+
