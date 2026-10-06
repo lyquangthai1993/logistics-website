@@ -13,6 +13,7 @@
     "test:e2e": "npm run e2e --prefix frontend",
     "test:e2e:check": "npm run e2e:check --prefix frontend",
     "test:e2e:report": "npm run e2e:report --prefix frontend",
+    "e2e:audit": "node scripts/e2e-auditor.mjs",
     "telegram:bot": "node tools/telegram-task-runner/bot.mjs",
     "telegram:worker": "node tools/telegram-task-runner/neon-worker.mjs",
     "start-neon-worker": "node tools/telegram-task-runner/neon-worker.mjs",
