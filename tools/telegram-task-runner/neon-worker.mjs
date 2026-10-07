@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn, execSync } from 'node:child_process';
 import pg from 'pg';
+import { getTodayTasksSummary } from '../../scripts/todo-agent.mjs';
 
 const { Pool } = pg;
 const __filename = fileURLToPath(import.meta.url);
@@ -321,7 +322,7 @@ function getGitDiffStat() {
 }
 
 // Xây dựng prompt chuẩn hóa với vai trò Team Lead nghiệp vụ /leader để tổng hợp TODO.md
-function buildTaskPrompt(rawPrompt, feedbackDir, imagePaths = [], senderName = 'User') {
+function buildLeaderPrompt(rawPrompt, feedbackDir, imagePaths = [], senderName = 'User') {
   const relativeFeedbackDir = path.relative(WORKSPACE_DIR, feedbackDir);
   const targetTodoPath = path.join(feedbackDir, 'TODO.md');
   const referenceTodoPath = path.join(WORKSPACE_DIR, 'feedback_06_10', 'TODO.md');
@@ -377,6 +378,94 @@ Cấu trúc file ${targetTodoPath} BẮT BUỘC có các phần:
 `.trim();
 }
 
+// Xây dựng prompt chuẩn hóa với vai trò todo-agent để thực thi triển khai code
+function buildTodoAgentPrompt(rawPrompt, feedbackDir, senderName = 'User') {
+  const isTodayScan = /hôm nay|today|quét task|tất cả|all/i.test(rawPrompt) || !feedbackDir || feedbackDir === WORKSPACE_DIR;
+  const todaySummary = getTodayTasksSummary(WORKSPACE_DIR);
+
+  let targetSection = '';
+  if (isTodayScan || todaySummary.pendingFolders.length > 0) {
+    let pendingDetails = '';
+    if (todaySummary.pendingFolders.length > 0) {
+      pendingDetails = todaySummary.pendingFolders.map((folder) => {
+        const todoFile = path.join(folder.folderPath, 'TODO.md');
+        const tasksList = [
+          ...folder.tasks.byCategory.backend.filter(t => !t.completed).map(t => `    * [Backend] Dòng ${t.line}: ${t.text}`),
+          ...folder.tasks.byCategory.frontend.filter(t => !t.completed).map(t => `    * [Frontend] Dòng ${t.line}: ${t.text}`),
+          ...folder.tasks.byCategory.database.filter(t => !t.completed).map(t => `    * [DB] Dòng ${t.line}: ${t.text}`),
+          ...folder.tasks.byCategory.testing.filter(t => !t.completed).map(t => `    * [Test/DoD] Dòng ${t.line}: ${t.text}`),
+          ...folder.tasks.byCategory.general.filter(t => !t.completed).map(t => `    * [General] Dòng ${t.line}: ${t.text}`)
+        ].join('\n');
+
+        return `  📁 Thư mục: ${folder.folderName} — "${folder.title}"\n  📍 File TODO: ${todoFile}\n  Checklist còn tồn đọng (${folder.tasks.pending} việc):\n${tasksList}`;
+      }).join('\n\n');
+    } else {
+      pendingDetails = `  🎉 Toàn bộ ${todaySummary.totalTasks} đầu việc trong ${todaySummary.totalFolders} thư mục của ngày hôm nay (${todaySummary.dateString}) đã được đánh dấu hoàn thành 100%!`;
+    }
+
+    targetSection = `
+2. TỔNG QUAN RÀ SOÁT CÁC TASK PHÁT SINH TRONG NGÀY HÔM NAY (${todaySummary.dateString}):
+- Tổng số thư mục feedback hôm nay: ${todaySummary.totalFolders}
+- Tiến độ tổng hợp: ${todaySummary.totalCompleted}/${todaySummary.totalTasks} việc (${todaySummary.percent}%)
+- Tổng số đầu việc còn tồn đọng (pending): ${todaySummary.totalPending} việc
+
+3. CHI TIẾT CÁC THƯ MỤC FEEDBACK VÀ CHECKLIST NGÀY HÔM NAY:
+${pendingDetails}
+
+4. CÔNG CỤ HỖ TRỢ ĐÃ TÍCH HỢP TRONG WORKSPACE:
+- Chạy 'node scripts/todo-agent.mjs today' để quét lại ma trận task hôm nay.
+- Chạy 'node scripts/todo-agent.mjs today --plan' để xuất blueprint thực thi hợp nhất.
+- Chạy 'node scripts/todo-agent.mjs toggle <folder_name> <dòng> done' để tự động tích [x] hoàn thành.
+`;
+  } else {
+    const targetTodoPath = path.join(feedbackDir, 'TODO.md');
+    targetSection = `
+2. THƯ MỤC FEEDBACK MỤC TIÊU CẦN THỰC THI:
+- Đường dẫn thư mục: ${feedbackDir}
+- File TODO.md: ${targetTodoPath}
+`;
+  }
+
+  return `
+BẮT BUỘC KÍCH HOẠT SKILL TODO-AGENT ĐỂ QUÉT VÀ THỰC THI TASK NGÀY HÔM NAY:
+1. Bạn BẮT BUỘC đọc và tuân thủ file AGENTS.md và skill .agents/skills/todo-agent/SKILL.md tại workspace D:\\Projects\\logistics-website.
+${targetSection}
+
+5. MỤC TIÊU VÀ NGUYÊN TẮC THỰC THI (OPERATIONAL EXECUTION INVARIANTS):
+   - Yêu cầu từ @${senderName}: "${rawPrompt}"
+   - Vai trò: Senior Technical Lead & Operational Execution Specialist.
+   - Sửa đổi mã nguồn TRỰC TIẾP trong các Git submodules (backend/ và/hoặc frontend/). TUYỆT ĐỐI không chỉ sửa ở root.
+   - Tuân thủ nghiêm ngặt UI Compact Density (.agents/rules/ui-compact-density.md):
+     * Card padding: p-1 (nghiêm cấm p-4, p-6).
+     * Modal body: p-2 (tối đa p-2.5).
+     * Spacing: gap-1.5 đến gap-2 (nghiêm cấm gap-4, space-y-4).
+     * Bảng: font text-[10px], mã đơn/trip font-mono text-[11px].
+     * Zero Redundant Icons: Không lặp lại icon và emoji thừa trong label nút bấm.
+   - Zero Mock Data: Kết nối trực tiếp PostgreSQL REST APIs.
+   - Kiểm tra biên dịch và test trước khi kết thúc:
+     * Backend: npm run build --prefix backend
+     * Frontend: npx --prefix frontend tsc --noEmit
+   - Cập nhật checklist: Chuyển các mục - [ ] thành - [x] trong các file TODO.md tương ứng.
+
+6. BÁO CÁO KẾT QUẢ VỀ TELEGRAM:
+   - Dòng đầu tiên BẮT BUỘC là: "🟢 HOÀN THÀNH (TODO-AGENT QUÉT & THỰC THI HÔM NAY): [Tóm tắt ngắn gọn]"
+   - Báo cáo tổng số việc đã xử lý trong ngày hôm nay.
+   - Liệt kê các file mã nguồn đã thay đổi (Backend, Frontend).
+   - Báo cáo kết quả kiểm thử build & typecheck (PASS / FAIL).
+   - Trích dẫn đường link các file TODO.md đã xử lý.
+   - TUYỆT ĐỐI KHÔNG viết các câu kết bài thừa thãi (như "Bạn muốn làm gì tiếp theo...", "Hệ thống đã sẵn sàng...").
+`.trim();
+}
+
+// Hàm điều phối prompt tổng quát
+function buildTaskPrompt(rawPrompt, feedbackDir, imagePaths = [], senderName = 'User') {
+  const isTodoAgent = /^\s*(\/todo|todo-agent|thực thi|triển khai)/i.test(rawPrompt);
+  if (isTodoAgent) {
+    return buildTodoAgentPrompt(rawPrompt, feedbackDir, senderName);
+  }
+  return buildLeaderPrompt(rawPrompt, feedbackDir, imagePaths, senderName);
+}
+
 // Quản lý kết nối Neon PostgreSQL
 const pool = new Pool({
   connectionString: DATABASE_URL,
@@ -400,11 +489,43 @@ async function executeAgyTask(task) {
   console.log(`📂 Workspace: ${WORKSPACE_DIR}`);
   console.log(`========================================`);
 
-  // 1. Tạo thư mục feedback (feedback_DD_MM)
-  const feedbackDir = getFeedbackDirectory(taskId);
-  console.log(`📁 Feedback Dir: ${feedbackDir}`);
+  // Phân biệt chế độ /leader (tổng hợp TODO) vs todo-agent (thực thi code)
+  const isTodoAgentMode = /^\s*(\/todo|todo-agent|thực thi|triển khai)/i.test(rawPrompt);
 
-  // 2. Tải tất cả ảnh đính kèm từ Telegram vào feedbackDir
+  // 1. Xác định thư mục feedback
+  let feedbackDir = (task.feedback_dir && fs.existsSync(task.feedback_dir))
+    ? task.feedback_dir
+    : null;
+
+  if (isTodoAgentMode) {
+    if (!feedbackDir) {
+      const match = rawPrompt.match(/feedback_\d{1,2}_\d{1,2}[a-zA-Z0-9_]*/i);
+      if (match) {
+        const candidate = path.join(WORKSPACE_DIR, match[0]);
+        if (fs.existsSync(candidate)) {
+          feedbackDir = candidate;
+        }
+      }
+    }
+    if (!feedbackDir) {
+      const todaySummary = getTodayTasksSummary(WORKSPACE_DIR);
+      if (todaySummary.pendingFolders.length > 0) {
+        feedbackDir = todaySummary.pendingFolders[0].folderPath;
+      } else if (todaySummary.folders.length > 0) {
+        feedbackDir = todaySummary.folders[0].folderPath;
+      } else {
+        feedbackDir = WORKSPACE_DIR;
+      }
+    }
+  } else {
+    if (!feedbackDir) {
+      feedbackDir = getFeedbackDirectory(taskId);
+    }
+  }
+
+  console.log(`📁 Feedback Dir: ${feedbackDir} (Mode: ${isTodoAgentMode ? 'TODO_AGENT' : 'LEADER'})`);
+
+  // 2. Tải tất cả ảnh đính kèm từ Telegram vào feedbackDir (nếu có)
   const savedImagePaths = [];
   const imageIds = Array.isArray(task.image_file_ids) ? task.image_file_ids : [];
   if (imageIds.length > 0) {
@@ -423,14 +544,20 @@ async function executeAgyTask(task) {
   }
 
   // 3. Gửi thông báo bắt đầu lên Telegram
-  const startMsg =
-    `⏳ <b>[Antigravity /leader] Đang tiếp nhận Task #${taskId}...</b> <code>(⏱️ 0s)</code>\n\n` +
-    `👤 <b>Người gửi:</b> ${escapeHtml(senderName)}\n` +
-    (savedImagePaths.length > 0 ? `📸 <b>Hình ảnh:</b> <code>${savedImagePaths.length} ảnh đã lưu vào feedback dir</code>\n` : '') +
-    `📝 <b>Yêu cầu:</b> <i>"${escapeHtml(rawPrompt)}"</i>\n` +
-    `🤖 <b>Chế độ:</b> <code>/leader</code> (TMS Business Lead)\n` +
-    `📁 <b>Thư mục đầu ra:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}/TODO.md</code>\n\n` +
-    `💡 <i>Tiến trình AI đang rà soát ảnh chụp, kiểm tra codebase và tổng hợp TODO.md trên laptop. Tự động cập nhật mỗi 25s...</i>`;
+  const startMsg = isTodoAgentMode
+    ? `⏳ <b>[Antigravity todo-agent] Đang bắt đầu thực thi Task #${taskId}...</b> <code>(⏱️ 0s)</code>\n\n` +
+      `👤 <b>Người gửi / Trigger:</b> ${escapeHtml(senderName)}\n` +
+      `📁 <b>Thư mục mục tiêu:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
+      `📝 <b>Yêu cầu:</b> <i>"${escapeHtml(rawPrompt)}"</i>\n` +
+      `🤖 <b>Chế độ:</b> <code>todo-agent</code> (Thực thi code & kiểm thử)\n\n` +
+      `💡 <i>Tiến trình AI đang đọc TODO.md, đối chiếu mã nguồn, thực thi sửa đổi và chạy build test trên laptop. Tự động cập nhật mỗi 25s...</i>`
+    : `⏳ <b>[Antigravity /leader] Đang tiếp nhận Task #${taskId}...</b> <code>(⏱️ 0s)</code>\n\n` +
+      `👤 <b>Người gửi:</b> ${escapeHtml(senderName)}\n` +
+      (savedImagePaths.length > 0 ? `📸 <b>Hình ảnh:</b> <code>${savedImagePaths.length} ảnh đã lưu vào feedback dir</code>\n` : '') +
+      `📝 <b>Yêu cầu:</b> <i>"${escapeHtml(rawPrompt)}"</i>\n` +
+      `🤖 <b>Chế độ:</b> <code>/leader</code> (TMS Business Lead)\n` +
+      `📁 <b>Thư mục đầu ra:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}/TODO.md</code>\n\n` +
+      `💡 <i>Tiến trình AI đang rà soát ảnh chụp, kiểm tra codebase và tổng hợp TODO.md trên laptop. Tự động cập nhật mỗi 25s...</i>`;
 
   const startRes = await sendTelegramMessage(chatId, startMsg, 'HTML', TASK_ACTIONS_KEYBOARD);
   const progressMsgId = startRes?.result?.message_id || null;
@@ -539,11 +666,14 @@ async function executeAgyTask(task) {
       const s = elapsed % 60;
       const timeStr = m > 0 ? `${m}m ${s}s` : `${s}s`;
 
-      let progressText =
-        `⏳ <b>[Antigravity /leader] Đang tổng hợp TODO.md Task #${taskId}...</b> <code>(⏱️ ${timeStr})</code>\n\n` +
-        `📝 <i>"${escapeHtml(rawPrompt.length > 100 ? rawPrompt.slice(0, 97) + '...' : rawPrompt)}"</i>\n` +
-        `📁 <b>Thư mục:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
-        `━━━━━━━━━━━━━━━━━━━━\n`;
+      let progressText = isTodoAgentMode
+        ? `⏳ <b>[Antigravity todo-agent] Đang triển khai code Task #${taskId}...</b> <code>(⏱️ ${timeStr})</code>\n\n` +
+          `📁 <b>Thư mục mục tiêu:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n`
+        : `⏳ <b>[Antigravity /leader] Đang tổng hợp TODO.md Task #${taskId}...</b> <code>(⏱️ ${timeStr})</code>\n\n` +
+          `📝 <i>"${escapeHtml(rawPrompt.length > 100 ? rawPrompt.slice(0, 97) + '...' : rawPrompt)}"</i>\n` +
+          `📁 <b>Thư mục:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n`;
 
       if (conversationId) {
         progressText += `🆔 <b>Session:</b> <code>${conversationId.slice(0, 8)}...</code>\n`;
@@ -552,7 +682,9 @@ async function executeAgyTask(task) {
       if (latestToolAction) {
         progressText += `📍 <b>Bước hiện tại (#${currentStepIndex}):</b> <code>${escapeHtml(latestToolAction)}</code>\n`;
       } else {
-        progressText += `📍 <b>Trạng thái:</b> <i>Đang rà soát ảnh chụp và đối chiếu mã nguồn...</i>\n`;
+        progressText += isTodoAgentMode
+          ? `📍 <b>Trạng thái:</b> <i>Đang đọc TODO.md và phân tích cấu trúc submodules...</i>\n`
+          : `📍 <b>Trạng thái:</b> <i>Đang rà soát ảnh chụp và đối chiếu mã nguồn...</i>\n`;
       }
 
       progressText += `\n💡 <i>Tự động cập nhật mỗi 25s...</i>`;
@@ -588,20 +720,28 @@ async function executeAgyTask(task) {
         const formattedHtml = markdownToTelegramHtml(cleanOutput);
         const gitDiff = getGitDiffStat();
 
-        let finalReport =
-          `🎯 <b>[KẾT QUẢ TASK #${taskId}] - TỔNG HỢP TODO.MD HOÀN TẤT</b> <code>(⏱️ ${timeStr})</code>\n\n` +
-          `📁 <b>Thư mục Feedback:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
-          (hasTodoCreated ? `📄 <b>File TODO:</b> <code>${path.relative(WORKSPACE_DIR, todoFile)}</code> (✅ Đã tạo thành công)\n` : '') +
-          (savedImagePaths.length > 0 ? `📸 <b>Hình ảnh:</b> <code>${savedImagePaths.length} ảnh đã lưu trữ kèm TODO</code>\n` : '') +
-          (conversationId ? `🆔 <b>Session:</b> <code>${conversationId}</code>\n\n` : '\n') +
-          formattedHtml;
+        let finalReport = isTodoAgentMode
+          ? `🎯 <b>[KẾT QUẢ TASK #${taskId}] - TODO-AGENT HOÀN TẤT THỰC THI</b> <code>(⏱️ ${timeStr})</code>\n\n` +
+            `📁 <b>Thư mục Feedback:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
+            (hasTodoCreated ? `📄 <b>Checklist:</b> <code>${path.relative(WORKSPACE_DIR, todoFile)}</code>\n` : '') +
+            (conversationId ? `🆔 <b>Session:</b> <code>${conversationId}</code>\n\n` : '\n') +
+            formattedHtml
+          : `🎯 <b>[KẾT QUẢ TASK #${taskId}] - TỔNG HỢP TODO.MD HOÀN TẤT</b> <code>(⏱️ ${timeStr})</code>\n\n` +
+            `📁 <b>Thư mục Feedback:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
+            (hasTodoCreated ? `📄 <b>File TODO:</b> <code>${path.relative(WORKSPACE_DIR, todoFile)}</code> (✅ Đã tạo thành công)\n` : '') +
+            (savedImagePaths.length > 0 ? `📸 <b>Hình ảnh:</b> <code>${savedImagePaths.length} ảnh đã lưu trữ kèm TODO</code>\n` : '') +
+            (conversationId ? `🆔 <b>Session:</b> <code>${conversationId}</code>\n\n` : '\n') +
+            formattedHtml;
 
         if (gitDiff) {
           finalReport += `\n\n📊 <b>THAY ĐỔI MÃ NGUỒN (GIT DIFF):</b>\n<pre>${escapeHtml(gitDiff)}</pre>`;
         }
 
         if (progressMsgId) {
-          await editTelegramMessage(chatId, progressMsgId, `✅ <b>[Task #${taskId}] Đã hoàn thành tổng hợp TODO.md trong ${timeStr}!</b>`, 'HTML');
+          const completionTitle = isTodoAgentMode
+            ? `Đã hoàn thành thực thi code`
+            : `Đã hoàn thành tổng hợp TODO.md`;
+          await editTelegramMessage(chatId, progressMsgId, `✅ <b>[Task #${taskId}] ${completionTitle} trong ${timeStr}!</b>`, 'HTML');
         }
 
         await sendTelegramMessage(chatId, finalReport, 'HTML', TASK_ACTIONS_KEYBOARD);

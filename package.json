@@ -18,6 +18,7 @@
     "telegram:worker": "node tools/telegram-task-runner/neon-worker.mjs",
     "start-neon-worker": "node tools/telegram-task-runner/neon-worker.mjs",
     "todo:scan": "node scripts/todo-agent.mjs scan",
+    "todo:today": "node scripts/todo-agent.mjs today",
     "todo:inspect": "node scripts/todo-agent.mjs inspect",
     "todo:plan": "node scripts/todo-agent.mjs plan"
   },

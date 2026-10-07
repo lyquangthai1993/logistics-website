@@ -627,6 +627,93 @@ export function cmdScan(asJson = false) {
 }
 
 /**
+ * Returns a structured summary of feedback folders and pending tasks for today.
+ * @param {string} rootDir
+ * @returns {object} Summary object
+ */
+export function getTodayTasksSummary(rootDir = ROOT_DIR) {
+  const now = new Date();
+  const currentDay = now.getDate();
+  const currentMonth = now.getMonth() + 1;
+  const folders = discoverFeedbackFolders(rootDir).filter(
+    (f) => f.day === currentDay && f.month === currentMonth
+  );
+
+  const parsedFolders = folders.map((f) => parseFeedbackFolder(f.fullPath));
+  const totalTasks = parsedFolders.reduce((sum, p) => sum + p.tasks.total, 0);
+  const totalCompleted = parsedFolders.reduce((sum, p) => sum + p.tasks.completed, 0);
+  const totalPending = parsedFolders.reduce((sum, p) => sum + p.tasks.pending, 0);
+  const percent = totalTasks > 0 ? Math.round((totalCompleted / totalTasks) * 100) : 0;
+  const pendingFolders = parsedFolders.filter((p) => p.tasks.pending > 0);
+
+  return {
+    day: currentDay,
+    month: currentMonth,
+    dateString: `${String(currentDay).padStart(2, '0')}/${String(currentMonth).padStart(2, '0')}`,
+    totalFolders: folders.length,
+    totalTasks,
+    totalCompleted,
+    totalPending,
+    percent,
+    folders: parsedFolders,
+    pendingFolders,
+  };
+}
+
+/**
+ * Command: scan today's feedback folders and print summary or action plan
+ */
+export function cmdToday(asJson = false, asPlan = false, rootDir = ROOT_DIR) {
+  const summary = getTodayTasksSummary(rootDir);
+  const { currentDay, currentMonth, dateString, totalFolders, totalTasks, totalCompleted, totalPending, percent, folders, pendingFolders } = summary;
+
+  if (totalFolders === 0) {
+    if (asJson) {
+      console.log(JSON.stringify(summary, null, 2));
+    } else {
+      console.log(`ℹ️ Không có thư mục feedback nào được tạo trong ngày hôm nay (${dateString}).`);
+    }
+    return;
+  }
+
+  if (asPlan) {
+    if (pendingFolders.length === 0) {
+      console.log(`🎉 Toàn bộ task của ngày hôm nay (${dateString}) đã hoàn thành 100%!`);
+    } else {
+      const plans = pendingFolders.map((p) => generateExecutionPlan(p));
+      console.log(plans.join('\n\n---\n\n'));
+    }
+    return;
+  }
+
+  if (asJson) {
+    console.log(JSON.stringify(summary, null, 2));
+    return;
+  }
+
+  console.log(`\n================================================================================`);
+  console.log(`📅 TỔNG HỢP NHIỆM VỤ NGÀY HÔM NAY (${dateString}) — ${totalFolders} THƯ MỤC`);
+  console.log(`📊 Tiến độ: ${totalCompleted}/${totalTasks} việc (${percent}%) • Còn tồn đọng: ${totalPending} việc`);
+  console.log(`================================================================================\n`);
+
+  const rows = folders.map((p) => ({
+    Folder: p.folderName,
+    Title: p.title.length > 40 ? p.title.slice(0, 37) + '...' : p.title,
+    Tasks: `${p.tasks.completed}/${p.tasks.total}`,
+    Pending: p.tasks.pending,
+    Images: p.images.length,
+    Docs: p.documents.length,
+    Status: p.tasks.percent === 100 ? '✅ DONE (100%)' : (p.tasks.pending > 0 ? `⏳ PENDING (${p.tasks.pending})` : '❓ NO_TODO'),
+  }));
+
+  console.table(rows);
+  console.log(`\n💡 Gợi ý lệnh tiếp theo:`);
+  console.log(`- Lập kế hoạch thực thi toàn bộ hôm nay: node scripts/todo-agent.mjs today --plan`);
+  console.log(`- Xem chi tiết 1 thư mục:                 node scripts/todo-agent.mjs inspect <folder_name>\n`);
+}
+
+
+/**
  * Command: inspect a specific feedback folder
  */
 export function cmdInspect(targetName, asJson = false) {
@@ -724,6 +811,9 @@ if (isMainModule) {
     case 'scan':
       cmdScan(asJson);
       break;
+    case 'today':
+      cmdToday(asJson, cleanArgs.includes('--plan'));
+      break;
     case 'inspect':
       cmdInspect(cleanArgs[1], asJson);
       break;
@@ -737,6 +827,7 @@ if (isMainModule) {
       console.log(`Lệnh không hợp lệ: "${command}"`);
       console.log(`Cách dùng:`);
       console.log(`  node scripts/todo-agent.mjs scan [--json]`);
+      console.log(`  node scripts/todo-agent.mjs today [--plan] [--json]`);
       console.log(`  node scripts/todo-agent.mjs inspect <folder_name> [--json]`);
       console.log(`  node scripts/todo-agent.mjs plan <folder_name>`);
       console.log(`  node scripts/todo-agent.mjs toggle <folder_name> <line|query> [done|pending]`);
