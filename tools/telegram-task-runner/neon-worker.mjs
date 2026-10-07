@@ -431,28 +431,38 @@ BẮT BUỘC KÍCH HOẠT SKILL TODO-AGENT ĐỂ QUÉT VÀ THỰC THI TASK NGÀY
 1. Bạn BẮT BUỘC đọc và tuân thủ file AGENTS.md và skill .agents/skills/todo-agent/SKILL.md tại workspace D:\\Projects\\logistics-website.
 ${targetSection}
 
-5. MỤC TIÊU VÀ NGUYÊN TẮC THỰC THI (OPERATIONAL EXECUTION INVARIANTS):
-   - Yêu cầu từ @${senderName}: "${rawPrompt}"
-   - Vai trò: Senior Technical Lead & Operational Execution Specialist.
-   - Sửa đổi mã nguồn TRỰC TIẾP trong các Git submodules (backend/ và/hoặc frontend/). TUYỆT ĐỐI không chỉ sửa ở root.
-   - Tuân thủ nghiêm ngặt UI Compact Density (.agents/rules/ui-compact-density.md):
-     * Card padding: p-1 (nghiêm cấm p-4, p-6).
-     * Modal body: p-2 (tối đa p-2.5).
-     * Spacing: gap-1.5 đến gap-2 (nghiêm cấm gap-4, space-y-4).
-     * Bảng: font text-[10px], mã đơn/trip font-mono text-[11px].
-     * Zero Redundant Icons: Không lặp lại icon và emoji thừa trong label nút bấm.
-   - Zero Mock Data: Kết nối trực tiếp PostgreSQL REST APIs.
-   - Kiểm tra biên dịch và test trước khi kết thúc:
-     * Backend: npm run build --prefix backend
-     * Frontend: npx --prefix frontend tsc --noEmit
-   - Cập nhật checklist: Chuyển các mục - [ ] thành - [x] trong các file TODO.md tương ứng.
+5. QUY TRÌNH THỰC THI 6 BƯỚC BẮT BUỘC (EXECUTION & DEV E2E PIPELINE):
+   - BƯỚC 1: Sửa đổi mã nguồn TRỰC TIẾP trong các Git submodules (backend/ và/hoặc frontend/). TUYỆT ĐỐI không chỉ sửa ở root.
+     Tuân thủ nghiêm ngặt UI Compact Density (.agents/rules/ui-compact-density.md):
+     * Card padding: p-1; Modal body: p-2; Spacing: gap-1.5 đến gap-2; Bảng: font text-[10px]; Zero Redundant Icons.
+     * Zero Mock Data: Kết nối trực tiếp PostgreSQL REST APIs.
+     * Kiểm tra biên dịch local:
+       + Backend: npm run build --prefix backend
+       + Frontend: npx --prefix frontend tsc --noEmit
+   - BƯỚC 2: Commit và push các submodules lên branch dev:
+       + git -C backend push origin dev
+       + git -C frontend push origin dev
+   - BƯỚC 3: Kiểm tra trạng thái Domain Dev sẵn sàng (anti-hang timeout 15s):
+       + curl.exe -m 15 -i https://logistics-website-backend-1jho.onrender.com/api/v1/health
+   - BƯỚC 4: Chạy Playwright E2E Test trực tiếp trên Domain Dev:
+       + PLAYWRIGHT_BASE_URL=https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app API_URL=https://logistics-website-backend-1jho.onrender.com/api/v1 npx playwright test e2e/<spec_file>.spec.ts
+   - BƯỚC 5: Đánh giá chéo chất lượng kiểm thử E2E:
+       + node scripts/e2e-auditor.mjs frontend/e2e/<spec_file>.spec.ts
+       + Đảm bảo điểm số >= 40/50 điểm PASS (Real DB, Zero-mock, có screenshot evidence).
+   - BƯỚC 6: Cập nhật checklist: Chuyển các mục - [ ] thành - [x] trong các file TODO.md tương ứng.
 
-6. BÁO CÁO KẾT QUẢ VỀ TELEGRAM:
-   - Dòng đầu tiên BẮT BUỘC là: "🟢 HOÀN THÀNH (TODO-AGENT QUÉT & THỰC THI HÔM NAY): [Tóm tắt ngắn gọn]"
-   - Báo cáo tổng số việc đã xử lý trong ngày hôm nay.
-   - Liệt kê các file mã nguồn đã thay đổi (Backend, Frontend).
-   - Báo cáo kết quả kiểm thử build & typecheck (PASS / FAIL).
-   - Trích dẫn đường link các file TODO.md đã xử lý.
+6. BÁO CÁO KẾT QUẢ VỀ TELEGRAM (BẮT BUỘC FORMAT NÀY):
+   - Dòng đầu tiên BẮT BUỘC là:
+     "🟢 THÔNG BÁO: ĐÃ TEST DEV XONG (E2E & ĐÁNH GIÁ CHÉO PASS)"
+   - Báo cáo chi tiết:
+     • Hạng mục đã triển khai: [Tiêu đề Feedback / Nhiệm vụ]
+     • Kết quả Playwright E2E trên Dev: X/X tests PASS (100%)
+     • Điểm đánh giá chéo E2E Audit: Y/50 điểm PASS
+     • Môi trường Dev đã kiểm thử:
+       - Frontend Dev: https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app
+       - Backend Dev: https://logistics-website-backend-1jho.onrender.com
+     • Danh sách các file mã nguồn đã sửa đổi (Backend, Frontend).
+     • Trích dẫn đường link các file TODO.md đã xử lý.
    - TUYỆT ĐỐI KHÔNG viết các câu kết bài thừa thãi (như "Bạn muốn làm gì tiếp theo...", "Hệ thống đã sẵn sàng...").
 `.trim();
 }

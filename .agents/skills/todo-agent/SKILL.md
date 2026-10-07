@@ -171,46 +171,80 @@ Once the problem is understood, the `todo-agent` generates a structured **Execut
 
 ## 6. Execution & Implementation Protocol ("Thực thi")
 
-When instructed to execute or implement a feedback plan:
+When instructed to execute or implement a feedback plan, the `todo-agent` MUST strictly follow this 7-step pipeline:
+
+```mermaid
+flowchart TD
+    S1["1. Sửa Code Submodules<br>(backend/ & frontend/)"] --> S2["2. Local Build & TypeCheck<br>(npm run build, tsc --noEmit)"]
+    S2 --> S3["3. Deploy lên Dev<br>(Push submodules to origin/dev)"]
+    S3 --> S4["4. Dev Readiness Health Check<br>(curl.exe -m 15 -i https://<backend>/api/v1/health)"]
+    S4 --> S5["5. Playwright E2E Test trên DEV<br>(Target Dev Vercel & Render)"]
+    S5 --> S6["6. Đánh giá chéo E2E Audit<br>(node scripts/e2e-auditor.mjs)"]
+    S6 --> S7["7. Nghiệm thu & Báo Telegram<br>('ĐÃ TEST DEV XONG' + [x] TODO.md)"]
+```
 
 1. **Workspace Health & Branch Setup**:
    - Check repo status: `npm run repo:status`.
    - Ensure submodules are on `dev` and up to date (`git pull origin dev`).
-   - If impact score >= 6, create feature branch in target submodules.
 2. **Submodule-First Code Modifications**:
    - Apply backend changes in `backend/` and verify compile immediately: `npm run build --prefix backend`.
    - Apply frontend changes in `frontend/` and verify TypeScript compile: `npx --prefix frontend tsc --noEmit`.
-3. **Continuous Checklist Synchronization**:
-   - As each task item is verified, update the task in the feedback folder's `TODO.md` from `- [ ]` to `- [x]`.
-   - Use `node scripts/todo-agent.mjs toggle <folder> <lineNumber> done` or direct markdown edits.
-4. **Automated Verification**:
-   - Run the relevant Playwright E2E test suite in `frontend/e2e/`.
-   - Ensure zero console errors, zero hydration errors, and 100% test pass.
-5. **Promotion & Push Protocol**:
-   - Commit code inside submodules using Conventional Commits via `git-commit-reviewer`.
-   - Push to `origin/dev` only when requested by the user.
+   - Enforce UI Compact Density (`p-1` card padding, `p-2` modal body, `text-[10px]` table font, zero redundant icons).
+3. **Deployment to Dev Environment**:
+   - Commit changes inside the respective submodules with Conventional Commits (`feat(...)`, `fix(...)`).
+   - Push submodules to `origin/dev`: `git -C backend push origin dev && git -C frontend push origin dev`.
+   - Wait for Vercel and Render auto-deploy (usually 1-2 minutes).
+   - Verify Dev Backend readiness using anti-hang protocol:
+     `curl.exe -m 15 -i https://logistics-website-backend-1jho.onrender.com/api/v1/health`
+4. **Automated E2E Verification on DEV Domain**:
+   - Execute Playwright E2E tests directly against the Dev environment:
+     ```bash
+     PLAYWRIGHT_BASE_URL=https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app API_URL=https://logistics-website-backend-1jho.onrender.com/api/v1 npx playwright test e2e/<spec_file>.spec.ts
+     ```
+   - Ensure 100% of test cases pass with zero regressions.
+5. **Cross-Evaluation Audit (Đánh giá chéo E2E)**:
+   - Run the automated E2E Code Auditor against the test suite:
+     ```bash
+     node scripts/e2e-auditor.mjs frontend/e2e/<spec_file>.spec.ts
+     ```
+   - Validate 50-point rubric compliance:
+     * D1: Spec Alignment & Scenario Completeness (≥ 8/10)
+     * D2: Anti-Pattern & Flakiness Guard (zero `networkidle`, zero blind timeouts)
+     * D3: Network & Anti-Hang Protocol Compliance (`curl.exe -m 15`)
+     * D4: Real Database & Zero-Mock Integrity (zero `page.route()`)
+     * D5: Visual Evidence (screenshot captures saved in feedback folder)
+   - Gate rule: Total score must achieve **≥ 40/50** with verdict `PASS` or `WARN` (0 `FAIL`).
+6. **Continuous Checklist Synchronization**:
+   - Update `feedback_DD_MM*/TODO.md` items from `- [ ]` to `- [x]`.
+   - Use `node scripts/todo-agent.mjs toggle <folder> <lineNumber> done` or markdown edits.
+7. **Telegram Completion Notification**:
+   - Send final message to Telegram group confirming Dev E2E testing is complete.
 
 ---
 
-## 7. Operational Reporting Protocol
+## 7. Operational Reporting Protocol ("Thông báo đã test dev xong")
 
-When reporting results to the user (especially via Telegram Bot), format the output following [`telegram-task-responder`](file:///d:/Projects/logistics-website/.agents/skills/telegram-task-responder/SKILL.md):
+When reporting results to the user via Telegram Bot, the message MUST lead with the clear confirmation **"ĐÃ TEST DEV XONG"** and include E2E metrics and Dev links:
 
 ```markdown
-🟢 [FEEDBACK RESOLVED] feedback_06_10_task_2 (8/8 tasks completed)
+🟢 THÔNG BÁO: ĐÃ TEST DEV XONG (E2E & ĐÁNH GIÁ CHÉO PASS)
 
-📋 Executive Summary:
-Hoàn thiện thành công Trường hợp 3 trong quy trình vận hành xe vào trạm: Phân tách rõ ràng giữa "📍 Lấy hàng dọc đường nhập về Hub" (dỡ hàng tại kho hiện tại) và "🏢 Bốc thêm hàng từ Hub lên xe" (chở đi kho tiếp theo).
+📋 Hạng mục triển khai: [Tiêu đề Feedback / Hạng mục công việc]
+• Thư mục mục tiêu: feedback_DD_MM*
+• Trạng thái Checklist: 100% công việc đã hoàn thành [x]
 
-🛠️ Codebase Changes:
-• [BACKEND] DTO AppendOrderToTripDto: Thêm enum AppendOrderType (ROADSIDE_PICKUP_INBOUND, HUB_TRANSFER_OUTBOUND).
-• [BACKEND] WarehouseService: Xử lý gán destinationHubId và originHubId động theo loại bốc hàng.
-• [FRONTEND] WarehouseAppendOrderModal: Thiết kế 2 tab nghiệp vụ rõ ràng, ghim cố định kho hiện tại, triệt tiêu lỗi ID 3.
-• [FRONTEND] WarehouseTripDetailModal: Giữ duy nhất 1 nút trên toolbar bảng kê, chuẩn Compact Density.
+🌐 Môi trường kiểm thử (Domain Dev):
+• Frontend Dev: https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app
+• Backend Dev: https://logistics-website-backend-1jho.onrender.com
 
-🧪 Verification Results:
-• Backend Build: PASS (0 errors)
-• Frontend TypeCheck: PASS (0 errors, Next.js Turbopack)
-• E2E Flow: Verified roadside pickup intake and hub-to-hub outbound transfer
-• Living Checklist: feedback_06_10_task_2/TODO.md updated to 100% [x]
+🧪 Kết quả Kiểm thử E2E & Đánh giá chéo:
+• Playwright E2E Suite: PASS (100% passed, 0 failed)
+• E2E Cross-Evaluation Audit: PASS (46/50 điểm — Tuân thủ Real DB, Không mock, Chụp ảnh minh chứng)
+• Backend Build & Health: OK (HTTP 200)
+• Frontend Turbopack Build: OK (0 errors)
+
+🛠️ Các tệp tin đã cập nhật:
+• [Backend]: backend/src/...
+• [Frontend]: frontend/src/...
+• [Tài liệu]: feedback_DD_MM/TODO.md [x]
 ```
