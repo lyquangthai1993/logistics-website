@@ -14,6 +14,8 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 07/10/2026 | `feedback_07_10_task_22` | Feedback 07/10 Task 22 — Mở Rộng Kích Thước & Tối Ưu... | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](feedback_07_10_task_22/RESOLUTION.md) |
+| 07/10/2026 (13:49) | `feedback_07_10_task_21` | Feedback 07/10 Task 21 — Khắc phục Lỗi Không Hiển th... | 30/30 | ✅ DONE (100%) | [RESOLUTION.md](feedback_07_10_task_21/RESOLUTION.md) |
 | 07/10/2026 | `feedback_07_10_task_12` | Feedback 07/10 Task 12 — Chuẩn Hóa Quản Lý Tồn Kho &... | 19/19 | ✅ DONE (100%) | [RESOLUTION.md](feedback_07_10_task_12/RESOLUTION.md) |
 | 07/10/2026 | `feedback_07_10_task_11` | Tối ưu Giao diện Bảng Kê Xuất Kho: Loại Bỏ Cột Trạng Thái Thừa & Compact Density | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](feedback_07_10_task_11/RESOLUTION.md) |
 | 07/10/2026 | `feedback_07_10_task_10` | Chuẩn Hóa Cột Kho Đích & Gán Đơn Lưu Kho Sẵn Có Lên Chuyến Xuất Kho | 18/18 | ✅ DONE (100%) | [RESOLUTION.md](feedback_07_10_task_10/RESOLUTION.md) |
@@ -26,6 +28,30 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_07_10_TASK_22] — Feedback 07/10 Task 22 — Mở Rộng Kích Thước & Tối Ưu Giao Diện Modal "Chọn Đơn Lưu Kho Bốc Lên Chuyến Xe" (07/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (12/12 việc)
+- **Báo cáo bởi**: @Thai (Quản lý nghiệp vụ / Vận hành) & @Antigravity TMS Domain Lead Verification
+- **Phạm vi**: Quản lý Nhập kho (`/warehouse/inbound`) ➔ Chi tiết chuyến xe & Kiểm đếm hàng hóa ([`WarehouseTripDetailModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) • Bước 2: Xuất hàng mới lên xe đi trạm kế tiếp ➔ Modal Chọn đơn lưu kho bốc lên chuyến xe ([`WarehouseSelectStoredOrdersModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-select-stored-orders-modal.tsx)) • Cấu hình Base UI Dialog Component ([`dialog.tsx`](file:///D:/Projects/logistics-website/frontend/src/components/ui/dialog.tsx)) • API Bảng kê chuyến xe & Đơn xuất khả dụng ([`trip-manifest.ts`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/api/trip-manifest.ts), [`warehouse.controller.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.controller.ts), [`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)) • Cơ sở dữ liệu PostgreSQL trên Neon Singapore (`ap-southeast-1.aws.neon.tech`)
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Rà soát & bảo đảm tính toàn vẹn của Endpoint `GET /api/v1/warehouse/trips/:tripCode/available-outbound-orders`; Kiểm tra tính nhất quán của API `POST /api/v1/warehouse/trips/:tripCode/append-stored-orders`
+  * **Frontend**: Nâng cấp toàn diện kích thước Modal trong `WarehouseSelectStoredOrdersModal`; Mở rộng chiều cao vùng hiển thị danh sách (Table Container Viewport); Tái cấu trúc và phân bổ độ rộng chuẩn cho 10 cột dữ liệu (Table Columns)...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_02_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_07_10_task_22/RESOLUTION.md) • [`TODO.md`](feedback_07_10_task_22/TODO.md)
+
+### 🚀 [FEEDBACK_07_10_TASK_21] — Feedback 07/10 Task 21 — Khắc phục Lỗi Không Hiển thị Danh sách Đơn Lưu kho khi Xuất thêm Lên Trip (07/10/2026 (13:49))
+- **Trạng thái**: ✅ Hoàn thành 100% (30/30 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Quản lý nghiệp vụ / Vận hành) & @Antigravity TMS Domain Lead Verification
+- **Phạm vi**: Quản lý Nhập kho (`/warehouse/inbound`) ➔ Chi tiết chuyến xe & Kiểm đếm hàng hóa ([`WarehouseTripDetailModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) • Popup Chọn đơn lưu kho bốc lên xe ([`WarehouseSelectStoredOrdersModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-select-stored-orders-modal.tsx)) • API Bảng kê chuyến xe & Đơn xuất khả dụng ([`trip-manifest.ts`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/api/trip-manifest.ts), [`warehouse.controller.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.controller.ts), [`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)) • Sổ cái giao dịch kho & Quản lý vị trí Hub ([`operational-ledger.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/operational-ledger.service.ts), thực thể `OrderEntity`, `TripStopEntity`, `OrderInventoryTransactionEntity`) • Cơ sở dữ liệu PostgreSQL trên Neon Singapore (`ap-southeast-1.aws.neon.tech`)
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Nâng cấp Controller `WarehouseController` ([`warehouse.controller.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.controller.ts)); Bổ sung `@Query('hubId') hubId?: number` vào endpoint `@Get('trips/:tripCode/available-outbound-orders')`.; Cập nhật Swagger documentation `@ApiQuery({ name: 'hubId', required: false, type: Number, description: 'ID kho xuất của tài khoản đang thao tác' })`....
+  * **Frontend**: Cập nhật API Client & TanStack Query Hook ([`trip-manifest.ts`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/api/trip-manifest.ts)); Cập nhật hàm `getAvailableOutboundOrders(tripCode: string, hubId?: number | null)`; Cập nhật hook `useAvailableOutboundOrdersQuery(tripCode, hubId, enabled)`...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_02_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_07_10_task_21/RESOLUTION.md) • [`TODO.md`](feedback_07_10_task_21/TODO.md)
 
 ### 🚀 [FEEDBACK_07_10_TASK_12] — Feedback 07/10 Task 12 — Chuẩn Hóa Quản Lý Tồn Kho & Khắc Phục Lỗi Trạng Thái "LƯU KHO" Khi Số Lượng Tồn Bằng 0 (07/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (19/19 việc)

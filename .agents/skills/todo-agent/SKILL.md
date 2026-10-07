@@ -188,6 +188,48 @@ Once the problem is understood, the `todo-agent` generates a structured **Execut
 - [ ] Automated regression tests (Playwright E2E suite or API test).
 - [ ] Check off all tasks (`- [x]`) in `feedback_DD_MM*/TODO.md`.
 
+### 5. 🧪 Mandatory E2E Test Specification & Edge Cases Matrix Protocol (Quy Chuẩn Bắt Buộc Lập Kịch Bản E2E & Ma Trận Edge Cases)
+
+> ⚠️ **BẮT BUỘC CHO MỌI FEEDBACK TASK**: Một kế hoạch thực thi (`Execution Blueprint`) hoặc tài liệu `TODO.md` chỉ được coi là hợp lệ khi có **Kịch bản kiểm thử E2E chuẩn xác** và **Ma trận Edge Cases toàn diện**. Cả AI lập trình viên lẫn người quản lý vận hành (Human Operator) phải nhìn vào là hiểu ngay:
+> 1. *Sau khi sửa code xong, kịch bản chuẩn xác từng bước để test lại trên giao diện là gì?*
+> 2. *Có những tình huống biên (Edge cases) nào cần phải kiểm tra để chống hồi quy (regression)?*
+
+Mọi `TODO.md` và Execution Plan bắt buộc phải có mục:
+`## 🧪 Kịch bản Kiểm thử E2E Chuẩn xác & Ma trận Edge Cases (E2E Test Spec & Edge Cases)`
+Bao gồm đầy đủ 3 cấu phần cốt lõi:
+
+#### Cấu phần 1: Luồng Thao Tác Tuần Tự Từng Bước (Step-by-Step E2E Action Sequence)
+- **Tài khoản & Phân quyền**: Ghi rõ email/password và role (`WAREHOUSE_MANAGER` kho nào, `DISPATCHER`, hay `SUPER_ADMIN`).
+- **Tiền điều kiện dữ liệu (Pre-conditions)**: Dữ liệu DB cần có sẵn trước khi test (Mã chuyến xe nào, đang đỗ tại Hub nào, có bao nhiêu đơn hàng lưu kho khả dụng, mã đơn mẫu là gì).
+- **Các bước tương tác UI & Assertion chi tiết**:
+  - Bước 1: Đăng nhập và mở đúng URL màn hình.
+  - Bước 2: Thao tác click mở modal / dialog tương ứng.
+  - Bước 3: Intercept API call (kiểm tra status `200/201`, query params, request payload, response data).
+  - Bước 4: Kiểm tra trực quan UI (độ rộng Modal theo 5-Level Taxonomy, số lượng đếm $X/Y$, dropdown filters, cột bảng kê).
+  - Bước 5: Thao tác form / chọn dòng bảng và kiểm tra reactive metric counters (0ms).
+  - Bước 6: Submit hành động, assert toast thông báo tiếng Việt, assert modal tự đóng.
+  - Bước 7: Hậu kiểm (Post-conditions): Bảng kê cập nhật, DB đổi status, sổ cái phát sinh giao dịch, mở lại modal thấy dữ liệu đã được loại trừ (Idempotency).
+
+#### Cấu phần 2: Bảng Ma Trận Edge Cases Toàn Diện (Edge Cases Matrix)
+Tối thiểu từ **5 đến 10 tình huống biên**, lập bảng chuẩn 5 cột:
+| Mã Case | Tên tình huống biên (Edge Case) | Điều kiện kích hoạt (Trigger Condition) | Hành vi kỳ vọng (Expected Behavior) | Assertion kiểm tra chính xác |
+|:---:|---|---|---|---|
+| `EC-01` | **Zero-state (Kho rỗng / Dữ liệu rỗng)** | Khi kho/chuyến xe không có dữ liệu nào. | Hiển thị Empty State thân thiện, không crash React, nút submit disabled. | `expect(page.locator('text=...')).toBeVisible()` |
+| `EC-02` | **Data Boundary (Tồn kho = 0 / Hết hạn)** | Kiện hàng = 0, đơn đã xuất hết, đơn hủy/giao xong. | Bị loại trừ triệt để khỏi API và bảng UI, không cho phép bốc tiếp. | API response array không chứa item đó. |
+| `EC-03` | **Hub / Role Isolation (Cách ly dữ liệu)** | Đơn của kho A xem bởi thủ kho B. | Không bao giờ lọt dữ liệu chéo giữa các kho/chi nhánh. | Chỉ hiển thị dữ liệu thuộc `currentHubId`. |
+| `EC-04` | **Trip Idempotency (Trùng chuyến xe)** | Đơn đã bốc lên xe trước đó. | Không hiển thị lại để tránh gán trùng chuyến (duplicate assignment). | `order.currentTripCode !== tripCode`. |
+| `EC-05` | **Missing Optional Fields** | Đơn thiếu trạm nhận / chưa có ghi chú. | Giao diện vẫn render bình thường với nhãn fallback (`Chưa gán`, `Giao dọc đường`), không lỗi trắng trang. | Table row renders with fallback badge. |
+| `EC-06` | **Client-side Filters & Search** | Lọc dropdown trạm dỡ, gõ tìm kiếm keyword. | Danh sách lọc realtime mượt mà, xóa filter quay về 100% dữ liệu gốc. | Table count matches filter selection. |
+| `EC-07` | **Partial Actions (Thao tác một phần)** | Xuất một phần số kiện, chia tải xe. | Cập nhật số dư tồn còn lại chính xác, các chuyến sau chỉ thấy số dư này. | `remainingQuantity` giảm trừ đúng số lượng. |
+| `EC-08` | **Super Admin Bypass vs Scoped WM** | Super Admin (`hubId = null`) thao tác. | Kế thừa đúng ngữ cảnh kho của chuyến xe đang đỗ (`manifest.currentHubId`). | URL query param chứa đúng `hubId`. |
+| `EC-09` | **Concurrency & Conflict (Xung đột đồng thời)** | Đơn vừa bị user khác xuất đi ngay trước khi click. | Backend báo lỗi rõ ràng, frontend toast cảnh báo và reload dữ liệu. | Error toast localized, no silent failure. |
+| `EC-10` | **Re-open Modal Idempotency** | Đóng modal rồi mở lại ngay sau khi xuất. | Các đơn vừa xuất biến mất khỏi modal, không cần F5 trình duyệt. | TanStack Query cache invalidation auto-refresh. |
+
+#### Cấu phần 3: Định Danh Tệp Playwright E2E Test Suite
+- Chỉ định rõ file test: `frontend/e2e/<spec_file_name>.spec.ts`.
+- Lệnh chạy kiểm thử: `PLAYWRIGHT_BASE_URL=... API_URL=... npx playwright test e2e/<spec_file_name>.spec.ts`.
+- Tiêu chí Gate: 100% test cases pass, score auditor ≥ 40/50 qua `node scripts/e2e-auditor.mjs`.
+
 ---
 
 ## 6. Execution & Implementation Protocol ("Thực thi")

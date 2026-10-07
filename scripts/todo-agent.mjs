@@ -486,10 +486,29 @@ export function generateExecutionPlan(parsed) {
     output.push('- [ ] Kiểm thử luồng nghiệp vụ thực tế qua Playwright E2E hoặc kiểm tra API phản hồi.');
     output.push(`- [ ] Cập nhật toàn bộ trạng thái trong \`${folderName}/TODO.md\` từ \`[ ]\` thành \`[x]\`.`);
   }
+  // 4. Kịch bản Kiểm thử E2E & Ma trận Edge Cases
+  output.push('## 4. 🧪 KỊCH BẢN KIỂM THỬ E2E CHUẨN XÁC & MA TRẬN EDGE CASES');
+  output.push('Mọi thay đổi mã nguồn bắt buộc phải có kịch bản kiểm thử E2E rõ ràng cho cả AI và con người hiểu:');
+  output.push('');
+  output.push('### 🔄 Quy trình Thao tác Tuần tự (Step-by-Step E2E Workflow):');
+  output.push('1. **Bước 1 (Đăng nhập & Điều hướng)**: Đăng nhập tài khoản phân quyền tương ứng và truy cập route màn hình mục tiêu.');
+  output.push('2. **Bước 2 (Mở modal / Chế độ thao tác)**: Mở component tương ứng, kiểm tra layout và độ rộng Modal chuẩn 5 cấp độ (Level 1-5).');
+  output.push('3. **Bước 3 (API Intercept & Pre-check)**: Kiểm tra request params, response status 200, và dữ liệu khởi tạo không bị rỗng/lệch.');
+  output.push('4. **Bước 4 (Tương tác nghiệp vụ)**: Thao tác form / chọn dòng bảng, assert các counter cập nhật 0ms.');
+  output.push('5. **Bước 5 (Submit & Post-check)**: Gửi action, assert Toast thông báo tiếng Việt, assert modal đóng và dữ liệu tự động làm mới.');
+  output.push('');
+  output.push('### 🛡️ Ma trận Edge Cases Tối thiểu Cần Kiểm tra:');
+  output.push('| Mã Case | Tên tình huống biên (Edge Case) | Điều kiện kích hoạt | Hành vi kỳ vọng (Expected Behavior) |');
+  output.push('|:---:|---|---|---|');
+  output.push('| **EC-01** | **Zero-state (Dữ liệu rỗng)** | Khi danh sách hoặc kho không có phần tử nào. | Hiển thị Empty State rõ ràng, không crash giao diện, nút submit disabled. |');
+  output.push('| **EC-02** | **Boundary Data (Số liệu = 0)** | Kiện = 0, kg = 0, đơn đã xuất hết hoặc hủy. | Bị loại trừ khỏi danh sách khả dụng, không cho phép thao tác. |');
+  output.push('| **EC-03** | **Data Isolation (Phân quyền kho/role)** | Tài khoản kho A xem dữ liệu kho B. | Tuyệt đối không lọt dữ liệu chéo giữa các chi nhánh / Hub. |');
+  output.push('| **EC-04** | **Trip / Action Idempotency** | Thao tác 2 lần liên tiếp hoặc bốc lại đơn cũ. | Không gán trùng lặp, mở lại modal dữ liệu cũ đã biến mất khỏi danh sách. |');
+  output.push('| **EC-05** | **Filter & Live Search** | Gõ từ khóa tìm kiếm hoặc lọc dropdown. | Bảng lọc mượt mà, xóa filter quay về 100% dữ liệu gốc. |');
   output.push('');
 
-  // 4. Lệnh /goal chuẩn hóa cho Antigravity
-  output.push('## 4. ⚡ LỆNH /GOAL TỰ ĐỘNG KHỞI TẠO CHO AGENT');
+  // 5. Lệnh /goal chuẩn hóa cho Antigravity
+  output.push('## 5. ⚡ LỆNH /GOAL TỰ ĐỘNG KHỞI TẠO CHO AGENT');
   output.push('```text');
   output.push(`/goal Thực thi hoàn thiện ${folderName} — ${title}`);
   output.push(`- Thư mục nguồn: ${folderName}`);
