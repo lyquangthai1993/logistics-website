@@ -51,6 +51,16 @@ Mọi agent khi sinh code bắt buộc phải map sang bảng kích thước chu
 | **Chiều cao nút bấm (Button)** | `h-7` hoặc `h-8` (`size="sm"`) | **28px - 32px** | Nút bấm thao tác gọn gàng, text `text-xs` hoặc `text-[11px]`. |
 | **Padding ô bảng dữ liệu (`th`, `td`)** | `py-1 px-1.5` hoặc `py-0.5 px-1.5` | **Chiều cao dòng ~24px - 28px** | Cho phép hiển thị đồng thời 20 - 30 đơn hàng trên 1 màn hình. |
 
+### 3.1 ⚠️ CẢNH BÁO QUAN TRỌNG: MẬT ĐỘ GỌN BÊN TRONG vs. ĐỘ RỘNG KHUNG NGOÀI (MODAL WIDTH)
+- **Compact Density**: Áp dụng triệt để cho **padding, margin, gap và font-size nội bộ** (`p-1`, `p-2`, `gap-2`, `text-[10px]`) để gom gọn không gian và tăng số lượng item nhìn thấy.
+- **Modal Container Width**: **TUYỆT ĐỐI KHÔNG ĐƯỢC BÓP HẸP CHIỀU RỘNG MODAL**. Độ rộng của Modal phải tỷ lệ thuận với nội dung bên trong (tham chiếu `ui-ux-flow-designer` & `ui-spec-auditor`):
+  - **Level 1** (`sm:max-w-md`): Alert / Confirm xác nhận thao tác (1-3 dòng text).
+  - **Level 2** (`sm:max-w-xl` đến `sm:max-w-2xl`): Form 1 cột (3-6 ô input).
+  - **Level 3** (`sm:max-w-3xl` đến `sm:max-w-4xl`): Form 2 cột song song (>= 8 inputs), Master-Detail.
+  - **Level 4** (`w-[92vw] sm:max-w-5xl xl:max-w-6xl`): **BẮT BUỘC khi chứa Bảng dữ liệu (`<table>`) từ 5 cột trở lên**, kiểm đếm, đối soát hàng hóa.
+  - **Level 5** (`w-[96vw] max-w-7xl`): Bảng đối soát nhiều cột, xem trước bản in A4 Landscape, mapping cột Excel.
+- **Quy tắc cấm kỵ**: Nghiêm cấm đặt một bảng dữ liệu 6-10 cột vào Modal `max-w-sm`, `max-w-md` hoặc `max-w-xl`. Bảng bị bóp nát là vi phạm quy chuẩn nghiêm trọng!
+
 ---
 
 ## 4. 🔤 QUY CHUẨN CỠ CHỮ THU GỌN (COMPACT TYPOGRAPHY SCALE)

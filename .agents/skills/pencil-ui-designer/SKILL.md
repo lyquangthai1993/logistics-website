@@ -119,6 +119,14 @@ To ensure AI coding agents can unambiguously interpret and implement multi-step 
 6. **Automated Visual Verification Loop**:
    - Every `.pen` design is cross-checked against live Next.js UI using [`visual-pen-matcher`](file:///d:/Projects/logistics-website/.agents/skills/visual-pen-matcher/SKILL.md) (Sub-Agent F) in Playwright E2E suites.
 
+7. **Content-Driven Modal Frame Width (5-Level Sizing Rule)**:
+   - When drawing modal/dialog frames on the `.pen` canvas, the frame `width` MUST strictly adhere to the 5-Level taxonomy defined in [`ui-ux-flow-designer`](../ui-ux-flow-designer/SKILL.md):
+     - **Level 1 (Confirm/Alert)**: `width: 440` (height ~240)
+     - **Level 2 (1-Col Form)**: `width: 600` (height ~520)
+     - **Level 3 (2-Col Form / Master-Detail)**: `width: 860` (height ~640)
+     - **Level 4 (Data Table >= 5 cols / Tally / Stored Orders / Waybill Inspection)**: `width: 1120` đến `1260` (height ~720)
+     - **Level 5 (Super Wide / A4 Landscape / Excel Mapping)**: `width: 1380` đến `1440` (height ~840)
+   - **Strict Ban**: NEVER draw a modal frame containing a data table with width `< 1000px`. Squeezing tabular data into narrow modal frames causes severe column squishing and is an automatic auto-FAIL under [`ui-spec-auditor`](../ui-spec-auditor/SKILL.md).
 
 ---
 

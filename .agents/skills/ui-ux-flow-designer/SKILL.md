@@ -58,6 +58,82 @@ This skill provides a structured methodology for analyzing user roles, designing
 
 ---
 
+## 📐 Content-Driven Modal & Drawer Width Reasoning Framework (Quy Chuẩn Suy Luận Độ Rộng Modal / Drawer Theo Nội Dung)
+
+> ⚠️ **Triệt Tiêu Sai Lầm Cũ (CRITICAL RULE)**: Trước đây các agent thường nhầm lẫn giữa **Compact Density** (mật độ tinh gọn bên trong: `p-2`, `gap-2`, font `text-[10px]`) với **Modal Width** (chiều rộng khung ngoài), dẫn tới việc ép các Modal chứa Bảng dữ liệu hoặc Form phức tạp vào kích thước nhỏ hẹp (`max-w-sm`, `max-w-md`, 400px - 500px). Điều này làm **bóp nghẹt dữ liệu (squished)**, cắt cụt chữ, gây tràn ngang và làm hỏng trải nghiệm người dùng!
+>
+> 💡 **Nguyên Tắc Bất Biến**: **"NỘI DUNG QUYẾT ĐỊNH ĐỘ RỘNG — PADDING QUYẾT ĐỊNH MẬT ĐỘ"**.
+> Độ rộng Modal (Width) BẮT BUỘC phải được suy luận logic dựa trên khối lượng thông tin và số lượng cột dữ liệu hiển thị.
+
+### 1. Ma Trận Phân Cấp 5 Cấp Độ Độ Rộng Modal (5-Level Width Hierarchy):
+
+| Cấp độ | Tên gọi chuẩn | Độ rộng Tailwind | Độ rộng Pencil (.pen) | Đặc tính nội dung UI (Content Characteristics) | Ví dụ màn hình thực tế |
+|---|---|---|---|---|---|
+| **Level 1** | **Compact / Alert** (Hẹp) | `sm:max-w-md` (~448px) | `420px - 480px` | - Hộp thoại xác nhận hành động (Xóa xe, hủy đơn, đăng xuất).<br>- Chỉ có 1-3 dòng text thông báo + 2 nút (Hủy, Xác nhận).<br>- **Tuyệt đối không có bảng dữ liệu hay form dài**. | `DeleteConfirmDialog`, `AlertModal`, `OrderDeleteDialog` |
+| **Level 2** | **Standard Form** (Vừa) | `sm:max-w-xl` đến `sm:max-w-2xl` (~576px - 672px) | `560px - 660px` | - Biểu mẫu nhập liệu **1 cột** tuần tự (3 đến 6 fields).<br>- Ô nhập text/select cần không gian thoáng nhưng không quá dài.<br>- Đổi mật khẩu, tạo nhanh tài xế, nhập lý do từ chối. | `DriverFormDialog`, `UserFormDialog`, `NoVehicleDialog` |
+| **Level 3** | **Large Form** (Rộng) | `sm:max-w-3xl` đến `sm:max-w-4xl` (~768px - 896px) | `800px - 920px` | - Biểu mẫu **2 cột song song** (8 đến 15 fields).<br>- Form chia nhánh: Phân công xe + tài xế + chia chuyến (Split).<br>- Cấu hình nâng cao trạm Hub kèm bản đồ/tọa độ, bảng tổng hợp phụ phí. | `AssignVehicleDialog`, `OrderEditDialog`, `OrderCreateDialog` |
+| **Level 4** | **Tabular & Inspection** (Rất Rộng) | `w-[92vw] sm:max-w-5xl xl:max-w-6xl` (~1024px - 1152px) | `1100px - 1280px` | - **BẮT BUỘC khi chứa Bảng dữ liệu (`<table>`) từ 5 cột trở lên**.<br>- Bảng kê hàng hóa, kiểm đếm kiện hàng, danh sách đơn lưu kho.<br>- Master-Detail kết hợp Timeline Stepper 3 chặng + Thẻ kho + Bảng chi tiết kiện hàng. | `WarehouseSelectStoredOrdersModal`, `WarehouseTallyModal`, `WarehouseLookupModal`, `WarehouseWaybillDetailModal` |
+| **Level 5** | **Super Wide / Fluid** (Cực Rộng) | `w-[96vw] max-w-7xl` hoặc `max-w-[1440px]` (~1280px - 1440px) | `1360px - 1440px` | - Bảng đối soát nhiều cột (>= 8-10 cột) hoặc nhiều sub-table lồng ghép.<br>- **Xem trước bản in A4 Landscape** (Phiếu nhập kho, Phiếu xuất kho).<br>- Giao diện Import file Excel của khách hàng: preview lưới dữ liệu thô và mapping cột. | `WarehouseTripDetailModal`, `WarehouseExcelImportModal`, `WarehouseOutboundReceiptModal` (Landscape), `PalletLabelA4Modal` |
+
+### 2. Quy Trình Suy Luận Tự Động (Autonomous Width Deduction Flowchart):
+
+Trước khi vẽ Frame Modal trên Pencil MCP hoặc viết component Dialog trong code Next.js, agent bắt buộc phải trả lời 4 câu hỏi suy luận sau:
+
+```text
+                             [BẮT ĐẦU THIẾT KẾ MODAL]
+                                         │
+                   ┌─────────────────────┴─────────────────────┐
+                   ▼                                           ▼
+      Có chứa Bảng dữ liệu (Table)?              Không có Bảng dữ liệu
+                   │                                           │
+         ┌─────────┴─────────┐                       ┌─────────┴─────────┐
+         ▼                   ▼                       ▼                   ▼
+  Table >= 5 cột      Table Excel / A4        Chỉ có Form nhập     Chỉ có Alert / Confirm
+         │             hoặc >= 8 cột                 │                   │
+         │                   │             ┌─────────┴─────────┐         ▼
+         │                   │             ▼                   ▼      LEVEL 1
+         │                   │         Form 2 cột         Form 1 cột  (sm:max-w-md
+         │                   │       (>= 8 fields)       (3-6 fields)  420-480px)
+         │                   │             │                   │
+         ▼                   ▼             ▼                   ▼
+      LEVEL 4             LEVEL 5       LEVEL 3             LEVEL 2
+ (sm:max-w-5xl/6xl)     (max-w-7xl/     (sm:max-w-3xl/4xl)  (sm:max-w-xl/2xl
+  1100px - 1280px        w-[96vw])       800px - 920px)      560px - 660px)
+                      1360px - 1440px
+```
+
+### 3. Quy Tắc Kỹ Thuật Khi Triển Khai (Tailwind & Pencil Code Rules):
+
+1. **Quy tắc độ rộng cho Bảng dữ liệu (Table Column Protection Rule)**:
+   - Nghiêm cấm tuyệt đối nhét bảng từ 5 cột trở lên vào modal `max-w-md`, `max-w-lg` hoặc `max-w-xl`.
+   - Mỗi cột dữ liệu số liệu (Kiện, Kg, m³) cần tối thiểu 60-80px; cột mã đơn cần 110px; cột tên hàng hóa cần 180-220px; cột địa chỉ cần 200-260px. Một bảng 7 cột cần tối thiểu `900px` chiều rộng nội dung hữu ích.
+2. **Quy tắc Form 2 cột (Split Form Rule)**:
+   - Form 2 cột cần tối thiểu 360px cho mỗi cột để các ô Select, DatePicker và Input hiển thị rõ ràng cả Label lẫn placeholder mà không bị co kéo. Do đó tổng chiều rộng modal tối thiểu là `sm:max-w-3xl` (768px).
+3. **Cú pháp Tailwind chuẩn trong React/Next.js**:
+   - Để tránh xung đột với class mặc định và đảm bảo hiển thị đúng trên mọi thiết bị:
+     ```tsx
+     // ✅ Đúng cho Modal Bảng dữ liệu Level 4:
+     <DialogContent className="w-[95vw] sm:max-w-5xl xl:max-w-6xl max-h-[90vh] p-2 flex flex-col gap-2">
+     
+     // ✅ Đúng cho Modal Chi tiết chuyến / Bản in A4 Level 5:
+     <DialogContent className="w-[96vw] max-w-7xl max-h-[92vh] p-0 flex flex-col overflow-hidden">
+     
+     // ✅ Đúng cho Form 2 cột Level 3:
+     <DialogContent className="w-[95vw] sm:max-w-3xl max-h-[90vh] p-3 overflow-y-auto">
+     
+     // ✅ Đúng cho Alert Confirm Level 1:
+     <DialogContent className="sm:max-w-md p-4">
+     ```
+4. **Quy chuẩn kích thước trên Pencil Canvas (`.pen`)**:
+   - Khi tạo Frame Modal trên canvas Pencil:
+     - Level 4 (Table Modal): Đặt thuộc tính `width: 1120`, `height: 720`.
+     - Level 5 (Super Wide): Đặt thuộc tính `width: 1380`, `height: 840`.
+     - Level 3 (2-Col Form): Đặt thuộc tính `width: 860`, `height: 640`.
+     - Level 2 (1-Col Form): Đặt thuộc tính `width: 600`, `height: 520`.
+     - Level 1 (Confirm): Đặt thuộc tính `width: 440`, `height: 240`.
+
+---
+
 ## 🎯 Target Roles & Operational Journeys (Spider Express)
 
 1. **DISPATCHER (Operational Coordinator)**:

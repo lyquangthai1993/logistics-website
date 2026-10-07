@@ -38,7 +38,7 @@ Mọi agent (Claude, Gemini, subagents) khi tạo mới hoặc sửa code trong 
 | **CardHeader** | `py-1 px-1 border-b` | **4px** | Tiêu đề gọn gàng, cách nội dung bởi border kẻ mảnh. |
 | **Toolbar / Filter Card** | `p-1 py-0` | **4px** | Ôm sát thanh tìm kiếm, preset ngày tháng và tab trạng thái. |
 | **Bảng kê / Data Card** | `p-1` | **4px** | Ôm sát viền bảng dữ liệu, tránh tạo viền trắng kép. |
-| **Modal / Dialog Body** | `p-2` (tối đa `p-2.5`) | **8px - 10px** | Thay thế hoàn toàn cho `p-4` cũ. Có `overflow-y-auto max-h-[80vh]`. |
+| **Modal / Dialog Body** | `p-2` (tối đa `p-2.5`) | **8px - 10px** | Thay thế hoàn toàn cho `p-4` cũ. Có `overflow-y-auto max-h-[85vh]`. |
 | **Modal Header & Footer** | `py-1.5 px-2` (hoặc `p-2`) | **6px - 8px** | Header và thanh nút bấm dưới chân modal sát mép, tiết kiệm diện tích. |
 | **Khoảng cách giữa các Section** | `space-y-1.5` hoặc `space-y-2` | **6px - 8px** | Thay thế cho `space-y-3` / `space-y-4`. |
 | **Khoảng cách trong Form Grid** | `gap-1.5` hoặc `gap-2` | **6px - 8px** | Thay thế cho `gap-3` / `gap-4`. |
@@ -46,6 +46,20 @@ Mọi agent (Claude, Gemini, subagents) khi tạo mới hoặc sửa code trong 
 | **Chiều cao Input / Select** | `h-8` đến `h-8.5` | **32px** | Cỡ chữ ô nhập liệu: `text-xs` hoặc `text-[11px]`. |
 | **Chiều cao Button** | `h-7` hoặc `h-8` (`size="sm"`) | **28px - 32px** | Nút bấm thao tác gọn gàng, text `text-xs` hoặc `text-[11px]`. |
 | **Padding ô bảng (`th`, `td`)** | `py-1 px-1.5` hoặc `py-0.5 px-1.5` | **Chiều cao dòng ~24px - 28px** | Tăng gần gấp đôi số lượng item hiển thị đồng thời trên một màn hình. |
+
+### 3.1 Phân Biệt Sống Còn: Mật Độ Tinh Gọn Bên Trong (Compact Density) vs. Chiều Rộng Khung Modal (Container Width)
+
+> ⚠️ **CẢNH BÁO SAI LẦM NGHIÊM TRỌNG**:
+> "Giao diện hẹp & triệt tiêu khoảng cách thừa" là quy chuẩn dành cho **padding, margin, gap và font-size bên trong** component.
+> **TUYỆT ĐỐI KHÔNG ĐƯỢC ĐỒNG NHẤT VỚI VIỆC BÓP HẸP CHIỀU RỘNG KHUNG MODAL!**
+> Việc ép một Modal chứa Bảng dữ liệu 6-10 cột vào `max-w-sm` hay `max-w-md` là một **lỗi thiết kế thô thiển**, làm co rúm dữ liệu (squished columns) và phá hủy tính khả dụng của Quản lý kho.
+
+**Ma trận suy luận chiều rộng Modal theo nội dung thực tế (tham chiếu `ui-ux-flow-designer` & `ui-spec-auditor`)**:
+1. **Level 1 — Alert / Confirm** (`sm:max-w-md` / 440px): Xác nhận xóa, cảnh báo đơn giản (1-3 dòng text, 2 nút).
+2. **Level 2 — Single-Column Form** (`sm:max-w-xl` đến `sm:max-w-2xl` / 580px - 660px): Biểu mẫu 1 cột đơn giản (3-6 ô input dọc).
+3. **Level 3 — Multi-Column Form** (`sm:max-w-3xl` đến `sm:max-w-4xl` / 800px - 920px): Form 2 cột song song (>= 8 inputs), Master-Detail form, phân công chuyến xe.
+4. **Level 4 — Tabular Data & Inspection** (`w-[92vw] sm:max-w-5xl xl:max-w-6xl` / 1100px - 1280px): **BẮT BUỘC khi chứa Bảng dữ liệu (`<table>`) từ 5 cột trở lên**, bảng kê hàng hóa, kiểm đếm kiện hàng, chọn đơn lưu kho, chi tiết vận đơn có Stepper + Bảng kiện.
+5. **Level 5 — Super Wide / Fluid** (`w-[96vw] max-w-7xl` / 1360px - 1440px): Bảng đối soát nhiều cột, xem trước bản in A4 Landscape, màn hình import & mapping cột Excel.
 
 ---
 

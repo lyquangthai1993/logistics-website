@@ -110,9 +110,11 @@ Each dimension is scored by counting **checkpoint violations**. Each violation d
 
 | Checkpoint | Points Deducted on Violation | Auto-FAIL? |
 |---|---|---|
+| **Modal Width Under-sizing / Squished Content (Độ rộng Modal không tương xứng với nội dung)** — Kiểm tra theo Ma trận 5 cấp độ trong `ui-ux-flow-designer`: Modal chứa Bảng dữ liệu (`<table>` >= 5 cột), Bảng đối soát Excel, hoặc Master-Detail 2 cột mà bị ép vào width hẹp (`< max-w-4xl`, ví dụ `sm:max-w-md`, `max-w-xl`, hoặc Pencil canvas width < 900px) gây bóp nghẹt cột, chữ tràn mép hoặc bắt cuộn ngang quá mức. | -6 to -10 (full dimension) | **YES (nếu bảng dữ liệu bị bóp nát/squished)** |
+| **Modal Form Layout Sizing Mismatch** — Form 2 cột song song hoặc >= 8 fields nhưng chỉ dùng `max-w-md` / `max-w-lg` khiến các ô input bị bó hẹp | -3 per occurrence | No |
 | **Text overflow / clipping / boundary bleed (chữ bị cắt cụt lủn, tràn mép container do độ rộng chuỗi vượt quá kích thước ô/card/nút chứa nó)** — Bắt buộc kiểm tra Box Model Geometry (`text.length * fontSize * 0.58 > parent.width`) | -4 per overflowing element | No (-5 if critical word clipped) |
 | **Broken line breaks / awkward text wrapping (chữ không cùng hàng, rớt dòng cụt lủn trong table headers, cells, badge/button labels, input labels)** — Được đánh giá là **TỆ** về mặt typography | -3 per broken text wrap | No |
-| **Violates UI Compact Density / Bloated Spacing** (Includes any banned classes: `p-4`, `p-5`, `p-6`, `space-y-3`, `space-y-3.5`, `space-y-4`, `gap-3`, `gap-4`, Card padding > 4px, Modal body > 10px, or section gaps > 8px) per [`.agents/rules/ui-compact-density.md`](../../rules/ui-compact-density.md) and [`ui-spacing-guard`](../ui-spacing-guard/SKILL.md) | -4 per bloated section (-10 full dimension if banned classes present in operational views) | **YES** |
+| **Violates UI Compact Density / Bloated Spacing** (Includes any banned classes: `p-4`, `p-5`, `p-6`, `space-y-3`, `space-y-3.5`, `space-y-4`, `gap-3`, `gap-4`, Card padding > 4px, Modal body > 10px, or section gaps > 8px) per [`.agents/rules/ui-compact-density.md`](../../rules/ui-compact-density.md) and [`ui-spacing-guard`](../ui-spacing-guard/SKILL.md). *Lưu ý: Compact Density áp dụng cho padding/gap bên trong, KHÔNG PHẢI bóp hẹp chiều rộng khung Modal!* | -4 per bloated section (-10 full dimension if banned classes present in operational views) | **YES** |
 | Full-page horizontal scroll exists at 375px (iPhone) viewport width | -3 | No |
 | Non-relevant data fields for current status are not hidden/collapsible on mobile | -2 | No |
 | Action buttons not labeled in Vietnamese (shows raw English enum or code) | -2 | No |
@@ -153,6 +155,7 @@ After scoring all 5 dimensions, produce a report using this exact format:
 - [ ] D2: No state-switching logic found
 - [ ] D3: hubId scope not enforced
 - [ ] D4: SKU field detected in business rule check
+- [ ] D5: Modal width under-sizing (Modal chứa Bảng dữ liệu >= 5 cột hoặc Form 2 cột bị bóp vào width hẹp < max-w-4xl, gây co rúm cột / squished columns)
 
 ### Warnings (Non-blocking, must fix before next sprint)
 - [WARN-D1] [Description with spec reference]
@@ -203,6 +206,7 @@ Step 4: Repeat until CLEARED (score >= 40/50, 0 Auto-FAIL)
 - [ ] Verified Detail/Inspection views are strictly read-only (no create mode tabs, no editable inputs, no editable table grids)
 - [ ] Verified single-line text consistency (no broken line breaks / chữ rớt dòng cụt lủn trong table headers, cells, labels)
 - [ ] Verified Box Model Geometry (no text overflow / clipping / boundary bleed: text width must fit container without clipping)
+- [ ] Verified Modal Width conforms to 5-Level Content Taxonomy (Table >= 5 cols uses >= max-w-5xl/w-[92vw]; 2-col form uses >= max-w-3xl; Alert uses max-w-md — ZERO squished modal tables)
 - [ ] Verified no spec notes or prompt nodes drawn inside UI frame (all notes must be in external side panel or markdown docs)
 - [ ] Verified no Auto-FAIL triggers activated
 - [ ] Produced Audit Report in standard format
