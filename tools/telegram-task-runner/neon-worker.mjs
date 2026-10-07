@@ -503,8 +503,86 @@ ${targetSection}
 `.trim();
 }
 
+// Xây dựng prompt chuẩn hóa với vai trò /git-commit-reviewer để đồng bộ dev lên master
+function buildSyncPrompt(rawPrompt, senderName = 'User') {
+  return `
+BẮT BUỘC KÍCH HOẠT SKILL /git-commit-reviewer ĐỂ ĐỒNG BỘ NHÁNH DEV LÊN MASTER:
+1. Bạn BẮT BUỘC đọc và tuân thủ file AGENTS.md và skill .agents/skills/git-commit-reviewer/SKILL.md tại workspace D:\\Projects\\logistics-website.
+
+2. MỤC TIÊU NHIỆM VỤ:
+- Người dùng @${senderName} yêu cầu đồng bộ toàn bộ thay đổi đã hoàn thiện và kiểm thử trên nhánh 'dev' lên nhánh 'master' (Production) cho toàn bộ 3 Git repositories:
+  (1) Backend submodule: D:\\Projects\\logistics-website\\backend
+  (2) Frontend submodule: D:\\Projects\\logistics-website\\frontend
+  (3) Root repository: D:\\Projects\\logistics-website
+
+3. QUY TRÌNH THỰC HIỆN ĐỒNG BỘ AN TOÀN (SYNC & SUBMODULE-FIRST PUSH PROTOCOL):
+   - BƯỚC 1: KIỂM TRA TRẠNG THÁI & COMMITS MỚI CỦA DEV:
+     * Đảm bảo working tree trong backend/ và frontend/ sạch sẽ (nếu có uncommitted changes không mong muốn, cần stash hoặc loại bỏ).
+     * Liệt kê các commit mới trên nhánh dev so với master:
+       + git -C backend log master..dev --oneline
+       + git -C frontend log master..dev --oneline
+       + git log master..dev --oneline
+
+   - BƯỚC 2: AUDIT BẢO MẬT & NGUYÊN TẮC (THEO SKILL /git-commit-reviewer):
+     * Quét các commit và diff từ dev sẽ merge vào master:
+       + TUYỆT ĐỐI không có secrets, API keys, credentials, token, private key.
+       + TUYỆT ĐỐI không có file .env.*, MCP config files.
+       + TUYỆT ĐỐI không có destructive SQL (DROP TABLE, TRUNCATE, raw DELETE không có WHERE).
+       + TUYỆT ĐỐI không có synchronize: true trong TypeORM DataSource.
+     * Nếu phát hiện bất kỳ vi phạm bảo mật nghiêm trọng nào: DỪNG LẠI NGAY LẬP TỨC và báo cáo, KHÔNG PUSH LÊN MASTER!
+
+   - BƯỚC 3: MERGE VÀ PUSH THEO THỨ TỰ SUBMODULE-FIRST (BẮT BUỘC):
+     * (1) Backend Submodule:
+       + cd backend
+       + git checkout master
+       + git pull origin master --rebase || git pull origin master
+       + git merge dev --no-ff -m "chore(sync): merge branch 'dev' into master"
+       + Kiểm tra build backend: npm run build --prefix backend (bắt buộc pass)
+       + git push origin master
+       + cd ..
+     * (2) Frontend Submodule:
+       + cd frontend
+       + git checkout master
+       + git pull origin master --rebase || git pull origin master
+       + git merge dev --no-ff -m "chore(sync): merge branch 'dev' into master"
+       + Kiểm tra typecheck frontend: npx --prefix frontend tsc --noEmit (bắt buộc pass)
+       + git push origin master
+       + cd ..
+     * (3) Root Repository:
+       + git checkout master
+       + git pull origin master --rebase || git pull origin master
+       + git merge dev --no-ff -m "chore(sync): merge branch 'dev' into master"
+       + Cập nhật con trỏ submodules trỏ tới commit mới nhất trên master:
+         git add backend frontend
+         git commit -m "chore(submodules): update backend and frontend pointers to latest master" --allow-empty
+       + git push origin master
+
+   - BƯỚC 4: CHUYỂN LẠI TOÀN BỘ CÁC REPOSITORY VỀ NHÁNH DEV:
+     * Để môi trường làm việc local tiếp tục phát triển ở nhánh dev an toàn:
+       + git -C backend checkout dev
+       + git -C frontend checkout dev
+       + git checkout dev
+
+   - BƯỚC 5: BÁO CÁO KẾT QUẢ VỀ TELEGRAM (BẮT BUỘC FORMAT NÀY):
+     * Bắt đầu bằng: "🚀 ĐỒNG BỘ DEV ➔ MASTER THÀNH CÔNG (REVIEWED BY /git-commit-reviewer)"
+     * Tóm tắt ngắn gọn các tính năng/sửa lỗi chính vừa được đưa lên master:
+       - Backend: [Các API, Entities, Migrations đã đồng bộ]
+       - Frontend: [UI components, Pages, E2E specs đã đồng bộ]
+       - Root: [Cập nhật submodule pointers]
+     * Trạng thái Git Remote:
+       - Backend: origin/master [Up-to-date]
+       - Frontend: origin/master [Up-to-date]
+       - Root: origin/master [Up-to-date]
+     * Trạng thái Workspace: Đã chuyển lại nhánh 'dev' an toàn.
+`.trim();
+}
+
 // Hàm điều phối prompt tổng quát
 function buildTaskPrompt(rawPrompt, feedbackDir, imagePaths = [], senderName = 'User') {
+  const isSync = /^\s*(\/sync|sync-master|sync\s*dev|đồng\s*bộ\s*master|đồng\s*bộ\s*dev)/i.test(rawPrompt);
+  if (isSync) {
+    return buildSyncPrompt(rawPrompt, senderName);
+  }
   const isTodoAgent = /^\s*(\/todo|\/force|\/run|\/exec|\/now|todo-agent|force-todo|run-todo|thực thi|triển khai|chạy ngay|làm ngay)/i.test(rawPrompt);
   if (isTodoAgent) {
     return buildTodoAgentPrompt(rawPrompt, feedbackDir, senderName);
@@ -708,15 +786,18 @@ async function executeAgyTask(task) {
   console.log(`📂 Workspace: ${WORKSPACE_DIR}`);
   console.log(`========================================`);
 
-  // Phân biệt chế độ /leader (tổng hợp TODO) vs todo-agent (thực thi code)
-  const isTodoAgentMode = /^\s*(\/todo|\/force|\/run|\/exec|\/now|todo-agent|force-todo|run-todo|thực thi|triển khai|chạy ngay|làm ngay)/i.test(rawPrompt);
+  // Phân biệt chế độ /sync vs todo-agent vs /leader
+  const isSyncMode = /^\s*(\/sync|sync-master|sync\s*dev|đồng\s*bộ\s*master|đồng\s*bộ\s*dev)/i.test(rawPrompt);
+  const isTodoAgentMode = !isSyncMode && /^\s*(\/todo|\/force|\/run|\/exec|\/now|todo-agent|force-todo|run-todo|thực thi|triển khai|chạy ngay|làm ngay)/i.test(rawPrompt);
 
   // 1. Xác định thư mục feedback
   let feedbackDir = (task.feedback_dir && fs.existsSync(task.feedback_dir))
     ? task.feedback_dir
     : null;
 
-  if (isTodoAgentMode) {
+  if (isSyncMode) {
+    feedbackDir = WORKSPACE_DIR;
+  } else if (isTodoAgentMode) {
     if (!feedbackDir) {
       const match = rawPrompt.match(/feedback_\d{1,2}_\d{1,2}[a-zA-Z0-9_]*/i);
       if (match) {
@@ -742,7 +823,7 @@ async function executeAgyTask(task) {
     }
   }
 
-  console.log(`📁 Feedback Dir: ${feedbackDir} (Mode: ${isTodoAgentMode ? 'TODO_AGENT' : 'LEADER'})`);
+  console.log(`📁 Feedback Dir: ${feedbackDir} (Mode: ${isSyncMode ? 'SYNC_MASTER' : (isTodoAgentMode ? 'TODO_AGENT' : 'LEADER')})`);
 
   // 2. Tải tất cả ảnh đính kèm từ Telegram vào feedbackDir (nếu có)
   const savedImagePaths = [];
@@ -763,20 +844,27 @@ async function executeAgyTask(task) {
   }
 
   // 3. Gửi thông báo bắt đầu lên Telegram
-  const startMsg = isTodoAgentMode
-    ? `⏳ <b>[Antigravity todo-agent] Đang bắt đầu thực thi Task #${taskId}...</b> <code>(⏱️ 0s)</code>\n\n` +
-      `👤 <b>Người gửi / Trigger:</b> ${escapeHtml(senderName)}\n` +
-      `📁 <b>Thư mục mục tiêu:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
-      `📝 <b>Yêu cầu:</b> <i>"${escapeHtml(rawPrompt)}"</i>\n` +
-      `🤖 <b>Chế độ:</b> <code>todo-agent</code> (Thực thi code & kiểm thử)\n\n` +
-      `💡 <i>Tiến trình AI đang đọc TODO.md, đối chiếu mã nguồn, thực thi sửa đổi và chạy build test trên laptop. Tự động cập nhật mỗi 25s...</i>`
-    : `⏳ <b>[Antigravity /leader] Đang tiếp nhận Task #${taskId}...</b> <code>(⏱️ 0s)</code>\n\n` +
-      `👤 <b>Người gửi:</b> ${escapeHtml(senderName)}\n` +
-      (savedImagePaths.length > 0 ? `📸 <b>Hình ảnh:</b> <code>${savedImagePaths.length} ảnh đã lưu vào feedback dir</code>\n` : '') +
-      `📝 <b>Yêu cầu:</b> <i>"${escapeHtml(rawPrompt)}"</i>\n` +
-      `🤖 <b>Chế độ:</b> <code>/leader</code> (TMS Business Lead)\n` +
-      `📁 <b>Thư mục đầu ra:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}/TODO.md</code>\n\n` +
-      `💡 <i>Tiến trình AI đang rà soát ảnh chụp, kiểm tra codebase và tổng hợp TODO.md trên laptop. Tự động cập nhật mỗi 25s...</i>`;
+  const startMsg = isSyncMode
+    ? `⏳ <b>[Antigravity /sync] Đang bắt đầu đồng bộ dev lên master...</b> <code>(⏱️ 0s)</code>\n\n` +
+      `👤 <b>Người yêu cầu:</b> ${escapeHtml(senderName)}\n` +
+      `📝 <b>Lệnh:</b> <code>${escapeHtml(rawPrompt)}</code>\n` +
+      `🤖 <b>Chế độ:</b> <code>/sync</code> (Review qua <code>/git-commit-reviewer</code>)\n` +
+      `🌿 <b>Mục tiêu:</b> Merge <code>dev</code> ➔ <code>master</code>, audit bảo mật, build check & push submodules\n\n` +
+      `💡 <i>Tiến trình AI đang audit diff các submodules, merge nhánh và chuẩn bị push lên Production. Tự động cập nhật mỗi 25s...</i>`
+    : (isTodoAgentMode
+      ? `⏳ <b>[Antigravity todo-agent] Đang bắt đầu thực thi Task #${taskId}...</b> <code>(⏱️ 0s)</code>\n\n` +
+        `👤 <b>Người gửi / Trigger:</b> ${escapeHtml(senderName)}\n` +
+        `📁 <b>Thư mục mục tiêu:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
+        `📝 <b>Yêu cầu:</b> <i>"${escapeHtml(rawPrompt)}"</i>\n` +
+        `🤖 <b>Chế độ:</b> <code>todo-agent</code> (Thực thi code & kiểm thử)\n\n` +
+        `💡 <i>Tiến trình AI đang đọc TODO.md, đối chiếu mã nguồn, thực thi sửa đổi và chạy build test trên laptop. Tự động cập nhật mỗi 25s...</i>`
+      : `⏳ <b>[Antigravity /leader] Đang tiếp nhận Task #${taskId}...</b> <code>(⏱️ 0s)</code>\n\n` +
+        `👤 <b>Người gửi:</b> ${escapeHtml(senderName)}\n` +
+        (savedImagePaths.length > 0 ? `📸 <b>Hình ảnh:</b> <code>${savedImagePaths.length} ảnh đã lưu vào feedback dir</code>\n` : '') +
+        `📝 <b>Yêu cầu:</b> <i>"${escapeHtml(rawPrompt)}"</i>\n` +
+        `🤖 <b>Chế độ:</b> <code>/leader</code> (TMS Business Lead)\n` +
+        `📁 <b>Thư mục đầu ra:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}/TODO.md</code>\n\n` +
+        `💡 <i>Tiến trình AI đang rà soát ảnh chụp, kiểm tra codebase và tổng hợp TODO.md trên laptop. Tự động cập nhật mỗi 25s...</i>`);
 
   const startRes = await sendTelegramMessage(chatId, startMsg, 'HTML', TASK_ACTIONS_KEYBOARD);
   const progressMsgId = startRes?.result?.message_id || null;
@@ -885,14 +973,19 @@ async function executeAgyTask(task) {
       const s = elapsed % 60;
       const timeStr = m > 0 ? `${m}m ${s}s` : `${s}s`;
 
-      let progressText = isTodoAgentMode
-        ? `⏳ <b>[Antigravity todo-agent] Đang triển khai code Task #${taskId}...</b> <code>(⏱️ ${timeStr})</code>\n\n` +
-          `📁 <b>Thư mục mục tiêu:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
+      let progressText = isSyncMode
+        ? `⏳ <b>[Antigravity /sync] Đang đồng bộ dev lên master Task #${taskId}...</b> <code>(⏱️ ${timeStr})</code>\n\n` +
+          `🌿 <b>Nhánh:</b> <code>dev</code> ➔ <code>master</code> (Production)\n` +
+          `🛡️ <b>Auditor:</b> <code>/git-commit-reviewer</code>\n` +
           `━━━━━━━━━━━━━━━━━━━━\n`
-        : `⏳ <b>[Antigravity /leader] Đang tổng hợp TODO.md Task #${taskId}...</b> <code>(⏱️ ${timeStr})</code>\n\n` +
-          `📝 <i>"${escapeHtml(rawPrompt.length > 100 ? rawPrompt.slice(0, 97) + '...' : rawPrompt)}"</i>\n` +
-          `📁 <b>Thư mục:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
-          `━━━━━━━━━━━━━━━━━━━━\n`;
+        : (isTodoAgentMode
+          ? `⏳ <b>[Antigravity todo-agent] Đang triển khai code Task #${taskId}...</b> <code>(⏱️ ${timeStr})</code>\n\n` +
+            `📁 <b>Thư mục mục tiêu:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
+            `━━━━━━━━━━━━━━━━━━━━\n`
+          : `⏳ <b>[Antigravity /leader] Đang tổng hợp TODO.md Task #${taskId}...</b> <code>(⏱️ ${timeStr})</code>\n\n` +
+            `📝 <i>"${escapeHtml(rawPrompt.length > 100 ? rawPrompt.slice(0, 97) + '...' : rawPrompt)}"</i>\n` +
+            `📁 <b>Thư mục:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
+            `━━━━━━━━━━━━━━━━━━━━\n`);
 
       if (conversationId) {
         progressText += `🆔 <b>Session:</b> <code>${conversationId.slice(0, 8)}...</code>\n`;
@@ -901,9 +994,11 @@ async function executeAgyTask(task) {
       if (latestToolAction) {
         progressText += `📍 <b>Bước hiện tại (#${currentStepIndex}):</b> <code>${escapeHtml(latestToolAction)}</code>\n`;
       } else {
-        progressText += isTodoAgentMode
-          ? `📍 <b>Trạng thái:</b> <i>Đang đọc TODO.md và phân tích cấu trúc submodules...</i>\n`
-          : `📍 <b>Trạng thái:</b> <i>Đang rà soát ảnh chụp và đối chiếu mã nguồn...</i>\n`;
+        progressText += isSyncMode
+          ? `📍 <b>Trạng thái:</b> <i>Đang audit commit & merge submodules...</i>\n`
+          : (isTodoAgentMode
+            ? `📍 <b>Trạng thái:</b> <i>Đang đọc TODO.md và phân tích cấu trúc submodules...</i>\n`
+            : `📍 <b>Trạng thái:</b> <i>Đang rà soát ảnh chụp và đối chiếu mã nguồn...</i>\n`);
       }
 
       progressText += `\n💡 <i>Tự động cập nhật mỗi 25s...</i>`;
@@ -1055,27 +1150,36 @@ async function executeAgyTask(task) {
         const formattedHtml = markdownToTelegramHtml(cleanOutput);
         const gitDiff = getGitDiffStat();
 
-        let finalReport = isTodoAgentMode
-          ? `🎯 <b>[KẾT QUẢ TASK #${taskId}] - TODO-AGENT HOÀN TẤT THỰC THI & DEV VERIFIED</b> <code>(⏱️ ${timeStr})</code>\n\n` +
-            `📁 <b>Thư mục Feedback:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
-            (hasTodoCreated ? `📄 <b>Checklist:</b> <code>${path.relative(WORKSPACE_DIR, todoFile)}</code>\n` : '') +
+        let finalReport = isSyncMode
+          ? `🎯 <b>[KẾT QUẢ TASK #${taskId}] - ĐỒNG BỘ DEV ➔ MASTER HOÀN TẤT</b> <code>(⏱️ ${timeStr})</code>\n\n` +
+            `👤 <b>Người yêu cầu:</b> ${escapeHtml(senderName)}\n` +
+            `🛡️ <b>Auditor:</b> <code>/git-commit-reviewer</code> (Audit an toàn & Submodule-first push)\n` +
+            `🌿 <b>Nhánh:</b> <code>dev</code> ➔ <code>master</code> (Production)\n` +
             (conversationId ? `🆔 <b>Session:</b> <code>${conversationId}</code>\n\n` : '\n') +
             formattedHtml
-          : `🎯 <b>[KẾT QUẢ TASK #${taskId}] - TỔNG HỢP TODO.MD HOÀN TẤT</b> <code>(⏱️ ${timeStr})</code>\n\n` +
-            `📁 <b>Thư mục Feedback:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
-            (hasTodoCreated ? `📄 <b>File TODO:</b> <code>${path.relative(WORKSPACE_DIR, todoFile)}</code> (✅ Đã tạo thành công)\n` : '') +
-            (savedImagePaths.length > 0 ? `📸 <b>Hình ảnh:</b> <code>${savedImagePaths.length} ảnh đã lưu trữ kèm TODO</code>\n` : '') +
-            (conversationId ? `🆔 <b>Session:</b> <code>${conversationId}</code>\n\n` : '\n') +
-            formattedHtml;
+          : (isTodoAgentMode
+            ? `🎯 <b>[KẾT QUẢ TASK #${taskId}] - TODO-AGENT HOÀN TẤT THỰC THI & DEV VERIFIED</b> <code>(⏱️ ${timeStr})</code>\n\n` +
+              `📁 <b>Thư mục Feedback:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
+              (hasTodoCreated ? `📄 <b>Checklist:</b> <code>${path.relative(WORKSPACE_DIR, todoFile)}</code>\n` : '') +
+              (conversationId ? `🆔 <b>Session:</b> <code>${conversationId}</code>\n\n` : '\n') +
+              formattedHtml
+            : `🎯 <b>[KẾT QUẢ TASK #${taskId}] - TỔNG HỢP TODO.MD HOÀN TẤT</b> <code>(⏱️ ${timeStr})</code>\n\n` +
+              `📁 <b>Thư mục Feedback:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
+              (hasTodoCreated ? `📄 <b>File TODO:</b> <code>${path.relative(WORKSPACE_DIR, todoFile)}</code> (✅ Đã tạo thành công)\n` : '') +
+              (savedImagePaths.length > 0 ? `📸 <b>Hình ảnh:</b> <code>${savedImagePaths.length} ảnh đã lưu trữ kèm TODO</code>\n` : '') +
+              (conversationId ? `🆔 <b>Session:</b> <code>${conversationId}</code>\n\n` : '\n') +
+              formattedHtml);
 
         if (gitDiff) {
           finalReport += `\n\n📊 <b>THAY ĐỔI MÃ NGUỒN (GIT DIFF):</b>\n<pre>${escapeHtml(gitDiff)}</pre>`;
         }
 
         if (progressMsgId) {
-          const completionTitle = isTodoAgentMode
-            ? `Đã hoàn thành thực thi & E2E Pass 100% trên Dev`
-            : `Đã hoàn thành tổng hợp TODO.md`;
+          const completionTitle = isSyncMode
+            ? `Đã hoàn thành đồng bộ dev lên master`
+            : (isTodoAgentMode
+              ? `Đã hoàn thành thực thi & E2E Pass 100% trên Dev`
+              : `Đã hoàn thành tổng hợp TODO.md`);
           await editTelegramMessage(chatId, progressMsgId, `✅ <b>[Task #${taskId}] ${completionTitle} trong ${timeStr}!</b>`, 'HTML');
         }
 
