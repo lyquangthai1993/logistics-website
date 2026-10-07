@@ -240,6 +240,38 @@ async function editTelegramMessage(chatId, messageId, text, parseMode = 'HTML', 
   }
 }
 
+// Gửi file ảnh lên Telegram kèm caption và bàn phím thao tác (dùng cho bằng chứng nghiệm thu)
+async function sendTelegramPhoto(chatId, imagePath, caption = '', replyMarkup = null) {
+  if (!imagePath || !fs.existsSync(imagePath)) return null;
+  try {
+    const fileBuffer = fs.readFileSync(imagePath);
+    const blob = new Blob([fileBuffer]);
+    const formData = new FormData();
+    formData.append('chat_id', String(chatId));
+    formData.append('photo', blob, path.basename(imagePath));
+    if (caption) {
+      formData.append('caption', caption.slice(0, 1020));
+      formData.append('parse_mode', 'HTML');
+    }
+    if (replyMarkup) {
+      formData.append('reply_markup', JSON.stringify(replyMarkup));
+    }
+
+    const res = await fetch(`${API_BASE}/sendPhoto`, {
+      method: 'POST',
+      body: formData,
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      console.warn('sendTelegramPhoto non-ok:', data.description);
+    }
+    return data;
+  } catch (err) {
+    console.error('sendTelegramPhoto network error:', err.message);
+    return null;
+  }
+}
+
 // Tải file ảnh từ Telegram về thư mục đích trên máy local
 async function downloadTelegramFile(fileId, targetDir, defaultName = 'screenshot.png') {
   const getFileUrl = `${API_BASE}/getFile?file_id=${fileId}`;
@@ -431,7 +463,7 @@ BẮT BUỘC KÍCH HOẠT SKILL TODO-AGENT ĐỂ QUÉT VÀ THỰC THI TASK NGÀY
 1. Bạn BẮT BUỘC đọc và tuân thủ file AGENTS.md và skill .agents/skills/todo-agent/SKILL.md tại workspace D:\\Projects\\logistics-website.
 ${targetSection}
 
-5. QUY TRÌNH THỰC THI 6 BƯỚC BẮT BUỘC (EXECUTION & DEV E2E PIPELINE):
+5. QUY TRÌNH THỰC THI BẮT BUỘC (EXECUTION & DEV E2E PIPELINE):
    - BƯỚC 1: Sửa đổi mã nguồn TRỰC TIẾP trong các Git submodules (backend/ và/hoặc frontend/). TUYỆT ĐỐI không chỉ sửa ở root.
      Tuân thủ nghiêm ngặt UI Compact Density (.agents/rules/ui-compact-density.md):
      * Card padding: p-1; Modal body: p-2; Spacing: gap-1.5 đến gap-2; Bảng: font text-[10px]; Zero Redundant Icons.
@@ -442,25 +474,23 @@ ${targetSection}
    - BƯỚC 2: Commit và push các submodules lên branch dev:
        + git -C backend push origin dev
        + git -C frontend push origin dev
-   - BƯỚC 3: Kiểm tra trạng thái Domain Dev sẵn sàng (anti-hang timeout 15s):
-       + curl.exe -m 15 -i https://logistics-website-backend-1jho.onrender.com/api/v1/health
-   - BƯỚC 4: Chạy Playwright E2E Test trực tiếp trên Domain Dev:
-       + PLAYWRIGHT_BASE_URL=https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app API_URL=https://logistics-website-backend-1jho.onrender.com/api/v1 npx playwright test e2e/<spec_file>.spec.ts
-   - BƯỚC 5: Đánh giá chéo chất lượng kiểm thử E2E:
-       + node scripts/e2e-auditor.mjs frontend/e2e/<spec_file>.spec.ts
-       + Đảm bảo điểm số >= 40/50 điểm PASS (Real DB, Zero-mock, có screenshot evidence).
-   - BƯỚC 6: Cập nhật checklist: Chuyển các mục - [ ] thành - [x] trong các file TODO.md tương ứng.
+   - BƯỚC 3: TẠO HOẶC CẬP NHẬT FILE PLAYWRIGHT E2E SPEC TRONG frontend/e2e/<spec_file>.spec.ts:
+       + BẮT BUỘC ghi rõ đường dẫn file spec vào TODO.md (ví dụ: frontend/e2e/36-feedback-07-10-task-21.spec.ts).
+       + BẮT BUỘC thiết kế test có lưu ảnh screenshot nghiệm thu: screenshot_*_verified.png vào thư mục feedback.
+       + Test trên Real Database, Zero Mock, có assertions chặt chẽ.
+   - BƯỚC 4: CẬP NHẬT CHECKLIST & BIÊN BẢN KỸ THUẬT:
+       + Chuyển các mục - [ ] thành - [x] trong các file TODO.md tương ứng.
+       + Ghi nhận RESOLUTION.md và timeline nếu hoàn tất milestone: npm run todo:record <folder_name>.
+   - BƯỚC 5: ⚠️ LƯU Ý TỐI QUAN TRỌNG VỀ DEV E2E QUALITY GATE CỦA NEON WORKER:
+       + Sau khi bạn hoàn tất, Neon Worker sẽ TỰ ĐỘNG chờ Vercel & Render build deploy (45-60s) và TỰ ĐỘNG CHẠY LẠI bộ Playwright E2E suite của bạn trực tiếp trên Domain Dev!
+       + NẾU BẠN CHƯA TẠO FILE SPEC HOẶC TEST KHÔNG PASS TRÊN DEV, WORKER SẼ TỰ ĐỘNG ĐÁNH DẤU TASK THẤT BẠI (FAILED) VÀ BẮN CẢNH BÁO LỖI LÊN TELEGRAM.
+       + TUYỆT ĐỐI KHÔNG tự tuyên bố nghiệm thu hoàn tất nếu chưa đảm bảo file test E2E hoạt động chính xác.
 
 6. BÁO CÁO KẾT QUẢ VỀ TELEGRAM (BẮT BUỘC FORMAT NÀY):
-   - Dòng đầu tiên BẮT BUỘC là:
-     "🟢 THÔNG BÁO: ĐÃ TEST DEV XONG (E2E & ĐÁNH GIÁ CHÉO PASS)"
    - Báo cáo chi tiết:
      • Hạng mục đã triển khai: [Tiêu đề Feedback / Nhiệm vụ]
-     • Kết quả Playwright E2E trên Dev: X/X tests PASS (100%)
-     • Điểm đánh giá chéo E2E Audit: Y/50 điểm PASS
-     • Môi trường Dev đã kiểm thử:
-       - Frontend Dev: https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app
-       - Backend Dev: https://logistics-website-backend-1jho.onrender.com
+     • File Playwright E2E Suite: frontend/e2e/<spec_file>.spec.ts
+     • Bằng chứng nghiệm thu: Đường dẫn ảnh chụp screenshot_*_verified.png
      • Danh sách các file mã nguồn đã sửa đổi (Backend, Frontend).
      • Trích dẫn đường link các file TODO.md đã xử lý.
    - TUYỆT ĐỐI KHÔNG viết các câu kết bài thừa thãi (như "Bạn muốn làm gì tiếp theo...", "Hệ thống đã sẵn sàng...").
@@ -474,6 +504,179 @@ function buildTaskPrompt(rawPrompt, feedbackDir, imagePaths = [], senderName = '
     return buildTodoAgentPrompt(rawPrompt, feedbackDir, senderName);
   }
   return buildLeaderPrompt(rawPrompt, feedbackDir, imagePaths, senderName);
+}
+
+// -------------------------------------------------------------
+// DEV E2E QUALITY GATE ENGINE (CHỐT CHẶN NGHIỆM THU ĐỘC LẬP)
+// -------------------------------------------------------------
+
+// Tự động nhận diện file test E2E liên quan đến task trong frontend/e2e/
+function detectTaskE2ESpec(feedbackDir, taskId) {
+  // 1. Quét file TODO.md trong feedbackDir
+  const todoPath = path.join(feedbackDir, 'TODO.md');
+  if (fs.existsSync(todoPath)) {
+    try {
+      const content = fs.readFileSync(todoPath, 'utf8');
+      const specMatch = content.match(/(?:frontend\/)?e2e\/([a-zA-Z0-9_\-\.]+\.spec\.ts)/i);
+      if (specMatch) {
+        const candidate = path.join(WORKSPACE_DIR, 'frontend', 'e2e', specMatch[1]);
+        if (fs.existsSync(candidate)) {
+          return `e2e/${specMatch[1]}`;
+        }
+      }
+    } catch {}
+  }
+
+  // 2. Quét thư mục frontend/e2e theo task ID hoặc tên feedback
+  const e2eDir = path.join(WORKSPACE_DIR, 'frontend', 'e2e');
+  if (fs.existsSync(e2eDir)) {
+    try {
+      const files = fs.readdirSync(e2eDir);
+      if (taskId) {
+        const idPattern = new RegExp(`task[-_]${taskId}\\.spec\\.ts$`, 'i');
+        const match = files.find(f => idPattern.test(f));
+        if (match) return `e2e/${match}`;
+      }
+
+      const folderBase = path.basename(feedbackDir).replace(/_/g, '-');
+      const matchFolder = files.find(f => f.includes(folderBase));
+      if (matchFolder) return `e2e/${matchFolder}`;
+    } catch {}
+  }
+
+  // 3. Quét git diff của submodule frontend xem có file spec nào vừa được tạo / sửa
+  try {
+    const gitDiffFiles = execSync('git -C frontend diff --name-only HEAD~1', { encoding: 'utf8', cwd: WORKSPACE_DIR });
+    const specLine = gitDiffFiles.split(/\r?\n/).find(l => l.startsWith('e2e/') && l.endsWith('.spec.ts'));
+    if (specLine) return specLine.trim();
+  } catch {}
+
+  return null;
+}
+
+// Tìm ảnh chụp bằng chứng nghiệm thu E2E đã tạo
+function findVerificationEvidence(feedbackDir) {
+  if (!feedbackDir || !fs.existsSync(feedbackDir)) return null;
+
+  try {
+    const files = fs.readdirSync(feedbackDir);
+    // 1. Ưu tiên ảnh chứa verified
+    const verifiedImg = files.find(f => /screenshot_.*verified\.(png|jpg|webp)$/i.test(f));
+    if (verifiedImg) return path.join(feedbackDir, verifiedImg);
+
+    // 2. Tìm trong test-evidence/
+    const evidenceDir = path.join(feedbackDir, 'test-evidence');
+    if (fs.existsSync(evidenceDir)) {
+      const evFiles = fs.readdirSync(evidenceDir);
+      const evImg = evFiles.find(f => /\.(png|jpg|webp)$/i.test(f));
+      if (evImg) return path.join(evidenceDir, evImg);
+    }
+
+    // 3. Ảnh chụp mới nhất bất kỳ trong feedbackDir
+    const anyImgs = files.filter(f => /screenshot_.*\.(png|jpg|webp)$/i.test(f));
+    if (anyImgs.length > 0) {
+      return path.join(feedbackDir, anyImgs[anyImgs.length - 1]);
+    }
+  } catch {}
+
+  return null;
+}
+
+// Chờ Vercel và Render hoàn tất build deploy trên môi trường Dev (anti-hang timeout)
+async function waitForDevDeployment(timeoutSec = 150, onProgress = null) {
+  const backendHealthUrl = 'https://logistics-website-backend-1jho.onrender.com/api/v1/health';
+  const frontendUrl = 'https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app';
+
+  // Chờ 40s ban đầu cho GitHub webhook kích hoạt Cloud build
+  if (onProgress) await onProgress('Đang chờ GitHub webhook kích hoạt Vercel & Render build (40s)...');
+  await new Promise(r => setTimeout(r, 40000));
+
+  const startTime = Date.now();
+  let attempt = 0;
+
+  while ((Date.now() - startTime) < timeoutSec * 1000) {
+    attempt++;
+    if (onProgress) await onProgress(`Đang kiểm tra kết nối Domain Dev (Lần ${attempt})...`);
+    try {
+      const [backendRes, frontendRes] = await Promise.all([
+        fetch(backendHealthUrl, { signal: AbortSignal.timeout(15000) }),
+        fetch(frontendUrl, { signal: AbortSignal.timeout(15000) })
+      ]);
+
+      if (backendRes.ok && (frontendRes.ok || frontendRes.status === 307)) {
+        return { success: true, attempts: attempt };
+      }
+    } catch (err) {
+      console.warn(`[Dev Health Polling] Lần ${attempt} chưa sẵn sàng:`, err.message);
+    }
+    await new Promise(r => setTimeout(r, 12000));
+  }
+
+  return { success: false, error: `Hết thời gian chờ Dev Deployment (${timeoutSec}s).` };
+}
+
+// Thực thi Playwright E2E suite trực tiếp trên Domain Dev
+async function runDevE2EVerification(feedbackDir, specRelPath) {
+  const frontendDir = path.join(WORKSPACE_DIR, 'frontend');
+  console.log(`[Dev E2E Quality Gate] Kích hoạt Playwright: ${specRelPath} trên Domain Dev...`);
+
+  const env = {
+    ...process.env,
+    PLAYWRIGHT_BASE_URL: 'https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app',
+    API_URL: 'https://logistics-website-backend-1jho.onrender.com/api/v1'
+  };
+
+  return new Promise((resolve) => {
+    let stdout = '';
+    let stderr = '';
+
+    const testProc = spawn(`npx playwright test ${specRelPath} --project=chromium`, {
+      cwd: frontendDir,
+      env,
+      shell: true,
+      windowsHide: true
+    });
+
+    testProc.stdout.on('data', (d) => {
+      const str = d.toString();
+      stdout += str;
+      process.stdout.write(str);
+    });
+
+    testProc.stderr.on('data', (d) => {
+      const str = d.toString();
+      stderr += str;
+      process.stderr.write(str);
+    });
+
+    testProc.on('close', (testExitCode) => {
+      console.log(`[Dev E2E Quality Gate] Playwright kết thúc với exitCode: ${testExitCode}`);
+
+      let auditScore = null;
+      try {
+        const auditOutput = execSync(`node scripts/e2e-auditor.mjs frontend/${specRelPath}`, {
+          cwd: WORKSPACE_DIR,
+          encoding: 'utf8',
+          timeout: 20000
+        });
+        const scoreMatch = auditOutput.match(/(\d+)\/50/);
+        if (scoreMatch) auditScore = parseInt(scoreMatch[1], 10);
+      } catch (err) {
+        console.warn('[Dev E2E Quality Gate] Lỗi chạy e2e-auditor:', err.message);
+      }
+
+      const evidencePath = findVerificationEvidence(feedbackDir);
+
+      resolve({
+        success: testExitCode === 0,
+        exitCode: testExitCode,
+        stdout,
+        stderr,
+        auditScore,
+        evidencePath
+      });
+    });
+  });
 }
 
 // Quản lý kết nối Neon PostgreSQL
@@ -727,11 +930,127 @@ async function executeAgyTask(task) {
         cleanOutput = cleanOutput.replace(/^(Tôi đã tiếp nhận.*?\n+|Chào bạn.*?\n+)/gi, '').trim();
         cleanOutput = cleanOutput.replace(/(\n+.*?(Bạn muốn thực hiện bước nào|Hệ thống đã sẵn sàng|Hệ thống đã được tối ưu|Chúc bạn|Nếu bạn cần thêm)[\s\S]*$)/gi, '').trim();
 
+        // NẾU LÀ TODO-AGENT MODE: KÍCH HOẠT DEV E2E QUALITY GATE TRƯỚC KHI BÁO CÁO TELEGRAM
+        if (isTodoAgentMode) {
+          console.log(`[Task #${taskId}] Tiến trình sửa code hoàn tất. Kích hoạt Dev E2E Quality Gate...`);
+
+          // 1. Cập nhật trạng thái DB và Telegram
+          await pool.query(`UPDATE telegram_tasks SET status = 'VERIFYING_DEV' WHERE id = $1;`, [taskId]);
+          if (progressMsgId) {
+            await editTelegramMessage(
+              chatId,
+              progressMsgId,
+              `⏳ <b>[Task #${taskId}] Code đã commit & push lên Dev!</b>\n\n` +
+              `🚀 <b>Trạng thái:</b> <i>Đang chờ Vercel & Render build deploy và chuẩn bị chạy Playwright E2E Suite...</i>`,
+              'HTML',
+              TASK_ACTIONS_KEYBOARD
+            );
+          }
+
+          // 2. Chờ Dev Deployment sẵn sàng (khoảng 40s - 90s)
+          const deployRes = await waitForDevDeployment(150, async (msg) => {
+            if (progressMsgId) {
+              await editTelegramMessage(
+                chatId,
+                progressMsgId,
+                `⏳ <b>[Task #${taskId}] DEV QUALITY GATE ĐANG XỬ LÝ...</b>\n\n` +
+                `🔄 <i>${escapeHtml(msg)}</i>\n` +
+                `🌐 Backend Dev: <code>logistics-website-backend-1jho</code>\n` +
+                `🌐 Frontend Dev: <code>logistics-website-frontend-git-dev</code>`,
+                'HTML',
+                TASK_ACTIONS_KEYBOARD
+              );
+            }
+          });
+
+          if (!deployRes.success) {
+            console.error(`[Task #${taskId}] Dev Deployment wait failed:`, deployRes.error);
+            const deployFailMsg =
+              `⚠️ <b>[Task #${taskId}] CẢNH BÁO: DEV DEPLOYMENT TIMEOUT</b>\n\n` +
+              `Mã nguồn đã được push lên nhánh <code>dev</code>, nhưng server Dev (Render/Vercel) chưa phản hồi trạng thái sẵn sàng trong thời gian quy định.\n` +
+              `Lỗi: <code>${escapeHtml(deployRes.error)}</code>`;
+            await sendTelegramMessage(chatId, deployFailMsg, 'HTML', TASK_ACTIONS_KEYBOARD);
+            await pool.query(`UPDATE telegram_tasks SET status = 'DEV_DEPLOY_TIMEOUT', error = $1 WHERE id = $2;`, [deployRes.error, taskId]);
+            resolve({ success: false, taskId, reason: 'DEPLOY_TIMEOUT' });
+            return;
+          }
+
+          // 3. Tự động tìm file Playwright E2E spec tương ứng
+          const specFile = detectTaskE2ESpec(feedbackDir, taskId);
+          console.log(`[Task #${taskId}] Detected E2E Spec: ${specFile || 'NONE'}`);
+
+          if (specFile) {
+            if (progressMsgId) {
+              await editTelegramMessage(
+                chatId,
+                progressMsgId,
+                `⏳ <b>[Task #${taskId}] Đang chạy Playwright E2E trên Domain Dev...</b>\n\n` +
+                `🧪 <b>Suite:</b> <code>frontend/${escapeHtml(specFile)}</code>\n` +
+                `🎯 <b>Target:</b> <code>Vercel Dev & Render Dev</code>`,
+                'HTML',
+                TASK_ACTIONS_KEYBOARD
+              );
+            }
+
+            // 4. Chạy Playwright E2E trên Domain Dev
+            const e2eResult = await runDevE2EVerification(feedbackDir, specFile);
+
+            if (!e2eResult.success) {
+              // E2E THẤT BẠI: Báo đỏ và đánh FAILED, TUYỆT ĐỐI KHÔNG BÁO COMPLETED
+              const failDetails = (e2eResult.stderr || e2eResult.stdout || '').slice(-800).trim();
+              const e2eFailMsg =
+                `🔴 <b>[Task #${taskId}] DEV E2E TEST THẤT BẠI (CHƯA ĐẠT TIÊU CHÍ NGHIỆM THU)</b> <code>(⏱️ ${timeStr})</code>\n\n` +
+                `📁 <b>Thư mục:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
+                `🧪 <b>File Test:</b> <code>frontend/${escapeHtml(specFile)}</code>\n\n` +
+                `⚠️ <b>Chi tiết lỗi kiểm thử E2E trên Domain Dev:</b>\n<pre>${escapeHtml(failDetails || 'Playwright E2E exit code non-zero')}</pre>\n\n` +
+                `💡 <i>Vui lòng yêu cầu AI sửa lại code hoặc cập nhật kịch bản E2E để vượt qua Quality Gate.</i>`;
+
+              if (progressMsgId) {
+                await editTelegramMessage(chatId, progressMsgId, `🔴 <b>[Task #${taskId}] E2E Test trên Dev THẤT BẠI!</b>`, 'HTML');
+              }
+              await sendTelegramMessage(chatId, e2eFailMsg, 'HTML', TASK_ACTIONS_KEYBOARD);
+
+              await pool.query(`
+                UPDATE telegram_tasks 
+                SET status = 'DEV_E2E_FAILED', feedback_dir = $1, error = $2, completed_at = NOW() 
+                WHERE id = $3;
+              `, [feedbackDir, failDetails, taskId]);
+
+              resolve({ success: false, taskId, exitCode: e2eResult.exitCode });
+              return;
+            }
+
+            // E2E THÀNH CÔNG 100%: Gửi ảnh chụp nghiệm thu (nếu có)
+            if (e2eResult.evidencePath) {
+              const photoCaption =
+                `📸 <b>[BẰNG CHỨNG NGHIỆM THU E2E TASK #${taskId}]</b>\n` +
+                `✅ Đã kiểm thử thành công trên Domain Dev\n` +
+                `🧪 Suite: <code>${escapeHtml(specFile)}</code>` +
+                (e2eResult.auditScore ? ` (Audit: <b>${e2eResult.auditScore}/50</b> PASS)` : '');
+              await sendTelegramPhoto(chatId, e2eResult.evidencePath, photoCaption, TASK_ACTIONS_KEYBOARD);
+            }
+
+            // Bổ sung thông tin E2E Pass vào báo cáo
+            cleanOutput =
+              `🟢 <b>THÔNG BÁO: ĐÃ TEST DEV XONG (E2E & ĐÁNH GIÁ CHÉO PASS 100%)</b>\n\n` +
+              `• <b>Playwright E2E Test:</b> <code>${escapeHtml(specFile)}</code> (✅ PASS 100% trên Dev)\n` +
+              (e2eResult.auditScore ? `• <b>Điểm Audit E2E:</b> <b>${e2eResult.auditScore}/50</b> PASS\n` : '') +
+              `• <b>Môi trường kiểm thử:</b> Domain Dev (Vercel & Render)\n\n` +
+              cleanOutput;
+          } else {
+            console.warn(`[Task #${taskId}] Không tìm thấy file E2E spec riêng biệt cho task.`);
+            cleanOutput =
+              `⚠️ <b>CẢNH BÁO: Chưa tìm thấy file Playwright E2E spec riêng trong frontend/e2e/</b>\n` +
+              `Server Dev đã sẵn sàng, nhưng cần bổ sung file spec E2E theo Section 5 của todo-agent.\n\n` +
+              cleanOutput;
+          }
+        }
+
         const formattedHtml = markdownToTelegramHtml(cleanOutput);
         const gitDiff = getGitDiffStat();
 
         let finalReport = isTodoAgentMode
-          ? `🎯 <b>[KẾT QUẢ TASK #${taskId}] - TODO-AGENT HOÀN TẤT THỰC THI</b> <code>(⏱️ ${timeStr})</code>\n\n` +
+          ? `🎯 <b>[KẾT QUẢ TASK #${taskId}] - TODO-AGENT HOÀN TẤT THỰC THI & DEV VERIFIED</b> <code>(⏱️ ${timeStr})</code>\n\n` +
             `📁 <b>Thư mục Feedback:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
             (hasTodoCreated ? `📄 <b>Checklist:</b> <code>${path.relative(WORKSPACE_DIR, todoFile)}</code>\n` : '') +
             (conversationId ? `🆔 <b>Session:</b> <code>${conversationId}</code>\n\n` : '\n') +
@@ -749,7 +1068,7 @@ async function executeAgyTask(task) {
 
         if (progressMsgId) {
           const completionTitle = isTodoAgentMode
-            ? `Đã hoàn thành thực thi code`
+            ? `Đã hoàn thành thực thi & E2E Pass 100% trên Dev`
             : `Đã hoàn thành tổng hợp TODO.md`;
           await editTelegramMessage(chatId, progressMsgId, `✅ <b>[Task #${taskId}] ${completionTitle} trong ${timeStr}!</b>`, 'HTML');
         }

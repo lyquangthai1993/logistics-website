@@ -282,8 +282,12 @@ flowchart TD
      # or: node scripts/todo-agent.mjs record <folder_name>
      ```
    - Verify that `<folder_name>/RESOLUTION.md` contains all 6 technical sections and that [`docs/SYSTEM_TIMELINE.md`](file:///d:/Projects/logistics-website/docs/SYSTEM_TIMELINE.md) reflects the newly completed milestone at the top.
-8. **Telegram Completion Notification**:
-   - Send final message to Telegram group confirming Dev E2E testing is complete, including direct links to both `RESOLUTION.md` and `docs/SYSTEM_TIMELINE.md`.
+8. **Zero Premature Telegram Reporting & Verified Photo Upload**:
+   - Operating agents and worker daemons (`neon-worker.mjs`) MUST NEVER report completion or claim "ĐÃ TEST DEV XONG" prematurely upon push.
+   - Only after Dev health check passes, Playwright E2E executes on Dev with 100% PASS, audit score ≥ 40/50, and `screenshot_*_verified.png` is generated:
+     - Worker daemon uploads the verified screenshot via Telegram `sendPhoto` API.
+     - Sends final green notification: `🟢 THÔNG BÁO: ĐÃ TEST DEV XONG (E2E & ĐÁNH GIÁ CHÉO PASS 100%)`.
+     - Includes direct links to `RESOLUTION.md` and `docs/SYSTEM_TIMELINE.md`.
 
 ---
 

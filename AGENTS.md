@@ -63,6 +63,15 @@ Whenever the user refers to, asks for, or mentions **"domain pro"** (hoặc "dom
     - In native PowerShell, always set `-TimeoutSec`: `(Invoke-WebRequest -Uri "https://<domain>/api/v1/health" -TimeoutSec 15).Content`.
     - In Node.js / Playwright / scripts, always supply an abort signal: `fetch(url, { signal: AbortSignal.timeout(15000) })`.
     - Polling checks MUST NEVER loop indefinitely; cap polling at maximum 5 attempts with 15–20s backoff.
+- **Zero Premature Telegram Reporting Mandate (Quy chuẩn Chống Báo Cáo Nghiệm Thu Non & Cưỡng Chế Dev E2E Gate)**:
+  - Operating agents and background daemons (`neon-worker.mjs`) are STRICTLY FORBIDDEN from reporting task completion to Telegram or claiming "ĐÃ TEST DEV XONG" immediately upon Git push or local compile exit.
+  - A completion notification is ONLY permitted after fulfilling the full 5-stage closed verification pipeline:
+    1. **Submodule Git Push to `dev`** (`backend/`, `frontend/`, `root`).
+    2. **Cloud Deployment Readiness Wait**: Wait 45–60s for GitHub webhooks to trigger builds on Vercel & Render; poll Backend Dev Health (`/api/v1/health`) and Frontend Dev URL until responsive.
+    3. **Automated Playwright E2E Verification on Dev**: Execute the target test suite (`npx playwright test e2e/<spec> --project=chromium`) directly against live Dev endpoints (`PLAYWRIGHT_BASE_URL` & `API_URL`).
+    4. **Cross-Evaluation Audit**: Validate the test suite with `node scripts/e2e-auditor.mjs` (score ≥ 40/50, 0 FAIL).
+    5. **Visual Evidence Verification**: Capture and attach real screenshot proof (`screenshot_*_verified.png`) uploaded directly via Telegram `sendPhoto`.
+  - If any E2E test fails or deployment times out, the task MUST be flagged as `FAILED` (`DEV_E2E_FAILED`), alerting the team with exact Playwright error traces, and never marked as `COMPLETED`.
 - **System Evolutionary Timeline & Technical Memory Mandate ("Biên Niên Sử & Ký Ức Kỹ Thuật Bất Biến")**:
   - Whenever completing any feedback, bug fix, or major architectural feature, operating agents MUST record technical documentation via `npm run todo:record <folder>` to generate [`RESOLUTION.md`](file:///d:/Projects/logistics-website/docs/SYSTEM_TIMELINE.md) and update [`docs/SYSTEM_TIMELINE.md`](file:///d:/Projects/logistics-website/docs/SYSTEM_TIMELINE.md).
   - When starting a new session or onboarding to unfamiliar modules, all AI agents MUST read `docs/SYSTEM_TIMELINE.md` and `CODEBASE_AUDIT.md` to establish context on existing capabilities, design decisions, and proven operational invariants.
