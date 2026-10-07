@@ -20,7 +20,9 @@
     "todo:scan": "node scripts/todo-agent.mjs scan",
     "todo:today": "node scripts/todo-agent.mjs today",
     "todo:inspect": "node scripts/todo-agent.mjs inspect",
-    "todo:plan": "node scripts/todo-agent.mjs plan"
+    "todo:plan": "node scripts/todo-agent.mjs plan",
+    "todo:record": "node scripts/todo-agent.mjs record",
+    "todo:timeline": "node scripts/todo-agent.mjs timeline"
   },
   "devDependencies": {
     "docx": "^9.7.1"

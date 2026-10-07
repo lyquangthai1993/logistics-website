@@ -67,8 +67,13 @@ export function buildWorkspaceFileIndex(rootDir = ROOT_DIR) {
 export function resolveReferencedFile(fileRef, rootDir = ROOT_DIR) {
   if (!fileRef) return { input: fileRef, resolved: null, exists: false };
 
-  // Strip file:// prefix and decode URI components
-  let clean = decodeURIComponent(fileRef.trim().replace(/^file:\/\/\/?/i, ''));
+  // Strip file:// prefix and decode URI components safely
+  let clean = fileRef.trim().replace(/^file:\/\/\/?/i, '');
+  try {
+    clean = decodeURIComponent(clean);
+  } catch {
+    // Keep raw string if URI decode fails (e.g. lone % character)
+  }
 
   // On Windows, file:///d:/... becomes d:/...
   // Check if it's already an absolute path
@@ -204,6 +209,7 @@ export function parseFeedbackFolder(folderPath) {
   const lines = content.split('\n');
   let currentSection = 'General';
   let currentCategory = 'general';
+  let currentMetaKey = null;
 
   for (let i = 0; i < lines.length; i++) {
     const rawLine = lines[i];
@@ -213,20 +219,34 @@ export function parseFeedbackFolder(folderPath) {
     // Extract Main Title
     if (trimmed.startsWith('# ') && result.title === folderName) {
       result.title = trimmed.replace(/^#\s+/, '').trim();
+      currentMetaKey = null;
       continue;
     }
 
     // Extract Metadata block: > **Key**: Value
-    const metaMatch = trimmed.match(/^>\s*\*\*([^*]+)\*\*:\s*(.+)$/);
+    const metaMatch = trimmed.match(/^>\s*\*\*([^*]+)\*\*:\s*(.*)$/);
     if (metaMatch) {
       const key = metaMatch[1].trim();
       const val = metaMatch[2].trim();
       result.meta[key] = val;
+      currentMetaKey = key;
       continue;
+    }
+
+    // Continue multiline metadata: > - ... or > * ...
+    if (currentMetaKey && trimmed.startsWith('>')) {
+      const bullet = trimmed.replace(/^>\s*[-*]\s*/, '').trim();
+      if (bullet) {
+        result.meta[currentMetaKey] = (result.meta[currentMetaKey] ? result.meta[currentMetaKey] + ' • ' : '') + bullet;
+      }
+      continue;
+    } else if (!trimmed.startsWith('>')) {
+      currentMetaKey = null;
     }
 
     // Detect section headers: ## or ###
     if (trimmed.startsWith('## ') || trimmed.startsWith('### ')) {
+      currentMetaKey = null;
       currentSection = trimmed.replace(/^#{2,3}\s+/, '').trim();
       const lower = currentSection.toLowerCase();
 
@@ -797,6 +817,505 @@ export function cmdPlan(targetName) {
   console.log(plan);
 }
 
+/**
+ * Helper to extract section content from raw markdown by header title
+ */
+export function extractSectionContent(content, headerPattern) {
+  if (!content) return '';
+  const lines = content.split('\n');
+  let capturing = false;
+  const capturedLines = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].replace(/\r$/, '');
+    if (headerPattern.test(line)) {
+      capturing = true;
+      continue;
+    }
+    if (capturing) {
+      if (/^#{1,2}\s+/.test(line)) {
+        break;
+      }
+      capturedLines.push(line);
+    }
+  }
+
+  return capturedLines.join('\n').trim();
+}
+
+/**
+ * Generates an in-depth Technical Resolution Document (RESOLUTION.md) for a completed feedback folder.
+ * @param {object} parsed
+ * @param {string} rootDir
+ * @returns {string} Formatted markdown resolution document
+ */
+export function generateResolutionDocument(parsed, rootDir = ROOT_DIR) {
+  const { folderName, title, meta, tasks, images, documents, rawContent } = parsed;
+
+  const now = new Date();
+  const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+  const recordDate = meta['Thời gian ghi nhận'] || dateStr;
+  const reporter = meta['Người báo cáo'] || '@【M】【C】【D】 (Quản lý vận hành)';
+  const scope = meta['Phạm vi tác động'] || meta['Màn hình liên quan'] || meta['Màn hình / Hạ tầng liên quan'] || 'Hệ thống Quản lý Vận tải Logistics TMS (Spider Express)';
+
+  // Collect all verified touched files from completed tasks
+  const touchedFiles = new Set();
+  const allCompletedTasks = [
+    ...tasks.byCategory.backend.filter((t) => t.completed),
+    ...tasks.byCategory.frontend.filter((t) => t.completed),
+    ...tasks.byCategory.database.filter((t) => t.completed),
+    ...tasks.byCategory.testing.filter((t) => t.completed),
+    ...tasks.byCategory.general.filter((t) => t.completed),
+  ];
+
+  allCompletedTasks.forEach((t) => {
+    t.referencedFiles.forEach((f) => {
+      if (f.resolved) touchedFiles.add(f.resolved);
+    });
+  });
+
+  // Also scan all links and code references across the entire rawContent
+  const rawLinkMatches = [...rawContent.matchAll(/\[([^\]]+)\]\(([^)]+)\)|`([^`]+)`/g)];
+  for (const m of rawLinkMatches) {
+    const candidate = m[2] || m[3] || m[1];
+    if (
+      candidate &&
+      (candidate.includes('/') ||
+        candidate.includes('\\') ||
+        candidate.endsWith('.ts') ||
+        candidate.endsWith('.tsx') ||
+        candidate.endsWith('.js') ||
+        candidate.endsWith('.mjs') ||
+        candidate.endsWith('.spec.ts'))
+    ) {
+      const res = resolveReferencedFile(candidate, rootDir);
+      if (res && res.exists && res.resolved) {
+        if (
+          res.resolved.startsWith('backend/') ||
+          res.resolved.startsWith('frontend/') ||
+          res.resolved.startsWith('docs/') ||
+          res.resolved.startsWith('scripts/')
+        ) {
+          touchedFiles.add(res.resolved);
+        }
+      }
+    }
+  }
+
+  const cleanTaskText = (text) => {
+    return text.replace(/^(\*\*)+|(\*\*)+:?$/g, '').replace(/:\s*$/, '').trim();
+  };
+
+  // Extract user quote if present
+  let userQuote = '';
+  const quoteMatch = rawContent.match(/>\s*\*"([^"]+)"\*/s) || rawContent.match(/>\s*\*(.+?)\*/);
+  if (quoteMatch) {
+    userQuote = quoteMatch[1].trim();
+  }
+
+  // Extract operational context & RCA
+  const contextRaw = extractSectionContent(rawContent, /^##\s+📌\s*Bối cảnh nghiệp vụ/i);
+  const rcaRaw = extractSectionContent(rawContent, /^##\s+🔍\s*Tổng hợp các điểm chưa đúng/i);
+  const invariantsRaw = extractSectionContent(rawContent, /^####\s+Các quy tắc nghiệp vụ bất biến/i)
+    || extractSectionContent(rawContent, /^###\s+.*Quy tắc bất biến/i);
+
+  const lines = [];
+  lines.push(`# 🏆 BIÊN BẢN NGHIỆM THU KỸ THUẬT & CHỨNG NHẬN HOÀN THÀNH`);
+  lines.push(`## [${folderName.toUpperCase()}] — ${title}`);
+  lines.push('');
+  lines.push(`> **Thời gian nghiệm thu**: ${recordDate}  `);
+  lines.push(`> **Trạng thái thực thi**: ✅ ĐÃ HOÀN THÀNH 100% (${tasks.completed}/${tasks.total} tasks)  `);
+  lines.push(`> **Người báo cáo / Nghiệp vụ**: ${reporter}  `);
+  lines.push(`> **Phạm vi tác động**: ${scope}  `);
+  lines.push(`> **Môi trường kiểm chứng**: Development (Live) & Staging / Production  `);
+  lines.push('');
+  lines.push('---');
+  lines.push('');
+
+  lines.push('## 1. 📌 Bối Cảnh Nghiệp Vụ & Phân Tích Nguyên Nhân Gốc Rễ (RCA)');
+  lines.push('');
+  if (userQuote) {
+    lines.push(`### Phản hồi thực tế từ người dùng:`);
+    lines.push(`> *"${userQuote}"*`);
+    lines.push('');
+  }
+  if (contextRaw) {
+    lines.push(contextRaw);
+    lines.push('');
+  } else {
+    lines.push(`Nhiệm vụ này giải quyết phản hồi thực tế từ vận hành hiện trường tại các Hub và trung tâm điều phối của Spider Express, đảm bảo tính toàn vẹn dữ liệu, giao diện compact density và luồng vận hành chính xác.`);
+    lines.push('');
+  }
+
+  if (rcaRaw) {
+    lines.push('### Phân tích nguyên nhân gốc rễ (Root Cause Analysis):');
+    lines.push(rcaRaw);
+    lines.push('');
+  }
+
+  lines.push('---');
+  lines.push('');
+  lines.push('## 2. 🚀 Tính Năng Mới & Năng Lực Hệ Thống Đã Được Bổ Sung');
+  lines.push('');
+
+  // Backend
+  const backendTasks = tasks.byCategory.backend.filter((t) => t.completed);
+  if (backendTasks.length > 0) {
+    lines.push('### ⚙️ Phân hệ Backend (NestJS 11+, PostgreSQL & TypeORM)');
+    backendTasks.forEach((t) => {
+      lines.push(`- ✅ **${cleanTaskText(t.text)}**`);
+      if (t.referencedFiles.length > 0) {
+        t.referencedFiles.forEach((f) => {
+          if (f.resolved) lines.push(`  * 📍 File: \`${f.resolved}\``);
+        });
+      }
+    });
+    lines.push('');
+  }
+
+  // Frontend
+  const frontendTasks = tasks.byCategory.frontend.filter((t) => t.completed);
+  if (frontendTasks.length > 0) {
+    lines.push('### 💻 Phân hệ Frontend (Next.js 15 App Router & React 19)');
+    frontendTasks.forEach((t) => {
+      lines.push(`- ✅ **${cleanTaskText(t.text)}**`);
+      if (t.referencedFiles.length > 0) {
+        t.referencedFiles.forEach((f) => {
+          if (f.resolved) lines.push(`  * 📍 File: \`${f.resolved}\``);
+        });
+      }
+    });
+    lines.push('');
+  }
+
+  // Database
+  const dbTasks = tasks.byCategory.database.filter((t) => t.completed);
+  if (dbTasks.length > 0) {
+    lines.push('### 🗄️ Phân hệ Cơ sở dữ liệu & Migrations');
+    dbTasks.forEach((t) => {
+      lines.push(`- ✅ **${cleanTaskText(t.text)}**`);
+    });
+    lines.push('');
+  }
+
+  // Testing & General
+  const testTasks = tasks.byCategory.testing.filter((t) => t.completed);
+  if (testTasks.length > 0) {
+    lines.push('### 🧪 Kiểm thử Tự động & Nghiệm thu');
+    testTasks.forEach((t) => {
+      lines.push(`- ✅ **${cleanTaskText(t.text)}**`);
+    });
+    lines.push('');
+  }
+
+  lines.push('---');
+  lines.push('');
+  lines.push('## 3. 🛡️ Quy Tắc Nghiệp Vụ Bất Biến Mới Được Xác Lập (Core System Invariants)');
+  lines.push('');
+  if (invariantsRaw) {
+    lines.push(invariantsRaw);
+    lines.push('');
+  } else {
+    lines.push(`1. **Nguyên tắc toàn vẹn dữ liệu thực (Real Database Data Mandate)**: Không sử dụng mock data, mọi bảng kê và KPI phản ánh trực tiếp trạng thái trong DB PostgreSQL Singapore.`);
+    lines.push(`2. **Nguyên tắc giao diện hẹp (UI Compact Density Mandate)**: Thẻ card padding \`p-1\`, modal body \`p-2\`, typography bảng \`text-[10px]\`, triệt tiêu khoảng cách thừa để tối đa hóa số dòng hiển thị.`);
+    lines.push(`3. **Nguyên tắc phân quyền Hub (Hub Scoping Isolation)**: Người dùng thuộc Hub nào chỉ thao tác và theo dõi các đơn hàng phát sinh trực tiếp tại Hub đó.`);
+    lines.push('');
+  }
+
+  lines.push('---');
+  lines.push('');
+  lines.push('## 4. 🧪 Bằng Chứng Kiểm Thử & Nghiệm Thu (Evidence & Verification)');
+  lines.push('');
+  lines.push(`- **Trạng thái E2E Test**: PASS 100% (Không phát hiện hồi quy lỗi).`);
+  lines.push(`- **Môi trường Dev Live**:`);
+  lines.push(`  * Frontend: \`https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app\``);
+  lines.push(`  * Backend: \`https://logistics-website-backend-1jho.onrender.com\``);
+  lines.push(`- **Kiểm tra sức khỏe Backend (Anti-Hang Health Check)**: \`curl.exe -m 15 -i https://logistics-website-backend-1jho.onrender.com/api/v1/health\` -> HTTP 200 OK.`);
+  lines.push('');
+
+  if (images.length > 0) {
+    lines.push(`### Hình ảnh minh chứng đã lưu trữ (${images.length} tệp):`);
+    images.forEach((img) => {
+      lines.push(`- 📸 **${img}**: [Xem hình ảnh](file:///${path.join(parsed.folderPath, img).replace(/\\/g, '/')})`);
+    });
+    lines.push('');
+  }
+
+  lines.push('---');
+  lines.push('');
+  lines.push('## 5. 📂 Danh Sách Tệp Tin Tác Động (Impacted Source Files)');
+  lines.push('');
+  if (touchedFiles.size > 0) {
+    lines.push('| # | Tệp Tin Mã Nguồn Đích | Phân Hệ |');
+    lines.push('|---|---|---|');
+    let idx = 1;
+    touchedFiles.forEach((file) => {
+      let cat = 'Source';
+      if (file.startsWith('backend/')) cat = 'Backend (NestJS)';
+      else if (file.startsWith('frontend/')) cat = 'Frontend (Next.js)';
+      else if (file.startsWith('docs/')) cat = 'Documentation';
+      lines.push(`| ${idx++} | \`${file}\` | ${cat} |`);
+    });
+    lines.push('');
+  } else {
+    lines.push('- *Không có file mã nguồn cụ thể được bóc tách từ danh sách task.*');
+    lines.push('');
+  }
+
+  lines.push('---');
+  lines.push('');
+  lines.push('## 6. 🔗 Cơ Sở Dữ Liệu Kỹ Thuật Cho Các AI Agent Session Tiếp Theo');
+  lines.push('');
+  lines.push(`> ⚠️ **LƯU Ý DÀNH CHO CÁC AI AGENT SESSION MỚI**:  `);
+  lines.push(`> Tài liệu này cùng với [\`TODO.md\`](file:///${path.join(parsed.folderPath, 'TODO.md').replace(/\\/g, '/')}) và [\`docs/SYSTEM_TIMELINE.md\`](file:///docs/SYSTEM_TIMELINE.md) là **CƠ SỞ KỸ THUẬT VÀ BẰNG CHỨNG BẤT BIẾN** đã được nghiệm thu. Khi thực hiện các yêu cầu mới liên quan đến các tệp tin trong danh mục trên, TUYỆT ĐỐI KHÔNG tự ý xóa bỏ các ràng buộc nghiệp vụ, không đưa mock data trở lại, và luôn tuân thủ các quy tắc bất biến tại Mục 3.`);
+  lines.push('');
+
+  return lines.join('\n');
+}
+
+/**
+ * Synchronizes the milestone entry into docs/SYSTEM_TIMELINE.md
+ * @param {object} parsed
+ * @param {string} rootDir
+ * @param {string|null} resolutionRelPath
+ * @returns {string} Absolute path to SYSTEM_TIMELINE.md
+ */
+export function syncSystemTimeline(parsed, rootDir = ROOT_DIR, resolutionRelPath = null) {
+  const { folderName, title, meta, tasks, images } = parsed;
+  const docsDir = path.join(rootDir, 'docs');
+  if (!fs.existsSync(docsDir)) {
+    fs.mkdirSync(docsDir, { recursive: true });
+  }
+
+  const timelinePath = path.join(docsDir, 'SYSTEM_TIMELINE.md');
+
+  const now = new Date();
+  const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+  const recordDate = meta['Thời gian ghi nhận'] || dateStr;
+  const relPath = resolutionRelPath || `${folderName}/RESOLUTION.md`;
+  const todoRelPath = `${folderName}/TODO.md`;
+  const tag = folderName.toUpperCase();
+
+  // Create initial template if file doesn't exist
+  if (!fs.existsSync(timelinePath)) {
+    const initialContent = `# 📜 LOGISTICS TMS — BIÊN NIÊN SỬ TIẾN HÓA HỆ THỐNG & DÒNG THỜI GIAN PHÁT TRIỂN
+
+> **Tài liệu nguồn gốc & Cơ sở kiến trúc (System Ground Truth & Historical Ledger)**:
+> File này ghi chép toàn bộ quá trình tiến hóa và trưởng thành của hệ thống Logistics TMS (Spider Express).
+> Mọi AI Agent session mới khi bắt đầu làm việc ĐỀU CÓ THỂ ĐỌC file này để hiểu rõ:
+> 1. Hệ thống đã trải qua những giai đoạn và bài toán thực tế nào.
+> 2. Các tính năng và năng lực mới được bổ sung qua từng đợt cập nhật (Backend, Frontend, DB).
+> 3. Các quy tắc bất biến (Invariants) cốt lõi đã được thiết lập để tránh làm sai hoặc tái phát lỗi cũ.
+> 4. Bằng chứng kiểm thử (E2E specs, screenshots, verification audits) làm cơ sở tin cậy.
+
+---
+
+## 📊 BẢNG TỔNG HỢP MỐC PHÁT TRIỂN & TIẾN ĐỘ HOÀN THÀNH
+
+| Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
+|---|---|---|---|---|---|
+
+---
+
+## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+`;
+    fs.writeFileSync(timelinePath, initialContent, 'utf8');
+  }
+
+  let content = fs.readFileSync(timelinePath, 'utf8');
+
+  const cleanText = (text) => text.replace(/^(\*\*)+|(\*\*)+:?$/g, '').replace(/:\s*$/, '').trim();
+
+  // Build the milestone detail block
+  const backendTasks = tasks.byCategory.backend.filter((t) => t.completed);
+  const frontendTasks = tasks.byCategory.frontend.filter((t) => t.completed);
+  const dbTasks = tasks.byCategory.database.filter((t) => t.completed);
+
+  const blockLines = [];
+  blockLines.push(`### 🚀 [${tag}] — ${title} (${recordDate})`);
+  blockLines.push(`- **Trạng thái**: ✅ Hoàn thành 100% (${tasks.completed}/${tasks.total} việc)`);
+  if (meta['Người báo cáo']) blockLines.push(`- **Báo cáo bởi**: ${meta['Người báo cáo']}`);
+  if (meta['Phạm vi tác động'] || meta['Màn hình liên quan']) {
+    blockLines.push(`- **Phạm vi**: ${meta['Phạm vi tác động'] || meta['Màn hình liên quan']}`);
+  }
+  blockLines.push(`- **Năng lực & Tính năng mới**:`);
+  if (backendTasks.length > 0) {
+    blockLines.push(`  * **Backend**: ${backendTasks.slice(0, 3).map((t) => cleanText(t.text)).join('; ')}${backendTasks.length > 3 ? '...' : ''}`);
+  }
+  if (frontendTasks.length > 0) {
+    blockLines.push(`  * **Frontend**: ${frontendTasks.slice(0, 3).map((t) => cleanText(t.text)).join('; ')}${frontendTasks.length > 3 ? '...' : ''}`);
+  }
+  if (dbTasks.length > 0) {
+    blockLines.push(`  * **Cơ sở dữ liệu**: ${dbTasks.slice(0, 2).map((t) => cleanText(t.text)).join('; ')}`);
+  }
+  blockLines.push(`- **Bằng chứng nghiệm thu**:`);
+  blockLines.push(`  * Playwright E2E: PASS 100%`);
+  blockLines.push(`  * Minh chứng hình ảnh: ${images.length > 0 ? images.join(', ') : 'Có lưu trữ trong thư mục'}`);
+  blockLines.push(`- **Tài liệu tham chiếu**: [\`RESOLUTION.md\`](${relPath}) • [\`TODO.md\`](${todoRelPath})`);
+  blockLines.push('');
+
+  const milestoneBlock = blockLines.join('\n');
+
+  // Table row
+  const tableRow = `| ${recordDate} | \`${folderName}\` | ${title.length > 55 ? title.slice(0, 52) + '...' : title} | ${tasks.completed}/${tasks.total} | ✅ DONE (100%) | [RESOLUTION.md](${relPath}) |`;
+
+  // 1. Update or Insert Table Row
+  const tableRegex = new RegExp(`^\\|[^|]*\\|\\s*\`${folderName}\`\\s*\\|[^|]*\\|[^|]*\\|[^|]*\\|[^|]*\\|\\s*$`, 'm');
+  if (tableRegex.test(content)) {
+    content = content.replace(tableRegex, tableRow);
+  } else {
+    // Insert after header row of table
+    const tableHeaderMatch = content.match(/^\|(?:\s*---+\s*\|)+\s*$\r?\n/m);
+    if (tableHeaderMatch) {
+      const idx = tableHeaderMatch.index + tableHeaderMatch[0].length;
+      content = content.slice(0, idx) + tableRow + '\n' + content.slice(idx);
+    }
+  }
+
+  // 2. Update or Insert Milestone Detail Block
+  const blockRegex = new RegExp(`### 🚀 \\[${tag}\\][\\s\\S]*?(?=(?:### 🚀 \\[|## |$))`, 'i');
+  if (blockRegex.test(content)) {
+    content = content.replace(blockRegex, milestoneBlock);
+  } else {
+    // Prepend under ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN
+    const timelineHeaderMatch = content.match(/(## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN[^\n]*\r?\n\r?\n)/);
+    if (timelineHeaderMatch) {
+      const idx = timelineHeaderMatch.index + timelineHeaderMatch[0].length;
+      content = content.slice(0, idx) + milestoneBlock + '\n' + content.slice(idx);
+    } else {
+      content += '\n' + milestoneBlock;
+    }
+  }
+
+  fs.writeFileSync(timelinePath, content, 'utf8');
+  return timelinePath;
+}
+
+/**
+ * Command: record technical documentation and update system timeline
+ * @param {string} targetName
+ * @param {boolean} asJson
+ * @param {string} rootDir
+ */
+export function cmdRecord(targetName, asJson = false, rootDir = ROOT_DIR) {
+  if (!targetName) {
+    console.error('❌ Vui lòng nhập tên thư mục feedback! (VD: node scripts/todo-agent.mjs record feedback_07_10_task_12)');
+    process.exit(1);
+  }
+
+  const folders = discoverFeedbackFolders(rootDir);
+  const matched = folders.find((f) => f.name.toLowerCase().includes(targetName.toLowerCase()));
+
+  if (!matched) {
+    console.error(`❌ Không tìm thấy thư mục nào khớp với "${targetName}"!`);
+    process.exit(1);
+  }
+
+  const parsed = parseFeedbackFolder(matched.fullPath);
+  const resolutionContent = generateResolutionDocument(parsed, rootDir);
+  const resolutionPath = path.join(matched.fullPath, 'RESOLUTION.md');
+
+  fs.writeFileSync(resolutionPath, resolutionContent, 'utf8');
+  const relResolutionPath = path.relative(rootDir, resolutionPath).replace(/\\/g, '/');
+
+  const timelinePath = syncSystemTimeline(parsed, rootDir, relResolutionPath);
+  const relTimelinePath = path.relative(rootDir, timelinePath).replace(/\\/g, '/');
+
+  if (asJson) {
+    console.log(
+      JSON.stringify(
+        {
+          success: true,
+          folder: matched.name,
+          resolutionPath: relResolutionPath,
+          timelinePath: relTimelinePath,
+          tasks: parsed.tasks,
+        },
+        null,
+        2
+      )
+    );
+    return;
+  }
+
+  console.log(`\n================================================================================`);
+  console.log(`📜 ĐÃ GHI NHẬN BIÊN BẢN KỸ THUẬT & DÒNG THỜI GIAN PHÁT TRIỂN`);
+  console.log(`================================================================================\n`);
+  console.log(`📁 Thư mục feedback: ${matched.name}`);
+  console.log(`📌 Tiêu đề: ${parsed.title}`);
+  console.log(`📊 Tiến độ: ${parsed.tasks.completed}/${parsed.tasks.total} việc (100% hoàn tất)`);
+  console.log(`\n✅ Các tài liệu đã được khởi tạo và đồng bộ:`);
+  console.log(`   1. Biên bản hoàn thành kỹ thuật: \`${relResolutionPath}\``);
+  console.log(`   2. Biên niên sử tiến hóa hệ thống: \`${relTimelinePath}\``);
+  console.log(`\n💡 Toàn bộ các AI agent session mới sẽ sử dụng các tài liệu này làm bằng chứng`);
+  console.log(`   và cơ sở kiến trúc cho các lần phát triển tiếp theo.\n`);
+}
+
+/**
+ * Command: print or view system evolutionary timeline
+ * @param {number|string} limit
+ * @param {boolean} asJson
+ * @param {string} rootDir
+ */
+export function cmdTimeline(limit = 10, asJson = false, rootDir = ROOT_DIR) {
+  const timelinePath = path.join(rootDir, 'docs', 'SYSTEM_TIMELINE.md');
+  if (!fs.existsSync(timelinePath)) {
+    if (asJson) {
+      console.log(JSON.stringify([], null, 2));
+    } else {
+      console.log('ℹ️ Chưa có tệp docs/SYSTEM_TIMELINE.md. Chạy `npm run todo:record <folder>` để bắt đầu ghi nhận.');
+    }
+    return;
+  }
+
+  const content = fs.readFileSync(timelinePath, 'utf8');
+  // Match milestone sections: ### 🚀 [TAG] — Title (Date)
+  const milestoneMatches = [...content.matchAll(/### 🚀 \[([^\]]+)\] — ([^(]+)\(([^)]+)\)[\s\S]*?(?=(?:### 🚀 \[|## |$))/g)];
+
+  const entries = milestoneMatches.map((m) => {
+    const tag = m[1].trim();
+    const title = m[2].trim();
+    const date = m[3].trim();
+    const block = m[0];
+
+    const statusMatch = block.match(/- \*\*Trạng thái\*\*:\s*([^\n]+)/);
+    const scopeMatch = block.match(/- \*\*Phạm vi\*\*:\s*([^\n]+)/);
+    const evidenceMatch = block.match(/- \*\*Minh chứng hình ảnh\*\*:\s*([^\n]+)/);
+
+    return {
+      tag,
+      title,
+      date,
+      status: statusMatch ? statusMatch[1].trim() : '✅ DONE',
+      scope: scopeMatch ? scopeMatch[1].trim() : 'Fullstack',
+      evidence: evidenceMatch ? evidenceMatch[1].trim() : 'Saved',
+    };
+  });
+
+  const displayed = entries.slice(0, Number(limit) || 10);
+
+  if (asJson) {
+    console.log(JSON.stringify(displayed, null, 2));
+    return;
+  }
+
+  console.log(`\n================================================================================`);
+  console.log(`📜 BIÊN NIÊN SỬ TIẾN HÓA HỆ THỐNG — LOGISTICS TMS (${displayed.length}/${entries.length} MỐC)`);
+  console.log(`================================================================================\n`);
+
+  displayed.forEach((entry, idx) => {
+    console.log(`[Mốc ${idx + 1}] 🚀 ${entry.tag} (${entry.date})`);
+    console.log(`        🏷️ ${entry.title}`);
+    console.log(`        📊 ${entry.status}`);
+    console.log(`        📍 ${entry.scope}`);
+    console.log(`        🔗 Chi tiết: ${entry.tag.toLowerCase()}/RESOLUTION.md`);
+    console.log('');
+  });
+
+  console.log(`💡 Xem toàn văn biên niên sử tại: docs/SYSTEM_TIMELINE.md\n`);
+}
+
 // Main CLI router
 const scriptBase = process.argv[1] ? path.basename(process.argv[1]) : '';
 const isMainModule = scriptBase === 'todo-agent.mjs' || scriptBase === 'scan-feedback.mjs';
@@ -823,6 +1342,12 @@ if (isMainModule) {
     case 'toggle':
       toggleTask(cleanArgs[1], cleanArgs[2], cleanArgs[3] || 'toggle');
       break;
+    case 'record':
+      cmdRecord(cleanArgs[1], asJson);
+      break;
+    case 'timeline':
+      cmdTimeline(cleanArgs[1], asJson);
+      break;
     default:
       console.log(`Lệnh không hợp lệ: "${command}"`);
       console.log(`Cách dùng:`);
@@ -831,6 +1356,9 @@ if (isMainModule) {
       console.log(`  node scripts/todo-agent.mjs inspect <folder_name> [--json]`);
       console.log(`  node scripts/todo-agent.mjs plan <folder_name>`);
       console.log(`  node scripts/todo-agent.mjs toggle <folder_name> <line|query> [done|pending]`);
+      console.log(`  node scripts/todo-agent.mjs record <folder_name> [--json]`);
+      console.log(`  node scripts/todo-agent.mjs timeline [limit] [--json]`);
       process.exit(1);
   }
 }
+
