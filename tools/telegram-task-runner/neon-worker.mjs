@@ -412,11 +412,12 @@ Cấu trúc file ${targetTodoPath} BẮT BUỘC có các phần:
 
 // Xây dựng prompt chuẩn hóa với vai trò todo-agent để thực thi triển khai code
 function buildTodoAgentPrompt(rawPrompt, feedbackDir, senderName = 'User') {
-  const isTodayScan = /hôm nay|today|quét task|tất cả|all/i.test(rawPrompt) || !feedbackDir || feedbackDir === WORKSPACE_DIR;
+  const hasSpecificFolder = /feedback_\d{1,2}_\d{1,2}[a-zA-Z0-9_]*/i.test(rawPrompt);
+  const isTodayScan = !hasSpecificFolder && (/hôm nay|today|quét task|tất cả|all|force|todo|run|thực thi|triển khai/i.test(rawPrompt) || !feedbackDir || feedbackDir === WORKSPACE_DIR);
   const todaySummary = getTodayTasksSummary(WORKSPACE_DIR);
 
   let targetSection = '';
-  if (isTodayScan || todaySummary.pendingFolders.length > 0) {
+  if (!hasSpecificFolder && (isTodayScan || !feedbackDir || feedbackDir === WORKSPACE_DIR)) {
     let pendingDetails = '';
     if (todaySummary.pendingFolders.length > 0) {
       pendingDetails = todaySummary.pendingFolders.map((folder) => {
@@ -451,10 +452,15 @@ ${pendingDetails}
 `;
   } else {
     const targetTodoPath = path.join(feedbackDir, 'TODO.md');
+    let checklistDetails = '';
+    if (fs.existsSync(targetTodoPath)) {
+      const todoContent = fs.readFileSync(targetTodoPath, 'utf8');
+      checklistDetails = `\n- Nội dung checklist trong TODO.md:\n${todoContent.slice(0, 3000)}`;
+    }
     targetSection = `
 2. THƯ MỤC FEEDBACK MỤC TIÊU CẦN THỰC THI:
 - Đường dẫn thư mục: ${feedbackDir}
-- File TODO.md: ${targetTodoPath}
+- File TODO.md: ${targetTodoPath}${checklistDetails}
 `;
   }
 
@@ -499,7 +505,7 @@ ${targetSection}
 
 // Hàm điều phối prompt tổng quát
 function buildTaskPrompt(rawPrompt, feedbackDir, imagePaths = [], senderName = 'User') {
-  const isTodoAgent = /^\s*(\/todo|todo-agent|thực thi|triển khai)/i.test(rawPrompt);
+  const isTodoAgent = /^\s*(\/todo|\/force|\/run|\/exec|\/now|todo-agent|force-todo|run-todo|thực thi|triển khai|chạy ngay|làm ngay)/i.test(rawPrompt);
   if (isTodoAgent) {
     return buildTodoAgentPrompt(rawPrompt, feedbackDir, senderName);
   }
@@ -703,7 +709,7 @@ async function executeAgyTask(task) {
   console.log(`========================================`);
 
   // Phân biệt chế độ /leader (tổng hợp TODO) vs todo-agent (thực thi code)
-  const isTodoAgentMode = /^\s*(\/todo|todo-agent|thực thi|triển khai)/i.test(rawPrompt);
+  const isTodoAgentMode = /^\s*(\/todo|\/force|\/run|\/exec|\/now|todo-agent|force-todo|run-todo|thực thi|triển khai|chạy ngay|làm ngay)/i.test(rawPrompt);
 
   // 1. Xác định thư mục feedback
   let feedbackDir = (task.feedback_dir && fs.existsSync(task.feedback_dir))
