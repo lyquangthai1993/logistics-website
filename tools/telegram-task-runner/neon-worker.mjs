@@ -763,12 +763,17 @@ async function runDevE2EVerification(feedbackDir, specRelPath) {
   });
 }
 
-// Quản lý kết nối Neon PostgreSQL
+// Quản lý kết nối Neon PostgreSQL (Hỗ trợ Serverless Auto-Reconnect & Cold-Start)
 const pool = new Pool({
   connectionString: DATABASE_URL,
   max: 5,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000,
+  idleTimeoutMillis: 10000, // Giải phóng kết nối nhàn rỗi sau 10s để tránh giữ TCP socket chết
+  connectionTimeoutMillis: 20000, // Cho phép tối đa 20s khi Neon cold-start
+});
+
+// Bắt lỗi rớt socket ngầm của client nhàn rỗi, tự động tái kết nối mà không crash tiến trình
+pool.on('error', (err) => {
+  console.warn('⚠️ [Neon Pool Notice] Socket kết nối nhàn rỗi bị ngắt (sẽ tự động tạo kết nối mới):', err.message);
 });
 
 let activeProcess = null;
