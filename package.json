@@ -16,7 +16,6 @@
     "e2e:audit": "node scripts/e2e-auditor.mjs",
     "telegram:bot": "node tools/telegram-task-runner/bot.mjs",
     "telegram:worker": "node --watch tools/telegram-task-runner/neon-worker.mjs",
-    "start-neon-worker": "node --watch tools/telegram-task-runner/neon-worker.mjs",
     "todo:scan": "node scripts/todo-agent.mjs scan",
     "todo:today": "node scripts/todo-agent.mjs today",
     "todo:inspect": "node scripts/todo-agent.mjs inspect",
