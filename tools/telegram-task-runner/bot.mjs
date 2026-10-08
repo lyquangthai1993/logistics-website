@@ -367,9 +367,16 @@ const TASK_ACTIONS_KEYBOARD = {
 async function registerBotCommands() {
   try {
     const commands = [
-      { command: 'feedback', description: '📝 Ghi nhận phản hồi nghiệp vụ mới & lập TODO.md' },
-      { command: 'force', description: '⚡ Thực thi checklist TODO.md & test code ngay' },
-      { command: 'help', description: 'ℹ️ Hướng dẫn sử dụng & liên kết hệ thống' },
+      { command: 'feedback', description: '📝 Khảo sát nghiệp vụ TMS & lập TODO.md' },
+      { command: 'task', description: '🚀 Giao tính năng mới trực tiếp cho AI' },
+      { command: 'fix', description: '🔧 Giao tác vụ sửa lỗi tính năng (bug fix)' },
+      { command: 'sync', description: '🌿 Đồng bộ nhánh dev lên master (Production)' },
+      { command: 'force', description: '⚡ Ép chạy ngay task đang chờ trong hàng đợi' },
+      { command: 'queue', description: '📋 Xem 5 task gần nhất trong hàng đợi Neon' },
+      { command: 'clearqueue', description: '🗑️ Xóa sạch các task tồn đọng trong hàng đợi' },
+      { command: 'devweb', description: '🌐 Link nhanh Web & API môi trường Dev' },
+      { command: 'proweb', description: '🚀 Link nhanh Web & API môi trường Production' },
+      { command: 'help', description: 'ℹ️ Danh sách lệnh hướng dẫn đầy đủ' },
     ];
 
     const res = await fetch(`${API_BASE}/setMyCommands`, {
