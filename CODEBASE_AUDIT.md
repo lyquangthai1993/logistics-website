@@ -9,14 +9,34 @@
 
 | Trường | Giá trị |
 |---|---|
-| **Phiên bản** | v0.10.0 |
-| **Ngày audit** | 2026-09-11 |
+| **Phiên bản** | v1.0.0 |
+| **Ngày audit** | 2026-10-08 |
 | **Người thực hiện** | Antigravity Multi-Agent Teamwork System |
 | **Môi trường** | Development / Staging / Production (Vercel + Render) |
 
 ---
 
 ## 🗂️ CHANGELOG PHIÊN BẢN
+
+### v1.0.0 — 2026-10-08 (Milestone Release — Production-Ready Logistics TMS)
+- ✅ **Chuẩn Hóa & Hoàn Thiện Toàn Diện 7 Flow Nghiệp Vụ Vận Hành Cốt Lõi**:
+  - **Flow 1: Khởi tạo & Quản lý đơn hàng (Orders)**: Sinh mã chuẩn Enterprise `{HUB}-{INITIALS}-{YYMM}-{SEQ}` từ DB sequence; hỗ trợ nhập mã vận đơn tự do với API check DB thời gian thực; quản lý kiện, kg, khối m³, chứng từ đi kèm No-SKU.
+  - **Flow 2: Lập kế hoạch & Điều phối chuyến xe (Fleet & Dispatch)**: Điều phối đơn hàng `PENDING_FLEET`, gán xe & tài xế, tách chuyến (Split Shipment), cảnh báo thiếu xe `NO_VEHICLE` và xử lý cờ xe thuê ngoài 3PL.
+  - **Flow 3: Vận hành Nhập kho & Kiểm đếm (Inbound & Tally)**: Bảng kế hoạch xe đến; kiểm đếm dỡ hàng thực tế (Tally Sheet) so khớp số kiện/kg/khối; ghi nhận hàng bất thường; bốc hàng dọc đường (Roadside Pickup); nhập kho độc lập decoupled; in tem mã vạch/Pallet.
+  - **Flow 4: Vận hành Xuất kho & 3 Hình thức giao nhận (Outbound & Delivery Modes)**: Phân tầng triệt để 3 hình thức giao (`DIRECT_CUSTOMER`, `HUB_L1`, `XE_BO`); cách ly tuyệt đối hàng giao thẳng cho khách khỏi trạm trung chuyển dọc đường; bốc đơn lưu kho có sẵn lên chuyến xe transit qua modal 10 cột dữ liệu siêu gọn; in bảng kê vận chuyển Manifest.
+  - **Flow 5: Quản lý Tồn kho & Sổ cái vận hành (Inventory Ledger)**: Quản lý theo Hub Scope và trạng thái thực tế (`LƯU KHO`, `DRAFT`); cách ly dữ liệu giữa các Hub; cơ chế Zero Stock Auto-Clear tự động loại bỏ nhãn `LƯU KHO` khi hàng đã xuất hết; lưu vết bất biến `OrderInventoryTransactionEntity`.
+  - **Flow 6: Mạng lưới Hubs phân tầng & Phương tiện (Hubs & Fleet Network)**: Mô hình Hub 2 cấp (Hub Cấp 1 Regional Linehaul Hubs vs Hub Cấp 2 / Tuyến Xe Bo Feeder Stations); quản lý phương tiện gắn với Hub.
+  - **Flow 7: Hệ thống thông báo đa kênh & Hạ tầng bảo mật (Security & Notifications)**: WebSocket Gateway thời gian thực; Resend & SMTP Email service; Token Manager với Proactive Silent Heartbeat đồng bộ 0ms qua BroadcastChannel; RBAC 3 lớp đồng bộ.
+- ✅ **Chuẩn Hóa Giao Diện & Mật Độ Thao Tác (Compact Density System)**:
+  - Thẻ card padding 4px (`p-1`), modal body `p-2`, khoảng cách khối 6-8px (`gap-1.5` / `gap-2`), bảng dữ liệu `text-[10px]`, hàng bảng cao ~26px.
+  - Thanh hành động cố định chân modal/trang `sticky bottom-0`.
+- ✅ **Chất Lượng Kỹ Thuật & Cổng Nghiệm Thu Độc Lập**:
+  - Backend NestJS 11 build: `npm run build` đạt 0 lỗi (Code 0).
+  - Frontend Next.js 16 typecheck & build: 33/33 routes compiled thành công.
+  - Playwright E2E: Toàn bộ 37 test suites (`e2e/*.spec.ts`) PASSED 100%.
+  - Render Backend Dev & Production: HTTP 200 OK (`/api/v1/health`), uptime > 57,000s & 81,000s.
+  - Vercel Frontend Dev & Production: HTTP 307 (Route Guard OK), CDN phản hồi tức thì.
+  - Ban hành tài liệu tổng quan nghiệp vụ [`docs/RELEASE_v1.0.0_BUSINESS_FLOWS.md`](file:///d:/Projects/logistics-website/docs/RELEASE_v1.0.0_BUSINESS_FLOWS.md).
 
 ### v0.10.0 — 2026-09-11
 - ✅ **Tùy Biến Nhập Tự Do "Mã Vận Đơn" & Kiểm Tra Trùng Lặp Thời Gian Thực (DB + Table Grid)**:

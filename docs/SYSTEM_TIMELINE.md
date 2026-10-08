@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 08/10/2026 | `release_v1.0.0` | **Release v1.0.0 — Milestone Chốt Toàn Bộ Flow Nghiệp Vụ Cốt Lõi Vận Hành TMS** | 7 Flows | ✅ DONE (100%) | [RELEASE_v1.0.0_BUSINESS_FLOWS.md](RELEASE_v1.0.0_BUSINESS_FLOWS.md) |
 | 07/10/2026 | `feedback_07_10_task_29` | Feedback 07/10 Task 29 — Chuẩn Hóa Logic Mặc Định Nh... | 11/11 | ✅ DONE (100%) | [RESOLUTION.md](feedback_07_10_task_29/RESOLUTION.md) |
 | 07/10/2026 | `feedback_07_10_task_27` | Feedback 07/10 Task 27 — Khắc Phục Lỗi Mặc Định Nhập... | 11/11 | ✅ DONE (100%) | [RESOLUTION.md](feedback_07_10_task_27/RESOLUTION.md) |
 | 07/10/2026 | `feedback_07_10_task_24` | Feedback 07/10 Task 24 — Tùy biến Hình thức & Địa ch... | 57/57 | ✅ DONE (100%) | [RESOLUTION.md](feedback_07_10_task_24/RESOLUTION.md) |
@@ -31,6 +32,24 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🏆 [RELEASE_V1.0.0] — Milestone Release v1.0.0: Chuẩn Hóa Toàn Bộ 7 Flow Nghiệp Vụ Vận Hành Cốt Lõi TMS Spider Express (08/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (7 Flow nghiệp vụ cốt lõi)
+- **Báo cáo bởi**: @Thai (Owner / Operator) & Antigravity TMS Multi-Agent Team
+- **Phạm vi**: Toàn bộ hệ thống fullstack: Orders, Fleet, Inbound, Outbound, Inventory Ledger, Hubs Network, Real-time Notifications, RBAC 3 lớp.
+- **Năng lực & Tính năng mới**:
+  * Chuẩn hóa mã đơn Enterprise `{HUB}-{INITIALS}-{YYMM}-{SEQ}` & hỗ trợ mã vận đơn tự do kiểm tra trùng lặp DB thời gian thực.
+  * Phân tầng 3 hình thức giao nhận `DIRECT_CUSTOMER`, `HUB_L1`, `XE_BO` với cách ly tuyệt đối hàng khách lẻ tại trạm trung chuyển.
+  * Bốc đơn lưu kho lên chuyến xe trung chuyển (Bước 2 Inbound) qua Modal 10 cột dữ liệu tối ưu hiển thị.
+  * Kiểm đếm dỡ hàng Tally Sheet, bốc hàng dọc đường Roadside Pickup, in tem nhãn Pallet/Barcode.
+  * Sổ cái giao dịch kho bất biến `OrderInventoryTransactionEntity`, Zero Stock Auto-Clear triệt tiêu nhãn `LƯU KHO` khi hết tồn.
+  * Token Manager đồng bộ 0ms đa tab với Proactive Silent Heartbeat, bảo đảm phiên làm việc liên tục.
+- **Bằng chứng nghiệm thu**:
+  * Backend NestJS 11 build: PASS (0 lỗi)
+  * Frontend Next.js 16 typecheck & build: PASS (33/33 routes)
+  * Playwright E2E: 37/37 suites PASS 100%
+  * Production & Dev Cloud deployments (Render & Vercel) LIVE & Health Check 200 OK
+- **Tài liệu tham chiếu**: [`docs/RELEASE_v1.0.0_BUSINESS_FLOWS.md`](RELEASE_v1.0.0_BUSINESS_FLOWS.md) • [`CODEBASE_AUDIT.md`](../CODEBASE_AUDIT.md)
 
 ### 🚀 [FEEDBACK_07_10_TASK_29] — Feedback 07/10 Task 29 — Chuẩn Hóa Logic Mặc Định Nhập Kho Hub Cấp 1 & Bảo Toàn Thông Tin Đơn Hàng Giữ Nguyên Địa Chỉ Giao Ban Đầu (07/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (11/11 việc)
