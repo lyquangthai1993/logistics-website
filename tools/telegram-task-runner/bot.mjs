@@ -367,19 +367,9 @@ const TASK_ACTIONS_KEYBOARD = {
 async function registerBotCommands() {
   try {
     const commands = [
-      { command: 'health', description: '🩺 Kiểm tra sức khỏe Server Dev & Pro' },
-      { command: 'proweb', description: '🚀 Mở nhanh Web Production (Pro)' },
-      { command: 'devweb', description: '🌐 Mở nhanh Web Development (Dev)' },
-      { command: 'fix', description: '🔧 Sửa lỗi tính năng (giữ nguyên kiến trúc)' },
-      { command: 'task', description: '🚀 Giao task / tính năng mới' },
-      { command: 'continue', description: '🔄 Tiếp tục phiên làm việc trước' },
-      { command: 'log', description: '⚡ Xem tiến độ & nhật ký agy đang chạy' },
-      { command: 'status', description: '📊 Trạng thái Git (branch & uncommitted)' },
-      { command: 'diff', description: '📁 Xem code vừa sửa (git diff --stat)' },
-      { command: 'queue', description: '📋 Xem hàng đợi tác vụ' },
-      { command: 'clearqueue', description: '🗑️ Xóa sạch hàng đợi tác vụ' },
-      { command: 'cancel', description: '🛑 Hủy task đang chạy' },
-      { command: 'help', description: 'ℹ️ Hướng dẫn sử dụng & danh sách lệnh' },
+      { command: 'feedback', description: '📝 Ghi nhận phản hồi nghiệp vụ mới & lập TODO.md' },
+      { command: 'force', description: '⚡ Thực thi checklist TODO.md & test code ngay' },
+      { command: 'help', description: 'ℹ️ Hướng dẫn sử dụng & liên kết hệ thống' },
     ];
 
     const res = await fetch(`${API_BASE}/setMyCommands`, {
@@ -2047,15 +2037,6 @@ async function startPolling() {
   // Đăng ký danh sách menu lệnh nhanh trên Telegram Bot
   await registerBotCommands();
 
-  // Gửi thông báo khởi động vào group
-  await sendTelegramMessage(
-    ALLOWED_CHAT_ID,
-    `🟢 <b>Antigravity AI Task Runner đã sẵn sàng!</b>\n\n` +
-    `⚡ <b>Đã kích hoạt:</b> Hàng đợi đĩa cứng (task-queue.json), Tự động khôi phục khi gián đoạn (Crash Recovery), Bàn phím thao tác nhanh, Phím tắt Pro Web, skill <code>telegram-task-responder</code>.\n` +
-    `Gõ <code>/help</code> hoặc bấm các nút bên dưới để bắt đầu:`,
-    'HTML',
-    TASK_ACTIONS_KEYBOARD
-  );
 
   // Kiểm tra và khôi phục tác vụ bị gián đoạn từ file đĩa cứng
   await recoverInterruptedTasks();
