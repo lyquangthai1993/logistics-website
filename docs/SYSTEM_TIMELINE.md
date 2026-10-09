@@ -14,6 +14,14 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 09/10/2026 | `feedback_09_10_task_10` | Feedback 09/10 Task 10 — Ràng Buộc Nghiệp Vụ Cột Ngà... | 21/21 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10_task_10/RESOLUTION.md) |
+| 09/10/2026 | `feedback_09_10_task_9` | Feedback 09/10 Task 9 — Chuẩn Hóa Toàn Diện Bảng Đơn... | 18/18 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10_task_9/RESOLUTION.md) |
+| 09/10/2026 | `feedback_09_10_task_8` | Feedback 09/10 Task 8 — Hoàn Thiện Quy Chuẩn Bảng Đơ... | 16/16 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10_task_8/RESOLUTION.md) |
+| 09/10/2026 | `feedback_09_10_task_7` | Feedback 09/10 Task 7 — Tái Cấu Trúc Bảng Dữ Liệu Đơ... | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10_task_7/RESOLUTION.md) |
+| 09/10/2026 | `feedback_09_10_task_6` | Feedback 09/10 Task 6 — Loại bỏ Cột Trạng thái Đơn h... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10_task_6/RESOLUTION.md) |
+| 09/10/2026 (14:12) | `feedback_09_10_task_5` | Feedback 09/10 (Task 5) — Khắc phục lỗi Tạo mới Tài ... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10_task_5/RESOLUTION.md) |
+| 09/10/2026 | `feedback_09_10` | Feedback 09/10 — Phân Định Tuyệt Đối Quy Trình Tác N... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10/RESOLUTION.md) |
+| 09/10/2026 | `feedback_09_10_task_4` | Feedback 09/10 (Task 4) — Loại Bỏ Nút "Xem Tài Khoản... | 3/3 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10_task_4/RESOLUTION.md) |
 | 08/10/2026 | `release_v1.0.0` | **Release v1.0.0 — Milestone Chốt Toàn Bộ Flow Nghiệp Vụ Cốt Lõi Vận Hành TMS** | 7 Flows | ✅ DONE (100%) | [RELEASE_v1.0.0_BUSINESS_FLOWS.md](RELEASE_v1.0.0_BUSINESS_FLOWS.md) |
 | 07/10/2026 | `feedback_07_10_task_29` | Feedback 07/10 Task 29 — Chuẩn Hóa Logic Mặc Định Nh... | 11/11 | ✅ DONE (100%) | [RESOLUTION.md](feedback_07_10_task_29/RESOLUTION.md) |
 | 07/10/2026 | `feedback_07_10_task_27` | Feedback 07/10 Task 27 — Khắc Phục Lỗi Mặc Định Nhập... | 11/11 | ✅ DONE (100%) | [RESOLUTION.md](feedback_07_10_task_27/RESOLUTION.md) |
@@ -32,6 +40,101 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_09_10_TASK_10] — Feedback 09/10 Task 10 — Ràng Buộc Nghiệp Vụ Cột Ngày Xuất Hàng: Bắt Buộc Để Trống Tuyệt Đối Khi Đơn Hàng Ở Trạng Thái Lưu Kho (09/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (21/21 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Quản lý nghiệp vụ / Vận hành TMS) & @TMS Domain Lead
+- **Phạm vi**: Quản lý Đơn hàng kho (`/dashboard/warehouse/orders`) ➔ Trang tổng hợp đơn hàng tại kho ([`WarehouseOrdersPage`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/orders/page.tsx)) • Chi tiết vận đơn & Sổ cái kho ([`WarehouseWaybillDetailModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-waybill-detail-modal.tsx)) • Backend Phân hệ Kho vận (`backend/src/orders/`) ➔ Controller & Service xử lý sổ cái hàng hóa ([`WarehouseController`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.controller.ts) & [`WarehouseService`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)) • Bảng dữ liệu Giao dịch Kho bãi ([`OrderInventoryTransactionEntity`](file:///D:/Projects/logistics-website/backend/src/orders/infrastructure/persistence/relational/entities/order-inventory-transaction.entity.ts)) • Quy chuẩn giao diện hẹp ([`.agents/rules/ui-compact-density.md`](file:///D:/Projects/logistics-website/.agents/rules/ui-compact-density.md) & [`ui-spacing-guard`](file:///D:/Projects/logistics-website/.agents/skills/ui-spacing-guard/SKILL.md))
+- **Năng lực & Tính năng mới**:
+  * **Backend**: 1.1. Cập nhật DTO & Interface trả về của Warehouse Orders; 1.2. Triển khai Backend Guard trong `warehouse.service.ts` (`aggregateOrderGroup` & `enrichWarehouseRows`); 1.3. Đảm bảo tính nhất quán cho cả 2 chế độ xem (Grouped & Member Rows)...
+  * **Frontend**: 2.1. Cập nhật cấu trúc bảng 7 cột trong `WarehouseOrdersPage`; 2.2. Triển khai Frontend Guard hiển thị ô Cột "Ngày xuất"; 2.3. Triển khai hiển thị Cột "Ngày nhập" & "Mã vận đơn" kèm thông tin No-SKU...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_09_10_task_10/RESOLUTION.md) • [`TODO.md`](feedback_09_10_task_10/TODO.md)
+
+### 🚀 [FEEDBACK_09_10_TASK_9] — Feedback 09/10 Task 9 — Chuẩn Hóa Toàn Diện Bảng Đơn Hàng Kho 7 Cột & Ràng Buộc Nghiệp Vụ Cột Ngày Xuất Hàng (Để Trống Tuyệt Đối Khi Đang Lưu Kho) (09/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (18/18 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Quản lý nghiệp vụ / Vận hành) & @TMS Domain Lead
+- **Phạm vi**: Quản lý Đơn hàng kho (`/warehouse/orders`) ➔ Trang tổng hợp đơn hàng tại kho ([`WarehouseOrdersPage`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/orders/page.tsx)) • Chi tiết vận đơn & Sổ cái kho ([`WarehouseWaybillDetailModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-waybill-detail-modal.tsx)) • Backend Phân hệ Kho vận (`backend/src/orders/`) ➔ Controller & Service xử lý sổ cái hàng hóa ([`WarehouseController`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.controller.ts) & [`WarehouseService`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)) • Bảng dữ liệu Giao dịch Kho bãi ([`OrderInventoryTransactionEntity`](file:///D:/Projects/logistics-website/backend/src/orders/infrastructure/persistence/relational/entities/order-inventory-transaction.entity.ts)) • Quy chuẩn giao diện hẹp ([`.agents/rules/ui-compact-density.md`](file:///D:/Projects/logistics-website/.agents/rules/ui-compact-density.md) & [`ui-spacing-guard`](file:///D:/Projects/logistics-website/.agents/skills/ui-spacing-guard/SKILL.md))
+- **Năng lực & Tính năng mới**:
+  * **Backend**: 1.1. Cập nhật DTO & Interface trả về của Warehouse Orders; 1.2. Nâng cấp logic tổng hợp trong `aggregateOrderGroup` & `enrichWarehouseRows`; 1.3. Đảm bảo tính nhất quán cho cả 2 chế độ xem (Grouped & Non-Grouped)...
+  * **Frontend**: 2.1. Cập nhật cấu trúc bảng trong `WarehouseOrdersPage`; 2.2. Triển khai render nội dung các ô dữ liệu (Table Cells); 2.3. Cập nhật bảng con mở rộng (Expanded Row)...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_09_10_task_9/RESOLUTION.md) • [`TODO.md`](feedback_09_10_task_9/TODO.md)
+
+### 🚀 [FEEDBACK_09_10_TASK_8] — Feedback 09/10 Task 8 — Hoàn Thiện Quy Chuẩn Bảng Đơn Hàng Kho 7 Cột & Ràng Buộc Nghiệp Vụ Cột Ngày Xuất Hàng (Để Trống Khi Lưu Kho) (09/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (16/16 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Quản lý nghiệp vụ / Vận hành) & @TMS Domain Lead
+- **Phạm vi**: Quản lý Đơn hàng kho (`/warehouse/orders`) ➔ Trang tổng hợp đơn hàng tại kho ([`WarehouseOrdersPage`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/orders/page.tsx)) • Chi tiết vận đơn & Sổ cái kho ([`WarehouseWaybillDetailModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-waybill-detail-modal.tsx)) • Backend Phân hệ Kho vận (`backend/src/orders/`) ➔ Controller & Service xử lý sổ cái hàng hóa ([`WarehouseController`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.controller.ts) & [`WarehouseService`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)) • Bảng dữ liệu Giao dịch Kho bãi ([`OrderInventoryTransactionEntity`](file:///D:/Projects/logistics-website/backend/src/orders/infrastructure/persistence/relational/entities/order-inventory-transaction.entity.ts)) • Quy chuẩn giao diện hẹp ([`.agents/rules/ui-compact-density.md`](file:///D:/Projects/logistics-website/.agents/rules/ui-compact-density.md) & [`ui-spacing-guard`](file:///D:/Projects/logistics-website/.agents/skills/ui-spacing-guard/SKILL.md))
+- **Năng lực & Tính năng mới**:
+  * **Backend**: 1.1. Cập nhật DTO & Interface trả về của Warehouse Orders; 1.2. Nâng cấp logic tổng hợp trong `aggregateOrderGroup` & `enrichWarehouseRows`; 1.3. Đảm bảo tính nhất quán cho cả 2 chế độ xem (Grouped & Non-Grouped)...
+  * **Frontend**: 2.1. Tái cấu trúc cấu trúc bảng 7 cột tại Trang Đơn Hàng Kho; 2.2. Render Cột 2 — "Ngày nhập"; 2.3. Render Cột 3 — "Mã vận đơn" (Tích hợp thông tin kiện No-SKU)...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_09_10_task_8/RESOLUTION.md) • [`TODO.md`](feedback_09_10_task_8/TODO.md)
+
+### 🚀 [FEEDBACK_09_10_TASK_7] — Feedback 09/10 Task 7 — Tái Cấu Trúc Bảng Dữ Liệu Đơn Hàng Kho Theo Chuẩn Nghiệp Vụ Vận Hành (7 Cột Chuẩn Mực) (09/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (13/13 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Quản lý nghiệp vụ / Vận hành) & @TMS Domain Lead
+- **Phạm vi**: Quản lý Đơn hàng kho (`/warehouse/orders`) ➔ Trang tổng hợp đơn hàng tại kho ([`WarehouseOrdersPage`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/orders/page.tsx)) • Backend Phân hệ Kho vận (`backend/src/orders/`) ➔ Controller & Service xử lý sổ cái hàng hóa ([`WarehouseController`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.controller.ts) & [`WarehouseService`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)) • Dữ liệu Giao dịch Kho bãi ([`OrderInventoryTransactionEntity`](file:///D:/Projects/logistics-website/backend/src/orders/infrastructure/persistence/relational/entities/order-inventory-transaction.entity.ts)) • Modal Chi tiết Vận đơn & Sổ cái ([`WarehouseWaybillDetailModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-waybill-detail-modal.tsx)) • Quy chuẩn giao diện hẹp ([`.agents/rules/ui-compact-density.md`](file:///D:/Projects/logistics-website/.agents/rules/ui-compact-density.md) & [`ui-spacing-guard`](file:///D:/Projects/logistics-website/.agents/skills/ui-spacing-guard/SKILL.md))
+- **Năng lực & Tính năng mới**:
+  * **Backend**: 1.1. Cập nhật `WarehouseService.enrichWarehouseRows`; 1.2. Cập nhật `WarehouseService.aggregateOrderGroup` (Chế độ Gom nhóm `groupBy=orderCode`); 1.3. Cập nhật Type Definitions & Interface trong Backend...
+  * **Frontend**: 2.1. Cập nhật hằng số & tiêu đề cột tại `frontend/src/app/dashboard/warehouse/orders/page.tsx`; 2.2. Xây dựng hàm định dạng Ngày/Giờ chuẩn Việt Nam; 2.3. Tái cấu trúc Render dòng dữ liệu cha (`row`)...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_09_10_task_7/RESOLUTION.md) • [`TODO.md`](feedback_09_10_task_7/TODO.md)
+
+### 🚀 [FEEDBACK_09_10_TASK_6] — Feedback 09/10 Task 6 — Loại bỏ Cột Trạng thái Đơn hàng tại Màn hình Nhập kho & Tinh gọn Giao diện Bảng kê (09/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (9/9 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Quản lý nghiệp vụ / Vận hành) & @TMS Domain Lead
+- **Phạm vi**: Quản lý Nhập kho (`/warehouse/inbound`) ➔ Bảng kê danh sách chuyến xe và bảng con chi tiết đơn hàng trực thuộc chuyến xe ([`WarehouseInboundPage`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/inbound/page.tsx)) • Bảng kê kiểm đếm & Phân hệ vận hành kho bãi ([`WarehouseTripTallyTable`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-tally-table.tsx) & [`WarehouseTripDetailModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) • Quy chuẩn giao diện hẹp ([`.agents/rules/ui-compact-density.md`](file:///D:/Projects/logistics-website/.agents/rules/ui-compact-density.md) & [`ui-spacing-guard`](file:///D:/Projects/logistics-website/.agents/skills/ui-spacing-guard/SKILL.md)) • Backend API `/api/v1/warehouse/inbound-trips` & Type check toàn dự án
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Rà soát API Contract `inbound-trips` trong `WarehouseService` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)); Bảo toàn Cơ sở dữ liệu & Entity; Kiểm tra biên dịch & Linting Backend
+  * **Frontend**: Chỉnh sửa Bảng con Đơn hàng trong [`frontend/src/app/dashboard/warehouse/inbound/page.tsx`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/inbound/page.tsx); Bảo toàn tuyệt đối Cột `TRẠNG THÁI` của Bảng cha; Rà soát các Component liên quan trong Phân hệ Kho bãi...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_09_10_task_6/RESOLUTION.md) • [`TODO.md`](feedback_09_10_task_6/TODO.md)
+
+### 🚀 [FEEDBACK_09_10_TASK_5] — Feedback 09/10 (Task 5) — Khắc phục lỗi Tạo mới Tài khoản Người dùng (Internal Server Error 500 do xung đột Soft-Delete & Ràng buộc Unique Database) (09/10/2026 (14:12))
+- **Trạng thái**: ✅ Hoàn thành 100% (9/9 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Người dùng / Vận hành) & TMS Domain Lead Verification
+- **Phạm vi**: Quản lý Người dùng (`/dashboard/users`) ➔ Popup Thêm Người Dùng Mới ([`UserFormDialog`](file:///D:/Projects/logistics-website/frontend/src/features/users/components/user-form-dialog.tsx)) & Form Sheet ([`UserFormSheet`](file:///D:/Projects/logistics-website/frontend/src/features/users/components/user-form-sheet.tsx)) • Backend Users Module: Controller, Service, DTO, TypeORM Repository, Mapper & Entity ([`users.controller.ts`](file:///D:/Projects/logistics-website/backend/src/users/users.controller.ts), [`users.service.ts`](file:///D:/Projects/logistics-website/backend/src/users/users.service.ts), [`user.repository.ts`](file:///D:/Projects/logistics-website/backend/src/users/infrastructure/persistence/relational/repositories/user.repository.ts), [`user.mapper.ts`](file:///D:/Projects/logistics-website/backend/src/users/infrastructure/persistence/relational/mappers/user.mapper.ts), [`user.entity.ts`](file:///D:/Projects/logistics-website/backend/src/users/infrastructure/persistence/relational/entities/user.entity.ts)) • Cơ sở dữ liệu Neon PostgreSQL (Singapore `ap-southeast-1`): Bảng `"user"`, các chỉ mục & ràng buộc unique `UQ_e12875dfb3b1d92d7d7c5377e22` (`UNIQUE (email)`), `UQ_user_username` (`UNIQUE (username)`)
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Tạo Migration PostgreSQL chuyển đổi sang Partial Unique Index (`WHERE "deletedAt" IS NULL`); Nâng cấp `UsersRelationalRepository` ([`user.repository.ts`](file:///D:/Projects/logistics-website/backend/src/users/infrastructure/persistence/relational/repositories/user.repository.ts)); Tái cấu trúc Logic Nghiệp vụ `UsersService.create()` ([`users.service.ts`](file:///D:/Projects/logistics-website/backend/src/users/users.service.ts))
+  * **Frontend**: Chuẩn hóa Giao diện Hẹp theo Quy chuẩn UI Compact Density ([`user-form-dialog.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/users/components/user-form-dialog.tsx) & [`user-form-sheet.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/users/components/user-form-sheet.tsx)); Chống xung đột Trình quản lý Mật khẩu Browser AutoFill; Nâng cấp Từ điển Lỗi & Hiển thị Thông báo Thân thiện ([`api-error.ts`](file:///D:/Projects/logistics-website/frontend/src/lib/api-error.ts))...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_09_10_task_5/RESOLUTION.md) • [`TODO.md`](feedback_09_10_task_5/TODO.md)
+
+### 🚀 [FEEDBACK_09_10] — Feedback 09/10 — Phân Định Tuyệt Đối Quy Trình Tác Nghiệp: Chuyến Xe Nhập Trực Tiếp (Khách Gửi) vs. Chuyến Xe Trung Chuyển Liên Hub (09/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (9/9 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Quản lý nghiệp vụ / Vận hành TMS) & @TMS Domain Lead
+- **Phạm vi**: Quản lý Nhập kho (`/dashboard/warehouse/inbound`) ➔ Chi tiết chuyến xe & Kiểm đếm hàng hóa ([`WarehouseTripDetailModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) • API Quản lý Manifest Chuyến xe ([`trip-manifest.ts`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/api/trip-manifest.ts) & [`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)) • Giao diện thanh tiến trình tác nghiệp trạm (Stepper Bar) & Cụm nút hành động chân modal (Modal Action Footer) • Bốc thêm đơn dọc đường ([`WarehouseAppendOrderModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-append-order-modal.tsx))
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Chuẩn hóa loại chuyến xe trong `WarehouseService.appendOrderToTrip` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)); Kiểm tra tính toàn vẹn của cờ `isTransfer` trong `getTripManifest`; Rà soát API `GET /api/v1/warehouse/inbound-trips`
+  * **Frontend**: Tái cấu trúc điều kiện hiển thị trong [`WarehouseTripDetailModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_09_10/RESOLUTION.md) • [`TODO.md`](feedback_09_10/TODO.md)
+
+### 🚀 [FEEDBACK_09_10_TASK_4] — Feedback 09/10 (Task 4) — Loại Bỏ Nút "Xem Tài Khoản Demo" & Cụm Banner Thử Nghiệm Tại Màn Hình Đăng Nhập (09/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (3/3 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Quản lý nghiệp vụ / Vận hành TMS — Spider Express)
+- **Phạm vi**: Frontend Authentication UI: Trang Đăng nhập (`/auth/sign-in`) ➔ Form Đăng nhập ([`login-form.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/auth/components/login-form.tsx)) • E2E Testing Suite: Cập nhật kịch bản kiểm thử giao diện đăng nhập ([`08-check-vercel-vs-local-signin.spec.ts`](file:///D:/Projects/logistics-website/frontend/e2e/08-check-vercel-vs-local-signin.spec.ts) và tạo mới suite kiểm định [`40-feedback-09-10-task-4-remove-demo-accounts.spec.ts`](file:///D:/Projects/logistics-website/frontend/e2e/40-feedback-09-10-task-4-remove-demo-accounts.spec.ts))
+- **Năng lực & Tính năng mới**:
+  * **Frontend**: 1.1. Loại bỏ khối Demo Accounts trong [`login-form.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/auth/components/login-form.tsx); 1.2. Kiểm tra biên dịch TypeScript & Next.js App Router; 2.1. Cập nhật và bổ sung E2E Spec
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_09_10_task_4/RESOLUTION.md) • [`TODO.md`](feedback_09_10_task_4/TODO.md)
 
 ### 🏆 [RELEASE_V1.0.0] — Milestone Release v1.0.0: Chuẩn Hóa Toàn Bộ 7 Flow Nghiệp Vụ Vận Hành Cốt Lõi TMS Spider Express (08/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (7 Flow nghiệp vụ cốt lõi)
