@@ -7,5 +7,5 @@ echo   Connected to Neon DB Queue & Listening for Telegram Tasks
 echo ========================================================
 echo.
 cd /d "%~dp0"
-node --watch neon-worker.mjs
+node neon-worker.mjs
 pause

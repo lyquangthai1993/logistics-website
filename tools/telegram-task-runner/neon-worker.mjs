@@ -517,7 +517,7 @@ BẮT BUỘC KÍCH HOẠT SKILL /git-commit-reviewer ĐỂ ĐỒNG BỘ NHÁNH D
 
 3. QUY TRÌNH THỰC HIỆN ĐỒNG BỘ AN TOÀN (SYNC & SUBMODULE-FIRST PUSH PROTOCOL):
    - BƯỚC 1: KIỂM TRA TRẠNG THÁI & COMMITS MỚI CỦA DEV:
-     * Đảm bảo working tree trong backend/ và frontend/ sạch sẽ (nếu có uncommitted changes không mong muốn, cần stash hoặc loại bỏ).
+     * Đảm bảo working tree ở CẢ 3 REPOSITORIES (backend/, frontend/, root) sạch sẽ. Nếu có uncommitted changes (như screenshots, files tạm), thực hiện 'git stash' trước khi checkout để tránh bị Git abort, và 'git stash pop' sau khi checkout lại về 'dev'.
      * Liệt kê các commit mới trên nhánh dev so với master:
        + git -C backend log master..dev --oneline
        + git -C frontend log master..dev --oneline
@@ -562,6 +562,7 @@ BẮT BUỘC KÍCH HOẠT SKILL /git-commit-reviewer ĐỂ ĐỒNG BỘ NHÁNH D
        + git -C backend checkout dev
        + git -C frontend checkout dev
        + git checkout dev
+       + Nếu ở Bước 1 có thực hiện git stash, chạy 'git stash pop' để khôi phục.
 
    - BƯỚC 5: BÁO CÁO KẾT QUẢ VỀ TELEGRAM (BẮT BUỘC FORMAT NÀY):
      * Bắt đầu bằng: "🚀 ĐỒNG BỘ DEV ➔ MASTER THÀNH CÔNG (REVIEWED BY /git-commit-reviewer)"
@@ -1264,6 +1265,27 @@ async function startWorker() {
     await initDatabase();
   } catch (err) {
     console.warn('⚠️ Lỗi kiểm tra/khởi tạo bảng telegram_tasks:', err.message);
+  }
+
+  // Tự động thu hồi các task bị treo do worker trước đó bị kill/restart đột ngột
+  try {
+    const orphaned = await pool.query(`
+      SELECT id, raw_prompt, sender_name FROM telegram_tasks 
+      WHERE status IN ('IN_PROGRESS', 'VERIFYING_DEV')
+        AND started_at < NOW() - INTERVAL '10 minutes';
+    `);
+    if (orphaned.rows && orphaned.rows.length > 0) {
+      for (const row of orphaned.rows) {
+        console.warn(`⚠️ Task #${row.id} ("${row.raw_prompt}") bị treo dở dang do worker trước đó restart. Đang cập nhật FAILED...`);
+        await pool.query(`
+          UPDATE telegram_tasks 
+          SET status = 'FAILED', error = 'Tiến trình worker bị gián đoạn/restart trong khi đang xử lý tác vụ', completed_at = NOW() 
+          WHERE id = $1;
+        `, [row.id]);
+      }
+    }
+  } catch (err) {
+    console.warn('⚠️ Không thể kiểm tra orphan tasks:', err.message);
   }
 
   while (true) {
