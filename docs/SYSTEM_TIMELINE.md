@@ -14,30 +14,30 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
-| 09/10/2026 | `feedback_09_10_task_16` | Feedback 09/10 (Task 16) — Chuẩn Hóa Hiển Thị Tỉnh/T... | 7/7 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10_task_16/RESOLUTION.md) |
-| 09/10/2026 | `feedback_09_10_task_13` | Feedback 09/10 (Task 13) — Tách Cột Thông Tin Hàng H... | 27/27 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10_task_13/RESOLUTION.md) |
-| 09/10/2026 | `feedback_09_10_task_10` | Feedback 09/10 Task 10 — Ràng Buộc Nghiệp Vụ Cột Ngà... | 21/21 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10_task_10/RESOLUTION.md) |
-| 09/10/2026 | `feedback_09_10_task_9` | Feedback 09/10 Task 9 — Chuẩn Hóa Toàn Diện Bảng Đơn... | 18/18 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10_task_9/RESOLUTION.md) |
-| 09/10/2026 | `feedback_09_10_task_8` | Feedback 09/10 Task 8 — Hoàn Thiện Quy Chuẩn Bảng Đơ... | 16/16 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10_task_8/RESOLUTION.md) |
-| 09/10/2026 | `feedback_09_10_task_7` | Feedback 09/10 Task 7 — Tái Cấu Trúc Bảng Dữ Liệu Đơ... | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10_task_7/RESOLUTION.md) |
-| 09/10/2026 | `feedback_09_10_task_6` | Feedback 09/10 Task 6 — Loại bỏ Cột Trạng thái Đơn h... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10_task_6/RESOLUTION.md) |
-| 09/10/2026 (14:12) | `feedback_09_10_task_5` | Feedback 09/10 (Task 5) — Khắc phục lỗi Tạo mới Tài ... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10_task_5/RESOLUTION.md) |
-| 09/10/2026 | `feedback_09_10` | Feedback 09/10 — Phân Định Tuyệt Đối Quy Trình Tác N... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10/RESOLUTION.md) |
-| 09/10/2026 | `feedback_09_10_task_4` | Feedback 09/10 (Task 4) — Loại Bỏ Nút "Xem Tài Khoản... | 3/3 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10_task_4/RESOLUTION.md) |
+| 09/10/2026 | `feedback_09_10_task_16` | Feedback 09/10 (Task 16) — Chuẩn Hóa Hiển Thị Tỉnh/T... | 7/7 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_16/RESOLUTION.md) |
+| 09/10/2026 | `feedback_09_10_task_13` | Feedback 09/10 (Task 13) — Tách Cột Thông Tin Hàng H... | 27/27 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_13/RESOLUTION.md) |
+| 09/10/2026 | `feedback_09_10_task_10` | Feedback 09/10 Task 10 — Ràng Buộc Nghiệp Vụ Cột Ngà... | 21/21 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_10/RESOLUTION.md) |
+| 09/10/2026 | `feedback_09_10_task_9` | Feedback 09/10 Task 9 — Chuẩn Hóa Toàn Diện Bảng Đơn... | 18/18 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_9/RESOLUTION.md) |
+| 09/10/2026 | `feedback_09_10_task_8` | Feedback 09/10 Task 8 — Hoàn Thiện Quy Chuẩn Bảng Đơ... | 16/16 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_8/RESOLUTION.md) |
+| 09/10/2026 | `feedback_09_10_task_7` | Feedback 09/10 Task 7 — Tái Cấu Trúc Bảng Dữ Liệu Đơ... | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_7/RESOLUTION.md) |
+| 09/10/2026 | `feedback_09_10_task_6` | Feedback 09/10 Task 6 — Loại bỏ Cột Trạng thái Đơn h... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_6/RESOLUTION.md) |
+| 09/10/2026 (14:12) | `feedback_09_10_task_5` | Feedback 09/10 (Task 5) — Khắc phục lỗi Tạo mới Tài ... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_5/RESOLUTION.md) |
+| 09/10/2026 | `feedback_09_10` | Feedback 09/10 — Phân Định Tuyệt Đối Quy Trình Tác N... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10/RESOLUTION.md) |
+| 09/10/2026 | `feedback_09_10_task_4` | Feedback 09/10 (Task 4) — Loại Bỏ Nút "Xem Tài Khoản... | 3/3 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_4/RESOLUTION.md) |
 | 08/10/2026 | `release_v1.0.0` | **Release v1.0.0 — Milestone Chốt Toàn Bộ Flow Nghiệp Vụ Cốt Lõi Vận Hành TMS** | 7 Flows | ✅ DONE (100%) | [RELEASE_v1.0.0_BUSINESS_FLOWS.md](RELEASE_v1.0.0_BUSINESS_FLOWS.md) |
-| 07/10/2026 | `feedback_07_10_task_29` | Feedback 07/10 Task 29 — Chuẩn Hóa Logic Mặc Định Nh... | 11/11 | ✅ DONE (100%) | [RESOLUTION.md](feedback_07_10_task_29/RESOLUTION.md) |
-| 07/10/2026 | `feedback_07_10_task_27` | Feedback 07/10 Task 27 — Khắc Phục Lỗi Mặc Định Nhập... | 11/11 | ✅ DONE (100%) | [RESOLUTION.md](feedback_07_10_task_27/RESOLUTION.md) |
-| 07/10/2026 | `feedback_07_10_task_24` | Feedback 07/10 Task 24 — Tùy biến Hình thức & Địa ch... | 57/57 | ✅ DONE (100%) | [RESOLUTION.md](feedback_07_10_task_24/RESOLUTION.md) |
-| 07/10/2026 | `feedback_07_10_task_22` | Feedback 07/10 Task 22 — Mở Rộng Kích Thước & Tối Ưu... | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](feedback_07_10_task_22/RESOLUTION.md) |
-| 07/10/2026 (13:49) | `feedback_07_10_task_21` | Feedback 07/10 Task 21 — Khắc phục Lỗi Không Hiển th... | 30/30 | ✅ DONE (100%) | [RESOLUTION.md](feedback_07_10_task_21/RESOLUTION.md) |
-| 07/10/2026 | `feedback_07_10_task_12` | Feedback 07/10 Task 12 — Chuẩn Hóa Quản Lý Tồn Kho &... | 19/19 | ✅ DONE (100%) | [RESOLUTION.md](feedback_07_10_task_12/RESOLUTION.md) |
-| 07/10/2026 | `feedback_07_10_task_11` | Tối ưu Giao diện Bảng Kê Xuất Kho: Loại Bỏ Cột Trạng Thái Thừa & Compact Density | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](feedback_07_10_task_11/RESOLUTION.md) |
-| 07/10/2026 | `feedback_07_10_task_10` | Chuẩn Hóa Cột Kho Đích & Gán Đơn Lưu Kho Sẵn Có Lên Chuyến Xuất Kho | 18/18 | ✅ DONE (100%) | [RESOLUTION.md](feedback_07_10_task_10/RESOLUTION.md) |
-| 07/10/2026 | `feedback_07_10` | Chuẩn Hóa Cột Kho Đích / Nơi Giao & Đồng Bộ Phiếu Xuất Kho | 32/32 | ✅ DONE (100%) | [RESOLUTION.md](feedback_07_10/RESOLUTION.md) |
-| 06/10/2026 | `feedback_06_10` | Bốc Hàng Dọc Đường (Roadside Pickup) & Gán Vào Chuyến Xe Đang Chạy | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](feedback_06_10/RESOLUTION.md) |
-| 05/10/2026 | `feedback_05_10` | Gom Hàng Inbound, Chuyến Xe Nháp, Tái Sử Dụng Mã Chuyến & Bộ Lọc Trạng Thái | 42/42 | ✅ DONE (100%) | [RESOLUTION.md](feedback_05_10/RESOLUTION.md) |
-| 04/10/2026 | `feedback_04_10` | Tách Rời Kiểm Đếm Inbound & Chuyến Xe, Excel Parser & Chuẩn Hóa UTC | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](feedback_04_10/RESOLUTION.md) |
-| 18/08/2026 | `feedback_17_8` | Chuẩn Hóa Toàn Diện TanStack Table v8, Phân Trang, RBAC & Mail Simulation | 33/33 | ✅ DONE (100%) | [RESOLUTION.md](feedback_17_8/RESOLUTION.md) |
+| 07/10/2026 | `feedback_07_10_task_29` | Feedback 07/10 Task 29 — Chuẩn Hóa Logic Mặc Định Nh... | 11/11 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_07_10_task_29/RESOLUTION.md) |
+| 07/10/2026 | `feedback_07_10_task_27` | Feedback 07/10 Task 27 — Khắc Phục Lỗi Mặc Định Nhập... | 11/11 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_07_10_task_27/RESOLUTION.md) |
+| 07/10/2026 | `feedback_07_10_task_24` | Feedback 07/10 Task 24 — Tùy biến Hình thức & Địa ch... | 57/57 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_07_10_task_24/RESOLUTION.md) |
+| 07/10/2026 | `feedback_07_10_task_22` | Feedback 07/10 Task 22 — Mở Rộng Kích Thước & Tối Ưu... | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_07_10_task_22/RESOLUTION.md) |
+| 07/10/2026 (13:49) | `feedback_07_10_task_21` | Feedback 07/10 Task 21 — Khắc phục Lỗi Không Hiển th... | 30/30 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_07_10_task_21/RESOLUTION.md) |
+| 07/10/2026 | `feedback_07_10_task_12` | Feedback 07/10 Task 12 — Chuẩn Hóa Quản Lý Tồn Kho &... | 19/19 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_07_10_task_12/RESOLUTION.md) |
+| 07/10/2026 | `feedback_07_10_task_11` | Tối ưu Giao diện Bảng Kê Xuất Kho: Loại Bỏ Cột Trạng Thái Thừa & Compact Density | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_07_10_task_11/RESOLUTION.md) |
+| 07/10/2026 | `feedback_07_10_task_10` | Chuẩn Hóa Cột Kho Đích & Gán Đơn Lưu Kho Sẵn Có Lên Chuyến Xuất Kho | 18/18 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_07_10_task_10/RESOLUTION.md) |
+| 07/10/2026 | `feedback_07_10` | Chuẩn Hóa Cột Kho Đích / Nơi Giao & Đồng Bộ Phiếu Xuất Kho | 32/32 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_07_10/RESOLUTION.md) |
+| 06/10/2026 | `feedback_06_10` | Bốc Hàng Dọc Đường (Roadside Pickup) & Gán Vào Chuyến Xe Đang Chạy | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_06_10/RESOLUTION.md) |
+| 05/10/2026 | `feedback_05_10` | Gom Hàng Inbound, Chuyến Xe Nháp, Tái Sử Dụng Mã Chuyến & Bộ Lọc Trạng Thái | 42/42 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_05_10/RESOLUTION.md) |
+| 04/10/2026 | `feedback_04_10` | Tách Rời Kiểm Đếm Inbound & Chuyến Xe, Excel Parser & Chuẩn Hóa UTC | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_04_10/RESOLUTION.md) |
+| 18/08/2026 | `feedback_17_8` | Chuẩn Hóa Toàn Diện TanStack Table v8, Phân Trang, RBAC & Mail Simulation | 33/33 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_17_8/RESOLUTION.md) |
 
 ---
 
@@ -53,7 +53,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: screenshot_01.jpg
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_09_10_task_16/RESOLUTION.md) • [`TODO.md`](feedback_09_10_task_16/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_09_10_task_16/RESOLUTION.md) • [`TODO.md`](../feedback_09_10_task_16/TODO.md)
 
 ### 🚀 [FEEDBACK_09_10_TASK_13] — Feedback 09/10 (Task 13) — Tách Cột Thông Tin Hàng Hóa & Chuẩn Hóa Thuật Ngữ (Số Lượng, CBM) Tại Màn Hình Tổng Hợp Đơn Hàng Kho (09/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (27/27 việc)
@@ -65,7 +65,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: screenshot_01.jpg
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_09_10_task_13/RESOLUTION.md) • [`TODO.md`](feedback_09_10_task_13/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_09_10_task_13/RESOLUTION.md) • [`TODO.md`](../feedback_09_10_task_13/TODO.md)
 
 ### 🚀 [FEEDBACK_09_10_TASK_10] — Feedback 09/10 Task 10 — Ràng Buộc Nghiệp Vụ Cột Ngày Xuất Hàng: Bắt Buộc Để Trống Tuyệt Đối Khi Đơn Hàng Ở Trạng Thái Lưu Kho (09/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (21/21 việc)
@@ -77,7 +77,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: screenshot_01.jpg
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_09_10_task_10/RESOLUTION.md) • [`TODO.md`](feedback_09_10_task_10/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_09_10_task_10/RESOLUTION.md) • [`TODO.md`](../feedback_09_10_task_10/TODO.md)
 
 ### 🚀 [FEEDBACK_09_10_TASK_9] — Feedback 09/10 Task 9 — Chuẩn Hóa Toàn Diện Bảng Đơn Hàng Kho 7 Cột & Ràng Buộc Nghiệp Vụ Cột Ngày Xuất Hàng (Để Trống Tuyệt Đối Khi Đang Lưu Kho) (09/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (18/18 việc)
@@ -89,7 +89,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: screenshot_01.jpg
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_09_10_task_9/RESOLUTION.md) • [`TODO.md`](feedback_09_10_task_9/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_09_10_task_9/RESOLUTION.md) • [`TODO.md`](../feedback_09_10_task_9/TODO.md)
 
 ### 🚀 [FEEDBACK_09_10_TASK_8] — Feedback 09/10 Task 8 — Hoàn Thiện Quy Chuẩn Bảng Đơn Hàng Kho 7 Cột & Ràng Buộc Nghiệp Vụ Cột Ngày Xuất Hàng (Để Trống Khi Lưu Kho) (09/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (16/16 việc)
@@ -101,7 +101,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: screenshot_01.jpg
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_09_10_task_8/RESOLUTION.md) • [`TODO.md`](feedback_09_10_task_8/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_09_10_task_8/RESOLUTION.md) • [`TODO.md`](../feedback_09_10_task_8/TODO.md)
 
 ### 🚀 [FEEDBACK_09_10_TASK_7] — Feedback 09/10 Task 7 — Tái Cấu Trúc Bảng Dữ Liệu Đơn Hàng Kho Theo Chuẩn Nghiệp Vụ Vận Hành (7 Cột Chuẩn Mực) (09/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (13/13 việc)
@@ -113,7 +113,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: screenshot_01.jpg
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_09_10_task_7/RESOLUTION.md) • [`TODO.md`](feedback_09_10_task_7/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_09_10_task_7/RESOLUTION.md) • [`TODO.md`](../feedback_09_10_task_7/TODO.md)
 
 ### 🚀 [FEEDBACK_09_10_TASK_6] — Feedback 09/10 Task 6 — Loại bỏ Cột Trạng thái Đơn hàng tại Màn hình Nhập kho & Tinh gọn Giao diện Bảng kê (09/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (9/9 việc)
@@ -125,7 +125,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: screenshot_01.jpg
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_09_10_task_6/RESOLUTION.md) • [`TODO.md`](feedback_09_10_task_6/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_09_10_task_6/RESOLUTION.md) • [`TODO.md`](../feedback_09_10_task_6/TODO.md)
 
 ### 🚀 [FEEDBACK_09_10_TASK_5] — Feedback 09/10 (Task 5) — Khắc phục lỗi Tạo mới Tài khoản Người dùng (Internal Server Error 500 do xung đột Soft-Delete & Ràng buộc Unique Database) (09/10/2026 (14:12))
 - **Trạng thái**: ✅ Hoàn thành 100% (9/9 việc)
@@ -137,7 +137,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: screenshot_01.jpg
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_09_10_task_5/RESOLUTION.md) • [`TODO.md`](feedback_09_10_task_5/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_09_10_task_5/RESOLUTION.md) • [`TODO.md`](../feedback_09_10_task_5/TODO.md)
 
 ### 🚀 [FEEDBACK_09_10] — Feedback 09/10 — Phân Định Tuyệt Đối Quy Trình Tác Nghiệp: Chuyến Xe Nhập Trực Tiếp (Khách Gửi) vs. Chuyến Xe Trung Chuyển Liên Hub (09/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (9/9 việc)
@@ -149,7 +149,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: screenshot_01.jpg
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_09_10/RESOLUTION.md) • [`TODO.md`](feedback_09_10/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_09_10/RESOLUTION.md) • [`TODO.md`](../feedback_09_10/TODO.md)
 
 ### 🚀 [FEEDBACK_09_10_TASK_4] — Feedback 09/10 (Task 4) — Loại Bỏ Nút "Xem Tài Khoản Demo" & Cụm Banner Thử Nghiệm Tại Màn Hình Đăng Nhập (09/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (3/3 việc)
@@ -160,7 +160,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_verified.png
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_09_10_task_4/RESOLUTION.md) • [`TODO.md`](feedback_09_10_task_4/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_09_10_task_4/RESOLUTION.md) • [`TODO.md`](../feedback_09_10_task_4/TODO.md)
 
 ### 🏆 [RELEASE_V1.0.0] — Milestone Release v1.0.0: Chuẩn Hóa Toàn Bộ 7 Flow Nghiệp Vụ Vận Hành Cốt Lõi TMS Spider Express (08/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (7 Flow nghiệp vụ cốt lõi)
@@ -190,7 +190,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: screenshot_01_origin_hub_dest_logic_verified.png, screenshot_02_switch_filtered_verified.png, screenshot_verified.png
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_07_10_task_29/RESOLUTION.md) • [`TODO.md`](feedback_07_10_task_29/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_07_10_task_29/RESOLUTION.md) • [`TODO.md`](../feedback_07_10_task_29/TODO.md)
 ### 🚀 [FEEDBACK_07_10_TASK_27] — Feedback 07/10 Task 27 — Khắc Phục Lỗi Mặc Định Nhập Kho Nhầm Đơn Giao Thẳng Cho Khách (DIRECT_CUSTOMER) Tại Trạm Trung Chuyển (07/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (11/11 việc)
 - **Báo cáo bởi**: @【M】【C】【D】 (Quản lý nghiệp vụ / Vận hành TMS)
@@ -201,7 +201,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_01_tally_direct_customer_isolation_verified.png, screenshot_02_switch_hide_other_hubs_verified.png, screenshot_verified.png
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_07_10_task_27/RESOLUTION.md) • [`TODO.md`](feedback_07_10_task_27/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_07_10_task_27/RESOLUTION.md) • [`TODO.md`](../feedback_07_10_task_27/TODO.md)
 ### 🚀 [FEEDBACK_07_10_TASK_24] — Feedback 07/10 Task 24 — Tùy biến Hình thức & Địa chỉ Giao nhận (Khách / Hub Cấp 1 / Tuyến Xe Bo) Cho Đơn Hàng Xuất Mới Lên Chuyến Xe Tại Trạm Trung Chuyển (07/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (57/57 việc)
 - **Báo cáo bởi**: @【M】【C】【D】 (Quản lý nghiệp vụ & Vận hành Logistics TMS)
@@ -212,7 +212,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: 01_step2_interactive_destination_cell.png, screenshot_01.jpg, screenshot_01_step2_interactive_destination_cell_verified.png, screenshot_02_destination_selection_modal_verified.png, screenshot_03_destination_updated_hub_l1_verified.png, screenshot_04_reset_to_original_customer_address_verified.png, screenshot_verified.png
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_07_10_task_24/RESOLUTION.md) • [`TODO.md`](feedback_07_10_task_24/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_07_10_task_24/RESOLUTION.md) • [`TODO.md`](../feedback_07_10_task_24/TODO.md)
 
 ### 🚀 [FEEDBACK_07_10_TASK_22] — Feedback 07/10 Task 22 — Mở Rộng Kích Thước & Tối Ưu Giao Diện Modal "Chọn Đơn Lưu Kho Bốc Lên Chuyến Xe" (07/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (12/12 việc)
@@ -224,7 +224,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_02_verified.png
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_07_10_task_22/RESOLUTION.md) • [`TODO.md`](feedback_07_10_task_22/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_07_10_task_22/RESOLUTION.md) • [`TODO.md`](../feedback_07_10_task_22/TODO.md)
 
 ### 🚀 [FEEDBACK_07_10_TASK_21] — Feedback 07/10 Task 21 — Khắc phục Lỗi Không Hiển thị Danh sách Đơn Lưu kho khi Xuất thêm Lên Trip (07/10/2026 (13:49))
 - **Trạng thái**: ✅ Hoàn thành 100% (30/30 việc)
@@ -236,7 +236,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_02_verified.png
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_07_10_task_21/RESOLUTION.md) • [`TODO.md`](feedback_07_10_task_21/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_07_10_task_21/RESOLUTION.md) • [`TODO.md`](../feedback_07_10_task_21/TODO.md)
 
 ### 🚀 [FEEDBACK_07_10_TASK_12] — Feedback 07/10 Task 12 — Chuẩn Hóa Quản Lý Tồn Kho & Khắc Phục Lỗi Trạng Thái "LƯU KHO" Khi Số Lượng Tồn Bằng 0 (07/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (19/19 việc)
@@ -248,7 +248,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: 01_e2e_warehouse_orders_clean_stored_tab.png, screenshot_01.jpg
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_07_10_task_12/RESOLUTION.md) • [`TODO.md`](feedback_07_10_task_12/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_07_10_task_12/RESOLUTION.md) • [`TODO.md`](../feedback_07_10_task_12/TODO.md)
 ### 🚀 [FEEDBACK_07_10_TASK_11] — Tối ưu Giao diện Bảng Kê Xuất Kho: Loại Bỏ Cột Trạng Thái Thừa (07/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (13/13 việc)
 - **Báo cáo bởi**: @【M】【C】【D】 (Bộ phận Vận hành & Nghiệp vụ Kho Vận TMS)
@@ -261,7 +261,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: `feedback_07_10_task_11/screenshot_01.jpg`
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_07_10_task_11/RESOLUTION.md) • [`TODO.md`](feedback_07_10_task_11/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_07_10_task_11/RESOLUTION.md) • [`TODO.md`](../feedback_07_10_task_11/TODO.md)
 
 ### 🚀 [FEEDBACK_07_10_TASK_10] — Chuẩn Hóa Cột Kho Đích & Gán Đơn Lưu Kho Lên Chuyến Xe (07/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (18/18 việc)
@@ -273,7 +273,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: `feedback_07_10_task_10/screenshot_01.jpg`
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_07_10_task_10/RESOLUTION.md) • [`TODO.md`](feedback_07_10_task_10/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_07_10_task_10/RESOLUTION.md) • [`TODO.md`](../feedback_07_10_task_10/TODO.md)
 
 ### 🚀 [FEEDBACK_07_10] — Chuẩn Hóa Cột Kho Đích / Nơi Giao & Đồng Bộ Phiếu Xuất Kho (07/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (32/32 việc)
@@ -285,7 +285,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: `feedback_07_10/02_e2e_select_stored_orders_clean_columns.png`, `screenshot_01.jpg`
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_07_10/RESOLUTION.md) • [`TODO.md`](feedback_07_10/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_07_10/RESOLUTION.md) • [`TODO.md`](../feedback_07_10/TODO.md)
 
 ### 🚀 [FEEDBACK_06_10] — Bốc Hàng Dọc Đường (Roadside Pickup) & Gán Vào Chuyến Xe Đang Chạy (06/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (22/22 việc)
@@ -299,7 +299,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100% (`33-feedback-06-10.spec.ts`)
   * Minh chứng hình ảnh: `feedback_06_10/screenshot_01.jpg` đến `screenshot_07.jpg`
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_06_10/RESOLUTION.md) • [`TODO.md`](feedback_06_10/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_06_10/RESOLUTION.md) • [`TODO.md`](../feedback_06_10/TODO.md)
 
 ### 🚀 [FEEDBACK_05_10] — Gom Hàng Inbound, Chuyến Xe Nháp, Tái Sử Dụng Mã Chuyến (05/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (42/42 việc)
@@ -311,7 +311,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100% (`32-feedback-05-10.spec.ts`)
   * Minh chứng hình ảnh: `feedback_05_10/filter_outbound_wrong.png`
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_05_10/RESOLUTION.md) • [`TODO.md`](feedback_05_10/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_05_10/RESOLUTION.md) • [`TODO.md`](../feedback_05_10/TODO.md)
 
 ### 🚀 [FEEDBACK_04_10] — Tách Rời Kiểm Đếm Inbound & Chuyến Xe, Excel Parser & Chuẩn Hóa UTC (04/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (13/13 việc)
@@ -323,7 +323,7 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: `feedback_04_10/` screenshots
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_04_10/RESOLUTION.md) • [`TODO.md`](feedback_04_10/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_04_10/RESOLUTION.md) • [`TODO.md`](../feedback_04_10/TODO.md)
 
 ### 🚀 [FEEDBACK_17_8] — Chuẩn Hóa Toàn Diện TanStack Table v8, Phân Trang & RBAC (18/08/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (33/33 việc)
@@ -335,4 +335,4 @@
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100% (`06-order-dispatch-workflow.spec.ts`)
   * TypeScript & Lint: 0 lỗi
-- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_17_8/RESOLUTION.md) • [`TODO.md`](feedback_17_8/TODO.md)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_17_8/RESOLUTION.md) • [`TODO.md`](../feedback_17_8/TODO.md)

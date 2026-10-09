@@ -1111,8 +1111,10 @@ export function syncSystemTimeline(parsed, rootDir = ROOT_DIR, resolutionRelPath
   const now = new Date();
   const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
   const recordDate = meta['Thời gian ghi nhận'] || dateStr;
-  const relPath = resolutionRelPath || `${folderName}/RESOLUTION.md`;
-  const todoRelPath = `${folderName}/TODO.md`;
+  const relPath = resolutionRelPath
+    ? (resolutionRelPath.startsWith('..') ? resolutionRelPath : `../${resolutionRelPath}`)
+    : `../${folderName}/RESOLUTION.md`;
+  const todoRelPath = `../${folderName}/TODO.md`;
   const tag = folderName.toUpperCase();
 
   // Create initial template if file doesn't exist
