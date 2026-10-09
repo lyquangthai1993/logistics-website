@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 09/10/2026 | `feedback_09_10_task_16` | Feedback 09/10 (Task 16) — Chuẩn Hóa Hiển Thị Tỉnh/T... | 7/7 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10_task_16/RESOLUTION.md) |
 | 09/10/2026 | `feedback_09_10_task_13` | Feedback 09/10 (Task 13) — Tách Cột Thông Tin Hàng H... | 27/27 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10_task_13/RESOLUTION.md) |
 | 09/10/2026 | `feedback_09_10_task_10` | Feedback 09/10 Task 10 — Ràng Buộc Nghiệp Vụ Cột Ngà... | 21/21 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10_task_10/RESOLUTION.md) |
 | 09/10/2026 | `feedback_09_10_task_9` | Feedback 09/10 Task 9 — Chuẩn Hóa Toàn Diện Bảng Đơn... | 18/18 | ✅ DONE (100%) | [RESOLUTION.md](feedback_09_10_task_9/RESOLUTION.md) |
@@ -41,6 +42,18 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_09_10_TASK_16] — Feedback 09/10 (Task 16) — Chuẩn Hóa Hiển Thị Tỉnh/Thành Phố Đích Trên Tem Nhận Diện Hàng Hóa A4 (09/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (7/7 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Phản hồi & Yêu cầu vận hành trực tiếp)
+- **Phạm vi**: Modal Xem & In Tem Nhận Diện Hàng Hóa A4 ([`PalletLabelA4Modal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/pallet-label-a4-modal.tsx)) • Quản lý Nhập kho (`/warehouse/inbound`) ➔ Danh sách đơn hàng con, Tác nghiệp Kiểm đếm ([`WarehouseTallyModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-tally-modal.tsx)) & Chi tiết Vận đơn ([`WarehouseWaybillDetailModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-waybill-detail-modal.tsx)) • Bảng kê Nhập kho dạng lưới ([`WarehouseEditableGrid`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-editable-grid.tsx)) • Quản lý Hàng hóa trong kho (`/warehouse/orders`) ➔ Nút in tem trên từng dòng vận đơn & Modal chi tiết vận đơn • Quản lý Xuất kho & Chuyển giao ([`WarehouseOutboundTransferFlow`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-outbound-transfer-flow.tsx)) • Backend API Logistics TMS (NestJS 11+ / PostgreSQL trên Neon)
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Rà soát & đảm bảo quan hệ `destinationHubEntity` kèm cột `city` trong các truy vấn; Kiểm tra biên dịch & Linting Backend
+  * **Frontend**: Nâng cấp Component `PalletLabelA4Modal` ([`pallet-label-a4-modal.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/pallet-label-a4-modal.tsx)); Cập nhật dữ liệu truyền vào `PalletLabelA4Modal` tại tất cả 5 màn hình vận hành; Tuân thủ quy chuẩn Compact Density & Cleanliness
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](feedback_09_10_task_16/RESOLUTION.md) • [`TODO.md`](feedback_09_10_task_16/TODO.md)
 
 ### 🚀 [FEEDBACK_09_10_TASK_13] — Feedback 09/10 (Task 13) — Tách Cột Thông Tin Hàng Hóa & Chuẩn Hóa Thuật Ngữ (Số Lượng, CBM) Tại Màn Hình Tổng Hợp Đơn Hàng Kho (09/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (27/27 việc)
