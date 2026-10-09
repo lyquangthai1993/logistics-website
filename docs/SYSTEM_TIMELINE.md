@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 09/10/2026 - 18:22 | `feedback_09_10_task_20` | Feedback 09/10 (Task 20) — Tích Hợp Nút Xuất Báo Cáo... | 18/18 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_20/RESOLUTION.md) |
 | 09/10/2026 - 17:31 | `feedback_09_10_task_18` | Feedback 09/10 (Task 18) — Tối ưu Vị trí Nút Hành độ... | 26/26 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_18/RESOLUTION.md) |
 | 09/10/2026 | `feedback_09_10_task_16` | Feedback 09/10 (Task 16) — Chuẩn Hóa Hiển Thị Tỉnh/T... | 7/7 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_16/RESOLUTION.md) |
 | 09/10/2026 | `feedback_09_10_task_13` | Feedback 09/10 (Task 13) — Tách Cột Thông Tin Hàng H... | 27/27 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_13/RESOLUTION.md) |
@@ -43,6 +44,18 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_09_10_TASK_20] — Feedback 09/10 (Task 20) — Tích Hợp Nút Xuất Báo Cáo Excel Đơn Hàng Lưu Kho Tại Màn Hình Đơn Hàng Kho Phục Vụ Kiểm Kê & Báo Cáo Vận Hành (09/10/2026 - 18:22)
+- **Trạng thái**: ✅ Hoàn thành 100% (18/18 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Quản lý nghiệp vụ / Vận hành hệ thống Logistics TMS)
+- **Phạm vi**: Quản lý Đơn hàng kho (`/dashboard/warehouse/orders`) ➔ Header trang Đơn hàng kho & Bảng kê dữ liệu ([`WarehouseOrdersPage`](file:///c:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/orders/page.tsx)) • Backend API Đơn hàng kho ➔ Controller & Service xử lý trích xuất dữ liệu không giới hạn phân trang ([`WarehouseController`](file:///c:/Projects/logistics-website/backend/src/orders/warehouse.controller.ts) & [`WarehouseService`](file:///c:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)) • Công cụ kết xuất bảng tính Excel ([`xlsx`](https://docs.sheetjs.com/)) chuẩn nhận diện thương hiệu Logistics TMS (Spider Express)
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Mở rộng API `GET /api/v1/warehouse/orders` hỗ trợ chế độ trích xuất toàn bộ (Export Mode); Tối ưu hóa câu truy vấn trích xuất dữ liệu không gây khóa bảng (Performance Indexing & No-Lock Query); Đảm bảo tính tuân thủ RBAC Matrix
+  * **Frontend**: Nâng cấp Component `WarehouseOrdersPage` ([`frontend/src/app/dashboard/warehouse/orders/page.tsx`](file:///c:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/orders/page.tsx)); Khai báo State & Import thư viện; Hiện thực hóa hàm trích xuất và tạo file Excel `handleExportStoredOrdersExcel`...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_01_verified.png, screenshot_02_export_download_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_09_10_task_20/RESOLUTION.md) • [`TODO.md`](../feedback_09_10_task_20/TODO.md)
 
 ### 🚀 [FEEDBACK_09_10_TASK_18] — Feedback 09/10 (Task 18) — Tối ưu Vị trí Nút Hành động "Tạo đơn nhập mới" & "Xuất kho" Ngay Sau Tên Hub Chống Che Khuất Bởi Thông Báo (09/10/2026 - 17:31)
 - **Trạng thái**: ✅ Hoàn thành 100% (26/26 việc)
