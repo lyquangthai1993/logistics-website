@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 09/10/2026 - 17:31 | `feedback_09_10_task_18` | Feedback 09/10 (Task 18) — Tối ưu Vị trí Nút Hành độ... | 26/26 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_18/RESOLUTION.md) |
 | 09/10/2026 | `feedback_09_10_task_16` | Feedback 09/10 (Task 16) — Chuẩn Hóa Hiển Thị Tỉnh/T... | 7/7 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_16/RESOLUTION.md) |
 | 09/10/2026 | `feedback_09_10_task_13` | Feedback 09/10 (Task 13) — Tách Cột Thông Tin Hàng H... | 27/27 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_13/RESOLUTION.md) |
 | 09/10/2026 | `feedback_09_10_task_10` | Feedback 09/10 Task 10 — Ràng Buộc Nghiệp Vụ Cột Ngà... | 21/21 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_10/RESOLUTION.md) |
@@ -42,6 +43,18 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_09_10_TASK_18] — Feedback 09/10 (Task 18) — Tối ưu Vị trí Nút Hành động "Tạo đơn nhập mới" & "Xuất kho" Ngay Sau Tên Hub Chống Che Khuất Bởi Thông Báo (09/10/2026 - 17:31)
+- **Trạng thái**: ✅ Hoàn thành 100% (26/26 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Quản lý nghiệp vụ / Vận hành hệ thống TMS)
+- **Phạm vi**: Quản lý Nhập kho (`/dashboard/warehouse/inbound`) ➔ Header trang Board Nhập kho ([`page.tsx`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/inbound/page.tsx)) • Quản lý Xuất kho (`/dashboard/warehouse/outbound`) ➔ Header trang Board Xuất kho ([`page.tsx`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/outbound/page.tsx)) • Header thanh điều hướng hệ thống & Khung thông báo ([`header.tsx`](file:///D:/Projects/logistics-website/frontend/src/components/layout/header.tsx) & [`notification-center.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/notifications/components/notification-center.tsx))
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Rà soát & Đảm bảo tính toàn vẹn của Backend APIs liên quan; Kiểm tra tính ổn định của API danh sách chuyến xe nhập kho: `GET /api/v1/warehouse/inbound-trips`.; Kiểm tra tính ổn định của API danh sách chuyến xe xuất kho: `GET /api/v1/warehouse/outbound-trips`....
+  * **Frontend**: Tái cấu trúc Header trang Quản lý Nhập kho ([`frontend/src/app/dashboard/warehouse/inbound/page.tsx`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/inbound/page.tsx)); Gom nhóm tiêu đề trang và nút tạo đơn vào cùng một flex container; Giữ nguyên nút `Quay lại danh sách` (`activeView !== 'BOARD'`) ở góc bên phải (`justify-between`) để người dùng dễ dàng thoát khỏi màn hình tạo phiếu....
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_01_verified.png, screenshot_inbound_button_verified.png, screenshot_outbound_button_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_09_10_task_18/RESOLUTION.md) • [`TODO.md`](../feedback_09_10_task_18/TODO.md)
 
 ### 🚀 [FEEDBACK_09_10_TASK_16] — Feedback 09/10 (Task 16) — Chuẩn Hóa Hiển Thị Tỉnh/Thành Phố Đích Trên Tem Nhận Diện Hàng Hóa A4 (09/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (7/7 việc)
