@@ -28,6 +28,7 @@ const ALLOWED_CHAT_ID = process.env.TELEGRAM_ALLOWED_CHAT_ID;
 const WORKSPACE_DIR = process.env.WORKSPACE_PATH || 'C:\\Projects\\logistics-website';
 const DATABASE_URL = process.env.DATABASE_URL;
 const AGY_MODEL = process.env.AGY_MODEL;
+const MAX_E2E_RETRIES = parseInt(process.env.MAX_E2E_RETRIES || '3', 10);
 
 if (!BOT_TOKEN) {
   console.error('❌ Lỗi: Chưa cấu hình TELEGRAM_BOT_TOKEN trong file .env');
@@ -766,6 +767,167 @@ async function runDevE2EVerification(feedbackDir, specRelPath) {
   });
 }
 
+// Trích xuất file error-context.md mới nhất từ Playwright test-results (nếu có)
+function extractRecentPlaywrightErrorContext() {
+  const testResultsDir = path.join(WORKSPACE_DIR, 'frontend', 'test-results');
+  if (!fs.existsSync(testResultsDir)) return null;
+
+  try {
+    const errorContextFiles = [];
+    function scanDir(dir) {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          scanDir(fullPath);
+        } else if (entry.name === 'error-context.md') {
+          const stat = fs.statSync(fullPath);
+          errorContextFiles.push({ fullPath, mtime: stat.mtimeMs });
+        }
+      }
+    }
+    scanDir(testResultsDir);
+
+    if (errorContextFiles.length > 0) {
+      errorContextFiles.sort((a, b) => b.mtime - a.mtime);
+      const newest = errorContextFiles[0];
+      const content = fs.readFileSync(newest.fullPath, 'utf8');
+      return content.slice(0, 2500);
+    }
+  } catch (err) {
+    console.warn('[E2E Error Context] Không thể đọc error-context.md:', err.message);
+  }
+  return null;
+}
+
+// Xây dựng prompt chuyên biệt để AI tự động phân tích RCA và fix code sau khi Dev E2E fail
+function buildE2EAutoFixPrompt({ taskId, feedbackDir, specFile, attempt, maxAttempts, failDetails, errorContext }) {
+  const relFeedback = path.relative(WORKSPACE_DIR, feedbackDir);
+  const extraContextSection = errorContext
+    ? `\n\nNỘI DUNG ERROR-CONTEXT.MD TỪ PLAYWRIGHT:\n\`\`\`markdown\n${errorContext}\n\`\`\``
+    : '';
+
+  return `
+BẮT BUỘC KÍCH HOẠT QUY TRÌNH TỰ ĐỘNG FIX LỖI E2E (SELF-HEALING RETRY VÒNG ${attempt}/${maxAttempts}):
+1. Bạn BẮT BUỘC đọc và tuân thủ file AGENTS.md và skill .agents/skills/todo-agent/SKILL.md tại workspace D:\\Projects\\logistics-website.
+
+2. BỐI CẢNH LỖI:
+- Task #${taskId} (Thư mục: ${relFeedback}) vừa chạy Playwright E2E kiểm thử trên Domain Dev nhưng THẤT BẠI ở vòng lặp thứ ${attempt}/${maxAttempts}.
+- File test E2E mục tiêu: frontend/${specFile}
+- Chi tiết lỗi nhận được từ Playwright:
+\`\`\`
+${failDetails}
+\`\`\`${extraContextSection}
+
+3. YÊU CẦU THỰC HIỆN TỰ SỬA LỖI (ROOT CAUSE ANALYSIS & CODE FIX):
+- Bước 1 (RCA): Đọc kỹ thông báo lỗi trên (tìm selector sai, race condition button disabled, timeout chờ dữ liệu, định dạng số, hoặc lỗi logic API).
+- Bước 2 (Sửa code): Sửa trực tiếp mã nguồn trong submodule tương ứng:
+  * Nếu là lỗi giao diện/state/form: Sửa trong frontend/ (tuân thủ nghiêm UI Compact Density: p-1, p-2, gap-1.5, text-[10px], Zero Redundant Icons).
+  * Nếu là lỗi backend/API/database/DTO: Sửa trong backend/ (tuân thủ TypeORM, DTO validation).
+  * Nếu là do kịch bản test chưa đón đầu đúng luồng async/download/render: Cập nhật frontend/${specFile} theo đúng kịch bản nghiệp vụ.
+- Bước 3 (Typecheck & Build Local):
+  * Frontend: npx --prefix frontend tsc --noEmit
+  * Backend (nếu có sửa): npm run build --prefix backend
+- Bước 4 (Commit & Push lên dev):
+  * Commit trực tiếp bên trong submodule (backend/ và/hoặc frontend/) với message chuẩn Conventional Commits (ví dụ: fix(e2e): resolve test failure on dev retry ${attempt}).
+  * Push nhánh dev: git -C frontend push origin dev (và git -C backend push origin dev nếu có sửa backend).
+  * KHÔNG force push. Không sửa ngoài phạm vi task.
+
+4. BÁO CÁO NGẮN GỌN KẾT QUẢ ĐÃ SỬA:
+- Liệt kê nguyên nhân gốc rễ (RCA).
+- Danh sách file đã sửa đổi.
+- Trạng thái commit và push lên nhánh dev.
+`.trim();
+}
+
+// Khởi chạy session agy chuyên biệt để tự động fix lỗi E2E (timeout 15m)
+async function runAgyAutoFixSession({ prompt, chatId, progressMsgId, taskId, attempt, maxAttempts }) {
+  console.log(`\n========================================`);
+  console.log(`🔧 [Task #${taskId}] Khởi chạy AI Auto-Fix Session (Vòng ${attempt}/${maxAttempts})...`);
+  console.log(`========================================`);
+
+  const args = [
+    '--output-format', 'stream-json',
+    '--add-dir', WORKSPACE_DIR,
+    '--dangerously-skip-permissions',
+    '--print', prompt,
+    '--print-timeout', '15m'
+  ];
+
+  if (AGY_MODEL) {
+    args.push('--model', AGY_MODEL);
+  }
+
+  const child = spawn(AGY_BIN, args, {
+    cwd: WORKSPACE_DIR,
+    shell: false,
+    stdio: ['ignore', 'pipe', 'pipe'],
+    windowsHide: true,
+    env: { ...process.env },
+  });
+
+  let stdoutBuffer = '';
+  let stderrBuffer = '';
+  let stdoutLineBuffer = '';
+  let currentStep = '';
+
+  child.stdout.on('data', (chunk) => {
+    const text = chunk.toString();
+    stdoutBuffer += text;
+    process.stdout.write(text);
+
+    stdoutLineBuffer += text;
+    const lines = stdoutLineBuffer.split(/\r?\n/);
+    stdoutLineBuffer = lines.pop();
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || !trimmed.startsWith('{') || !trimmed.endsWith('}')) continue;
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (parsed.event === 'step_update' && parsed.step_update?.tool_info) {
+          const action = parsed.step_update.tool_info.parameters?.toolAction || parsed.step_update.tool_info.parameters?.CommandLine || '';
+          if (action) currentStep = String(action).replace(/^"|"$/g, '');
+        }
+      } catch {}
+    }
+  });
+
+  child.stderr.on('data', (chunk) => {
+    const text = chunk.toString();
+    stderrBuffer += text;
+    process.stderr.write(text);
+  });
+
+  const fixTimer = setInterval(async () => {
+    if (!progressMsgId) return;
+    try {
+      await editTelegramMessage(
+        chatId,
+        progressMsgId,
+        `🔧 <b>[Task #${taskId}] Đang tự động phân tích & sửa lỗi (Vòng ${attempt}/${maxAttempts})...</b>\n\n` +
+        (currentStep ? `📍 <b>Thao tác:</b> <code>${escapeHtml(currentStep.slice(0, 100))}</code>\n` : '') +
+        `💡 <i>AI đang kiểm tra error trace, sửa code và push lên dev...</i>`,
+        'HTML',
+        TASK_ACTIONS_KEYBOARD
+      );
+    } catch {}
+  }, 20000);
+
+  return new Promise((resolve) => {
+    child.on('close', (exitCode) => {
+      clearInterval(fixTimer);
+      console.log(`[Task #${taskId}] Auto-Fix Vòng ${attempt}/${maxAttempts} hoàn tất với exitCode: ${exitCode}`);
+      resolve({
+        success: exitCode === 0,
+        exitCode,
+        stdout: stdoutBuffer,
+        stderr: stderrBuffer
+      });
+    });
+  });
+}
+
 // Quản lý kết nối Neon PostgreSQL (Hỗ trợ Serverless Auto-Reconnect & Cold-Start)
 const pool = new Pool({
   connectionString: DATABASE_URL,
@@ -1101,25 +1263,119 @@ async function executeAgyTask(task) {
               );
             }
 
-            // 4. Chạy Playwright E2E trên Domain Dev
-            const e2eResult = await runDevE2EVerification(feedbackDir, specFile);
+            // 4. Chạy Playwright E2E trên Domain Dev kèm cơ chế Auto-Fix Retry Loop (Tối đa MAX_E2E_RETRIES vòng lặp)
+            let e2eResult = await runDevE2EVerification(feedbackDir, specFile);
+            let e2eAttempt = 0;
+            const retryHistory = [];
 
-            if (!e2eResult.success) {
-              // Lọc bỏ các cảnh báo npm/node vô hại để lấy đúng thông tin lỗi Playwright thực tế
+            while (!e2eResult.success && e2eAttempt < MAX_E2E_RETRIES) {
+              e2eAttempt++;
+              console.log(`\n⚠️ [Task #${taskId}] E2E Test FAIL lần ${e2eAttempt}/${MAX_E2E_RETRIES}. Kích hoạt Auto-Fix...`);
+
+              // Lọc bỏ các cảnh báo npm/node vô hại để lấy đúng lỗi Playwright thực tế
               const cleanStderr = (e2eResult.stderr || '')
                 .replace(/^npm warn.*$/gim, '')
                 .replace(/^.*SECURITY WARNING.*$/gim, '')
                 .trim();
-              const failDetails = (cleanStderr || e2eResult.stdout || e2eResult.stderr || '').slice(-1000).trim();
-              const e2eFailMsg =
-                `🔴 <b>[Task #${taskId}] DEV E2E TEST THẤT BẠI (CHƯA ĐẠT TIÊU CHÍ NGHIỆM THU)</b> <code>(⏱️ ${timeStr})</code>\n\n` +
-                `📁 <b>Thư mục:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
-                `🧪 <b>File Test:</b> <code>frontend/${escapeHtml(specFile)}</code>\n\n` +
-                `⚠️ <b>Chi tiết lỗi kiểm thử E2E trên Domain Dev:</b>\n<pre>${escapeHtml(failDetails || 'Playwright E2E exit code non-zero')}</pre>\n\n` +
-                `💡 <i>Vui lòng yêu cầu AI sửa lại code hoặc cập nhật kịch bản E2E để vượt qua Quality Gate.</i>`;
+              const failDetails = (cleanStderr || e2eResult.stdout || e2eResult.stderr || '').slice(-1200).trim();
+              const errorContext = extractRecentPlaywrightErrorContext();
+
+              retryHistory.push({
+                attempt: e2eAttempt,
+                exitCode: e2eResult.exitCode,
+                failSummary: failDetails.slice(-300)
+              });
 
               if (progressMsgId) {
-                await editTelegramMessage(chatId, progressMsgId, `🔴 <b>[Task #${taskId}] E2E Test trên Dev THẤT BẠI!</b>`, 'HTML');
+                await editTelegramMessage(
+                  chatId,
+                  progressMsgId,
+                  `🔄 <b>[Task #${taskId}] Dev E2E Fail (Lần ${e2eAttempt}/${MAX_E2E_RETRIES})...</b>\n\n` +
+                  `🧪 <b>Suite:</b> <code>frontend/${escapeHtml(specFile)}</code>\n` +
+                  `🤖 <b>Hành động:</b> <i>Đang khởi chạy AI phân tích RCA & tự động fix code...</i>`,
+                  'HTML',
+                  TASK_ACTIONS_KEYBOARD
+                );
+              }
+
+              // Khởi chạy session AI sửa lỗi tự động
+              const autoFixPrompt = buildE2EAutoFixPrompt({
+                taskId,
+                feedbackDir,
+                specFile,
+                attempt: e2eAttempt,
+                maxAttempts: MAX_E2E_RETRIES,
+                failDetails,
+                errorContext
+              });
+
+              const fixSessionRes = await runAgyAutoFixSession({
+                prompt: autoFixPrompt,
+                chatId,
+                progressMsgId,
+                taskId,
+                attempt: e2eAttempt,
+                maxAttempts: MAX_E2E_RETRIES
+              });
+
+              console.log(`[Task #${taskId}] Auto-Fix Vòng ${e2eAttempt} hoàn tất (success: ${fixSessionRes.success}). Chờ deploy lại...`);
+
+              // Đợi Vercel & Render redeploy sau khi AI đã push code fix lên nhánh dev
+              const redeployRes = await waitForDevDeployment(150, async (msg) => {
+                if (progressMsgId) {
+                  await editTelegramMessage(
+                    chatId,
+                    progressMsgId,
+                    `⏳ <b>[Task #${taskId}] DEV RETRY ${e2eAttempt}/${MAX_E2E_RETRIES} DEPLOYING...</b>\n\n` +
+                    `🔄 <i>${escapeHtml(msg)}</i>\n` +
+                    `🌐 Đang chuẩn bị chạy lại Playwright E2E...`,
+                    'HTML',
+                    TASK_ACTIONS_KEYBOARD
+                  );
+                }
+              });
+
+              if (!redeployRes.success) {
+                console.warn(`[Task #${taskId}] Redeploy timeout ở vòng retry ${e2eAttempt}:`, redeployRes.error);
+              }
+
+              // Chạy lại Playwright E2E verification trên Domain Dev
+              if (progressMsgId) {
+                await editTelegramMessage(
+                  chatId,
+                  progressMsgId,
+                  `⏳ <b>[Task #${taskId}] Đang chạy lại Playwright E2E (Vòng ${e2eAttempt}/${MAX_E2E_RETRIES})...</b>\n\n` +
+                  `🧪 <b>Suite:</b> <code>frontend/${escapeHtml(specFile)}</code>\n` +
+                  `🎯 <b>Target:</b> <code>Vercel Dev & Render Dev</code>`,
+                  'HTML',
+                  TASK_ACTIONS_KEYBOARD
+                );
+              }
+              e2eResult = await runDevE2EVerification(feedbackDir, specFile);
+            }
+
+            // NẾU SAU MAX_E2E_RETRIES LẦN VẪN THẤT BẠI: BÁO CÁO TELEGRAM & ĐÁNH DẤU FAILED
+            if (!e2eResult.success) {
+              const cleanStderr = (e2eResult.stderr || '')
+                .replace(/^npm warn.*$/gim, '')
+                .replace(/^.*SECURITY WARNING.*$/gim, '')
+                .trim();
+              const failDetails = (cleanStderr || e2eResult.stdout || e2eResult.stderr || '').slice(-1200).trim();
+
+              const retrySummaryText = retryHistory.length > 0
+                ? `\n🔁 <b>Lịch sử thử lại:</b> Đã tự động phân tích & fix ${retryHistory.length}/${MAX_E2E_RETRIES} lần nhưng vẫn chưa vượt qua Quality Gate.\n`
+                : '';
+
+              const e2eFailMsg =
+                `🔴 <b>[Task #${taskId}] DEV E2E TEST THẤT BẠI (ĐÃ VƯỢT QUÁ ${MAX_E2E_RETRIES} LẦN RETRY)</b> <code>(⏱️ ${timeStr})</code>\n\n` +
+                `📁 <b>Thư mục:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
+                `🧪 <b>File Test:</b> <code>frontend/${escapeHtml(specFile)}</code>\n` +
+                retrySummaryText +
+                `\n⚠️ <b>Chi tiết lỗi kiểm thử E2E trên Domain Dev (Lần cuối):</b>\n<pre>${escapeHtml(failDetails || 'Playwright E2E exit code non-zero')}</pre>\n\n` +
+                `💡 <i>Vui lòng kiểm tra log hoặc chỉ dẫn AI can thiệp thủ công để giải quyết lỗi logic/dữ liệu.</i>`;
+
+              if (progressMsgId) {
+                await editTelegramMessage(chatId, progressMsgId, `🔴 <b>[Task #${taskId}] E2E Test trên Dev THẤT BẠI (Sau ${MAX_E2E_RETRIES} lần retry)!</b>`, 'HTML');
               }
               await sendTelegramMessage(chatId, e2eFailMsg, 'HTML', TASK_ACTIONS_KEYBOARD);
 
@@ -1137,16 +1393,22 @@ async function executeAgyTask(task) {
             if (e2eResult.evidencePath) {
               const photoCaption =
                 `📸 <b>[BẰNG CHỨNG NGHIỆM THU E2E TASK #${taskId}]</b>\n` +
-                `✅ Đã kiểm thử thành công trên Domain Dev\n` +
+                `✅ Đã kiểm thử thành công trên Domain Dev` +
+                (e2eAttempt > 0 ? ` (Đã tự động sửa lỗi thành công sau ${e2eAttempt} lần retry)` : '') + `\n` +
                 `🧪 Suite: <code>${escapeHtml(specFile)}</code>` +
                 (e2eResult.auditScore ? ` (Audit: <b>${e2eResult.auditScore}/50</b> PASS)` : '');
               await sendTelegramPhoto(chatId, e2eResult.evidencePath, photoCaption, TASK_ACTIONS_KEYBOARD);
             }
 
             // Bổ sung thông tin E2E Pass vào báo cáo
+            const retryNote = e2eAttempt > 0
+              ? `• <b>Trạng thái Self-Healing:</b> 🔄 Tự động fix & vượt qua sau ${e2eAttempt}/${MAX_E2E_RETRIES} lần retry\n`
+              : '';
+
             cleanOutput =
               `🟢 <b>THÔNG BÁO: ĐÃ TEST DEV XONG (E2E & ĐÁNH GIÁ CHÉO PASS 100%)</b>\n\n` +
               `• <b>Playwright E2E Test:</b> <code>${escapeHtml(specFile)}</code> (✅ PASS 100% trên Dev)\n` +
+              retryNote +
               (e2eResult.auditScore ? `• <b>Điểm Audit E2E:</b> <b>${e2eResult.auditScore}/50</b> PASS\n` : '') +
               `• <b>Môi trường kiểm thử:</b> Domain Dev (Vercel & Render)\n\n` +
               cleanOutput;
