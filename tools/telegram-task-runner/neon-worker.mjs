@@ -623,7 +623,9 @@ function detectTaskE2ESpec(feedbackDir, taskId) {
       }
 
       const folderBase = path.basename(feedbackDir).replace(/_/g, '-');
-      const matchFolder = files.find(f => f.includes(folderBase));
+      // Ưu tiên file spec số thứ tự cao nhất (mới nhất)
+      const sortedFiles = files.filter(f => f.endsWith('.spec.ts')).sort().reverse();
+      const matchFolder = sortedFiles.find(f => f.includes(folderBase));
       if (matchFolder) return `e2e/${matchFolder}`;
     } catch {}
   }
@@ -763,12 +765,17 @@ async function runDevE2EVerification(feedbackDir, specRelPath) {
   });
 }
 
-// Quản lý kết nối Neon PostgreSQL
+// Quản lý kết nối Neon PostgreSQL (Hỗ trợ Serverless Auto-Reconnect & Cold-Start)
 const pool = new Pool({
   connectionString: DATABASE_URL,
   max: 5,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000,
+  idleTimeoutMillis: 10000, // Giải phóng kết nối nhàn rỗi sau 10s để tránh giữ TCP socket chết
+  connectionTimeoutMillis: 20000, // Cho phép tối đa 20s khi Neon cold-start
+});
+
+// Bắt lỗi rớt socket ngầm của client nhàn rỗi, tự động tái kết nối mà không crash tiến trình
+pool.on('error', (err) => {
+  console.warn('⚠️ [Neon Pool Notice] Socket kết nối nhàn rỗi bị ngắt (sẽ tự động tạo kết nối mới):', err.message);
 });
 
 let activeProcess = null;
@@ -1097,8 +1104,12 @@ async function executeAgyTask(task) {
             const e2eResult = await runDevE2EVerification(feedbackDir, specFile);
 
             if (!e2eResult.success) {
-              // E2E THẤT BẠI: Báo đỏ và đánh FAILED, TUYỆT ĐỐI KHÔNG BÁO COMPLETED
-              const failDetails = (e2eResult.stderr || e2eResult.stdout || '').slice(-800).trim();
+              // Lọc bỏ các cảnh báo npm/node vô hại để lấy đúng thông tin lỗi Playwright thực tế
+              const cleanStderr = (e2eResult.stderr || '')
+                .replace(/^npm warn.*$/gim, '')
+                .replace(/^.*SECURITY WARNING.*$/gim, '')
+                .trim();
+              const failDetails = (cleanStderr || e2eResult.stdout || e2eResult.stderr || '').slice(-1000).trim();
               const e2eFailMsg =
                 `🔴 <b>[Task #${taskId}] DEV E2E TEST THẤT BẠI (CHƯA ĐẠT TIÊU CHÍ NGHIỆM THU)</b> <code>(⏱️ ${timeStr})</code>\n\n` +
                 `📁 <b>Thư mục:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +

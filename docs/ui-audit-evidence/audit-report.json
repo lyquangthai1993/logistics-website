@@ -1,0 +1,1355 @@
+[
+  {
+    "category": "Gu",
+    "route": "/auth/sign-in",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.group/button.inline-flex \"Xem tài khoản Demo\"",
+    "issue": "Vùng bấm nhỏ (157×28px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/auth/sign-in",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.absolute.right-3 \"\"",
+    "issue": "Vùng bấm nhỏ (24×24px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Lệch hệ",
+    "route": "/auth/sign-in",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "input.rounded.border-border \"on\"",
+    "issue": "Checkbox/radio gốc có kích thước nhỏ (14×14px)",
+    "fix": "Sử dụng Checkbox component từ shadcn (@/components/ui/checkbox) có vùng bấm chuẩn",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/auth/sign-in",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "a.font-medium.text-blue-600 \"Quên mật khẩu?\n→\"",
+    "issue": "Vùng bấm quá nhỏ (104×16px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/overview",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "a.bg-background.ring-ring \"Skip to content\"",
+    "issue": "Vùng bấm quá nhỏ (24×16px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/overview",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.absolute.inset-y-0 \"Toggle Sidebar\"",
+    "issue": "Vùng bấm quá nhỏ (16×900px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/overview",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.group/button.inline-flex \"Toggle Sidebar\"",
+    "issue": "Vùng bấm nhỏ (28×28px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/overview",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "a.transition-colors.hover:text-foreground \"Dashboard\"",
+    "issue": "Vùng bấm quá nhỏ (67×19px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/overview",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "input \"vercel\"",
+    "issue": "Vùng bấm quá nhỏ (1×1px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/overview",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.relative.inline-flex \"Overview\"",
+    "issue": "Vùng bấm nhỏ (74×25px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/overview",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.relative.inline-flex \"Analytics\"",
+    "issue": "Vùng bấm nhỏ (71×25px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/overview",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.group/button.inline-flex \"Close info panel\"",
+    "issue": "Vùng bấm nhỏ (28×28px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/overview",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.hover:after:bg-sidebar-border.absolute \"Toggle Infobar\"",
+    "issue": "Vùng bấm quá nhỏ (16×844px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/overview",
+    "viewport": "768px",
+    "mode": "light",
+    "location": "button.absolute.inset-y-0 \"Toggle Sidebar\"",
+    "issue": "Vùng bấm quá nhỏ (16×1024px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "768px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/overview",
+    "viewport": "768px",
+    "mode": "light",
+    "location": "button.hover:after:bg-sidebar-border.absolute \"Toggle Infobar\"",
+    "issue": "Vùng bấm quá nhỏ (16×968px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "768px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/orders",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.px-3.py-1 \"Hôm nay\"",
+    "issue": "Vùng bấm nhỏ (75×26px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/orders",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.px-3.py-1 \"7 ngày qua\"",
+    "issue": "Vùng bấm nhỏ (86×26px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/orders",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.px-3.py-1 \"Tháng này\"",
+    "issue": "Vùng bấm nhỏ (83×26px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/orders",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.px-3.py-1 \"Tháng trước\"",
+    "issue": "Vùng bấm nhỏ (93×26px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/orders",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "input.px-2.py-1 \"Từ ngày\"",
+    "issue": "Vùng bấm nhỏ (111×26px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/orders",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "input.px-2.py-1 \"Đến ngày\"",
+    "issue": "Vùng bấm nhỏ (111×26px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/orders",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.p-1.5.rounded-md \"\"",
+    "issue": "Vùng bấm nhỏ (28×28px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/orders",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.group/button.inline-flex \"Trạng thái\"",
+    "issue": "Vùng bấm nhỏ (98×28px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/orders",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "input \"10\"",
+    "issue": "Vùng bấm quá nhỏ (1×1px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/trips",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "a \"Quản lý đội xe\"",
+    "issue": "Vùng bấm quá nhỏ (143×21px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/trips",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "input.px-2.py-1 \"2026-10-01\"",
+    "issue": "Vùng bấm nhỏ (111×26px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/trips",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "input.px-2.py-1 \"2026-10-08\"",
+    "issue": "Vùng bấm nhỏ (111×26px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/trips",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.inline-flex.h-[calc(100%-1px)] \"Đơn Cần Phân Xe\"",
+    "issue": "Vùng bấm quá nhỏ (144×23px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/trips",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.relative.inline-flex \"Danh Sách Chuyến Xe (42)\"",
+    "issue": "Vùng bấm quá nhỏ (202×23px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/warehouse/inbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "a.transition-colors.hover:text-foreground \"Warehouse\"",
+    "issue": "Vùng bấm quá nhỏ (69×19px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/warehouse/inbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "input.px-2.py-0.5 \"Từ ngày\"",
+    "issue": "Vùng bấm nhỏ (123×28px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/warehouse/inbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "input.px-2.py-0.5 \"Đến ngày\"",
+    "issue": "Vùng bấm nhỏ (123×28px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/warehouse/inbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.px-2.5.py-1 \"Tất cả (17)\"",
+    "issue": "Vùng bấm nhỏ (80×24px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/warehouse/inbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.px-2.5.py-1 \"Chờ xử lý (5)\"",
+    "issue": "Vùng bấm nhỏ (89×24px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/warehouse/inbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.px-2.5.py-1 \"Đã xử lý (12)\"",
+    "issue": "Vùng bấm nhỏ (87×24px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/warehouse/inbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "input.rounded.border-gray-300 \"on\"",
+    "issue": "Vùng bấm quá nhỏ (13×13px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/warehouse/inbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.p-0.5.rounded \"\"",
+    "issue": "Vùng bấm quá nhỏ (18×18px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/warehouse/inbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.font-mono.font-bold \"SD73\n6 đơn\"",
+    "issue": "Vùng bấm quá nhỏ (65×15px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/warehouse/inbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.group/button.inline-flex \"In phiếu nhập\"",
+    "issue": "Vùng bấm nhỏ (109×28px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/warehouse/inbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.group/button.inline-flex \"Xem đơn\"",
+    "issue": "Vùng bấm nhỏ (59×28px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/warehouse/inbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.font-mono.font-bold \"SD64\n5 đơn\"",
+    "issue": "Vùng bấm quá nhỏ (65×15px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/warehouse/inbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.font-mono.font-bold \"SD68\n6 đơn\"",
+    "issue": "Vùng bấm quá nhỏ (65×15px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/warehouse/inbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.font-mono.font-bold \"SD72\n7 đơn\"",
+    "issue": "Vùng bấm quá nhỏ (65×15px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/warehouse/inbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.font-mono.font-bold \"SD71\n8 đơn\"",
+    "issue": "Vùng bấm quá nhỏ (65×15px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/warehouse/inbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.font-mono.font-bold \"SD70\n5 đơn\"",
+    "issue": "Vùng bấm quá nhỏ (65×15px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/warehouse/inbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.font-mono.font-bold \"SD69\"",
+    "issue": "Vùng bấm quá nhỏ (27×15px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/warehouse/inbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.font-mono.font-bold \"SD67\"",
+    "issue": "Vùng bấm quá nhỏ (27×15px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/warehouse/inbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.font-mono.font-bold \"SD66\n2 đơn\"",
+    "issue": "Vùng bấm quá nhỏ (65×15px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/warehouse/inbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.font-mono.font-bold \"SD65\"",
+    "issue": "Vùng bấm quá nhỏ (27×15px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/warehouse/inbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "input \"15\"",
+    "issue": "Vùng bấm quá nhỏ (1×1px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/warehouse/outbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "input.px-2.py-0.5 \"Từ ngày\"",
+    "issue": "Vùng bấm nhỏ (111×28px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/warehouse/outbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.px-2.5.py-1 \"Tất cả (3)\"",
+    "issue": "Vùng bấm nhỏ (73×24px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/warehouse/outbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.px-2.5.py-1 \"Chờ xử lý (0)\"",
+    "issue": "Vùng bấm nhỏ (89×24px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/warehouse/outbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.px-2.5.py-1 \"Đã xử lý (3)\"",
+    "issue": "Vùng bấm nhỏ (82×24px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/warehouse/outbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.group/button.inline-flex \"In phiếu xuất\"",
+    "issue": "Vùng bấm nhỏ (105×28px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/warehouse/outbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.font-mono.font-bold \"SD64\n2 đơn\"",
+    "issue": "Vùng bấm quá nhỏ (65×15px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/warehouse/outbound",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "input \"20\"",
+    "issue": "Vùng bấm quá nhỏ (1×1px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/fleet",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.relative.inline-flex \"Danh Sách Xe (37)\"",
+    "issue": "Vùng bấm quá nhỏ (180×23px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/fleet",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.relative.inline-flex \"Danh Sách Tài Xế (10)\"",
+    "issue": "Vùng bấm quá nhỏ (199×23px < 24px)",
+    "fix": "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/fleet",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.group/button.inline-flex \"Loại xe\"",
+    "issue": "Vùng bấm nhỏ (81×28px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Hỏng",
+    "route": "/dashboard/fleet",
+    "viewport": "375px",
+    "mode": "light",
+    "location": "/dashboard/fleet (375px)",
+    "issue": "Trang bị cuộn ngang (scrollWidth 402px > 375px) do div.group/tabs-list.inline-flex.w-fit",
+    "fix": "Thêm overflow-hidden, w-full hoặc min-w-0 trên container",
+    "source": "đo",
+    "viewports": [
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/notifications",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.group/button.inline-flex \"Đánh dấu tất cả đã đọc (3)\"",
+    "issue": "Vùng bấm nhỏ (200×28px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/notifications",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.group/button.inline-flex \"Tất cả nghiệp vụ\n178\"",
+    "issue": "Vùng bấm nhỏ (173×28px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/notifications",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.group/button.inline-flex \"Điều phối đơn hàng\n10\"",
+    "issue": "Vùng bấm nhỏ (186×28px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/notifications",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.group/button.inline-flex \"Đội xe & Chuyến xe\n94\"",
+    "issue": "Vùng bấm nhỏ (185×28px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/notifications",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.group/button.inline-flex \"Kho bãi\n0\"",
+    "issue": "Vùng bấm nhỏ (115×28px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/notifications",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.group/button.inline-flex \"Hệ thống\n74\"",
+    "issue": "Vùng bấm nhỏ (130×28px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/notifications",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.relative.inline-flex \"Tất cả (178)\"",
+    "issue": "Vùng bấm nhỏ (84×25px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/notifications",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.relative.inline-flex \"Chưa đọc (3)\"",
+    "issue": "Vùng bấm nhỏ (84×25px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/notifications",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.relative.inline-flex \"Đã đọc (175)\"",
+    "issue": "Vùng bấm nhỏ (84×25px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Gu",
+    "route": "/dashboard/notifications",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "button.relative.z-10 \"Đánh dấu đã đọc\"",
+    "issue": "Vùng bấm nhỏ (28×28px, 24-31px)",
+    "fix": "Tăng chiều cao lên chuẩn h-8 (32px)",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  },
+  {
+    "category": "Lệch hệ",
+    "route": "/dashboard/notifications",
+    "viewport": "1440px",
+    "mode": "light",
+    "location": "div: \"📦 Đơn hàng mới cần phân công xe: S\"",
+    "issue": "Vi phạm Zero Redundant Icons: Nút vừa chứa icon SVG vừa chứa emoji trùng lặp trong văn bản",
+    "fix": "Bỏ emoji trong text label, chỉ giữ lại icon SVG vector sạch",
+    "source": "đo",
+    "viewports": [
+      "1440px",
+      "768px",
+      "375px"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ]
+  }
+]
