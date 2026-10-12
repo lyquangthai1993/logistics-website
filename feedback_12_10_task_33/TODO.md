@@ -104,17 +104,17 @@ flowchart TD
 > [!NOTE]
 > Yêu cầu này thuần túy về giao diện người dùng (Frontend Presentation & UI/UX Styling). Không yêu cầu thay đổi cơ sở dữ liệu hay nghiệp vụ API. Tuy nhiên, Backend cần đảm bảo duy trì độ tin cậy và hiệu năng phục vụ luồng xác thực.
 
-- [ ] **Kiểm tra tính sẵn sàng của API Xác thực (`/api/v1/auth/email/login`)**:
+- [x] **Kiểm tra tính sẵn sàng của API Xác thực (`/api/v1/auth/email/login`)**:
   - Đảm bảo endpoint phản hồi dưới 300ms, không phát sinh lỗi ngoại lệ hay rò rỉ token.
   - Kiểm tra các header bảo mật (CORS, CSP) không chặn việc tải tài nguyên hình ảnh hero banner (`/images/auth-hero.webp`).
-- [ ] **Bảo đảm tính toàn vẹn của Endpoint Health Check (`/api/v1/health`)**:
+- [x] **Bảo đảm tính toàn vẹn của Endpoint Health Check (`/api/v1/health`)**:
   - Phục vụ việc theo dõi trạng thái môi trường Dev & Production của Railway Cloud.
 
 ---
 
 ### 🎨 2. Frontend (`frontend/`)
 
-- [ ] **Tái cấu trúc và làm sáng Hero Banner trong [`auth-hero-banner.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/auth/components/auth-hero-banner.tsx)**:
+- [x] **Tái cấu trúc và làm sáng Hero Banner trong [`auth-hero-banner.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/auth/components/auth-hero-banner.tsx)**:
   - **Khôi phục độ sáng ảnh gốc**:
     * Điều chỉnh thẻ `<Image />` từ `opacity-75` lên `opacity-95` hoặc `opacity-100`.
     * Đảm bảo giữ nguyên các thuộc tính tối ưu hiệu năng: `priority`, `sizes='50vw'`, `quality={85}`.
@@ -130,11 +130,11 @@ flowchart TD
     * **Thẻ Floating Tech Card**: Chuyển từ `bg-slate-900/60` sang `bg-slate-900/35 backdrop-blur-md ring-1 ring-white/25 shadow-2xl`, thêm text-shadow tinh tế cho các đoạn văn bản mô tả.
     * **Khối Testimonial Quote**: Chuyển từ `bg-slate-950/60` sang `bg-slate-900/35 backdrop-blur-md ring-1 ring-white/20`.
     * Đảm bảo các khối chữ dễ đọc, trong suốt nhẹ nhàng để người dùng cảm nhận được chiều sâu bến bãi phía sau.
-- [ ] **Đồng bộ trên toàn bộ các màn hình Xác thực liên quan**:
+- [x] **Đồng bộ trên toàn bộ các màn hình Xác thực liên quan**:
   - [`sign-in-view.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/auth/components/sign-in-view.tsx): Trang Đăng nhập chính thức.
   - [`forgot-password-view.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/auth/components/forgot-password-view.tsx): Trang Yêu cầu Quên mật khẩu.
   - [`reset-password-view.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/auth/components/reset-password-view.tsx): Trang Đặt lại mật khẩu mới.
-- [ ] **Tuân thủ nghiêm ngặt Quy chuẩn giao diện hẹp (UI Compact Density & Responsive Guard)**:
+- [x] **Tuân thủ nghiêm ngặt Quy chuẩn giao diện hẹp (UI Compact Density & Responsive Guard)**:
   - Giữ vững cấu trúc responsive: `hidden lg:flex` (tự động ẩn gọn gàng trên tablet/mobile, không chiếm dụng tài nguyên và không gây vỡ viewport ngang).
   - Đảm bảo form đăng nhập bên phải giữ nguyên độ nhỏ gọn, không lệch chuẩn khoảng cách, không vi phạm các class bị cấm theo [`.agents/rules/ui-compact-density.md`](file:///D:/Projects/logistics-website/.agents/rules/ui-compact-density.md).
 
@@ -142,10 +142,10 @@ flowchart TD
 
 ### 🧪 3. Kiểm thử & Nghiệm thu (Definition of Done)
 
-- [ ] **Kiểm tra biên dịch & Linting toàn dự án**:
+- [x] **Kiểm tra biên dịch & Linting toàn dự án**:
   - Backend Type Check & Lint: `npm run lint --prefix backend` & `npm run build --prefix backend` PASS (0 errors).
   - Frontend Type Check & Build: `npm run build --prefix frontend` PASS (0 errors, biên dịch Turbopack thành công).
-- [ ] **Cập nhật & Thực thi Suite Kiểm thử Tự động E2E ([`46-feedback-12-10-auth-branding.spec.ts`](file:///D:/Projects/logistics-website/frontend/e2e/46-feedback-12-10-auth-branding.spec.ts))**:
+- [x] **Cập nhật & Thực thi Suite Kiểm thử Tự động E2E ([`46-feedback-12-10-auth-branding.spec.ts`](file:///D:/Projects/logistics-website/frontend/e2e/46-feedback-12-10-auth-branding.spec.ts))**:
   - **Kịch bản 1: Desktop Viewport (1440x900) Hero Banner Brightness & Visual Integrity**:
     * Xác nhận ảnh `auth-hero.webp` hiển thị với `opacity` cải thiện (không còn bị tối mù mịt).
     * Xác nhận gradient overlay áp dụng các giá trị độ sáng mới.

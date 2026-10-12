@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 12/10/2026 20:36 | `feedback_12_10_task_33` | Feedback 12/10 (Task 33) — Tối Ưu Độ Sáng & Tinh Chỉ... | 7/7 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_12_10_task_33/RESOLUTION.md) |
 | 12/10/2026 | `feedback_12_10` | Feedback 12/10 — Chuẩn Hóa Nhận Diện Thương Hiệu Spi... | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_12_10/RESOLUTION.md) |
 | 09/10/2026 - 18:22 | `feedback_09_10_task_20` | Feedback 09/10 (Task 20) — Tích Hợp Nút Xuất Báo Cáo... | 18/18 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_20/RESOLUTION.md) |
 | 09/10/2026 - 17:31 | `feedback_09_10_task_18` | Feedback 09/10 (Task 18) — Tối ưu Vị trí Nút Hành độ... | 26/26 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_18/RESOLUTION.md) |
@@ -45,6 +46,18 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_12_10_TASK_33] — Feedback 12/10 (Task 33) — Tối Ưu Độ Sáng & Tinh Chỉnh Div Overlay Banner Đăng Nhập (Login Hero) (12/10/2026 20:36)
+- **Trạng thái**: ✅ Hoàn thành 100% (7/7 việc)
+- **Báo cáo bởi**: @Thai Ly (Quản lý nghiệp vụ / Vận hành)
+- **Phạm vi**: Giao diện Đăng nhập hệ thống (`/auth/sign-in`) ➔ Hero Visual Banner bên trái ([`AuthHeroBanner`](file:///D:/Projects/logistics-website/frontend/src/features/auth/components/auth-hero-banner.tsx)) • Các màn hình xác thực đồng bộ: Quên mật khẩu (`/auth/forgot-password`) & Đặt lại mật khẩu (`/auth/reset-password`) • Khối thẻ nội dung nổi (Floating Tech Card) & Khối trích dẫn định vị thương hiệu (Testimonial Quote Block) • Frontend TMS Core (Next.js 15+ App Router, Tailwind CSS, TypeScript) & Kiểm thử tự động Playwright E2E
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Kiểm tra tính sẵn sàng của API Xác thực (`/api/v1/auth/email/login`); Bảo đảm tính toàn vẹn của Endpoint Health Check (`/api/v1/health`)
+  * **Frontend**: Tái cấu trúc và làm sáng Hero Banner trong [`auth-hero-banner.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/auth/components/auth-hero-banner.tsx); Đồng bộ trên toàn bộ các màn hình Xác thực liên quan; Tuân thủ nghiêm ngặt Quy chuẩn giao diện hẹp (UI Compact Density & Responsive Guard)
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_01_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_12_10_task_33/RESOLUTION.md) • [`TODO.md`](../feedback_12_10_task_33/TODO.md)
 
 ### 🚀 [FEEDBACK_12_10] — Feedback 12/10 — Chuẩn Hóa Nhận Diện Thương Hiệu Spider Express & Thay Đổi Hình Ảnh Banner Trang Đăng Nhập (Login Hero) (12/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (13/13 việc)
