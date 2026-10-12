@@ -4,7 +4,7 @@ import urllib.request
 import sys
 
 RAILWAY_API_URL = "https://backboard.railway.com/graphql/v2"
-TOKEN = "os.environ.get("RAILWAY_TOKEN", "")"
+TOKEN = os.environ.get("RAILWAY_TOKEN", "")
 
 def gql(query, variables=None):
     data = {"query": query}

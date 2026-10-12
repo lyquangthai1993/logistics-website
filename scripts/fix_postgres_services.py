@@ -4,7 +4,7 @@ import json
 import time
 
 RAILWAY_API_URL = "https://backboard.railway.com/graphql/v2"
-TOKEN = "os.environ.get("RAILWAY_TOKEN", "")"
+TOKEN = os.environ.get("RAILWAY_TOKEN", "")
 PROJECT_ID = "32cad4c1-ce12-473c-9a5d-5b3c136d0ecb"
 
 def gql(query, variables=None):

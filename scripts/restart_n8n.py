@@ -4,7 +4,7 @@ import urllib.request
 import sys
 
 RAILWAY_API_URL = "https://backboard.railway.com/graphql/v2"
-TOKEN = "os.environ.get("RAILWAY_TOKEN", "")"
+TOKEN = os.environ.get("RAILWAY_TOKEN", "")
 N8N_SERVICE_ID = "ad04d45b-451e-43cd-88cf-e241ac20b178"
 PROD_ENV_ID = "d4b78a94-2e05-4129-ac3d-4bdcbe5d5dff"
 DEV_ENV_ID = "9ecf5f52-2312-4be3-bb0f-bab6889f94cc"

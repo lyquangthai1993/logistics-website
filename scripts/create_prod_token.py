@@ -3,7 +3,7 @@ import json
 import urllib.request
 
 RAILWAY_API_URL = "https://backboard.railway.com/graphql/v2"
-TOKEN = "os.environ.get("RAILWAY_TOKEN", "")" # PAT for account
+TOKEN = os.environ.get("RAILWAY_TOKEN", "") # PAT for account
 PROJECT_ID = "32cad4c1-ce12-473c-9a5d-5b3c136d0ecb"
 PROD_ENV_ID = "d4b78a94-2e05-4129-ac3d-4bdcbe5d5dff" # production
 

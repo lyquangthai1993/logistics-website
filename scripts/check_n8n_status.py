@@ -3,7 +3,7 @@ import json
 import urllib.request
 
 RAILWAY_API_URL = "https://backboard.railway.com/graphql/v2"
-TOKEN = "os.environ.get("RAILWAY_TOKEN", "")"
+TOKEN = os.environ.get("RAILWAY_TOKEN", "")
 N8N_SERVICE_ID = "ad04d45b-451e-43cd-88cf-e241ac20b178"
 
 def gql(query, variables=None):
