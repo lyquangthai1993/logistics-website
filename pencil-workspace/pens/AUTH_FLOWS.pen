@@ -60,7 +60,7 @@
                       "fill": {
                         "type": "image",
                         "enabled": true,
-                        "url": "assets/auth-hero.jpg",
+                        "url": "assets/auth-hero.webp",
                         "mode": "fill"
                       },
                       "width": 833.7,
@@ -370,10 +370,10 @@
                         {
                           "type": "text",
                           "id": "kISGF",
-                          "name": "Logistics TMS",
+                          "name": "Spider Express",
                           "context": "span",
                           "fill": "#ffffff",
-                          "content": "Logistics TMS",
+                          "content": "Spider Express",
                           "lineHeight": 1.56,
                           "fontFamily": "Geist",
                           "fontSize": 18,
@@ -385,7 +385,7 @@
                     {
                       "type": "frame",
                       "id": "QXdyU",
-                      "name": "Enterprise TMS",
+                      "name": "Anytime Anywhere",
                       "context": "div",
                       "fill": "#00b8db1a",
                       "cornerRadius": 67108900,
@@ -404,7 +404,7 @@
                           "type": "text",
                           "id": "ovc6X",
                           "fill": "#53eafd",
-                          "content": "Enterprise TMS",
+                          "content": "Anytime Anywhere",
                           "lineHeight": 1.33,
                           "fontFamily": "Geist",
                           "fontSize": 12,
@@ -1187,7 +1187,7 @@
                       "fill": {
                         "type": "image",
                         "enabled": true,
-                        "url": "assets/auth-hero.jpg",
+                        "url": "assets/auth-hero.webp",
                         "mode": "fill"
                       },
                       "width": 833.7,
@@ -1497,10 +1497,10 @@
                         {
                           "type": "text",
                           "id": "JjQj0",
-                          "name": "Logistics TMS",
+                          "name": "Spider Express",
                           "context": "span",
                           "fill": "#ffffff",
-                          "content": "Logistics TMS",
+                          "content": "Spider Express",
                           "lineHeight": 1.56,
                           "fontFamily": "Geist",
                           "fontSize": 18,

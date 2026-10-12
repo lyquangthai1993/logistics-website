@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 12/10/2026 | `feedback_12_10` | Feedback 12/10 — Chuẩn Hóa Nhận Diện Thương Hiệu Spi... | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_12_10/RESOLUTION.md) |
 | 09/10/2026 - 18:22 | `feedback_09_10_task_20` | Feedback 09/10 (Task 20) — Tích Hợp Nút Xuất Báo Cáo... | 18/18 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_20/RESOLUTION.md) |
 | 09/10/2026 - 17:31 | `feedback_09_10_task_18` | Feedback 09/10 (Task 18) — Tối ưu Vị trí Nút Hành độ... | 26/26 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_18/RESOLUTION.md) |
 | 09/10/2026 | `feedback_09_10_task_16` | Feedback 09/10 (Task 16) — Chuẩn Hóa Hiển Thị Tỉnh/T... | 7/7 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_16/RESOLUTION.md) |
@@ -44,6 +45,18 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_12_10] — Feedback 12/10 — Chuẩn Hóa Nhận Diện Thương Hiệu Spider Express & Thay Đổi Hình Ảnh Banner Trang Đăng Nhập (Login Hero) (12/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (13/13 việc)
+- **Báo cáo bởi**: @Thai Ly (Chủ sở hữu sản phẩm & Quản lý vận hành TMS) & @Antigravity Verification
+- **Phạm vi**: Màn hình Đăng nhập hệ thống (`/auth/sign-in` & [`sign-in-view.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/auth/components/sign-in-view.tsx)) • Các màn hình xác thực tài khoản phụ trợ (`/auth/forgot-password` & [`forgot-password-view.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/auth/components/forgot-password-view.tsx), `/auth/reset-password` & [`reset-password-view.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/auth/components/reset-password-view.tsx)) • Nhận diện thương hiệu hệ thống: Logo vector SVG ([`brand-logo.tsx`](file:///D:/Projects/logistics-website/frontend/src/components/brand-logo.tsx)) & Logo Spider Express ([`logo_phieu_xuat_nhap_kho.jpg`](file:///D:/Projects/logistics-website/frontend/public/images/logo_phieu_xuat_nhap_kho.jpg)) • Thiết kế Vector Canvas trên Pencil ([`AUTH_FLOWS.pen`](file:///D:/Projects/logistics-website/pencil-workspace/pens/AUTH_FLOWS.pen)) • Thư mục tài nguyên ảnh tĩnh ([`frontend/public/images/`](file:///D:/Projects/logistics-website/frontend/public/images/))
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Khảo sát & Đánh giá nhu cầu cấu hình ảnh Banner động qua System Settings; Bảo toàn tính ổn định của API Đăng nhập cốt lõi
+  * **Frontend**: Thiết kế & Lựa chọn Hình ảnh Banner Thay Thế Đạt Chuẩn; Tối ưu Hóa Dung Lượng & Định Dạng (Performance Optimization); Tạo Component Banner Dùng Chung (`AuthHeroBanner`) hoặc Hằng Số Cấu Hình Tập Trung...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: current_auth_hero.jpg, current_login_screen.png, new_auth_hero.jpg, screenshot_01_verified.png, screenshot_verified_login.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_12_10/RESOLUTION.md) • [`TODO.md`](../feedback_12_10/TODO.md)
 
 ### 🚀 [FEEDBACK_09_10_TASK_20] — Feedback 09/10 (Task 20) — Tích Hợp Nút Xuất Báo Cáo Excel Đơn Hàng Lưu Kho Tại Màn Hình Đơn Hàng Kho Phục Vụ Kiểm Kê & Báo Cáo Vận Hành (09/10/2026 - 18:22)
 - **Trạng thái**: ✅ Hoàn thành 100% (18/18 việc)
