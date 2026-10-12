@@ -16,15 +16,23 @@
     3. **Promote to `master` (Production-Ready Gate)**: ONLY after 100% of E2E verification tests PASS on `dev`, checkout `master`, pull `origin/master`, merge `dev` into `master`, and push to `origin/master` (strictly submodule-first: `backend/`, `frontend/`, then `root`).
 
 ## Canonical Environments & Deployment Domains ("domain dev" & "domain pro" Mandate)
-Whenever the user refers to, asks for, or mentions **"domain dev"** (hoặc "domain môi trường dev", "môi trường dev"), all agents MUST immediately recognize and use:
-- **Frontend Dev Domain**: `https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app` (Vercel Dev Deployment, branch `dev`)
-- **Backend Dev Domain**: `https://logistics-website-backend-1jho.onrender.com` (Render Dev Service `logistics-website-backend-1jho`, branch `dev`)
-- **Backend Swagger API Docs (Dev)**: `https://logistics-website-backend-1jho.onrender.com/docs`
+**Hạ Tầng Ưu Tiên Hàng Đầu (Primary Cloud: Railway Cloud)**:
+Whenever the user refers to, asks for, or mentions **"domain dev"** (hoặc "domain môi trường dev", "môi trường dev"), all agents MUST immediately recognize and prioritize:
+- **Frontend Dev Domain (Primary - Railway)**: `https://frontend-tms-core-dev.up.railway.app` (Branch `dev`)
+- **Backend Dev Domain (Primary - Railway)**: `https://backend-tms-core-dev.up.railway.app` (Branch `dev`)
+- **Backend Swagger API Docs (Dev - Railway)**: `https://backend-tms-core-dev.up.railway.app/docs`
+- *Secondary / Fallback (Vercel & Render)*:
+  - Frontend Dev: `https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app`
+  - Backend Dev: `https://logistics-website-backend-1jho.onrender.com`
 
-Whenever the user refers to, asks for, or mentions **"domain pro"** (hoặc "domain prod", "môi trường pro", "môi trường production"), all agents MUST immediately recognize and use:
-- **Frontend Pro Domain**: `https://logistics-website-frontend-kappa.vercel.app` (Vercel Production Deployment, branch `master`)
-- **Backend Pro Domain**: `https://logistics-website-backend-1.onrender.com` (Render Production Service `logistics-website-backend-1`, branch `master`)
-- **Backend Swagger API Docs (Pro)**: `https://logistics-website-backend-1.onrender.com/docs`
+Whenever the user refers to, asks for, or mentions **"domain pro"** (hoặc "domain prod", "môi trường pro", "môi trường production"), all agents MUST immediately recognize and prioritize:
+- **Frontend Pro Domain (Primary - Railway)**: `https://frontend-tms-core-production.up.railway.app` (Branch `master`)
+- **Backend Pro Domain (Primary - Railway)**: `https://backend-tms-core-production.up.railway.app` (Branch `master`)
+- **Backend Swagger API Docs (Pro - Railway)**: `https://backend-tms-core-production.up.railway.app/docs`
+- **Cloud Automation / Worker (Railway)**: `https://n8n-automation-production-d298.up.railway.app`
+- *Secondary / Fallback (Vercel & Render)*:
+  - Frontend Pro: `https://logistics-website-frontend-kappa.vercel.app`
+  - Backend Pro: `https://logistics-website-backend-1.onrender.com`
 
 ## Safety & Governance Rules (STRICT)
 - **Language Policy**: Skill and agent guideline documentation MUST be written in English to minimize token consumption and maximize context efficiency.
@@ -63,15 +71,20 @@ Whenever the user refers to, asks for, or mentions **"domain pro"** (hoặc "dom
     - In native PowerShell, always set `-TimeoutSec`: `(Invoke-WebRequest -Uri "https://<domain>/api/v1/health" -TimeoutSec 15).Content`.
     - In Node.js / Playwright / scripts, always supply an abort signal: `fetch(url, { signal: AbortSignal.timeout(15000) })`.
     - Polling checks MUST NEVER loop indefinitely; cap polling at maximum 5 attempts with 15–20s backoff.
-- **Zero Premature Telegram Reporting Mandate (Quy chuẩn Chống Báo Cáo Nghiệm Thu Non & Cưỡng Chế Dev E2E Gate)**:
+- **Zero Premature Telegram Reporting Mandate (Quy chuẩn Chống Báo Cáo Nghiệm Thu Non & Cưỡng Chế 2-Tier Quality Gate: Test Local First -> Cloud Dev Gate)**:
   - Operating agents and background daemons (`neon-worker.mjs`) are STRICTLY FORBIDDEN from reporting task completion to Telegram or claiming "ĐÃ TEST DEV XONG" immediately upon Git push or local compile exit.
-  - A completion notification is ONLY permitted after fulfilling the full 5-stage closed verification pipeline:
-    1. **Submodule Git Push to `dev`** (`backend/`, `frontend/`, `root`).
-    2. **Cloud Deployment Readiness Wait**: Wait 45–60s for GitHub webhooks to trigger builds on Vercel & Render; poll Backend Dev Health (`/api/v1/health`) and Frontend Dev URL until responsive.
-    3. **Automated Playwright E2E Verification on Dev & Autonomous Self-Healing Retry (Max 3 Attempts)**: Execute the target test suite (`npx playwright test e2e/<spec> --project=chromium`) directly against live Dev endpoints (`PLAYWRIGHT_BASE_URL` & `API_URL`). If a failure occurs, the system initiates an autonomous RCA & fix loop (up to 3 retries) where AI analyzes the error, modifies code, rebuilds, pushes to `dev`, waits for redeployment, and re-tests.
-    4. **Cross-Evaluation Audit**: Validate the test suite with `node scripts/e2e-auditor.mjs` (score ≥ 40/50, 0 FAIL).
-    5. **Visual Evidence Verification**: Capture and attach real screenshot proof (`screenshot_*_verified.png`) uploaded directly via Telegram `sendPhoto`.
-  - If any E2E test continues to fail after exceeding 3 retries or deployment times out, only then MUST the task be flagged as `FAILED` (`DEV_E2E_FAILED`), alerting the team on Telegram with exact Playwright error traces and retry history, and never marked as `COMPLETED`.
+  - A completion notification is ONLY permitted after fulfilling the closed 2-Tier Verification Pipeline:
+    1. **Tầng 1: Test Local First (Chốt chặn máy trạm 0s chờ Cloud)**:
+       - Nếu máy chủ local đang chạy (`http://localhost:4000` & `http://localhost:4001`), bắt buộc kích hoạt Playwright E2E chạy trên Local trước (`PLAYWRIGHT_BASE_URL=http://localhost:4000`, `API_URL=http://localhost:4001/api/v1`).
+       - Cơ chế **Autonomous Local Self-Healing (Tối đa 3 lần retry)**: Khi test local thất bại, AI tự động phân tích root cause (RCA) và sửa code tại chỗ mà KHÔNG push git hoặc tốn thời gian chờ cloud deploy.
+       - Nếu sau 3 lần retry local vẫn thất bại: Dừng toàn bộ pipeline, KHÔNG commit/push code lỗi lên cloud, gửi cảnh báo `LOCAL_E2E_FAILED` về Telegram.
+    2. **Tầng 2: Cloud Dev Quality Gate (Railway Cloud Primary)**:
+       - Chỉ khi Tầng 1 PASS 100% (hoặc local servers offline), Worker mới thực hiện commit trực tiếp bên trong submodules (`backend/`, `frontend/`, `root`) và push lên nhánh `dev`.
+       - Chờ Railway Cloud build & deploy hoàn tất (Health check `backend-tms-core-dev.up.railway.app` & `frontend-tms-core-dev.up.railway.app`).
+       - Chạy Playwright E2E suite trực tiếp trên Domain Dev của Railway Cloud (hỗ trợ tối đa 3 lần retry cloud nếu có race condition môi trường mạng).
+    3. **Cross-Evaluation Audit**: Chạy đánh giá chéo qua `node scripts/e2e-auditor.mjs` (điểm đạt yêu cầu $\ge$ 40/50, 0 lỗi Auto-FAIL).
+    4. **Visual Evidence Verification**: Bắt buộc chụp ảnh màn hình bằng chứng thực tế (`screenshot_*_verified.png`) và gửi trực tiếp qua Telegram `sendPhoto`.
+  - Nếu bất kỳ tầng kiểm thử nào thất bại sau 3 lần retry hoặc deployment timeout, task BẮT BUỘC bị đánh dấu `FAILED` (`DEV_E2E_FAILED`), gửi toàn bộ log lỗi về Telegram và KHÔNG BAO GIỜ được báo `COMPLETED`.
 - **System Evolutionary Timeline & Technical Memory Mandate ("Biên Niên Sử & Ký Ức Kỹ Thuật Bất Biến")**:
   - Whenever completing any feedback, bug fix, or major architectural feature, operating agents MUST record technical documentation via `npm run todo:record <folder>` to generate [`RESOLUTION.md`](file:///d:/Projects/logistics-website/docs/SYSTEM_TIMELINE.md) and update [`docs/SYSTEM_TIMELINE.md`](file:///d:/Projects/logistics-website/docs/SYSTEM_TIMELINE.md).
   - When starting a new session or onboarding to unfamiliar modules, all AI agents MUST read `docs/SYSTEM_TIMELINE.md` and `CODEBASE_AUDIT.md` to establish context on existing capabilities, design decisions, and proven operational invariants.

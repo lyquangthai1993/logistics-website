@@ -24,11 +24,13 @@
 
 ## 🔗 QUICK REFERENCE — URLs quan trọng nhất
 
-| Môi trường | Frontend | Backend API |
-|---|---|---|
-| **Local Dev** | `http://localhost:3000` | `http://localhost:3001` |
-| **Dev / Preview** | https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app | https://logistics-website-backend-1jho.onrender.com |
-| **Production** | https://logistics-website-frontend-kappa.vercel.app | https://logistics-website-backend-1.onrender.com |
+| Môi trường | Frontend | Backend API | Nền tảng |
+|---|---|---|---|
+| **Railway DEV (Primary)** | https://frontend-tms-core-dev.up.railway.app | https://backend-tms-core-dev.up.railway.app | Railway Cloud |
+| **Railway PRO (Primary)** | https://frontend-tms-core-production.up.railway.app | https://backend-tms-core-production.up.railway.app | Railway Cloud |
+| **Dev / Preview (Secondary)** | https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app | https://logistics-website-backend-1jho.onrender.com | Vercel + Render |
+| **Production (Secondary)** | https://logistics-website-frontend-kappa.vercel.app | https://logistics-website-backend-1.onrender.com | Vercel + Render |
+| **Local Dev** | `http://localhost:3000` | `http://localhost:3001` | Local |
 
 ---
 

@@ -21,6 +21,9 @@ build/
 scratch/
 test-results/
 playwright-report/
+.claude/
+__pycache__/
+*.pyc
 
 # MCP (Model Context Protocol) config files – may contain API keys
 mcp.json

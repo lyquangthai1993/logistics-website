@@ -11,12 +11,12 @@ const API_BASE = `https://api.telegram.org/bot${BOT_TOKEN}`;
 const DEV_BUTTONS = {
   inline_keyboard: [
     [
-      { text: '🌐 Domain Dev', url: 'https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app' },
-      { text: '🌐 Domain Pro', url: 'https://logistics-website-frontend-kappa.vercel.app' },
+      { text: '🌐 Domain Dev', url: 'https://frontend-tms-core-dev.up.railway.app' },
+      { text: '🌐 Domain Pro', url: 'https://frontend-tms-core-production.up.railway.app' },
     ],
     [
-      { text: '📚 Swagger Dev', url: 'https://logistics-website-backend-1jho.onrender.com/docs' },
-      { text: '📚 Swagger Pro', url: 'https://logistics-website-backend-1.onrender.com/docs' },
+      { text: '📚 Swagger Dev', url: 'https://backend-tms-core-dev.up.railway.app/docs' },
+      { text: '📚 Swagger Pro', url: 'https://backend-tms-core-production.up.railway.app/docs' },
     ],
   ],
 };

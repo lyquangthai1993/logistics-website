@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import http from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { spawn, execSync } from 'node:child_process';
 import pg from 'pg';
@@ -46,12 +47,12 @@ const API_BASE = `https://api.telegram.org/bot${BOT_TOKEN}`;
 const TASK_ACTIONS_KEYBOARD = {
   inline_keyboard: [
     [
-      { text: '🌐 Mở Dev Web', url: 'https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app' },
-      { text: '🚀 Mở Pro Web', url: 'https://logistics-website-frontend-kappa.vercel.app' },
+      { text: '🌐 Mở Dev Web', url: 'https://frontend-tms-core-dev.up.railway.app' },
+      { text: '🚀 Mở Pro Web', url: 'https://frontend-tms-core-production.up.railway.app' },
     ],
     [
-      { text: '📚 Swagger Dev', url: 'https://logistics-website-backend-1jho.onrender.com/docs' },
-      { text: '📚 Swagger Pro', url: 'https://logistics-website-backend-1.onrender.com/docs' },
+      { text: '📚 Swagger Dev', url: 'https://backend-tms-core-dev.up.railway.app/docs' },
+      { text: '📚 Swagger Pro', url: 'https://backend-tms-core-production.up.railway.app/docs' },
     ],
   ],
 };
@@ -670,13 +671,13 @@ function findVerificationEvidence(feedbackDir) {
   return null;
 }
 
-// Chờ Vercel và Render hoàn tất build deploy trên môi trường Dev (anti-hang timeout)
+// Chờ Vercel và Railway hoàn tất build deploy trên môi trường Dev (anti-hang timeout)
 async function waitForDevDeployment(timeoutSec = 150, onProgress = null) {
-  const backendHealthUrl = 'https://logistics-website-backend-1jho.onrender.com/api/v1/health';
-  const frontendUrl = 'https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app';
+  const backendHealthUrl = 'https://backend-tms-core-dev.up.railway.app/api/v1/health';
+  const frontendUrl = 'https://frontend-tms-core-dev.up.railway.app';
 
   // Chờ 40s ban đầu cho GitHub webhook kích hoạt Cloud build
-  if (onProgress) await onProgress('Đang chờ GitHub webhook kích hoạt Vercel & Render build (40s)...');
+  if (onProgress) await onProgress('Đang chờ GitHub webhook kích hoạt Railway Cloud build (40s)...');
   await new Promise(r => setTimeout(r, 40000));
 
   const startTime = Date.now();
@@ -703,16 +704,53 @@ async function waitForDevDeployment(timeoutSec = 150, onProgress = null) {
   return { success: false, error: `Hết thời gian chờ Dev Deployment (${timeoutSec}s).` };
 }
 
-// Thực thi Playwright E2E suite trực tiếp trên Domain Dev
-async function runDevE2EVerification(feedbackDir, specRelPath) {
-  const frontendDir = path.join(WORKSPACE_DIR, 'frontend');
-  console.log(`[Dev E2E Quality Gate] Kích hoạt Playwright: ${specRelPath} trên Domain Dev...`);
+// Kiểm tra trạng thái máy chủ Local Dev (localhost:4000 & localhost:4001)
+async function checkLocalServers() {
+  const probe = (url, timeoutMs = 2500) => new Promise((resolve) => {
+    try {
+      const u = new URL(url);
+      const req = http.get({
+        hostname: u.hostname,
+        port: u.port,
+        path: u.pathname,
+        timeout: timeoutMs,
+      }, (res) => {
+        res.resume();
+        resolve(res.statusCode < 500);
+      });
+      req.on('error', () => resolve(false));
+      req.on('timeout', () => { req.destroy(); resolve(false); });
+    } catch {
+      resolve(false);
+    }
+  });
 
-  const env = {
-    ...process.env,
-    PLAYWRIGHT_BASE_URL: 'https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app',
-    API_URL: 'https://logistics-website-backend-1jho.onrender.com/api/v1'
-  };
+  const [feOk, beOk] = await Promise.all([
+    probe('http://127.0.0.1:4000/'),
+    probe('http://127.0.0.1:4001/docs').then(ok => ok ? true : probe('http://127.0.0.1:4001/api/v1'))
+  ]);
+
+  return { isRunning: feOk && beOk, feOk, beOk };
+}
+
+// Thực thi Playwright E2E suite trên Local (localhost:4000 & 4001) hoặc Cloud Dev (Railway)
+async function runPlaywrightVerification(feedbackDir, specRelPath, targetEnv = 'cloud') {
+  const isLocal = targetEnv === 'local';
+  const frontendDir = path.join(WORKSPACE_DIR, 'frontend');
+  const targetLabel = isLocal ? 'Local (localhost:4000 & 4001)' : 'Domain Dev (Railway Cloud)';
+  console.log(`[E2E Quality Gate - ${isLocal ? 'LOCAL' : 'CLOUD'}] Kích hoạt Playwright: ${specRelPath} trên ${targetLabel}...`);
+
+  const env = isLocal
+    ? {
+        ...process.env,
+        PLAYWRIGHT_BASE_URL: 'http://localhost:4000',
+        API_URL: 'http://localhost:4001/api/v1',
+      }
+    : {
+        ...process.env,
+        PLAYWRIGHT_BASE_URL: 'https://frontend-tms-core-dev.up.railway.app',
+        API_URL: 'https://backend-tms-core-dev.up.railway.app/api/v1',
+      };
 
   return new Promise((resolve) => {
     let stdout = '';
@@ -738,7 +776,7 @@ async function runDevE2EVerification(feedbackDir, specRelPath) {
     });
 
     testProc.on('close', (testExitCode) => {
-      console.log(`[Dev E2E Quality Gate] Playwright kết thúc với exitCode: ${testExitCode}`);
+      console.log(`[E2E Quality Gate - ${isLocal ? 'LOCAL' : 'CLOUD'}] Playwright kết thúc với exitCode: ${testExitCode}`);
 
       let auditScore = null;
       try {
@@ -750,7 +788,7 @@ async function runDevE2EVerification(feedbackDir, specRelPath) {
         const scoreMatch = auditOutput.match(/(\d+)\/50/);
         if (scoreMatch) auditScore = parseInt(scoreMatch[1], 10);
       } catch (err) {
-        console.warn('[Dev E2E Quality Gate] Lỗi chạy e2e-auditor:', err.message);
+        console.warn('[E2E Quality Gate] Lỗi chạy e2e-auditor:', err.message);
       }
 
       const evidencePath = findVerificationEvidence(feedbackDir);
@@ -761,7 +799,8 @@ async function runDevE2EVerification(feedbackDir, specRelPath) {
         stdout,
         stderr,
         auditScore,
-        evidencePath
+        evidencePath,
+        targetEnv
       });
     });
   });
@@ -801,18 +840,24 @@ function extractRecentPlaywrightErrorContext() {
 }
 
 // Xây dựng prompt chuyên biệt để AI tự động phân tích RCA và fix code sau khi Dev E2E fail
-function buildE2EAutoFixPrompt({ taskId, feedbackDir, specFile, attempt, maxAttempts, failDetails, errorContext }) {
+function buildE2EAutoFixPrompt({ taskId, feedbackDir, specFile, attempt, maxAttempts, failDetails, errorContext, targetEnv = 'cloud' }) {
   const relFeedback = path.relative(WORKSPACE_DIR, feedbackDir);
+  const isLocal = targetEnv === 'local';
+  const targetLabel = isLocal ? 'Local (localhost:4000 & 4001)' : 'Domain Dev (Railway Cloud)';
   const extraContextSection = errorContext
     ? `\n\nNỘI DUNG ERROR-CONTEXT.MD TỪ PLAYWRIGHT:\n\`\`\`markdown\n${errorContext}\n\`\`\``
     : '';
 
+  const step4Instruction = isLocal
+    ? `- Bước 4 (Xác nhận Local - KHÔNG CẦN PUSH GIT VỘI):\n  * Kiểm tra lại kết quả sửa đổi trực tiếp trên máy.\n  * Sau khi pass Local thì Worker mới tiến hành commit & push lên Cloud.`
+    : `- Bước 4 (Commit & Push lên dev):\n  * Commit trực tiếp bên trong submodule (backend/ và/hoặc frontend/) với message chuẩn Conventional Commits (ví dụ: fix(e2e): resolve test failure on dev retry ${attempt}).\n  * Push nhánh dev: git -C frontend push origin dev (và git -C backend push origin dev nếu có sửa backend).\n  * KHÔNG force push. Không sửa ngoài phạm vi task.`;
+
   return `
-BẮT BUỘC KÍCH HOẠT QUY TRÌNH TỰ ĐỘNG FIX LỖI E2E (SELF-HEALING RETRY VÒNG ${attempt}/${maxAttempts}):
+BẮT BUỘC KÍCH HOẠT QUY TRÌNH TỰ ĐỘNG FIX LỖI E2E (SELF-HEALING RETRY VÒNG ${attempt}/${maxAttempts} TRÊN ${targetLabel.toUpperCase()}):
 1. Bạn BẮT BUỘC đọc và tuân thủ file AGENTS.md và skill .agents/skills/todo-agent/SKILL.md tại workspace D:\\Projects\\logistics-website.
 
 2. BỐI CẢNH LỖI:
-- Task #${taskId} (Thư mục: ${relFeedback}) vừa chạy Playwright E2E kiểm thử trên Domain Dev nhưng THẤT BẠI ở vòng lặp thứ ${attempt}/${maxAttempts}.
+- Task #${taskId} (Thư mục: ${relFeedback}) vừa chạy Playwright E2E kiểm thử trên ${targetLabel} nhưng THẤT BẠI ở vòng lặp thứ ${attempt}/${maxAttempts}.
 - File test E2E mục tiêu: frontend/${specFile}
 - Chi tiết lỗi nhận được từ Playwright:
 \`\`\`
@@ -828,15 +873,12 @@ ${failDetails}
 - Bước 3 (Typecheck & Build Local):
   * Frontend: npx --prefix frontend tsc --noEmit
   * Backend (nếu có sửa): npm run build --prefix backend
-- Bước 4 (Commit & Push lên dev):
-  * Commit trực tiếp bên trong submodule (backend/ và/hoặc frontend/) với message chuẩn Conventional Commits (ví dụ: fix(e2e): resolve test failure on dev retry ${attempt}).
-  * Push nhánh dev: git -C frontend push origin dev (và git -C backend push origin dev nếu có sửa backend).
-  * KHÔNG force push. Không sửa ngoài phạm vi task.
+${step4Instruction}
 
 4. BÁO CÁO NGẮN GỌN KẾT QUẢ ĐÃ SỬA:
 - Liệt kê nguyên nhân gốc rễ (RCA).
 - Danh sách file đã sửa đổi.
-- Trạng thái commit và push lên nhánh dev.
+- Trạng thái kiểm tra mã nguồn.
 `.trim();
 }
 
@@ -1201,33 +1243,165 @@ async function executeAgyTask(task) {
         cleanOutput = cleanOutput.replace(/^(Tôi đã tiếp nhận.*?\n+|Chào bạn.*?\n+)/gi, '').trim();
         cleanOutput = cleanOutput.replace(/(\n+.*?(Bạn muốn thực hiện bước nào|Hệ thống đã sẵn sàng|Hệ thống đã được tối ưu|Chúc bạn|Nếu bạn cần thêm)[\s\S]*$)/gi, '').trim();
 
-        // NẾU LÀ TODO-AGENT MODE: KÍCH HOẠT DEV E2E QUALITY GATE TRƯỚC KHI BÁO CÁO TELEGRAM
+        // NẾU LÀ TODO-AGENT MODE: KÍCH HOẠT 2-TIER E2E QUALITY GATE (LOCAL FIRST -> CLOUD DEV)
         if (isTodoAgentMode) {
-          console.log(`[Task #${taskId}] Tiến trình sửa code hoàn tất. Kích hoạt Dev E2E Quality Gate...`);
+          console.log(`[Task #${taskId}] Tiến trình sửa code hoàn tất. Khởi động 2-Tier Quality Gate...`);
 
-          // 1. Cập nhật trạng thái DB và Telegram
+          // 1. Dò tìm spec E2E tương ứng
+          const specFile = detectTaskE2ESpec(feedbackDir, taskId);
+          console.log(`[Task #${taskId}] Detected E2E Spec: ${specFile || 'NONE'}`);
+
+          // 2. TẦNG 1: LOCAL-FIRST QUALITY GATE (Nếu Local Dev Servers đang bật trên laptop)
+          const localServers = await checkLocalServers();
+          let localPassed = false;
+
+          if (specFile && localServers.isRunning) {
+            console.log(`[Task #${taskId}] 🚀 [TẦNG 1] Phát hiện Local Servers (localhost:4000 & 4001). Bắt đầu kiểm thử Local First...`);
+            await pool.query(`UPDATE telegram_tasks SET status = 'VERIFYING_LOCAL' WHERE id = $1;`, [taskId]);
+
+            if (progressMsgId) {
+              await editTelegramMessage(
+                chatId,
+                progressMsgId,
+                `⏳ <b>[Task #${taskId}] TẦNG 1: KIỂM THỬ LOCAL FIRST...</b>\n\n` +
+                `🧪 <b>Suite:</b> <code>frontend/${escapeHtml(specFile)}</code>\n` +
+                `🎯 <b>Target:</b> <code>Local (localhost:4000 & 4001)</code>\n` +
+                `⚡ <i>Kiểm tra tức thì trên máy trước khi push lên Cloud...</i>`,
+                'HTML',
+                TASK_ACTIONS_KEYBOARD
+              );
+            }
+
+            let localResult = await runPlaywrightVerification(feedbackDir, specFile, 'local');
+            let localAttempt = 0;
+            const localRetryHistory = [];
+
+            while (!localResult.success && localAttempt < MAX_E2E_RETRIES) {
+              localAttempt++;
+              console.log(`\n⚠️ [Task #${taskId}] Local E2E FAIL lần ${localAttempt}/${MAX_E2E_RETRIES}. Kích hoạt Local Auto-Fix...`);
+
+              const cleanStderr = (localResult.stderr || '')
+                .replace(/^npm warn.*$/gim, '')
+                .replace(/^.*SECURITY WARNING.*$/gim, '')
+                .trim();
+              const failDetails = (cleanStderr || localResult.stdout || localResult.stderr || '').slice(-1200).trim();
+              const errorContext = extractRecentPlaywrightErrorContext();
+
+              localRetryHistory.push({
+                attempt: localAttempt,
+                exitCode: localResult.exitCode,
+                failSummary: failDetails.slice(-300)
+              });
+
+              if (progressMsgId) {
+                await editTelegramMessage(
+                  chatId,
+                  progressMsgId,
+                  `🔧 <b>[Task #${taskId}] LOCAL AUTO-FIX (Vòng ${localAttempt}/${MAX_E2E_RETRIES})...</b>\n\n` +
+                  `❌ <b>Lỗi E2E Local:</b> Exit code ${localResult.exitCode}\n` +
+                  `🤖 <i>AI đang phân tích RCA & tự động sửa code tại chỗ (0s chờ Cloud)...</i>`,
+                  'HTML',
+                  TASK_ACTIONS_KEYBOARD
+                );
+              }
+
+              const autoFixPrompt = buildE2EAutoFixPrompt({
+                taskId,
+                feedbackDir,
+                specFile,
+                attempt: localAttempt,
+                maxAttempts: MAX_E2E_RETRIES,
+                failDetails,
+                errorContext,
+                targetEnv: 'local'
+              });
+
+              await runAgyAutoFixSession({
+                prompt: autoFixPrompt,
+                chatId,
+                progressMsgId,
+                taskId,
+                attempt: localAttempt,
+                maxAttempts: MAX_E2E_RETRIES
+              });
+
+              localResult = await runPlaywrightVerification(feedbackDir, specFile, 'local');
+            }
+
+            if (localResult.success) {
+              localPassed = true;
+              console.log(`[Task #${taskId}] ✅ [TẦNG 1] E2E Local PASS 100%!`);
+              if (progressMsgId) {
+                await editTelegramMessage(
+                  chatId,
+                  progressMsgId,
+                  `✅ <b>[Task #${taskId}] TẦNG 1: E2E LOCAL PASS 100%!</b>\n\n` +
+                  `🧪 <b>Suite:</b> <code>frontend/${escapeHtml(specFile)}</code> (Local OK)\n` +
+                  `🚀 <i>Tiếp tục đồng bộ Git và kích hoạt Tầng 2 trên Railway Cloud Dev...</i>`,
+                  'HTML',
+                  TASK_ACTIONS_KEYBOARD
+                );
+              }
+            } else {
+              console.error(`[Task #${taskId}] ❌ [TẦNG 1] Local E2E thất bại sau ${MAX_E2E_RETRIES} lần retry.`);
+              const cleanStderr = (localResult.stderr || '')
+                .replace(/^npm warn.*$/gim, '')
+                .replace(/^.*SECURITY WARNING.*$/gim, '')
+                .trim();
+              const failDetails = (cleanStderr || localResult.stdout || localResult.stderr || '').slice(-1500).trim();
+              const failMsg =
+                `🔴 <b>[Task #${taskId}] LOCAL E2E THẤT BẠI (VƯỢT QUÁ ${MAX_E2E_RETRIES} LẦN RETRY)</b> <code>(⏱️ ${timeStr})</code>\n\n` +
+                `📁 <b>Thư mục:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
+                `🧪 <b>File Test:</b> <code>frontend/${escapeHtml(specFile)}</code>\n` +
+                `🎯 <b>Target:</b> <code>Local (localhost:4000 & 4001)</code>\n` +
+                `\n⚠️ <b>Lỗi chi tiết:</b>\n<pre>${escapeHtml(failDetails || 'Exit code non-zero')}</pre>\n\n` +
+                `🛑 <i>Dừng pipeline, KHÔNG push code lỗi lên nhánh dev Cloud.</i>`;
+              await sendTelegramMessage(chatId, failMsg, 'HTML', TASK_ACTIONS_KEYBOARD);
+              await pool.query(`UPDATE telegram_tasks SET status = 'DEV_E2E_FAILED', error = $1 WHERE id = $2;`, [failDetails.slice(0, 500), taskId]);
+              resolve({ success: false, taskId, reason: 'LOCAL_E2E_FAILED', error: failDetails });
+              return;
+            }
+          } else if (specFile && !localServers.isRunning) {
+            console.log(`[Task #${taskId}] ℹ️ Local Dev Servers offline (localhost:4000/4001). Bỏ qua Tầng 1, chuyển thẳng sang Tầng 2 (Railway Cloud)...`);
+          }
+
+          // 3. TẦNG 2: CLOUD DEV QUALITY GATE
+          // Tự động kiểm tra và push code lên nhánh dev
+          try {
+            const beStatus = execSync('git -C backend status -s', { cwd: WORKSPACE_DIR, encoding: 'utf8' }).trim();
+            if (beStatus) {
+              execSync('git -C backend add -A && git -C backend commit -m "fix(backend): auto-sync before dev gate" && git -C backend push origin dev', { cwd: WORKSPACE_DIR, stdio: 'ignore' });
+            }
+            const feStatus = execSync('git -C frontend status -s', { cwd: WORKSPACE_DIR, encoding: 'utf8' }).trim();
+            if (feStatus) {
+              execSync('git -C frontend add -A && git -C frontend commit -m "fix(frontend): auto-sync before dev gate" && git -C frontend push origin dev', { cwd: WORKSPACE_DIR, stdio: 'ignore' });
+            }
+          } catch (gitErr) {
+            console.warn('[Git Auto-Sync] Warning:', gitErr.message);
+          }
+
           await pool.query(`UPDATE telegram_tasks SET status = 'VERIFYING_DEV' WHERE id = $1;`, [taskId]);
           if (progressMsgId) {
             await editTelegramMessage(
               chatId,
               progressMsgId,
-              `⏳ <b>[Task #${taskId}] Code đã commit & push lên Dev!</b>\n\n` +
-              `🚀 <b>Trạng thái:</b> <i>Đang chờ Vercel & Render build deploy và chuẩn bị chạy Playwright E2E Suite...</i>`,
+              `⏳ <b>[Task #${taskId}] TẦNG 2: CLOUD DEV QUALITY GATE...</b>\n\n` +
+              `🚀 <b>Trạng thái:</b> <i>Đang chờ Railway Cloud build deploy và chuẩn bị chạy Playwright E2E Suite...</i>`,
               'HTML',
               TASK_ACTIONS_KEYBOARD
             );
           }
 
-          // 2. Chờ Dev Deployment sẵn sàng (khoảng 40s - 90s)
+          // Chờ Dev Deployment sẵn sàng (khoảng 40s - 90s)
           const deployRes = await waitForDevDeployment(150, async (msg) => {
             if (progressMsgId) {
               await editTelegramMessage(
                 chatId,
                 progressMsgId,
-                `⏳ <b>[Task #${taskId}] DEV QUALITY GATE ĐANG XỬ LÝ...</b>\n\n` +
+                `⏳ <b>[Task #${taskId}] TẦNG 2: CLOUD DEV ĐANG DEPLOY...</b>\n\n` +
                 `🔄 <i>${escapeHtml(msg)}</i>\n` +
-                `🌐 Backend Dev: <code>logistics-website-backend-1jho</code>\n` +
-                `🌐 Frontend Dev: <code>logistics-website-frontend-git-dev</code>`,
+                `🌐 Backend Dev: <code>backend-tms-core-dev</code>\n` +
+                `🌐 Frontend Dev: <code>frontend-tms-core-dev</code>`,
                 'HTML',
                 TASK_ACTIONS_KEYBOARD
               );
@@ -1238,7 +1412,7 @@ async function executeAgyTask(task) {
             console.error(`[Task #${taskId}] Dev Deployment wait failed:`, deployRes.error);
             const deployFailMsg =
               `⚠️ <b>[Task #${taskId}] CẢNH BÁO: DEV DEPLOYMENT TIMEOUT</b>\n\n` +
-              `Mã nguồn đã được push lên nhánh <code>dev</code>, nhưng server Dev (Render/Vercel) chưa phản hồi trạng thái sẵn sàng trong thời gian quy định.\n` +
+              `Mã nguồn đã được push lên nhánh <code>dev</code>, nhưng server Dev (Railway Cloud) chưa phản hồi trạng thái sẵn sàng trong thời gian quy định.\n` +
               `Lỗi: <code>${escapeHtml(deployRes.error)}</code>`;
             await sendTelegramMessage(chatId, deployFailMsg, 'HTML', TASK_ACTIONS_KEYBOARD);
             await pool.query(`UPDATE telegram_tasks SET status = 'DEV_DEPLOY_TIMEOUT', error = $1 WHERE id = $2;`, [deployRes.error, taskId]);
@@ -1246,25 +1420,21 @@ async function executeAgyTask(task) {
             return;
           }
 
-          // 3. Tự động tìm file Playwright E2E spec tương ứng
-          const specFile = detectTaskE2ESpec(feedbackDir, taskId);
-          console.log(`[Task #${taskId}] Detected E2E Spec: ${specFile || 'NONE'}`);
-
           if (specFile) {
             if (progressMsgId) {
               await editTelegramMessage(
                 chatId,
                 progressMsgId,
-                `⏳ <b>[Task #${taskId}] Đang chạy Playwright E2E trên Domain Dev...</b>\n\n` +
+                `⏳ <b>[Task #${taskId}] Đang chạy Playwright E2E trên Railway Cloud Dev...</b>\n\n` +
                 `🧪 <b>Suite:</b> <code>frontend/${escapeHtml(specFile)}</code>\n` +
-                `🎯 <b>Target:</b> <code>Vercel Dev & Render Dev</code>`,
+                `🎯 <b>Target:</b> <code>Railway Cloud Dev</code>`,
                 'HTML',
                 TASK_ACTIONS_KEYBOARD
               );
             }
 
-            // 4. Chạy Playwright E2E trên Domain Dev kèm cơ chế Auto-Fix Retry Loop (Tối đa MAX_E2E_RETRIES vòng lặp)
-            let e2eResult = await runDevE2EVerification(feedbackDir, specFile);
+            // Chạy Playwright E2E trên Domain Dev kèm cơ chế Auto-Fix Retry Loop (Tối đa MAX_E2E_RETRIES vòng lặp)
+            let e2eResult = await runPlaywrightVerification(feedbackDir, specFile, 'cloud');
             let e2eAttempt = 0;
             const retryHistory = [];
 
@@ -1346,12 +1516,12 @@ async function executeAgyTask(task) {
                   progressMsgId,
                   `⏳ <b>[Task #${taskId}] Đang chạy lại Playwright E2E (Vòng ${e2eAttempt}/${MAX_E2E_RETRIES})...</b>\n\n` +
                   `🧪 <b>Suite:</b> <code>frontend/${escapeHtml(specFile)}</code>\n` +
-                  `🎯 <b>Target:</b> <code>Vercel Dev & Render Dev</code>`,
+                  `🎯 <b>Target:</b> <code>Railway Cloud Dev</code>`,
                   'HTML',
                   TASK_ACTIONS_KEYBOARD
                 );
               }
-              e2eResult = await runDevE2EVerification(feedbackDir, specFile);
+              e2eResult = await runPlaywrightVerification(feedbackDir, specFile, 'cloud');
             }
 
             // NẾU SAU MAX_E2E_RETRIES LẦN VẪN THẤT BẠI: BÁO CÁO TELEGRAM & ĐÁNH DẤU FAILED
@@ -1405,12 +1575,17 @@ async function executeAgyTask(task) {
               ? `• <b>Trạng thái Self-Healing:</b> 🔄 Tự động fix & vượt qua sau ${e2eAttempt}/${MAX_E2E_RETRIES} lần retry\n`
               : '';
 
+            const localPassedNote = localPassed
+              ? `• <b>Giai đoạn 1 (Local First):</b> ✅ PASS 100% (localhost:4000 & 4001)\n• <b>Giai đoạn 2 (Cloud Gate):</b> ✅ PASS 100% (Railway Cloud Dev)\n`
+              : `• <b>Môi trường kiểm thử:</b> Domain Dev (Railway Cloud)\n`;
+
             cleanOutput =
-              `🟢 <b>THÔNG BÁO: ĐÃ TEST DEV XONG (E2E & ĐÁNH GIÁ CHÉO PASS 100%)</b>\n\n` +
-              `• <b>Playwright E2E Test:</b> <code>${escapeHtml(specFile)}</code> (✅ PASS 100% trên Dev)\n` +
+              `🟢 <b>THÔNG BÁO: ĐÃ TEST DEV XONG (2-TIER E2E & ĐÁNH GIÁ CHÉO PASS 100%)</b>\n\n` +
+              `• <b>Playwright E2E Test:</b> <code>${escapeHtml(specFile)}</code>\n` +
+              localPassedNote +
               retryNote +
               (e2eResult.auditScore ? `• <b>Điểm Audit E2E:</b> <b>${e2eResult.auditScore}/50</b> PASS\n` : '') +
-              `• <b>Môi trường kiểm thử:</b> Domain Dev (Vercel & Render)\n\n` +
+              `\n` +
               cleanOutput;
           } else {
             console.warn(`[Task #${taskId}] Không tìm thấy file E2E spec riêng biệt cho task.`);

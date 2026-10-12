@@ -58,9 +58,12 @@ Every response must open with a direct status badge and a 1-sentence verdict on 
 - **Enforcement**: State the facts, present the evidence, and **STOP IMMEDIATELY**.
 
 ### Rule 5: Domain & Git Context Awareness
-- Always refer to canonical environments from `AGENTS.md`:
-  - **Dev Frontend**: `https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app` (branch `dev`)
-  - **Dev Backend**: `https://logistics-website-backend-1jho.onrender.com` (branch `dev`)
+- Always refer to canonical environments from `AGENTS.md` (Railway Cloud is PRIMARY):
+  - **Dev Frontend (Primary)**: `https://frontend-tms-core-dev.up.railway.app` (branch `dev`)
+  - **Dev Backend (Primary)**: `https://backend-tms-core-dev.up.railway.app` (branch `dev`)
+  - **Pro Frontend (Primary)**: `https://frontend-tms-core-production.up.railway.app` (branch `master`)
+  - **Pro Backend (Primary)**: `https://backend-tms-core-production.up.railway.app` (branch `master`)
+  - *Secondary / Fallback*: Vercel (`logistics-website-frontend-git-dev-thai-lys-projects.vercel.app`) & Render (`logistics-website-backend-1jho.onrender.com`)
 - Report Git status cleanly across the 3 independent repositories (`root`, `backend/`, `frontend/`):
   - Mention current active branch (`dev` / `feature/...`).
   - Mention commit short hash (`git rev-parse --short HEAD`).

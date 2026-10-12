@@ -1,0 +1,184 @@
+{
+  "name": "Strapi Webhook - Admission & Articles Flow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "strapi-events",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "id": "0194e82b-8a8f-4318-912a-0a2a4ffc0001",
+      "name": "Strapi Webhook",
+      "webhookId": "strapi-events"
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.model }}",
+                    "rightValue": "book-a-visit",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "leftValue": "={{ $json.body.model }}",
+                    "rightValue": "apply-submission",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "Thông báo tuyển sinh"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.model }}",
+                    "rightValue": "article",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "leftValue": "={{ $json.body.model }}",
+                    "rightValue": "news",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "Thông báo bài viết mới"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [260, 0],
+      "id": "0194e82b-8a8f-4318-912a-0a2a4ffc0002",
+      "name": "Switch: Phân loại Model"
+    },
+    {
+      "parameters": {
+        "resource": "text",
+        "operation": "message",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-flash-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-flash-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "user",
+              "content": "=Hãy đóng vai trợ lý tuyển sinh trường quốc tế King's College School. Hãy tóm tắt ngắn gọn, đầy đủ và chuyên nghiệp thông tin đăng ký tham quan trường (Book-a-visit) sau đây:\n\n1. THÔNG TIN PHỤ HUYNH:\n- Họ tên: {{ $json.body.entry.last_name || '' }} {{ $json.body.entry.first_name || '' }} {{ $json.body.entry.parents && $json.body.entry.parents[0] ? '(' + ($json.body.entry.parents[0].relationship || 'Phụ huynh') + ')' : '' }}\n- Số điện thoại: {{ $json.body.entry.phone || 'Chưa cung cấp' }}\n- Email: {{ $json.body.entry.email || 'Chưa cung cấp' }}\n\n2. THÔNG TIN HỌC SINH:\n- Họ tên học sinh: {{ $json.body.entry.students && $json.body.entry.students[0] ? ($json.body.entry.students[0].last_name + ' ' + $json.body.entry.students[0].first_name) : 'Chưa có' }}\n- Ngày sinh: {{ $json.body.entry.students && $json.body.entry.students[0] ? $json.body.entry.students[0].date_of_birth : 'N/A' }}\n- Giới tính & Quốc tịch: {{ $json.body.entry.students && $json.body.entry.students[0] ? ($json.body.entry.students[0].gender + ' - ' + $json.body.entry.students[0].nationality) : 'N/A' }}\n\n3. LỊCH THAM QUAN:\n- Ngày giờ hẹn: {{ $json.body.entry.metadata ? ($json.body.entry.metadata.visit_date + ' lúc ' + $json.body.entry.metadata.visit_time) : 'N/A' }}\n- Hình thức: {{ $json.body.entry.metadata ? $json.body.entry.metadata.preferred_visit_type : 'Trực tiếp' }}\n- Người tiếp đón (Host): {{ $json.body.entry.host || ($json.body.entry.metadata ? $json.body.entry.metadata.host : 'Chưa chỉ định') }}\n- Kênh biết đến trường: {{ $json.body.entry.metadata && $json.body.entry.metadata.how_did_you_hear ? $json.body.entry.metadata.how_did_you_hear.join(', ') : 'N/A' }}\n\nYêu cầu tóm tắt:\n- Trình bày dạng Markdown đẹp mắt, chuẩn văn phong tuyển sinh trường quốc tế.\n- Đưa ra 1-2 lưu ý chuẩn bị đón tiếp cho bộ phận Admissions."
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [560, -100],
+      "id": "0194e82b-8a8f-4318-912a-0a2a4ffc0003",
+      "name": "Google Gemini: Tóm tắt tuyển sinh",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\n\n// 1. Trích xuất nội dung tóm tắt từ Gemini\nconst item = $input.first().json;\nlet summaryText = '';\n\nif (item.content && item.content.parts && Array.isArray(item.content.parts)) {\n  summaryText = item.content.parts.map(p => p.text || '').join('');\n} else if (item.text) {\n  summaryText = item.text;\n} else if (item.mergedResponse) {\n  summaryText = item.mergedResponse;\n} else {\n  summaryText = typeof item === 'string' ? item : JSON.stringify(item, null, 2);\n}\n\n// 2. Lấy thông tin họ tên từ Webhook ban đầu\nconst entry = $('Strapi Webhook').first().json.body.entry;\nconst firstName = (entry.first_name || 'unknown').trim();\nconst lastName = (entry.last_name || '').trim();\n\n// 3. Tạo tên file dạng first_name+last_name+'.txt'\nconst safeFirst = firstName.replace(/[^a-zA-Z0-9_\\u00C0-\\u1EF9]/g, '_');\nconst safeLast = lastName.replace(/[^a-zA-Z0-9_\\u00C0-\\u1EF9]/g, '_');\nconst fileName = safeLast ? `${safeFirst}_${safeLast}.txt` : `${safeFirst}.txt`;\n\n// 4. Đường dẫn lưu file vật lý (được mount tới D:\\Projects\\it-maeducation\\book-a-visit)\nconst targetPath = `/data/book-a-visit/${fileName}`;\n\nfs.writeFileSync(targetPath, summaryText, 'utf8');\n\nreturn [{\n  json: {\n    success: true,\n    fileName: fileName,\n    savedAt: `D:\\\\Projects\\\\it-maeducation\\\\book-a-visit\\\\${fileName}`,\n    fileSize: summaryText.length,\n    content: summaryText\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [860, -100],
+      "id": "0194e82b-8a8f-4318-912a-0a2a4ffc0005",
+      "name": "Ghi file vật lý (.txt)"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [560, 100],
+      "id": "0194e82b-8a8f-4318-912a-0a2a4ffc0004",
+      "name": "Thông báo bài viết mới"
+    }
+  ],
+  "connections": {
+    "Strapi Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch: Phân loại Model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch: Phân loại Model": {
+      "main": [
+        [
+          {
+            "node": "Google Gemini: Tóm tắt tuyển sinh",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Thông báo bài viết mới",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini: Tóm tắt tuyển sinh": {
+      "main": [
+        [
+          {
+            "node": "Ghi file vật lý (.txt)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

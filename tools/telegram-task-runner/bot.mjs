@@ -357,8 +357,8 @@ const TASK_ACTIONS_KEYBOARD = {
       { text: '🩺 Health Check', callback_data: '/health' },
     ],
     [
-      { text: '🌐 Mở Dev Web', url: 'https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app' },
-      { text: '🚀 Mở Pro Web', url: 'https://logistics-website-frontend-kappa.vercel.app' },
+      { text: '🌐 Mở Dev Web', url: 'https://frontend-tms-core-dev.up.railway.app' },
+      { text: '🚀 Mở Pro Web', url: 'https://frontend-tms-core-production.up.railway.app' },
     ],
   ],
 };
@@ -568,33 +568,33 @@ async function checkSystemHealth(chatId) {
     {
       env: 'Dev',
       type: 'Frontend',
-      name: 'Frontend Dev (Vercel)',
-      url: 'https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app',
-      linkUrl: 'https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app',
+      name: 'Frontend Dev (Railway)',
+      url: 'https://frontend-tms-core-dev.up.railway.app',
+      linkUrl: 'https://frontend-tms-core-dev.up.railway.app',
       branch: 'dev',
     },
     {
       env: 'Dev',
       type: 'Backend',
-      name: 'Backend Dev (Render)',
-      url: 'https://logistics-website-backend-1jho.onrender.com/',
-      linkUrl: 'https://logistics-website-backend-1jho.onrender.com/docs',
+      name: 'Backend Dev (Railway)',
+      url: 'https://backend-tms-core-dev.up.railway.app/',
+      linkUrl: 'https://backend-tms-core-dev.up.railway.app/docs',
       branch: 'dev',
     },
     {
       env: 'Pro',
       type: 'Frontend',
-      name: 'Frontend Pro (Vercel)',
-      url: 'https://logistics-website-frontend-kappa.vercel.app',
-      linkUrl: 'https://logistics-website-frontend-kappa.vercel.app',
+      name: 'Frontend Pro (Railway)',
+      url: 'https://frontend-tms-core-production.up.railway.app',
+      linkUrl: 'https://frontend-tms-core-production.up.railway.app',
       branch: 'master',
     },
     {
       env: 'Pro',
       type: 'Backend',
-      name: 'Backend Pro (Render)',
-      url: 'https://logistics-website-backend-1.onrender.com/',
-      linkUrl: 'https://logistics-website-backend-1.onrender.com/docs',
+      name: 'Backend Pro (Railway)',
+      url: 'https://backend-tms-core-production.up.railway.app/',
+      linkUrl: 'https://backend-tms-core-production.up.railway.app/docs',
       branch: 'master',
     },
   ];
@@ -672,8 +672,8 @@ async function checkSystemHealth(chatId) {
         { text: '📊 Git Status', callback_data: '/status' },
       ],
       [
-        { text: '🌐 Mở Dev Web', url: 'https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app' },
-        { text: '🚀 Mở Pro Web', url: 'https://logistics-website-frontend-kappa.vercel.app' },
+        { text: '🌐 Mở Dev Web', url: 'https://frontend-tms-core-dev.up.railway.app' },
+        { text: '🚀 Mở Pro Web', url: 'https://frontend-tms-core-production.up.railway.app' },
       ],
       [
         { text: '⚡ Xem Log', callback_data: '/log' },
@@ -908,7 +908,7 @@ function buildTaskPrompt(rawPrompt, imagePaths = [], taskMode = 'task') {
   let promptText = `
 BẮT BUỘC KÍCH HOẠT VAI TRÒ TMS DOMAIN LEAD:
 1. Bạn BẮT BUỘC đọc và tuân thủ file AGENTS.md, skill .agents/skills/leader/SKILL.md và skill .agents/skills/telegram-task-responder/SKILL.md tại workspace c:\\Projects\\logistics-website.
-2. Bạn đóng vai trò là Leader / Kỹ sư trưởng của hệ thống Logistics TMS (Spider Express). Mọi thông tin về môi trường Dev/Pro (Domain Dev: Vercel https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app, Render https://logistics-website-backend-1jho.onrender.com, Swagger https://logistics-website-backend-1jho.onrender.com/docs), Git submodules, RBAC, và quy tắc nghiệp vụ đều nằm trong AGENTS.md và skill leader.
+2. Bạn đóng vai trò là Leader / Kỹ sư trưởng của hệ thống Logistics TMS (Spider Express). Mọi thông tin về môi trường Dev/Pro (Domain Dev: Railway https://frontend-tms-core-dev.up.railway.app, https://backend-tms-core-dev.up.railway.app, Swagger https://backend-tms-core-dev.up.railway.app/docs), Git submodules, RBAC, và quy tắc nghiệp vụ đều nằm trong AGENTS.md và skill leader.
 3. TUYỆT ĐỐI KHÔNG CHÀO HỎI VU VƠ, KHÔNG NÉ TRÁNH, KHÔNG TRẢ LỜI KIỂU CHATBOT LÝ THUYẾT ("Chào bạn tôi có thể giúp gì...").
 4. BẮT TAY THỰC THI NGAY: Hãy sử dụng các công cụ trong workspace (chạy lệnh powershell/curl để test kết nối, đọc file mã nguồn, sửa file code, chạy test) để giải quyết dứt điểm yêu cầu dưới đây:
 ${modeSpecificPrompt}
@@ -1692,7 +1692,7 @@ async function handleMessage(msg) {
       `📁 <code>/diff</code>\n` +
       `<i>Xem thống kê các dòng code vừa sửa gần nhất (git diff --stat).</i>\n\n` +
       `🩺 <code>/health</code> (hoặc <code>/ping</code>)\n` +
-      `<i>Kiểm tra kết nối và độ trễ 4 server Dev & Pro (Vercel + Render).</i>\n\n` +
+      `<i>Kiểm tra kết nối và độ trễ 4 server Dev & Pro (Railway Cloud).</i>\n\n` +
       `🚀 <code>/proweb</code> (hoặc <code>/pro</code>)\n` +
       `<i>Mở nhanh link Web Production (Pro) & Swagger API Docs.</i>\n\n` +
       `🌐 <code>/devweb</code> (hoặc <code>/dev</code>)\n` +
@@ -1890,20 +1890,20 @@ async function handleMessage(msg) {
 
   if (text.startsWith('/proweb') || text === '/pro' || text.toLowerCase() === 'mở pro web') {
     const proMsg =
-      `🚀 <b>MÔI TRƯỜNG PRODUCTION (PRO)</b>\n\n` +
-      `🌐 <b>Frontend (Vercel):</b>\n<a href="https://logistics-website-frontend-kappa.vercel.app">https://logistics-website-frontend-kappa.vercel.app</a>\n\n` +
-      `⚙️ <b>Backend (Render):</b>\n<a href="https://logistics-website-backend-1.onrender.com">https://logistics-website-backend-1.onrender.com</a>\n\n` +
-      `📚 <b>Swagger Docs:</b>\n<a href="https://logistics-website-backend-1.onrender.com/docs">https://logistics-website-backend-1.onrender.com/docs</a>\n\n` +
+      `🚀 <b>MÔI TRƯỜNG PRODUCTION (PRO) - RAILWAY CLOUD</b>\n\n` +
+      `🌐 <b>Frontend (Railway):</b>\n<a href="https://frontend-tms-core-production.up.railway.app">https://frontend-tms-core-production.up.railway.app</a>\n\n` +
+      `⚙️ <b>Backend (Railway):</b>\n<a href="https://backend-tms-core-production.up.railway.app">https://backend-tms-core-production.up.railway.app</a>\n\n` +
+      `📚 <b>Swagger Docs:</b>\n<a href="https://backend-tms-core-production.up.railway.app/docs">https://backend-tms-core-production.up.railway.app/docs</a>\n\n` +
       `<i>Nhánh Git: <code>master</code></i>`;
 
     await sendTelegramMessage(chatId, proMsg, 'HTML', {
       inline_keyboard: [
         [
-          { text: '🚀 Mở Pro Web', url: 'https://logistics-website-frontend-kappa.vercel.app' },
-          { text: '📚 Swagger Pro', url: 'https://logistics-website-backend-1.onrender.com/docs' },
+          { text: '🚀 Mở Pro Web', url: 'https://frontend-tms-core-production.up.railway.app' },
+          { text: '📚 Swagger Pro', url: 'https://backend-tms-core-production.up.railway.app/docs' },
         ],
         [
-          { text: '🌐 Mở Dev Web', url: 'https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app' },
+          { text: '🌐 Mở Dev Web', url: 'https://frontend-tms-core-dev.up.railway.app' },
           { text: '📊 Git Status', callback_data: '/status' },
         ],
       ],
@@ -1913,20 +1913,20 @@ async function handleMessage(msg) {
 
   if (text.startsWith('/devweb') || text === '/dev' || text.toLowerCase() === 'mở dev web') {
     const devMsg =
-      `🌐 <b>MÔI TRƯỜNG DEVELOPMENT (DEV)</b>\n\n` +
-      `🌐 <b>Frontend (Vercel):</b>\n<a href="https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app">https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app</a>\n\n` +
-      `⚙️ <b>Backend (Render):</b>\n<a href="https://logistics-website-backend-1jho.onrender.com">https://logistics-website-backend-1jho.onrender.com</a>\n\n` +
-      `📚 <b>Swagger Docs:</b>\n<a href="https://logistics-website-backend-1jho.onrender.com/docs">https://logistics-website-backend-1jho.onrender.com/docs</a>\n\n` +
+      `🌐 <b>MÔI TRƯỜNG DEVELOPMENT (DEV) - RAILWAY CLOUD</b>\n\n` +
+      `🌐 <b>Frontend (Railway):</b>\n<a href="https://frontend-tms-core-dev.up.railway.app">https://frontend-tms-core-dev.up.railway.app</a>\n\n` +
+      `⚙️ <b>Backend (Railway):</b>\n<a href="https://backend-tms-core-dev.up.railway.app">https://backend-tms-core-dev.up.railway.app</a>\n\n` +
+      `📚 <b>Swagger Docs:</b>\n<a href="https://backend-tms-core-dev.up.railway.app/docs">https://backend-tms-core-dev.up.railway.app/docs</a>\n\n` +
       `<i>Nhánh Git: <code>dev</code></i>`;
 
     await sendTelegramMessage(chatId, devMsg, 'HTML', {
       inline_keyboard: [
         [
-          { text: '🌐 Mở Dev Web', url: 'https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app' },
-          { text: '📚 Swagger Dev', url: 'https://logistics-website-backend-1jho.onrender.com/docs' },
+          { text: '🌐 Mở Dev Web', url: 'https://frontend-tms-core-dev.up.railway.app' },
+          { text: '📚 Swagger Dev', url: 'https://backend-tms-core-dev.up.railway.app/docs' },
         ],
         [
-          { text: '🚀 Mở Pro Web', url: 'https://logistics-website-frontend-kappa.vercel.app' },
+          { text: '🚀 Mở Pro Web', url: 'https://frontend-tms-core-production.up.railway.app' },
           { text: '📊 Git Status', callback_data: '/status' },
         ],
       ],

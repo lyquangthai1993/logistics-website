@@ -1,0 +1,218 @@
+{
+  "name": "Logistics TMS - Events Router & Notification Hub",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "logistics-events",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "id": "tms-events-webhook",
+      "name": "Logistics Events Webhook",
+      "webhookId": "logistics-events"
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body?.event }}",
+                    "rightValue": "order",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "Sự kiện Đơn hàng"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body?.event }}",
+                    "rightValue": "trip",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "Sự kiện Chuyến xe"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body?.event }}",
+                    "rightValue": "inventory",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "Sự kiện Kho bãi"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [260, 0],
+      "id": "tms-switch-router",
+      "name": "Switch: Phân loại Event"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json.body?.data || {};\nconst event = $input.first().json.body?.event || 'order.updated';\nconst text = `📦 <b>CẬP NHẬT ĐƠN HÀNG TMS</b>\\n\\n` +\n  `• <b>Sự kiện:</b> <code>${event}</code>\\n` +\n  `• <b>Mã vận đơn:</b> <code>${data.orderCode || 'N/A'}</code>\\n` +\n  `• <b>Trạng thái:</b> ${data.status || 'Đang xử lý'}\\n` +\n  `• <b>Người gửi:</b> ${data.senderName || 'N/A'}\\n` +\n  `• <b>Người nhận:</b> ${data.receiverName || 'N/A'}\\n` +\n  `• <b>Cước phí:</b> ${data.totalFee ? Number(data.totalFee).toLocaleString('vi-VN') + ' đ' : 'N/A'}\\n\\n` +\n  `⏰ <i>${new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</i>`;\n\nreturn [{ json: { chat_id: '-5509877448', text, parse_mode: 'HTML' } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [560, -120],
+      "id": "format-order-alert",
+      "name": "Format: Tin Đơn hàng"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json.body?.data || {};\nconst event = $input.first().json.body?.event || 'trip.dispatched';\nconst text = `🚚 <b>ĐIỀU PHỐI CHUYẾN XE TMS</b>\\n\\n` +\n  `• <b>Sự kiện:</b> <code>${event}</code>\\n` +\n  `• <b>Mã chuyến:</b> <code>${data.tripCode || 'N/A'}</code>\\n` +\n  `• <b>Biển số xe:</b> <code>${data.licensePlate || 'N/A'}</code>\\n` +\n  `• <b>Tài xế:</b> ${data.driverName || 'N/A'}\\n` +\n  `• <b>Tuyến đường:</b> ${data.originHub || 'Kho xuất'} ➔ ${data.destinationHub || 'Kho đích'}\\n` +\n  `• <b>Số lượng kiện:</b> ${data.packageCount || 0} kiện\\n\\n` +\n  `⏰ <i>${new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</i>`;\n\nreturn [{ json: { chat_id: '-5509877448', text, parse_mode: 'HTML' } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [560, 0],
+      "id": "format-trip-alert",
+      "name": "Format: Tin Chuyến xe"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json.body?.data || {};\nconst event = $input.first().json.body?.event || 'inventory.inbound';\nconst text = `🏢 <b>VẬN HÀNH KHO BÃI TMS</b>\\n\\n` +\n  `• <b>Sự kiện:</b> <code>${event}</code>\\n` +\n  `• <b>Kho / Hub:</b> ${data.hubName || 'Hub trung tâm'}\\n` +\n  `• <b>Loại nghiệp vụ:</b> ${data.transactionType || 'Nhập / Xuất kho'}\\n` +\n  `• <b>Mã đơn / Phiếu:</b> <code>${data.orderCode || data.invoiceCode || 'N/A'}</code>\\n` +\n  `• <b>Số kiện xử lý:</b> ${data.quantity || 0} kiện\\n\\n` +\n  `⏰ <i>${new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</i>`;\n\nreturn [{ json: { chat_id: '-5509877448', text, parse_mode: 'HTML' } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [560, 120],
+      "id": "format-inventory-alert",
+      "name": "Format: Tin Kho bãi"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot8676574641:AAGKfr1V4sZVA4DSooyIvfziggvUGS-7HyE/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": \"{{ $json.chat_id }}\",\n  \"text\": \"{{ $json.text }}\",\n  \"parse_mode\": \"HTML\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [860, 0],
+      "id": "telegram-router-dispatch",
+      "name": "Bắn tin Telegram"
+    }
+  ],
+  "connections": {
+    "Logistics Events Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch: Phân loại Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch: Phân loại Event": {
+      "main": [
+        [
+          {
+            "node": "Format: Tin Đơn hàng",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format: Tin Chuyến xe",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format: Tin Kho bãi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format: Tin Đơn hàng": {
+      "main": [
+        [
+          {
+            "node": "Bắn tin Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format: Tin Chuyến xe": {
+      "main": [
+        [
+          {
+            "node": "Bắn tin Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format: Tin Kho bãi": {
+      "main": [
+        [
+          {
+            "node": "Bắn tin Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

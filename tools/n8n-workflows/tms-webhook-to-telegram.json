@@ -1,0 +1,94 @@
+{
+  "name": "Logistics TMS - Webhook to Telegram Alert",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "tms-alert",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300],
+      "id": "tms-webhook-trigger",
+      "name": "TMS Webhook Trigger",
+      "webhookId": "tms-alert"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || {};\nconst title = body.title || '🚨 THÔNG BÁO VẬN HÀNH TMS';\nconst message = body.message || 'Có cập nhật mới từ hệ thống điều phối.';\nconst orderCode = body.orderCode ? `📦 <b>Mã đơn:</b> <code>${body.orderCode}</code>\\n` : '';\nconst tripCode = body.tripCode ? `🚚 <b>Chuyến xe:</b> <code>${body.tripCode}</code>\\n` : '';\nconst hub = body.hub ? `🏢 <b>Bưu cục / Hub:</b> ${body.hub}\\n` : '';\nconst time = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });\n\nconst formattedText = `<b>${title}</b>\\n\\n${message}\\n\\n${orderCode}${tripCode}${hub}⏰ <i>Thời gian: ${time}</i>`;\n\nreturn [{\n  json: {\n    chat_id: body.chat_id || '-5509877448',\n    text: formattedText,\n    parse_mode: 'HTML'\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300],
+      "id": "format-telegram-message",
+      "name": "Format Telegram Message"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot8676574641:AAGKfr1V4sZVA4DSooyIvfziggvUGS-7HyE/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": \"{{ $json.chat_id }}\",\n  \"text\": \"{{ $json.text }}\",\n  \"parse_mode\": \"HTML\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300],
+      "id": "http-send-telegram",
+      "name": "HTTP - Send to Telegram"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Thông báo đã được n8n gửi tới Telegram thành công!\",\n  \"timestamp\": \"={{ new Date().toISOString() }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [920, 300],
+      "id": "tms-respond-webhook",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "connections": {
+    "TMS Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Format Telegram Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Telegram Message": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Send to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Send to Telegram": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

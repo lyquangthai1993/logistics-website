@@ -47,6 +47,7 @@ flowchart LR
 3. **Does it respect the Real Database Mandate** (zero fake mocked backend routes, dynamic account fallbacks)?
 4. **Is visual evidence captured** (`saveEvidenceScreenshot`) for human verification?
 5. **Does it adhere to the Anti-Hang Network Protocol** (`curl.exe -m 15`, `AbortSignal.timeout(15000)`)?
+6. **Does it support 2-Tier Quality Gate (Test Local First)?** Must respect `process.env.PLAYWRIGHT_BASE_URL` (default `http://localhost:4000`) and `process.env.API_URL` (default `http://localhost:4001/api/v1`), allowing instant local test execution before pushing to Railway Cloud.
 
 ---
 
