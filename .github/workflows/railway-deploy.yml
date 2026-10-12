@@ -1,0 +1,139 @@
+name: Railway Deployment (Root Monorepo Fallback)
+
+on:
+  push:
+    branches:
+      - dev
+      - master
+      - main
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Service to deploy'
+        required: true
+        default: 'both'
+        type: choice
+        options:
+          - both
+          - backend
+          - frontend
+      environment:
+        description: 'Target Environment'
+        required: true
+        default: 'auto'
+        type: choice
+        options:
+          - auto
+          - dev
+          - production
+
+concurrency:
+  group: railway-root-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  determine-env:
+    runs-on: ubuntu-latest
+    outputs:
+      env_name: ${{ steps.set-env.outputs.env_name }}
+    steps:
+      - id: set-env
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.environment }}" != "auto" ]; then
+            echo "env_name=${{ inputs.environment }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref_name }}" = "master" ] || [ "${{ github.ref_name }}" = "main" ]; then
+            echo "env_name=production" >> $GITHUB_OUTPUT
+          else
+            echo "env_name=dev" >> $GITHUB_OUTPUT
+          fi
+
+  deploy-backend:
+    needs: determine-env
+    if: github.event_name == 'workflow_dispatch' && (inputs.target == 'both' || inputs.target == 'backend') || (github.event_name == 'push')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 2
+
+      - name: Check if backend changed
+        id: check-changes
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            CHANGED=$(git diff --name-only HEAD~1 HEAD | grep -E '^backend/' || true)
+            if [ -n "$CHANGED" ]; then
+              echo "changed=true" >> $GITHUB_OUTPUT
+            else
+              echo "changed=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Setup Node.js
+        if: steps.check-changes.outputs.changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Railway CLI
+        if: steps.check-changes.outputs.changed == 'true'
+        run: npm install -g @railway/cli
+
+      - name: Deploy Backend to Railway
+        if: steps.check-changes.outputs.changed == 'true'
+        working-directory: backend
+        env:
+          RAILWAY_TOKEN: ${{ needs.determine-env.outputs.env_name == 'production' && secrets.RAILWAY_PROD_TOKEN || secrets.RAILWAY_DEV_TOKEN }}
+        run: |
+          echo "🚀 Deploying backend-tms-core to ${{ needs.determine-env.outputs.env_name }}..."
+          railway up --service backend-tms-core --environment "${{ needs.determine-env.outputs.env_name }}" --detach
+
+  deploy-frontend:
+    needs: determine-env
+    if: github.event_name == 'workflow_dispatch' && (inputs.target == 'both' || inputs.target == 'frontend') || (github.event_name == 'push')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 2
+
+      - name: Check if frontend changed
+        id: check-changes
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            CHANGED=$(git diff --name-only HEAD~1 HEAD | grep -E '^frontend/' || true)
+            if [ -n "$CHANGED" ]; then
+              echo "changed=true" >> $GITHUB_OUTPUT
+            else
+              echo "changed=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Setup Node.js
+        if: steps.check-changes.outputs.changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Railway CLI
+        if: steps.check-changes.outputs.changed == 'true'
+        run: npm install -g @railway/cli
+
+      - name: Deploy Frontend to Railway
+        if: steps.check-changes.outputs.changed == 'true'
+        working-directory: frontend
+        env:
+          RAILWAY_TOKEN: ${{ needs.determine-env.outputs.env_name == 'production' && secrets.RAILWAY_PROD_TOKEN || secrets.RAILWAY_DEV_TOKEN }}
+        run: |
+          echo "🚀 Deploying frontend-tms-core to ${{ needs.determine-env.outputs.env_name }}..."
+          railway up --service frontend-tms-core --environment "${{ needs.determine-env.outputs.env_name }}" --detach

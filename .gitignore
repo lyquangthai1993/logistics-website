@@ -6,6 +6,7 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+!.env.railway.example
 
 # Node / Dependencies / Build
 node_modules/
@@ -36,11 +37,13 @@ codeium_mcp.json
 .codeium/
 copilot-mcp.json
 
-# Archives & Drafts
+# Archives & Drafts & Database Dumps
 *.rar
 *.zip
 *.7z
 *.tar.gz
+*.dump
+backups/
 
 
 # Pencil Workspace Screenshots, Exports & Caches + Scripts

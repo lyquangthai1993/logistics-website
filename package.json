@@ -22,7 +22,11 @@
     "todo:inspect": "node scripts/todo-agent.mjs inspect",
     "todo:plan": "node scripts/todo-agent.mjs plan",
     "todo:record": "node scripts/todo-agent.mjs record",
-    "todo:timeline": "node scripts/todo-agent.mjs timeline"
+    "todo:timeline": "node scripts/todo-agent.mjs timeline",
+    "deploy:railway": "node scripts/railway-deploy.mjs",
+    "deploy:railway:backend": "node scripts/railway-deploy.mjs backend",
+    "deploy:railway:frontend": "node scripts/railway-deploy.mjs frontend",
+    "hooks:railway": "node scripts/install-railway-hooks.mjs"
   },
   "devDependencies": {
     "docx": "^9.7.1"
