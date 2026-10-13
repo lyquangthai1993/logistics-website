@@ -108,132 +108,65 @@ Hậu quả vận hành thực tế:
 ## 📋 Danh sách công việc triển khai (Action Checklist)
 
 ### 1. Backend (`backend/`)
-- [ ] **Kiểm tra và chuẩn hóa Endpoint Tra cứu Danh bạ Hub (`/api/v1/hubs/active`)**:
+- [x] **Kiểm tra và chuẩn hóa Endpoint Tra cứu Danh bạ Hub (`/api/v1/hubs/active`)**:
   - Xác nhận endpoint trả về đầy đủ các trường dữ liệu thực thể của Hub: `id`, `code`, `name`, `city`, `address`, `level`, `orderCodePrefix`, `status`.
   - Bảo đảm không bị sót trường `address` hoặc `city` của các tuyến xe bo cấp 2.
-- [ ] **Kiểm tra Quan hệ Thực thể trong `getOrders` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts))**:
+- [x] **Kiểm tra Quan hệ Thực thể trong `getOrders` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts))**:
   - Đảm bảo câu lệnh TypeORM QueryBuilder luôn `leftJoinAndSelect('order.destinationHubEntity', 'destinationHubEntity')` khi trả về danh sách đơn hàng kho.
   - Phục vụ cho modal Tra cứu hàng tồn kho (`WarehouseLookupModal`) có sẵn thông tin đầy đủ của `destinationHubEntity` (kèm `code`, `city`, `address`).
-- [ ] **Rà soát DTO Xuất kho & Lưu nháp ([`confirm-outbound.dto.ts`](file:///D:/Projects/logistics-website/backend/src/orders/dto/confirm-outbound.dto.ts))**:
+- [x] **Rà soát DTO Xuất kho & Lưu nháp ([`confirm-outbound.dto.ts`](file:///D:/Projects/logistics-website/backend/src/orders/dto/confirm-outbound.dto.ts))**:
   - Đảm bảo `OutboundItemDto` tiếp nhận đầy đủ `destinationHubId`, `deliveryMode`, `deliveryAddress`.
   - Xác nhận phương thức `saveOutboundDraft` (lưu nháp chuyến SD) và `confirmOutbound` (xuất kho chính thức) lưu vết chính xác `destinationHubId` vào bảng `orders` và `trips`.
 
 ---
 
 ### 2. Frontend (`frontend/`)
-- [ ] **Xây dựng Helper / Component Card Đích Đến Chuẩn Hóa (`DestinationHubInfoCard`)**:
-  - Tạo component hiển thị thẻ đích đến dùng chung hoặc tích hợp trực tiếp vào [`DeliveryAddressCell`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-editable-grid.tsx#L1073-L1208).
-  - **Cấu trúc giao diện chi tiết (Tuân thủ nghiêm ngặt Compact Density)**:
-    ```tsx
-    <div className={cn(
-      'p-1.5 rounded-md border text-[10px] space-y-1 transition-all',
-      isXeBo
-        ? 'bg-purple-50/70 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800'
-        : 'bg-blue-50/70 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800'
-    )}>
-      {/* Hàng 1: Huy hiệu phân cấp + Mã kho font-mono + Nút hoàn tác */}
-      <div className="flex items-center justify-between gap-1">
-        <div className="flex items-center gap-1">
-          <Badge className={cn(
-            'text-[9px] font-bold px-1.5 py-0 h-4 rounded',
-            isXeBo ? 'bg-purple-600 text-white' : 'bg-blue-600 text-white'
-          )}>
-            {isXeBo ? 'Tuyến Xe Bo' : 'Hub Cấp 1'}
-          </Badge>
-          <span className={cn(
-            'font-mono font-bold text-[9px] px-1 py-0.5 rounded',
-            isXeBo
-              ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/60 dark:text-purple-300'
-              : 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300'
-          )}>
-            {hub.code}
-          </span>
-        </div>
-        <button
-          type="button"
-          onClick={handleResetToOriginal}
-          className="text-[9px] text-slate-500 hover:text-red-600 underline cursor-pointer shrink-0"
-          title="Khôi phục lại địa chỉ giao ban đầu"
-        >
-          Quay lại địa chỉ thường
-        </button>
-      </div>
-
-      {/* Hàng 2: Tên kho / Tuyến xe bo in đậm */}
-      <div className="font-bold text-[11px] text-slate-900 dark:text-slate-100 truncate" title={hub.name}>
-        {hub.name}
-      </div>
-
-      {/* Hàng 3: Vị trí địa lý (Tỉnh/TP + Địa chỉ chi tiết) */}
-      <div className="flex items-center gap-1 text-[10px] text-slate-600 dark:text-slate-400">
-        {isXeBo ? (
-          <IconTruck className="h-3 w-3 text-purple-600 shrink-0" />
-        ) : (
-          <IconMapPin className="h-3 w-3 text-blue-600 shrink-0" />
-        )}
-        <span className="font-semibold text-slate-800 dark:text-slate-200">{hub.city}</span>
-        {hub.address && (
-          <span className="truncate text-slate-500 dark:text-slate-400" title={hub.address}>
-            · {hub.address}
-          </span>
-        )}
-      </div>
-
-      {/* Hàng 4: Vai trò vận hành */}
-      <div className="text-[9px] text-slate-500 dark:text-slate-400 italic">
-        {isXeBo ? 'Tuyến xe bo gom/trả hàng nội thành' : 'Trung tâm trung chuyển liên tỉnh'}
-      </div>
-
-      {/* Hàng 5: Nút bấm đổi kho đích khác */}
-      <button
-        type="button"
-        onClick={() => setModalOpen(true)}
-        className="w-full text-center text-[9px] font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400 py-0.5 border border-dashed border-blue-300 dark:border-blue-700 rounded hover:bg-blue-100/50 transition-colors"
-      >
-        Đổi kho đích khác...
-      </button>
-    </div>
-    ```
-- [ ] **Hoàn thiện Logic Phân giải Hub (`resolveHubOption`) trong `DeliveryAddressCell`**:
+- [x] **Xây dựng Helper / Component Card Đích Đến Chuẩn Hóa (`DestinationHubInfoCard`)**:
+  - Tạo component hiển thị thẻ đích đến dùng chung tại [`destination-hub-info-card.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/destination-hub-info-card.tsx) và tích hợp trực tiếp vào [`DeliveryAddressCell`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-editable-grid.tsx).
+  - Cấu trúc giao diện chi tiết: Card Compact, Badge Hub Cấp 1 / Tuyến Xe Bo, Badge mã Hub font-mono, Tên Hub/Tuyến, Vị trí địa lý kèm icon `IconMapPin` / `IconTruck`, Vai trò vận hành, Nút 'Đổi kho đích khác...' và 'Quay lại địa chỉ thường'.
+- [x] **Hoàn thiện Logic Phân giải Hub (`resolveHubOption`) trong `DeliveryAddressCell`**:
   - Hỗ trợ phân giải đa tầng:
     1. Lấy từ `r.destinationHub` (nếu là object có đủ thuộc tính).
     2. Tra cứu `r.destinationHubId` trong danh sách `level1Hubs` và `level2XeBoHubs`.
     3. Tra cứu chuỗi theo `code` hoặc `name` trong `r.deliveryAddress`.
   - Trường hợp ngoại lệ (chưa tìm thấy Hub): Vẫn render khung card chuẩn với badge loại và hiển thị an toàn chuỗi text hiện có, không làm crash giao diện.
-- [ ] **Đồng bộ hóa vào Tra cứu Hàng Tồn Kho (`WarehouseLookupModal`)**:
-  - Cập nhật hàm `handleSelectFromLookup` trong [`warehouse-editable-grid.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-editable-grid.tsx#L1561-L1587): Kế thừa đầy đủ `destinationHubId`, `destinationHubEntity`, `deliveryMode` khi nạp đơn lưu kho vào lưới bảng.
-- [ ] **Đồng bộ hóa vào Chi tiết Chuyến Xe & Bốc thêm hàng ([`warehouse-trip-detail-modal.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx#L1425-L1480))**:
-  - Cập nhật Bước 2 (Xuất hàng mới lên xe tại trạm): Thay thế đoạn hiển thị đơn điệu bằng card thông tin điểm đến chi tiết tương tự, bảo đảm trải nghiệm đồng nhất 100% trên toàn bộ hệ thống.
-- [ ] **Điều chỉnh Độ rộng Cột Bảng (`warehouse-editable-grid.tsx`)**:
+- [x] **Đồng bộ hóa vào Tra cứu Hàng Tồn Kho (`WarehouseLookupModal`)**:
+  - Cập nhật hàm `handleSelectFromLookup` trong [`warehouse-editable-grid.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-editable-grid.tsx): Kế thừa đầy đủ `destinationHubId`, `destinationHubEntity`, `deliveryMode` khi nạp đơn lưu kho vào lưới bảng.
+- [x] **Đồng bộ hóa vào Chi tiết Chuyến Xe & Bốc thêm hàng ([`warehouse-trip-detail-modal.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx))**:
+  - Cập nhật Bước 2 (Xuất hàng mới lên xe tại trạm): Sử dụng `DestinationHubInfoCard` và `resolveHubOption`, bảo đảm trải nghiệm đồng nhất 100% trên toàn bộ hệ thống.
+- [x] **Điều chỉnh Độ rộng Cột Bảng (`warehouse-editable-grid.tsx`)**:
   - Cập nhật định nghĩa cột `deliveryAddress`: Đặt `size: isOutboundMode ? 210 : 150` để card thông tin hiển thị đẹp mắt, không bị ép dòng.
-- [ ] **Tuân thủ Tuyệt đối Quy chuẩn Spacing & Không Redundant Icon**:
+- [x] **Tuân thủ Tuyệt đối Quy chuẩn Spacing & Không Redundant Icon**:
   - Không sinh các class cấm: `p-4`, `space-y-3`, `gap-4`.
   - Giữ khoảng cách gọn gàng `p-1.5`, `space-y-1`, `gap-1`, font chữ `text-[10px]`.
 
 ---
 
 ### 3. Kiểm thử & Nghiệm thu (Definition of Done)
-- [ ] **Kiểm tra Biên dịch & Linting Toàn Dự Án**:
-  - Backend: `npm run lint --prefix backend` & `npm run build --prefix backend` ➔ PASS (0 errors).
-  - Frontend: `npm run build --prefix frontend` ➔ Next.js Turbopack build PASS (33/33 static pages, 0 TypeScript errors).
-- [ ] **Kịch bản Kiểm thử Nghiệp vụ 1: Chọn Hub Cấp 1 (Điều chuyển liên Hub)**:
+> **Playwright E2E Suite**: [`frontend/e2e/48-feedback-13-10-task-38.spec.ts`](file:///D:/Projects/logistics-website/frontend/e2e/48-feedback-13-10-task-38.spec.ts)  
+> **Ảnh minh chứng nghiệm thu**: [`screenshot_verified.png`](file:///D:/Projects/logistics-website/feedbacks/feedback_13_10_task_38/screenshot_verified.png) | [`screenshot_01_hub_l1_verified.png`](file:///D:/Projects/logistics-website/feedbacks/feedback_13_10_task_38/screenshot_01_hub_l1_verified.png) | [`screenshot_02_xe_bo_verified.png`](file:///D:/Projects/logistics-website/feedbacks/feedback_13_10_task_38/screenshot_02_xe_bo_verified.png) | [`screenshot_03_revert_verified.png`](file:///D:/Projects/logistics-website/feedbacks/feedback_13_10_task_38/screenshot_03_revert_verified.png)
+
+- [x] **Kiểm tra Biên dịch & Linting Toàn Dự Án**:
+  - Backend: `npm run build --prefix backend` ➔ PASS (0 errors).
+  - Frontend: `node frontend/node_modules/typescript/bin/tsc --noEmit -p frontend/tsconfig.json` & `npm run build --prefix frontend` ➔ Next.js Turbopack build PASS (33/33 static pages, 0 TypeScript errors).
+- [x] **Kịch bản Kiểm thử Nghiệp vụ 1: Chọn Hub Cấp 1 (Điều chuyển liên Hub)**:
   1. Vào màn hình Tạo Phiếu Xuất Kho (`/warehouse/outbound` ➔ `Tạo Phiếu Xuất`).
   2. Tại dòng 01, bấm `Thay đổi địa chỉ (Điều chuyển)`.
-  3. Chọn `Polaris Hub - Hưng Yên` (Mã: `HUB-HAN-01`, Tỉnh: `Hưng Yên`, Đ/C: `Phố Nối A...`).
+  3. Chọn Hub Cấp 1 (Mã: `HUB-HAN-01`, Tỉnh: `Hưng Yên`, Đ/C: `Phố Nối A...`).
   4. **Kết quả kỳ vọng**: Ô `ĐỊA CHỈ GIAO *` lập tức hiển thị card màu xanh có badge `Hub Cấp 1`, mã `HUB-HAN-01`, tên `Polaris Hub - Hưng Yên`, tỉnh `Hưng Yên`, địa chỉ chi tiết và nút `Đổi kho đích khác...`.
-- [ ] **Kịch bản Kiểm thử Nghiệp vụ 2: Chọn Tuyến Xe Bo Cấp 2 (Giao tuyến vệ tinh)**:
+- [x] **Kịch bản Kiểm thử Nghiệp vụ 2: Chọn Tuyến Xe Bo Cấp 2 (Giao tuyến vệ tinh)**:
   1. Thêm dòng 02 trên bảng xuất kho.
   2. Bấm `Thay đổi địa chỉ (Điều chuyển)`, chuyển sang tab Tuyến Xe Bo.
   3. Chọn `Xe Bo Quy Nhơn` (Mã: `XB-QN-01`, Tỉnh: `Bình Định`).
   4. **Kết quả kỳ vọng**: Ô `ĐỊA CHỈ GIAO *` hiển thị card màu tím có badge `Tuyến Xe Bo`, mã `XB-QN-01`, tên `Xe Bo Quy Nhơn`, tỉnh `Bình Định`, địa chỉ trạm nhận và nút đổi kho.
-- [ ] **Kịch bản Kiểm thử Nghiệp vụ 3: Hoàn tác về Địa chỉ Giao Khách Thường**:
+- [x] **Kịch bản Kiểm thử Nghiệp vụ 3: Hoàn tác về Địa chỉ Giao Khách Thường**:
   1. Tại ô đã chọn Hub hoặc Tuyến Xe Bo, bấm `Quay lại địa chỉ thường`.
   2. **Kết quả kỳ vọng**: Card Hub biến mất, ô chuyển lại thành khung textarea nhập địa chỉ khách giao thẳng (`DIRECT_CUSTOMER`), địa chỉ khách ban đầu (nếu có) được khôi phục nguyên vẹn.
-- [ ] **Kịch bản Kiểm thử Nghiệp vụ 4: Lưu Nháp Phiếu Xuất & Tải Lại**:
+- [x] **Kịch bản Kiểm thử Nghiệp vụ 4: Lưu Nháp Phiếu Xuất & Tải Lại**:
   1. Nhập thông tin ngày xuất, biển số xe, chọn Hub đích và bấm `Lưu nháp`.
   2. Mở lại phiếu nháp từ danh sách chờ xử lý.
   3. **Kết quả kỳ vọng**: Toàn bộ card thông tin Hub Cấp 1 / Tuyến Xe Bo vẫn hiển thị đầy đủ chi tiết mã kho, tên kho, địa chỉ như lúc mới chọn.
-- [ ] **Kịch bản Kiểm thử Nghiệp vụ 5: Kiểm tra Hiển thị trên Chi tiết Chuyến xe ([`WarehouseTripDetailModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx))**:
+- [x] **Kịch bản Kiểm thử Nghiệp vụ 5: Kiểm tra Hiển thị trên Chi tiết Chuyến xe ([`WarehouseTripDetailModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx))**:
   1. Mở chuyến xe trung chuyển tại trạm Đà Nẵng, chuyển sang Bước 2 (Xuất hàng mới lên xe).
   2. Bấm `Đổi kho đích khác...` cho một đơn bốc mới từ kho lên xe.
   3. Chọn Hub đích tiếp theo trên lộ trình.

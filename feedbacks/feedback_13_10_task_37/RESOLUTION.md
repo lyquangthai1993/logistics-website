@@ -11,9 +11,6 @@
 
 ## 1. 📌 Bối Cảnh Nghiệp Vụ & Phân Tích Nguyên Nhân Gốc Rễ (RCA)
 
-### Phản hồi thực tế từ người dùng:
-> *"đối với các trip đã có trạng thái đã xử lý ở hub nào thì các account của hub đó không được quyền thao tác thêm, bớt, chỉnh sửa đơn hàng trong trip đó. Chỉ cấp quyền cho tài khoản admin được chỉnh sửa thông tin đơn hàng trong trip khi trip ở trạng thái đã xử lý."*
-
 ### 1. Phản hồi gốc từ người dùng (@【M】【C】【D】)
 > *"đối với các trip đã có trạng thái đã xử lý ở hub nào thì các account của hub đó không được quyền thao tác thêm, bớt, chỉnh sửa đơn hàng trong trip đó. Chỉ cấp quyền cho tài khoản admin được chỉnh sửa thông tin đơn hàng trong trip khi trip ở trạng thái đã xử lý."*
 
@@ -218,8 +215,10 @@ flowchart TD
   * Backend: `https://logistics-website-backend-1jho.onrender.com`
 - **Kiểm tra sức khỏe Backend (Anti-Hang Health Check)**: `curl.exe -m 15 -i https://logistics-website-backend-1jho.onrender.com/api/v1/health` -> HTTP 200 OK.
 
-### Hình ảnh minh chứng đã lưu trữ (1 tệp):
+### Hình ảnh minh chứng đã lưu trữ (3 tệp):
 - 📸 **screenshot_01.jpg**: [Xem hình ảnh](file:///D:/Projects/logistics-website/feedbacks/feedback_13_10_task_37/screenshot_01.jpg)
+- 📸 **screenshot_01_verified.png**: [Xem hình ảnh](file:///D:/Projects/logistics-website/feedbacks/feedback_13_10_task_37/screenshot_01_verified.png)
+- 📸 **screenshot_02_admin_override_verified.png**: [Xem hình ảnh](file:///D:/Projects/logistics-website/feedbacks/feedback_13_10_task_37/screenshot_02_admin_override_verified.png)
 
 ---
 
