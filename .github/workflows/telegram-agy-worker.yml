@@ -105,11 +105,31 @@ jobs:
 
           if [ -n "$AGY_SESSION_TOKEN" ]; then
             echo "🔐 Đang cấu hình Linux Secret Service & D-Bus session..."
-            sudo apt-get update -qq && sudo apt-get install -y -qq dbus dbus-x11 gnome-keyring libsecret-tools
+            sudo apt-get update -qq && sudo apt-get install -y -qq dbus dbus-x11 gnome-keyring libsecret-tools python3-secretstorage
 
+            mkdir -p ~/.local/share/keyrings
             eval $(dbus-launch --sh-syntax)
             export DBUS_SESSION_BUS_ADDRESS
-            eval $(echo -n "" | gnome-keyring-daemon --unlock --components=secrets 2>/dev/null || true)
+
+            # Khởi tạo và unlock gnome-keyring headless với newline
+            eval "$(printf '\n' | gnome-keyring-daemon --replace --unlock --components=secrets 2>/dev/null || true)"
+            export GNOME_KEYRING_CONTROL
+
+            # Đảm bảo collection default/login tồn tại cho Secret Service
+            python3 -c "
+import secretstorage
+try:
+    conn = secretstorage.dbus_init()
+    try:
+        col = secretstorage.get_default_collection(conn)
+    except Exception:
+        col = secretstorage.create_collection(conn, 'login', alias='default')
+    if col.is_locked():
+        col.unlock()
+    print('Keyring collection status: ready')
+except Exception as e:
+    print('Keyring init warning:', e)
+" || true
 
             printf "%s" "$AGY_SESSION_TOKEN" | secret-tool store --label="gemini" service gemini username antigravity
 
@@ -119,7 +139,7 @@ jobs:
             echo "🚀 Đang khởi chạy agy headless mode với session keyring..."
             agy -p "$RAW_PROMPT" \
               --dangerously-skip-permissions \
-              --model "Gemini 3.6 Flash (High)" \
+              --model "gemini-3.8-flash-high" \
               --output-format text > agy_output.txt 2>&1 || AGY_EXIT=$?
           else
             echo "🚀 Đang khởi chạy agy headless mode với API key..."
@@ -127,7 +147,7 @@ jobs:
             export GEMINI_API_KEY="$ANTIGRAVITY_API_KEY"
             agy -p "$RAW_PROMPT" \
               --dangerously-skip-permissions \
-              --model "Gemini 3.6 Flash (High)" \
+              --model "gemini-3.8-flash-high" \
               --output-format text > agy_output.txt 2>&1 || AGY_EXIT=$?
           fi
 
@@ -142,6 +162,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_ALLOWED_CHAT_ID: ${{ secrets.TELEGRAM_ALLOWED_CHAT_ID }}
           TASK_ID: ${{ github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}
+          JOB_STATUS: ${{ job.status }}
         run: |
           node -e '
           const fs = require("fs");
@@ -168,9 +189,14 @@ jobs:
 
           let agyRes = "Hoàn tất tác vụ";
           if (fs.existsSync("agy_output.txt")) {
-            const raw = fs.readFileSync("agy_output.txt", "utf8");
-            const lines = raw.trim().split(/\r?\n/);
-            agyRes = lines.slice(-20).join("\n") || "Hoàn tất tác vụ";
+            const raw = fs.readFileSync("agy_output.txt", "utf8").trim();
+            if (raw) {
+              const lines = raw.split(/\r?\n/);
+              agyRes = lines.slice(-25).join("\n");
+            }
+          }
+          if (agyRes === "Hoàn tất tác vụ" && process.env.JOB_STATUS !== "success") {
+            agyRes = "Quá trình thực thi gặp sự cố trong phiên khởi tạo hệ thống / Keyring. Chi tiết xem tại log GitHub Actions.";
           }
 
           const statusBadge = process.env.JOB_STATUS === "success" ? "🟢 HOÀN THÀNH" : "🔴 THẤT BẠI";
