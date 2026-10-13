@@ -123,22 +123,24 @@ jobs:
             echo "🔍 Kiểm tra Keyring đối soát:"
             secret-tool lookup service gemini username antigravity | cut -c 1-30
 
-            echo "🚀 Đang khởi chạy agy headless mode với session keyring..."
+            echo "🚀 Đang khởi chạy agy headless mode với session keyring (Live Streaming Log)..."
             agy -p "$RAW_PROMPT" \
               --dangerously-skip-permissions \
               --model "gemini-3.8-flash-high" \
-              --output-format text > agy_output.txt 2>&1 || AGY_EXIT=$?
+              --output-format text 2>&1 | tee /tmp/agy_output.txt
+            AGY_EXIT=${PIPESTATUS[0]}
           else
-            echo "🚀 Đang khởi chạy agy headless mode với API key..."
+            echo "🚀 Đang khởi chạy agy headless mode với API key (Live Streaming Log)..."
             export ANTIGRAVITY_API_KEY="$ANTIGRAVITY_API_KEY"
             export GEMINI_API_KEY="$ANTIGRAVITY_API_KEY"
             agy -p "$RAW_PROMPT" \
               --dangerously-skip-permissions \
               --model "gemini-3.8-flash-high" \
-              --output-format text > agy_output.txt 2>&1 || AGY_EXIT=$?
+              --output-format text 2>&1 | tee /tmp/agy_output.txt
+            AGY_EXIT=${PIPESTATUS[0]}
           fi
 
-          cat agy_output.txt
+          echo "🏁 Tiến trình agy hoàn tất với exit code: ${AGY_EXIT:-0}"
           if [ -n "$AGY_EXIT" ] && [ "$AGY_EXIT" -ne 0 ]; then
             exit $AGY_EXIT
           fi
@@ -237,8 +239,9 @@ jobs:
           }
 
           let agyRes = "Hoàn tất tác vụ";
-          if (fs.existsSync("agy_output.txt")) {
-            const raw = fs.readFileSync("agy_output.txt", "utf8").trim();
+          const outPath = fs.existsSync("/tmp/agy_output.txt") ? "/tmp/agy_output.txt" : (fs.existsSync("agy_output.txt") ? "agy_output.txt" : "");
+          if (outPath) {
+            const raw = fs.readFileSync(outPath, "utf8").trim();
             if (raw) {
               const lines = raw.split(/\r?\n/);
               agyRes = lines.slice(-25).join("\n");
