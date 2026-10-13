@@ -298,7 +298,7 @@ return [{
         },
         sendBody: true,
         specifyBody: 'json',
-        jsonBody: '={{ JSON.stringify({\n  event_type: "telegram-task",\n  client_payload: {\n    task_id: $("Execute Neon DB SQL").item.json.id?.toString() || "manual",\n    prompt: $("Format Leader Prompt").item.json.analysis || $("Format Leader Prompt").item.json.raw_prompt,\n    sender_name: $("Format Leader Prompt").item.json.sender_name,\n    mode: $("Format Leader Prompt").item.json.mode_badge?.includes("todo-agent") ? "todo" : "leader"\n  }\n}) }}',
+        jsonBody: '={{ JSON.stringify({\n  event_type: "telegram-task",\n  client_payload: {\n    task_id: $("Enqueue Task to Neon DB").item.json.id?.toString() || "manual",\n    prompt: $("Format Leader Prompt").item.json.analysis || $("Format Leader Prompt").item.json.raw_prompt,\n    sender_name: $("Format Leader Prompt").item.json.sender_name,\n    mode: $("Format Leader Prompt").item.json.mode_badge?.includes("todo-agent") ? "todo" : "leader"\n  }\n}) }}',
         options: {}
       },
       id: 'trigger-github-actions-node',
@@ -426,12 +426,17 @@ return [{
     const errText = await updateRes.text();
     throw new Error(`Update failed: ${updateRes.status} ${errText}`);
   }
-  console.log('Update success!');
+  const updateData = await updateRes.json();
+  console.log('Update success! New versionId:', updateData.data?.versionId);
 
   console.log('\n4. Reactivating workflow...');
   const actRes = await fetch(`${BASE_URL}/rest/workflows/${WORKFLOW_ID}/activate`, {
     method: 'POST',
-    headers: { 'Cookie': cookie }
+    headers: {
+      'Content-Type': 'application/json',
+      'Cookie': cookie
+    },
+    body: JSON.stringify({ versionId: updateData.data?.versionId })
   });
   const actData = await actRes.json();
   console.log('Active state:', actData.data?.active);
