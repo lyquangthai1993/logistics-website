@@ -1,0 +1,157 @@
+name: Antigravity Telegram Task Worker
+
+on:
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: 'Yêu cầu task từ Telegram'
+        required: true
+        type: string
+      task_id:
+        description: 'Task ID'
+        required: false
+        default: 'manual'
+        type: string
+      sender_name:
+        description: 'Tên người gửi (Telegram Username)'
+        required: false
+        default: 'User'
+        type: string
+      mode:
+        description: 'Chế độ thực thi'
+        required: false
+        default: 'leader'
+        type: choice
+        options:
+          - leader
+          - todo
+          - sync
+
+  repository_dispatch:
+    types: [telegram-task]
+
+concurrency:
+  group: agy-worker-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  execute-task:
+    name: "🤖 Thực thi Task Antigravity CLI"
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: "1. Checkout Repositories & Submodules"
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT_TOKEN || secrets.GITHUB_TOKEN }}
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: "2. Cấu hình Danh tính Git"
+        run: |
+          git config --global user.name "Antigravity AI Worker"
+          git config --global user.email "antigravity-bot@users.noreply.github.com"
+
+      - name: "3. Cài đặt Node.js LTS"
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: "4. Cài đặt Project Dependencies"
+        run: |
+          npm ci || npm install
+          if [ -d "backend" ]; then (cd backend && npm ci || npm install); fi
+          if [ -d "frontend" ]; then (cd frontend && npm ci || npm install); fi
+
+      - name: "5. Cài đặt Antigravity CLI (agy)"
+        run: |
+          echo "⬇️ Đang cài đặt Antigravity CLI..."
+          curl -fsSL https://antigravity.google/cli/install.sh | bash
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      - name: "6. Thông báo Bắt đầu về Telegram"
+        if: env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_ALLOWED_CHAT_ID != ''
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_ALLOWED_CHAT_ID: ${{ secrets.TELEGRAM_ALLOWED_CHAT_ID }}
+          TASK_ID: ${{ github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}
+          SENDER: ${{ github.event.inputs.sender_name || github.event.client_payload.sender_name || 'User' }}
+          RAW_PROMPT: ${{ github.event.inputs.prompt || github.event.client_payload.prompt }}
+        run: |
+          MSG="⏳ <b>[Antigravity GitHub Worker] Đang tiếp nhận Task #${TASK_ID}...</b>
+          👤 <b>Người yêu cầu:</b> @${SENDER}
+          📝 <b>Yêu cầu:</b> <code>${RAW_PROMPT}</code>
+          🚀 <i>Worker đang khởi động CLI agy trên GitHub Actions...</i>"
+          
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d "chat_id=${TELEGRAM_ALLOWED_CHAT_ID}" \
+            -d "parse_mode=HTML" \
+            -d "text=${MSG}" || true
+
+      - name: "7. Khởi chạy Antigravity CLI (Headless Mode)"
+        env:
+          ANTIGRAVITY_API_KEY: ${{ secrets.ANTIGRAVITY_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.ANTIGRAVITY_API_KEY }}
+          RAW_PROMPT: ${{ github.event.inputs.prompt || github.event.client_payload.prompt }}
+          MODE: ${{ github.event.inputs.mode || github.event.client_payload.mode || 'leader' }}
+        run: |
+          if [ -z "$ANTIGRAVITY_API_KEY" ]; then
+            echo "❌ Lỗi: Thiếu secret ANTIGRAVITY_API_KEY trên GitHub Repository Secrets!"
+            exit 1
+          fi
+
+          echo "🚀 Đang khởi chạy agy headless mode..."
+          agy -p "${RAW_PROMPT}" \
+            --dangerously-skip-permissions \
+            --model "Gemini 3.6 Flash (High)" \
+            --output-format text > agy_output.txt 2>&1 || AGY_EXIT=$?
+
+          cat agy_output.txt
+
+      - name: "8. Báo cáo Kết quả về Telegram (/telegram-task-responder)"
+        if: always() && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_ALLOWED_CHAT_ID != ''
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_ALLOWED_CHAT_ID: ${{ secrets.TELEGRAM_ALLOWED_CHAT_ID }}
+          TASK_ID: ${{ github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}
+        run: |
+          ROOT_DIFF=$(git diff --stat)
+          BE_DIFF=$(git -C backend diff --stat 2>/dev/null || echo "")
+          FE_DIFF=$(git -C frontend diff --stat 2>/dev/null || echo "")
+
+          DIFF_SUMMARY="Không có thay đổi file"
+          if [ -n "$ROOT_DIFF" ] || [ -n "$BE_DIFF" ] || [ -n "$FE_DIFF" ]; then
+            DIFF_SUMMARY="Đã sửa đổi mã nguồn:
+          $ROOT_DIFF
+          $BE_DIFF
+          $FE_DIFF"
+          fi
+
+          AGY_RES="Hoàn tất tác vụ"
+          if [ -f agy_output.txt ]; then
+            AGY_RES=$(tail -n 20 agy_output.txt)
+          fi
+
+          STATUS_BADGE="🟢 HOÀN THÀNH"
+          if [ "${{ job.status }}" != "success" ]; then
+            STATUS_BADGE="🔴 THẤT BẠI"
+          fi
+
+          FINAL_MSG="${STATUS_BADGE}: Task #${TASK_ID} trên GitHub Actions Worker
+
+          ### 1. Kết quả thực thi
+          <pre>${AGY_RES}</pre>
+
+          ### 2. Thống kê Git Diff
+          <pre>${DIFF_SUMMARY}</pre>
+
+          ▫️ Runner: GitHub Actions (Ubuntu)
+          ▫️ Commit: $(git rev-parse --short HEAD)"
+
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d "chat_id=${TELEGRAM_ALLOWED_CHAT_ID}" \
+            -d "parse_mode=HTML" \
+            -d "text=${FINAL_MSG}" || true
