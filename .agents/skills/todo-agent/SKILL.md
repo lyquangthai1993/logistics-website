@@ -79,12 +79,12 @@ All operations performed by the `todo-agent` MUST strictly adhere to the project
 
 ## 3. Feedback Directory Structure & Scanner Engine
 
-Feedback folders follow the naming standard `feedback_DD_MM*` (e.g., `feedback_04_10`, `feedback_05_10`, `feedback_06_10`, `feedback_07_10`, `feedback_07_10_task_12`).
+Feedback folders are centrally organized inside the `feedbacks/` parent directory following the naming standard `feedbacks/feedback_DD_MM*` (e.g., `feedbacks/feedback_13_10`, `feedbacks/feedback_13_10_task_1`). Legacy folders located directly in the workspace root (`feedback_DD_MM*`) remain fully supported by the scanner engine for backward compatibility.
 
 ### Standard Directory Contents
 
 ```text
-feedback_DD_MM[suffix]/
+feedbacks/feedback_DD_MM[suffix]/ (or legacy root feedback_DD_MM[suffix]/)
 ├── TODO.md                         # Primary task checklist, context, and RCA
 ├── RESOLUTION.md                   # Post-execution technical acceptance certificate
 ├── screenshot_01.png / .jpg        # Visual evidence and error captures

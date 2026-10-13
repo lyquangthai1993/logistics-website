@@ -105,27 +105,41 @@ export function resolveReferencedFile(fileRef, rootDir = ROOT_DIR) {
 }
 
 /**
- * Discovers all feedback directories in the workspace root.
- * @returns {Array<{ name: string, fullPath: string, day: number, month: number, suffix: string }>}
+ * Discovers all feedback directories in the workspace (feedbacks/ parent folder and root).
+ * @returns {Array<{ name: string, fullPath: string, relPath: string, day: number, month: number, suffix: string }>}
  */
 export function discoverFeedbackFolders(rootDir = ROOT_DIR) {
   try {
-    const entries = fs.readdirSync(rootDir, { withFileTypes: true });
     const folders = [];
+    const seenFullPaths = new Set();
 
-    for (const entry of entries) {
-      if (!entry.isDirectory()) continue;
-      const match = entry.name.match(FEEDBACK_DIR_REGEX);
-      if (match) {
-        folders.push({
-          name: entry.name,
-          fullPath: path.join(rootDir, entry.name),
-          day: parseInt(match[1], 10),
-          month: parseInt(match[2], 10),
-          suffix: match[3] || '',
-        });
+    const scanDir = (targetDir) => {
+      if (!fs.existsSync(targetDir)) return;
+      const entries = fs.readdirSync(targetDir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (!entry.isDirectory()) continue;
+        const match = entry.name.match(FEEDBACK_DIR_REGEX);
+        if (match) {
+          const fullPath = path.join(targetDir, entry.name);
+          if (seenFullPaths.has(fullPath)) continue;
+          seenFullPaths.add(fullPath);
+
+          folders.push({
+            name: entry.name,
+            fullPath,
+            relPath: path.relative(rootDir, fullPath).replace(/\\/g, '/'),
+            day: parseInt(match[1], 10),
+            month: parseInt(match[2], 10),
+            suffix: match[3] || '',
+          });
+        }
       }
-    }
+    };
+
+    // 1. Quét trong thư mục cha feedbacks/ (ưu tiên thư mục mới)
+    scanDir(path.join(rootDir, 'feedbacks'));
+    // 2. Quét ở rootDir (hỗ trợ thư mục cũ)
+    scanDir(rootDir);
 
     // Sort chronologically: month, then day, then suffix
     folders.sort((a, b) => {
@@ -146,11 +160,13 @@ export function discoverFeedbackFolders(rootDir = ROOT_DIR) {
  * @param {string} folderPath
  * @returns {object} Parsed metadata, task lists, and statistics
  */
-export function parseFeedbackFolder(folderPath) {
+export function parseFeedbackFolder(folderPath, rootDir = ROOT_DIR) {
   const folderName = path.basename(folderPath);
+  const relPath = path.relative(rootDir, folderPath).replace(/\\/g, '/');
   const result = {
     folderName,
     folderPath,
+    relPath,
     hasTodo: false,
     title: folderName,
     meta: {},
@@ -409,14 +425,14 @@ export function generateExecutionPlan(parsed) {
   output.push('## 2. 📸 TÀI NGUYÊN & BẰNG CHỨNG ĐÃ QUÉT ĐƯỢC');
   if (images.length > 0) {
     output.push(`- **Hình ảnh / Video minh chứng (${images.length} tệp)**:`);
-    images.forEach((img) => output.push(`  + \`${folderName}/${img}\``));
+    images.forEach((img) => output.push(`  + \`${parsed.relPath || folderName}/${img}\``));
   } else {
     output.push('- *Không có hình ảnh đính kèm trong thư mục này.*');
   }
 
   if (documents.length > 0) {
     output.push(`- **Tài liệu đặc tả liên quan (${documents.length} tệp)**:`);
-    documents.forEach((doc) => output.push(`  + \`${folderName}/${doc}\``));
+    documents.forEach((doc) => output.push(`  + \`${parsed.relPath || folderName}/${doc}\``));
   }
   output.push('');
 
@@ -535,7 +551,13 @@ export function generateExecutionPlan(parsed) {
  */
 export function toggleTask(folderName, targetLineOrQuery, action = 'toggle', rootDir = ROOT_DIR) {
   const folders = discoverFeedbackFolders(rootDir);
-  const matched = folders.find((f) => f.name.toLowerCase().includes(folderName.toLowerCase()));
+  const cleanTarget = folderName.replace(/^[/\\]+|[/\\]+$/g, '').toLowerCase();
+  const matched = folders.find((f) => 
+    f.name.toLowerCase() === cleanTarget ||
+    f.relPath.toLowerCase() === cleanTarget ||
+    f.name.toLowerCase().includes(cleanTarget) ||
+    f.relPath.toLowerCase().includes(cleanTarget)
+  );
 
   if (!matched) {
     console.error(`❌ Không tìm thấy thư mục feedback: ${folderName}`);
@@ -639,7 +661,7 @@ export function cmdScan(asJson = false) {
     });
 
     rows.push({
-      Folder: f.name,
+      Folder: f.relPath || f.name,
       Title: parsed.title.length > 40 ? parsed.title.slice(0, 37) + '...' : parsed.title,
       Tasks: `${parsed.tasks.completed}/${parsed.tasks.total}`,
       Pending: parsed.tasks.pending,
@@ -678,7 +700,7 @@ export function getTodayTasksSummary(rootDir = ROOT_DIR) {
     (f) => f.day === currentDay && f.month === currentMonth
   );
 
-  const parsedFolders = folders.map((f) => parseFeedbackFolder(f.fullPath));
+  const parsedFolders = folders.map((f) => parseFeedbackFolder(f.fullPath, rootDir));
   const totalTasks = parsedFolders.reduce((sum, p) => sum + p.tasks.total, 0);
   const totalCompleted = parsedFolders.reduce((sum, p) => sum + p.tasks.completed, 0);
   const totalPending = parsedFolders.reduce((sum, p) => sum + p.tasks.pending, 0);
@@ -736,7 +758,7 @@ export function cmdToday(asJson = false, asPlan = false, rootDir = ROOT_DIR) {
   console.log(`================================================================================\n`);
 
   const rows = folders.map((p) => ({
-    Folder: p.folderName,
+    Folder: p.relPath || p.folderName,
     Title: p.title.length > 40 ? p.title.slice(0, 37) + '...' : p.title,
     Tasks: `${p.tasks.completed}/${p.tasks.total}`,
     Pending: p.tasks.pending,
@@ -762,11 +784,17 @@ export function cmdInspect(targetName, asJson = false) {
   }
 
   const folders = discoverFeedbackFolders();
-  const matched = folders.find((f) => f.name.toLowerCase().includes(targetName.toLowerCase()));
+  const cleanTarget = targetName.replace(/^[/\\]+|[/\\]+$/g, '').toLowerCase();
+  const matched = folders.find((f) => 
+    f.name.toLowerCase() === cleanTarget ||
+    f.relPath.toLowerCase() === cleanTarget ||
+    f.name.toLowerCase().includes(cleanTarget) ||
+    f.relPath.toLowerCase().includes(cleanTarget)
+  );
 
   if (!matched) {
     console.error(`❌ Không tìm thấy thư mục nào khớp với "${targetName}"!`);
-    console.log('Các thư mục hiện có:', folders.map((f) => f.name).join(', '));
+    console.log('Các thư mục hiện có:', folders.map((f) => f.relPath || f.name).join(', '));
     process.exit(1);
   }
 
@@ -778,7 +806,7 @@ export function cmdInspect(targetName, asJson = false) {
   }
 
   console.log(`\n================================================================================`);
-  console.log(`📋 CHI TIẾT FEEDBACK: ${parsed.folderName}`);
+  console.log(`📋 CHI TIẾT FEEDBACK: ${parsed.relPath || parsed.folderName}`);
   console.log(`================================================================================\n`);
   console.log(`📌 Tiêu đề: ${parsed.title}`);
   for (const [k, v] of Object.entries(parsed.meta)) {
@@ -824,7 +852,13 @@ export function cmdPlan(targetName) {
   }
 
   const folders = discoverFeedbackFolders();
-  const matched = folders.find((f) => f.name.toLowerCase().includes(targetName.toLowerCase()));
+  const cleanTarget = targetName.replace(/^[/\\]+|[/\\]+$/g, '').toLowerCase();
+  const matched = folders.find((f) => 
+    f.name.toLowerCase() === cleanTarget ||
+    f.relPath.toLowerCase() === cleanTarget ||
+    f.name.toLowerCase().includes(cleanTarget) ||
+    f.relPath.toLowerCase().includes(cleanTarget)
+  );
 
   if (!matched) {
     console.error(`❌ Không tìm thấy thư mục nào khớp với "${targetName}"!`);
@@ -1113,8 +1147,8 @@ export function syncSystemTimeline(parsed, rootDir = ROOT_DIR, resolutionRelPath
   const recordDate = meta['Thời gian ghi nhận'] || dateStr;
   const relPath = resolutionRelPath
     ? (resolutionRelPath.startsWith('..') ? resolutionRelPath : `../${resolutionRelPath}`)
-    : `../${folderName}/RESOLUTION.md`;
-  const todoRelPath = `../${folderName}/TODO.md`;
+    : (parsed.relPath ? `../${parsed.relPath}/RESOLUTION.md` : `../${folderName}/RESOLUTION.md`);
+  const todoRelPath = parsed.relPath ? `../${parsed.relPath}/TODO.md` : `../${folderName}/TODO.md`;
   const tag = folderName.toUpperCase();
 
   // Create initial template if file doesn't exist
@@ -1179,10 +1213,12 @@ export function syncSystemTimeline(parsed, rootDir = ROOT_DIR, resolutionRelPath
   const milestoneBlock = blockLines.join('\n');
 
   // Table row
-  const tableRow = `| ${recordDate} | \`${folderName}\` | ${title.length > 55 ? title.slice(0, 52) + '...' : title} | ${tasks.completed}/${tasks.total} | ✅ DONE (100%) | [RESOLUTION.md](${relPath}) |`;
+  const displayFolder = parsed.relPath || folderName;
+  const tableRow = `| ${recordDate} | \`${displayFolder}\` | ${title.length > 55 ? title.slice(0, 52) + '...' : title} | ${tasks.completed}/${tasks.total} | ✅ DONE (100%) | [RESOLUTION.md](${relPath}) |`;
 
   // 1. Update or Insert Table Row
-  const tableRegex = new RegExp(`^\\|[^|]*\\|\\s*\`${folderName}\`\\s*\\|[^|]*\\|[^|]*\\|[^|]*\\|[^|]*\\|\\s*$`, 'm');
+  const escapedName = folderName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const tableRegex = new RegExp(`^\\|[^|]*\\|\\s*\`(?:feedbacks/)?${escapedName}\`\\s*\\|[^|]*\\|[^|]*\\|[^|]*\\|[^|]*\\|\\s*$`, 'm');
   if (tableRegex.test(content)) {
     content = content.replace(tableRegex, tableRow);
   } else {
@@ -1226,7 +1262,13 @@ export function cmdRecord(targetName, asJson = false, rootDir = ROOT_DIR) {
   }
 
   const folders = discoverFeedbackFolders(rootDir);
-  const matched = folders.find((f) => f.name.toLowerCase().includes(targetName.toLowerCase()));
+  const cleanTarget = targetName.replace(/^[/\\]+|[/\\]+$/g, '').toLowerCase();
+  const matched = folders.find((f) => 
+    f.name.toLowerCase() === cleanTarget ||
+    f.relPath.toLowerCase() === cleanTarget ||
+    f.name.toLowerCase().includes(cleanTarget) ||
+    f.relPath.toLowerCase().includes(cleanTarget)
+  );
 
   if (!matched) {
     console.error(`❌ Không tìm thấy thư mục nào khớp với "${targetName}"!`);

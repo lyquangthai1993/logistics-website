@@ -109,13 +109,13 @@ if (isForce) {
 } else if (isFeedback) {
   cleanText = rawText.replace(/^\\/feedback(@\\w+)?\\s*/i, '').trim() || (photoFileId ? '(Ảnh chụp màn hình từ người dùng)' : rawText);
   modeBadge = '<code>/leader</code> (TMS Business Lead)';
-  modeGoal = 'Khảo sát nghiệp vụ, tổng hợp <code>TODO.md</code> vào thư mục <code>feedbacks/feedback_DD_MM</code>';
+  modeGoal = 'Khảo sát nghiệp vụ, tổng hợp <code>TODO.md</code> vào thư mục <code>feedbacks/feedback_DD_MM_task_&lt;id&gt;</code>';
   promptForDB = 'Hãy kích hoạt skill /leader để đóng vai trò Team Lead nghiệp vụ TMS của dự án logistics-website.\\n' +
     'Bạn vừa tiếp nhận feedback / yêu cầu mới từ người dùng' + (photoFileId ? ' kèm theo ảnh chụp màn hình' : '') + ':\\n\\\"' + cleanText + '\\\"\\n\\n' +
     'NHIỆM VỤ ĐẦU RA BẮT BUỘC:\\n' +
     '1. Đọc và phân tích kỹ phản hồi và các hình ảnh chụp màn hình đính kèm (sử dụng view_file).\\n' +
     '2. Khảo sát cấu trúc nghiệp vụ và mã nguồn trong D:\\\\Projects\\\\logistics-website.\\n' +
-    '3. Tổng hợp thành 1 file TODO.md chuẩn mực đặt tại thư mục feedback (ví dụ: D:\\\\Projects\\\\logistics-website\\\\feedbacks\\\\feedback_DD_MM\\\\TODO.md) theo đúng cấu trúc chuẩn như trong D:\\\\Projects\\\\logistics-website\\\\feedback_06_10\\\\TODO.md:\\n' +
+    '3. Tổng hợp thành 1 file TODO.md chuẩn mực đặt tại thư mục feedback riêng biệt cho task theo mẫu: D:\\\\Projects\\\\logistics-website\\\\feedbacks\\\\feedback_DD_MM_task_<id>\\\\TODO.md theo đúng cấu trúc chuẩn như trong D:\\\\Projects\\\\logistics-website\\\\feedback_06_10\\\\TODO.md:\\n' +
     '   - Header: Tiêu đề Feedback + Thời gian ghi nhận + Người báo cáo + Màn hình liên quan + Tài liệu tham chiếu\\n' +
     '   - 📌 Bối cảnh nghiệp vụ thực tế (Chốt theo phản hồi người dùng)\\n' +
     '   - 🔍 Tổng hợp các điểm chưa đúng trên giao diện cũ (đối chiếu ảnh chụp màn hình)\\n' +

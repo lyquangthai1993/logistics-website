@@ -233,6 +233,14 @@ function markdownToTelegramHtml(markdown) {
     return `@@@TELEGRAM_INLINE_CODE_${idx}@@@`;
   });
 
+  // Tạm thời bảo vệ các thẻ HTML Telegram hợp lệ đã tồn tại (<b>, <code>, <i>, <a>, <pre>, <s>, <u>, <blockquote>...)
+  const validHtmlTags = [];
+  text = text.replace(/<\/?(?:b|strong|i|em|u|ins|s|strike|del|tg-spoiler|code|pre|blockquote)(?:\s+[^>]*)?>|<\/?span(?:\s+class="[^"]*")?>|<\/?a(?:\s+href="[^"]*")?>/gi, (match) => {
+    const idx = validHtmlTags.length;
+    validHtmlTags.push(match);
+    return `@@@VALID_HTML_TAG_${idx}@@@`;
+  });
+
   // 3. Tạm thời chuyển <br> thành token để không làm gãy dòng của Markdown Table
   text = text.replace(/<br\s*\/?>/gi, '@@@TELEGRAM_BR@@@');
 
@@ -300,6 +308,11 @@ function markdownToTelegramHtml(markdown) {
 
   text = text.replace(/@@@TELEGRAM_INLINE_CODE_(\d+)@@@/g, (m, idx) => {
     return `<code>${inlineCodes[Number(idx)] || ''}</code>`;
+  });
+
+  // Khôi phục các thẻ HTML hợp lệ đã bảo vệ
+  text = text.replace(/@@@VALID_HTML_TAG_(\d+)@@@/g, (m, idx) => {
+    return validHtmlTags[Number(idx)] || '';
   });
 
   // 14. Dọn dẹp các thẻ b lồng nhau nếu có

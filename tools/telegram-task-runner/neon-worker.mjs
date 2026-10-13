@@ -97,6 +97,14 @@ function markdownToTelegramHtml(markdown) {
     return `@@@TELEGRAM_INLINE_CODE_${idx}@@@`;
   });
 
+  // Tạm thời bảo vệ các thẻ HTML Telegram hợp lệ đã tồn tại (<b>, <code>, <i>, <a>, <pre>, <s>, <u>, <blockquote>...)
+  const validHtmlTags = [];
+  text = text.replace(/<\/?(?:b|strong|i|em|u|ins|s|strike|del|tg-spoiler|code|pre|blockquote)(?:\s+[^>]*)?>|<\/?span(?:\s+class="[^"]*")?>|<\/?a(?:\s+href="[^"]*")?>/gi, (match) => {
+    const idx = validHtmlTags.length;
+    validHtmlTags.push(match);
+    return `@@@VALID_HTML_TAG_${idx}@@@`;
+  });
+
   text = text.replace(/<br\s*\/?>/gi, '@@@TELEGRAM_BR@@@');
   text = escapeHtml(text);
 
@@ -148,6 +156,11 @@ function markdownToTelegramHtml(markdown) {
     const item = inlineCodes[Number(idx)];
     if (!item) return '';
     return `<code>${item}</code>`;
+  });
+
+  // Khôi phục các thẻ HTML hợp lệ đã bảo vệ
+  text = text.replace(/@@@VALID_HTML_TAG_(\d+)@@@/g, (m, idx) => {
+    return validHtmlTags[Number(idx)] || '';
   });
 
   return text.trim();
@@ -236,6 +249,17 @@ async function editTelegramMessage(chatId, messageId, text, parseMode = 'HTML', 
       body: JSON.stringify(payload),
     });
     const data = await res.json();
+    if (!data.ok && parseMode) {
+      console.warn('editTelegramMessage non-ok, retrying without parse_mode:', data.description);
+      delete payload.parse_mode;
+      payload.text = text.replace(/<[^>]+>/g, '').slice(0, 4000);
+      const retryRes = await fetch(`${API_BASE}/editMessageText`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      return await retryRes.json();
+    }
     return data;
   } catch (err) {
     console.error('editTelegramMessage failed:', err.message);
@@ -266,6 +290,16 @@ async function sendTelegramPhoto(chatId, imagePath, caption = '', replyMarkup = 
     const data = await res.json();
     if (!data.ok) {
       console.warn('sendTelegramPhoto non-ok:', data.description);
+      if (caption) {
+        // Fallback retry không dùng HTML nếu bị lỗi entity parsing
+        const retryFormData = new FormData();
+        retryFormData.append('chat_id', String(chatId));
+        retryFormData.append('photo', new Blob([fileBuffer]), path.basename(imagePath));
+        retryFormData.append('caption', caption.replace(/<[^>]+>/g, '').slice(0, 1020));
+        if (replyMarkup) retryFormData.append('reply_markup', JSON.stringify(replyMarkup));
+        const retryRes = await fetch(`${API_BASE}/sendPhoto`, { method: 'POST', body: retryFormData });
+        return await retryRes.json();
+      }
     }
     return data;
   } catch (err) {
@@ -300,31 +334,22 @@ async function downloadTelegramFile(fileId, targetDir, defaultName = 'screenshot
   return localFilePath;
 }
 
-// Xác định thư mục feedback theo ngày (ví dụ feedback_06_10)
+// Xác định thư mục feedback theo ngày và taskId (ví dụ feedbacks/feedback_13_10_task_37)
 function getFeedbackDirectory(taskId) {
   const now = new Date();
   const dd = String(now.getDate()).padStart(2, '0');
   const mm = String(now.getMonth() + 1).padStart(2, '0');
-  const baseName = `feedback_${dd}_${mm}`;
-  const baseDir = path.join(WORKSPACE_DIR, baseName);
-
-  // Nếu baseDir chưa tồn tại, tạo mới và dùng
-  if (!fs.existsSync(baseDir)) {
-    fs.mkdirSync(baseDir, { recursive: true });
-    return baseDir;
+  const baseName = taskId ? `feedback_${dd}_${mm}_task_${taskId}` : `feedback_${dd}_${mm}`;
+  const feedbacksRoot = path.join(WORKSPACE_DIR, 'feedbacks');
+  if (!fs.existsSync(feedbacksRoot)) {
+    fs.mkdirSync(feedbacksRoot, { recursive: true });
   }
 
-  // Nếu baseDir đã có TODO.md hoàn chỉnh, tạo folder riêng cho task này để không ghi đè
-  const baseTodo = path.join(baseDir, 'TODO.md');
-  if (!fs.existsSync(baseTodo)) {
-    return baseDir;
+  const targetDir = path.join(feedbacksRoot, baseName);
+  if (!fs.existsSync(targetDir)) {
+    fs.mkdirSync(targetDir, { recursive: true });
   }
-
-  const taskDir = path.join(WORKSPACE_DIR, `${baseName}_task_${taskId}`);
-  if (!fs.existsSync(taskDir)) {
-    fs.mkdirSync(taskDir, { recursive: true });
-  }
-  return taskDir;
+  return targetDir;
 }
 
 // Lấy Git Diff Stat
@@ -359,7 +384,10 @@ function getGitDiffStat() {
 function buildLeaderPrompt(rawPrompt, feedbackDir, imagePaths = [], senderName = 'User') {
   const relativeFeedbackDir = path.relative(WORKSPACE_DIR, feedbackDir);
   const targetTodoPath = path.join(feedbackDir, 'TODO.md');
-  const referenceTodoPath = path.join(WORKSPACE_DIR, 'feedback_06_10', 'TODO.md');
+  let referenceTodoPath = path.join(WORKSPACE_DIR, 'feedbacks', 'feedback_06_10', 'TODO.md');
+  if (!fs.existsSync(referenceTodoPath)) {
+    referenceTodoPath = path.join(WORKSPACE_DIR, 'feedback_06_10', 'TODO.md');
+  }
 
   let imagesSection = '';
   if (imagePaths.length > 0) {
@@ -414,7 +442,7 @@ Cấu trúc file ${targetTodoPath} BẮT BUỘC có các phần:
 
 // Xây dựng prompt chuẩn hóa với vai trò todo-agent để thực thi triển khai code
 function buildTodoAgentPrompt(rawPrompt, feedbackDir, senderName = 'User') {
-  const hasSpecificFolder = /feedback_\d{1,2}_\d{1,2}[a-zA-Z0-9_]*/i.test(rawPrompt);
+  const hasSpecificFolder = /(?:feedbacks[\\/])?feedback_\d{1,2}_\d{1,2}[a-zA-Z0-9_]*/i.test(rawPrompt);
   const isTodayScan = !hasSpecificFolder && (/hôm nay|today|quét task|tất cả|all|force|todo|run|thực thi|triển khai/i.test(rawPrompt) || !feedbackDir || feedbackDir === WORKSPACE_DIR);
   const todaySummary = getTodayTasksSummary(WORKSPACE_DIR);
 
@@ -1011,11 +1039,15 @@ async function executeAgyTask(task) {
     feedbackDir = WORKSPACE_DIR;
   } else if (isTodoAgentMode) {
     if (!feedbackDir) {
-      const match = rawPrompt.match(/feedback_\d{1,2}_\d{1,2}[a-zA-Z0-9_]*/i);
+      const match = rawPrompt.match(/(?:feedbacks[\\/])?feedback_\d{1,2}_\d{1,2}[a-zA-Z0-9_]*/i);
       if (match) {
-        const candidate = path.join(WORKSPACE_DIR, match[0]);
-        if (fs.existsSync(candidate)) {
-          feedbackDir = candidate;
+        const folderName = path.basename(match[0]);
+        const candidateInFeedbacks = path.join(WORKSPACE_DIR, 'feedbacks', folderName);
+        const candidateInRoot = path.join(WORKSPACE_DIR, folderName);
+        if (fs.existsSync(candidateInFeedbacks)) {
+          feedbackDir = candidateInFeedbacks;
+        } else if (fs.existsSync(candidateInRoot)) {
+          feedbackDir = candidateInRoot;
         }
       }
     }
@@ -1695,7 +1727,7 @@ async function startWorker() {
   console.log(`⚡ AGY Binary:        ${AGY_BIN}`);
   console.log(`💬 Allowed Chat ID:   ${ALLOWED_CHAT_ID}`);
   console.log(`🐘 Neon DB Queue:     Connected`);
-  console.log(`📋 Output Goal:       TODO.md in feedback_DD_MM folder`);
+  console.log(`📋 Output Goal:       TODO.md in feedbacks/feedback_DD_MM folder`);
   console.log(`=======================================================\n`);
 
   try {
