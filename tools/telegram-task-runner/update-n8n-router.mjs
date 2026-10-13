@@ -97,7 +97,15 @@ if (isForce) {
     ? 'Thực thi checklist riêng cho thư mục <code>' + folderMatch[0] + '</code>, sửa code & kiểm thử'
     : 'Quét toàn bộ checklist <code>TODO.md</code> hôm nay, sửa code & chạy build test';
   cleanText = rawText;
-  promptForDB = rawText;
+  const targetFolder = folderMatch ? folderMatch[0] : '';
+  promptForDB = 'Hãy kích hoạt skill todo-agent để thực thi công việc phát triển và kiểm thử hệ thống Spider Express Logistics TMS.\\n' +
+    (targetFolder ? ('MỤC TIÊU ƯU TIÊN: Tập trung giải quyết checklist trong thư mục: ' + targetFolder + '\\n\\n') : 'MỤC TIÊU: Quét và giải quyết các checklist TODO.md hôm nay.\\n\\n') +
+    'QUY TRÌNH THỰC THI BẮT BUỘC:\\n' +
+    '1. Sử dụng list_dir và view_file để đọc kỹ file TODO.md trong thư mục feedback mục tiêu.\\n' +
+    '2. Khảo sát chính xác các file mã nguồn liên quan trong backend/ (NestJS) và frontend/ (Next.js App Router).\\n' +
+    '3. Thực hiện sửa đổi mã nguồn theo đúng các mục việc chưa hoàn thành (- [ ]).\\n' +
+    '4. Kiểm tra biên dịch (build / typecheck / lint) để đảm bảo không phát sinh lỗi.\\n' +
+    '5. Cập nhật lại checklist trong TODO.md từ (- [ ]) sang (- [x]), ghi lại bằng chứng kỹ thuật và tóm tắt những file đã thay đổi.';
 } else if (isFeedback) {
   cleanText = rawText.replace(/^\\/feedback(@\\w+)?\\s*/i, '').trim() || (photoFileId ? '(Ảnh chụp màn hình từ người dùng)' : rawText);
   modeBadge = '<code>/leader</code> (TMS Business Lead)';

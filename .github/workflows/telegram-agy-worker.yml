@@ -143,7 +143,64 @@ jobs:
             exit $AGY_EXIT
           fi
 
-      - name: "8. Báo cáo Kết quả về Telegram (/telegram-task-responder)"
+      - name: "8. Tự động Commit & Push lên nhánh dev nếu có thay đổi"
+        if: success()
+        env:
+          GH_PAT_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
+          TASK_ID: ${{ github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}
+        run: |
+          echo "🔍 Kiểm tra thay đổi mã nguồn sau khi AI thực thi..."
+          HAS_ROOT=$(git status --porcelain || true)
+          HAS_BE=$(git -C backend status --porcelain 2>/dev/null || true)
+          HAS_FE=$(git -C frontend status --porcelain 2>/dev/null || true)
+
+          # Lưu trước thống kê diff để gửi về Telegram
+          {
+            if [ -n "$HAS_ROOT" ]; then echo "=== Root ==="; git diff --stat; git status -s; fi
+            if [ -n "$HAS_BE" ]; then echo "=== Backend ==="; git -C backend diff --stat; git -C backend status -s; fi
+            if [ -n "$HAS_FE" ]; then echo "=== Frontend ==="; git -C frontend diff --stat; git -C frontend status -s; fi
+          } > git_diff_summary.txt 2>&1
+
+          if [ -z "$HAS_ROOT" ] && [ -z "$HAS_BE" ] && [ -z "$HAS_FE" ]; then
+            echo "ℹ️ Không có thay đổi file mã nguồn. Bỏ qua commit/push."
+            exit 0
+          fi
+
+          echo "🚀 Phát hiện thay đổi file! Tiến hành tự động commit & push theo quy chuẩn Submodule-first..."
+
+          # Cấu hình xác thực GitHub PAT cho push submodule và root
+          if [ -n "$GH_PAT_TOKEN" ]; then
+            git config --global url."https://x-access-token:${GH_PAT_TOKEN}@github.com/".insteadOf "https://github.com/"
+          fi
+
+          # 1. Submodule Backend
+          if [ -d "backend" ] && [ -n "$HAS_BE" ]; then
+            echo "📦 Đang commit & push thay đổi trong backend/..."
+            git -C backend checkout dev 2>/dev/null || true
+            git -C backend add -A
+            git -C backend commit -m "feat(backend): task #${TASK_ID} auto-implemented by Antigravity worker" || true
+            git -C backend push origin dev || true
+          fi
+
+          # 2. Submodule Frontend
+          if [ -d "frontend" ] && [ -n "$HAS_FE" ]; then
+            echo "📦 Đang commit & push thay đổi trong frontend/..."
+            git -C frontend checkout dev 2>/dev/null || true
+            git -C frontend add -A
+            git -C frontend commit -m "feat(frontend): task #${TASK_ID} auto-implemented by Antigravity worker" || true
+            git -C frontend push origin dev || true
+          fi
+
+          # 3. Root Repository (cập nhật submodule pointer và feedback artifacts)
+          echo "📦 Đang commit & push thay đổi trong root repo..."
+          git checkout dev 2>/dev/null || true
+          git add -A
+          git commit -m "chore(task): update task #${TASK_ID} artifacts and submodules" || true
+          git push origin dev || true
+
+          echo "✅ Đã tự động commit & push thành công lên nhánh dev!"
+
+      - name: "9. Báo cáo Kết quả về Telegram (/telegram-task-responder)"
         if: always() && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_ALLOWED_CHAT_ID != ''
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -162,16 +219,21 @@ jobs:
               .replace(/>/g, "&gt;");
           }
 
-          let rootDiff = "";
-          let beDiff = "";
-          let feDiff = "";
-          try { rootDiff = execSync("git diff --stat", { encoding: "utf8" }).trim(); } catch (_) {}
-          try { beDiff = execSync("git -C backend diff --stat", { encoding: "utf8" }).trim(); } catch (_) {}
-          try { feDiff = execSync("git -C frontend diff --stat", { encoding: "utf8" }).trim(); } catch (_) {}
-
           let diffSummary = "Không có thay đổi file";
-          if (rootDiff || beDiff || feDiff) {
-            diffSummary = [rootDiff, beDiff, feDiff].filter(Boolean).join("\n");
+          if (fs.existsSync("git_diff_summary.txt")) {
+            const saved = fs.readFileSync("git_diff_summary.txt", "utf8").trim();
+            if (saved) diffSummary = saved;
+          }
+          if (diffSummary === "Không có thay đổi file") {
+            let rootDiff = "";
+            let beDiff = "";
+            let feDiff = "";
+            try { rootDiff = execSync("git diff --stat HEAD~1 HEAD", { encoding: "utf8" }).trim(); } catch (_) {}
+            try { beDiff = execSync("git -C backend diff --stat HEAD~1 HEAD", { encoding: "utf8" }).trim(); } catch (_) {}
+            try { feDiff = execSync("git -C frontend diff --stat HEAD~1 HEAD", { encoding: "utf8" }).trim(); } catch (_) {}
+            if (rootDiff || beDiff || feDiff) {
+              diffSummary = [rootDiff, beDiff, feDiff].filter(Boolean).join("\n");
+            }
           }
 
           let agyRes = "Hoàn tất tác vụ";
@@ -195,7 +257,7 @@ jobs:
             `▫️ <b>1. Kết quả thực thi:</b>\n<pre>${escapeHtml(agyRes)}</pre>\n\n` +
             `▫️ <b>2. Thống kê Git Diff:</b>\n<pre>${escapeHtml(diffSummary)}</pre>\n\n` +
             `▫️ <b>Runner:</b> GitHub Actions (Ubuntu)\n` +
-            `▫️ <b>Commit:</b> <code>${escapeHtml(commitHash)}</code>`;
+            `▫️ <b>Commit:</b> <code>${escapeHtml(commitHash)}</code> (Branch dev)`;
 
           const token = process.env.TELEGRAM_BOT_TOKEN;
           const chatId = process.env.TELEGRAM_ALLOWED_CHAT_ID;
