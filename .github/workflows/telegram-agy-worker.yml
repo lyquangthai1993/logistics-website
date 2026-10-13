@@ -120,8 +120,13 @@ jobs:
 
             printf "%s" "$AGY_SESSION_TOKEN" | secret-tool store --label="gemini" service gemini username antigravity
 
-            echo "🔍 Kiểm tra Keyring đối soát:"
-            secret-tool lookup service gemini username antigravity | cut -c 1-30
+            LOOKUP_RES=$(secret-tool lookup service gemini username antigravity 2>/dev/null || true)
+            if [ -n "$LOOKUP_RES" ]; then
+              echo "✅ Kiểm tra Keyring đối soát: Kết nối thành công (Secret Stored & Ready)"
+            else
+              echo "❌ Kiểm tra Keyring đối soát: Thất bại (Không tìm thấy token trong Keyring)"
+              exit 1
+            fi
 
             echo "🚀 Đang khởi chạy agy headless mode với session keyring (Live Streaming Log)..."
             agy -p "$RAW_PROMPT" \
