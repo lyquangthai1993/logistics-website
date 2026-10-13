@@ -102,20 +102,20 @@
 ---
 
 ### 💻 Phase 3: Triển Khai Mã Nguồn Frontend (`frontend/`)
-- [ ] **3.1. Cấu trúc Routing & Navigation Menu**:
-  - [ ] Cập nhật `WarehouseSidebar` trong `frontend/src/features/warehouse/components/`:
+- [x] **3.1. Cấu trúc Routing & Navigation Menu**:
+  - [x] Cập nhật `WarehouseSidebar` trong `frontend/src/features/warehouse/components/`:
     - Menu 1: `Nhập kho` (`/dashboard/warehouse/inbound`)
     - Menu 2: `Xuất kho` (`/dashboard/warehouse/outbound`)
     - Menu 3: `Đơn hàng` (`/dashboard/warehouse/orders`)
-  - [ ] Kiểm tra Route Guard RBAC tại `frontend/src/proxy.ts` cho các route kho mới.
-- [ ] **3.2. Xây dựng Component `InlineEditableWarehouseTable`**:
-  - [ ] Tạo bảng 10 cột rút gọn, hỗ trợ click sửa trực tiếp trên cell (Cell Inline Editing).
-  - [ ] Tối ưu CSS nén gọn chiều cao dòng (row height $\le 40px$, font size 12-13px) để hiển thị nhiều dòng hàng cùng lúc.
-  - [ ] Hỗ trợ phím `Tab` chuyển ô thông minh và phím `Enter` lưu dòng.
-  - [ ] Nút `[+ Thêm 1 dòng đơn mới]`: Sinh dòng trống trên grid, nhập xong trigger mutation tạo đơn kho.
-- [ ] **3.3. Tích hợp In Tem Nhận Diện Từng Dòng (Template `TEM NHẬN DIỆN HÀNG HÓA THÀNH A4.xlsx`)**:
-  - [ ] Tại cột `Thao tác`, thêm action icon `Printer` ("In tem nhận dạng").
-  - [ ] Khi click, mở popup xem/in nhanh mẫu **Tem Nhận Diện A4**:
+  - [x] Kiểm tra Route Guard RBAC tại `frontend/src/proxy.ts` cho các route kho mới.
+- [x] **3.2. Xây dựng Component `InlineEditableWarehouseTable`**:
+  - [x] Tạo bảng 10 cột rút gọn, hỗ trợ click sửa trực tiếp trên cell (Cell Inline Editing).
+  - [x] Tối ưu CSS nén gọn chiều cao dòng (row height $\le 40px$, font size 12-13px) để hiển thị nhiều dòng hàng cùng lúc.
+  - [x] Hỗ trợ phím `Tab` chuyển ô thông minh và phím `Enter` lưu dòng.
+  - [x] Nút `[+ Thêm 1 dòng đơn mới]`: Sinh dòng trống trên grid, nhập xong trigger mutation tạo đơn kho.
+- [x] **3.3. Tích hợp In Tem Nhận Diện Từng Dòng (Template `TEM NHẬN DIỆN HÀNG HÓA THÀNH A4.xlsx`)**:
+  - [x] Tại cột `Thao tác`, thêm action icon `Printer` ("In tem nhận dạng").
+  - [x] Khi click, mở popup xem/in nhanh mẫu **Tem Nhận Diện A4**:
     - `KHO : [Hub Name]` (Hub tiếp nhận)
     - `TÊN HÀNG : [Tên hàng]`
     - `MÃ ĐƠN HÀNG : [orderCode]` (Kèm barcode/QR)
@@ -124,26 +124,26 @@
     - `PALET SỐ : [Pallet Index] / TỔNG SỐ PALET : [Total Pallets]`
     - `NGƯỜI NHẬP : [Tên thủ kho]`
     - `GIAO ĐẾN : [Địa chỉ giao / Tỉnh thành / Tuyến Xe bo]`
-- [ ] **3.4. Xây dựng Giao Diện Xuất Kho (`/dashboard/warehouse/outbound`)**:
-  - [ ] Bộ lọc và bảng danh sách đơn xuất: Cho phép chọn/tìm đơn hàng kể cả trạng thái `DRAFT`.
-  - [ ] Thêm nút **`[🔄 Cập nhật lại thông số]`**: Kích hoạt hàm invalidate queries hoặc refetch dữ liệu tải trọng (Kg, $m^3$) mới nhất từ server.
-- [ ] **3.5. Hiển Thị Nhãn Trạng Thái Tiếng Việt**:
-  - [ ] Map badge: `INBOUND` ➔ `LƯU KHO`, `COMPLETED_INBOUND` ➔ `ĐÃ XUẤT KHO`.
-  - [ ] Ẩn lịch sử kiểm toán đối với `WAREHOUSE_MANAGER`, chỉ mở cho `SUPER_ADMIN`.
+- [x] **3.4. Xây dựng Giao Diện Xuất Kho (`/dashboard/warehouse/outbound`)**:
+  - [x] Bộ lọc và bảng danh sách đơn xuất: Cho phép chọn/tìm đơn hàng kể cả trạng thái `DRAFT`.
+  - [x] Thêm nút **`[🔄 Cập nhật lại thông số]`**: Kích hoạt hàm invalidate queries hoặc refetch dữ liệu tải trọng (Kg, $m^3$) mới nhất từ server.
+- [x] **3.5. Hiển Thị Nhãn Trạng Thái Tiếng Việt**:
+  - [x] Map badge: `INBOUND` ➔ `LƯU KHO`, `COMPLETED_INBOUND` ➔ `ĐÃ XUẤT KHO`.
+  - [x] Ẩn lịch sử kiểm toán đối với `WAREHOUSE_MANAGER`, chỉ mở cho `SUPER_ADMIN`.
 
 ---
 
 ### ⚙️ Phase 4: Triển Khai Mã Nguồn Backend (`backend/`)
-- [ ] **4.1. Entity & DTOs**:
-  - [ ] Chỉnh sửa `CreateWaybillDto` & `WaybillEntity`: **Bỏ hẳn** các trường `subContractor`, `driverPhone`.
-  - [ ] Tạo endpoint hoặc tối ưu DTO tạo nhanh đơn từ 1 dòng hàng của kho.
-- [ ] **4.2. Logic Nghiệp Vụ Tạo & Đổi Trạng Thái (`WaybillsService`)**:
-  - [ ] Luồng tạo nhanh: Tạo Draft ➔ Bấm xác nhận tự động chuyển sang `PENDING_INBOUND` / `INBOUND` (Lưu kho).
-- [ ] **4.3. API Tìm Kiếm & Lọc Đơn Xuất Kho**:
-  - [ ] Cập nhật query endpoint xuất kho: Cho phép query các đơn có trạng thái `['DRAFT', 'PENDING_FLEET', 'ASSIGNED', 'INBOUND']`.
-  - [ ] Tạo endpoint làm mới thông số: `POST /v1/orders/refresh-metrics` hoặc hỗ trợ batch get fresh metrics theo danh sách `orderIds`.
-- [ ] **4.4. Phân Quyền API Audit History**:
-  - [ ] Bảo vệ endpoint `GET /v1/waybills/:id/audit-logs` bằng Decorator `@Roles(RoleEnum.SUPER_ADMIN)`.
+- [x] **4.1. Entity & DTOs**:
+  - [x] Chỉnh sửa `CreateWaybillDto` & `WaybillEntity`: **Bỏ hẳn** các trường `subContractor`, `driverPhone`.
+  - [x] Tạo endpoint hoặc tối ưu DTO tạo nhanh đơn từ 1 dòng hàng của kho.
+- [x] **4.2. Logic Nghiệp Vụ Tạo & Đổi Trạng Thái (`WaybillsService`)**:
+  - [x] Luồng tạo nhanh: Tạo Draft ➔ Bấm xác nhận tự động chuyển sang `PENDING_INBOUND` / `INBOUND` (Lưu kho).
+- [x] **4.3. API Tìm Kiếm & Lọc Đơn Xuất Kho**:
+  - [x] Cập nhật query endpoint xuất kho: Cho phép query các đơn có trạng thái `['DRAFT', 'PENDING_FLEET', 'ASSIGNED', 'INBOUND']`.
+  - [x] Tạo endpoint làm mới thông số: `POST /v1/orders/refresh-metrics` hoặc hỗ trợ batch get fresh metrics theo danh sách `orderIds`.
+- [x] **4.4. Phân Quyền API Audit History**:
+  - [x] Bảo vệ endpoint `GET /v1/waybills/:id/audit-logs` bằng Decorator `@Roles(RoleEnum.SUPER_ADMIN)`.
 
 ---
 
@@ -161,46 +161,46 @@
 
 #### 🧪 Danh Mục Kịch Bản Kiểm Thử E2E Chi Tiết (File: `frontend/e2e/12-warehouse-inter-hub-transfer.spec.ts`)
 
-- [ ] **5.1. Test Case TC-WH-01: Khởi tạo đơn & Lưu kho tại Hub nguồn (Hưng Yên - `warehouse_hyn`)**:
-  - [ ] Đăng nhập `warehouse_hyn`, điều hướng đến `/dashboard/warehouse/inbound`.
-  - [ ] Kiểm tra Header hiển thị Hub hiện tại: `Polaris Hub - Hưng Yên`.
-  - [ ] Bấm `[+ Thêm 1 dòng đơn mới]`, nhập dữ liệu: *Tên hàng: Vải cuộn may mặc, Số thùng: 50, Số kg: 1,280, Số khối: 5.0, Địa chỉ nhận: KCN Thăng Long II, Địa chỉ giao: Magellan Hub - Đà Nẵng*.
-  - [ ] Bấm nút `[🖨️ In tem]` tại cột Thao tác của dòng:
+- [x] **5.1. Test Case TC-WH-01: Khởi tạo đơn & Lưu kho tại Hub nguồn (Hưng Yên - `warehouse_hyn`)**:
+  - [x] Đăng nhập `warehouse_hyn`, điều hướng đến `/dashboard/warehouse/inbound`.
+  - [x] Kiểm tra Header hiển thị Hub hiện tại: `Polaris Hub - Hưng Yên`.
+  - [x] Bấm `[+ Thêm 1 dòng đơn mới]`, nhập dữ liệu: *Tên hàng: Vải cuộn may mặc, Số thùng: 50, Số kg: 1,280, Số khối: 5.0, Địa chỉ nhận: KCN Thăng Long II, Địa chỉ giao: Magellan Hub - Đà Nẵng*.
+  - [x] Bấm nút `[🖨️ In tem]` tại cột Thao tác của dòng:
     - Kiểm tra popup/preview tem A4 hiển thị đúng: `KHO : Polaris Hub - Hưng Yên`, `SỐ LƯỢNG : 10/80` (với `/80` là tổng số lượng tạo), Barcode `orderCode`.
-  - [ ] Bấm `[Xác nhận tiếp nhận]`: Đơn chuyển trạng thái sang `LƯU KHO` tại Hub Hưng Yên.
-- [ ] **5.2. Test Case TC-WH-02: Xuất kho chuyển Hub tại Hưng Yên (Outbound Hưng Yên ➔ Đà Nẵng)**:
-  - [ ] Tại `warehouse_hyn`, chuyển sang menu `Xuất kho` (`/dashboard/warehouse/outbound`).
-  - [ ] Tìm kiếm và chọn đơn hàng vừa lưu kho (kiểm tra bộ lọc tìm thấy cả đơn `DRAFT`).
-  - [ ] Click nút **`[🔄 Cập nhật lại thông số]`**: Xác nhận hệ thống refetch thành công dữ liệu tải trọng tươi mới.
-  - [ ] Gán đơn vào chuyến xe tuyến chuyển Hub `Hưng Yên ➔ Đà Nẵng` và bấm `[Xác nhận xuất kho]`.
-  - [ ] Kiểm tra trạng thái: Đơn hàng chuyển sang `ĐÃ XUẤT KHO` tại Hưng Yên; Chuyến xe chuyển trạng thái `IN_TRANSIT`.
-- [ ] **5.3. Test Case TC-WH-03: Kiểm thử Strict Hub Scoping & Cách ly dữ liệu giữa các kho**:
-  - [ ] Đăng nhập `warehouse_hcm` (Hub TP.HCM):
+  - [x] Bấm `[Xác nhận tiếp nhận]`: Đơn chuyển trạng thái sang `LƯU KHO` tại Hub Hưng Yên.
+- [x] **5.2. Test Case TC-WH-02: Xuất kho chuyển Hub tại Hưng Yên (Outbound Hưng Yên ➔ Đà Nẵng)**:
+  - [x] Tại `warehouse_hyn`, chuyển sang menu `Xuất kho` (`/dashboard/warehouse/outbound`).
+  - [x] Tìm kiếm và chọn đơn hàng vừa lưu kho (kiểm tra bộ lọc tìm thấy cả đơn `DRAFT`).
+  - [x] Click nút **`[🔄 Cập nhật lại thông số]`**: Xác nhận hệ thống refetch thành công dữ liệu tải trọng tươi mới.
+  - [x] Gán đơn vào chuyến xe tuyến chuyển Hub `Hưng Yên ➔ Đà Nẵng` và bấm `[Xác nhận xuất kho]`.
+  - [x] Kiểm tra trạng thái: Đơn hàng chuyển sang `ĐÃ XUẤT KHO` tại Hưng Yên; Chuyến xe chuyển trạng thái `IN_TRANSIT`.
+- [x] **5.3. Test Case TC-WH-03: Kiểm thử Strict Hub Scoping & Cách ly dữ liệu giữa các kho**:
+  - [x] Đăng nhập `warehouse_hcm` (Hub TP.HCM):
     - Kiểm tra danh sách Nhập kho, Xuất kho, Đơn hàng: Tuyệt đối **KHÔNG** thấy đơn hàng và chuyến xe đang chạy giữa Hưng Yên và Đà Nẵng (Data isolation = 100%).
-  - [ ] Đăng nhập `warehouse_dad` (Hub Đà Nẵng):
+  - [x] Đăng nhập `warehouse_dad` (Hub Đà Nẵng):
     - Kiểm tra danh sách: **CHỈ** nhìn thấy các chuyến xe và đơn hàng có đích đến là Hub Đà Nẵng.
-- [ ] **5.4. Test Case TC-WH-04: Tiếp nhận luân chuyển tại Hub đích (Đà Nẵng - `warehouse_dad`) - Mode 2**:
-  - [ ] Tại `warehouse_dad`, vào menu `Nhập kho` ➔ Tab `Luân chuyển nội bộ` (Mode 2).
-  - [ ] Bấm `[🚚 Chọn chuyến hàng ➔]`: Modal hiển thị chuyến xe từ Hưng Yên đang đến (`IN_TRANSIT`, còn hàng cần dỡ).
-  - [ ] Chọn chuyến xe ➔ Modal Bước 2 hiển thị danh sách đơn trên chuyến: Tích chọn đơn hàng từ Hưng Yên.
-  - [ ] Nạp đơn vào bảng kiểm đếm, thử nghiệm bấm `[+ Thêm hàng phát sinh]` để nhận bổ sung kiện hàng gom dọc đường.
-  - [ ] Bấm `[Xác nhận tiếp nhận]`:
+- [x] **5.4. Test Case TC-WH-04: Tiếp nhận luân chuyển tại Hub đích (Đà Nẵng - `warehouse_dad`) - Mode 2**:
+  - [x] Tại `warehouse_dad`, vào menu `Nhập kho` ➔ Tab `Luân chuyển nội bộ` (Mode 2).
+  - [x] Bấm `[🚚 Chọn chuyến hàng ➔]`: Modal hiển thị chuyến xe từ Hưng Yên đang đến (`IN_TRANSIT`, còn hàng cần dỡ).
+  - [x] Chọn chuyến xe ➔ Modal Bước 2 hiển thị danh sách đơn trên chuyến: Tích chọn đơn hàng từ Hưng Yên.
+  - [x] Nạp đơn vào bảng kiểm đếm, thử nghiệm bấm `[+ Thêm hàng phát sinh]` để nhận bổ sung kiện hàng gom dọc đường.
+  - [x] Bấm `[Xác nhận tiếp nhận]`:
     - Đơn hàng chính thức nhập kho Đà Nẵng, chuyển trạng thái sang **`LƯU KHO`** tại Hub Đà Nẵng.
-  - [ ] Bấm nút `[🖨️ In tem]` tại Đà Nẵng:
+  - [x] Bấm nút `[🖨️ In tem]` tại Đà Nẵng:
     - Xác nhận thông tin in tem được tự động cập nhật: `KHO : Magellan Hub - Đà Nẵng`, `NGƯỜI NHẬP : Trần Đình Kho / Thủ kho DAD`.
-- [ ] **5.5. Test Case TC-WH-05: Xuất kho chặng cuối bàn giao Xe bo (Đà Nẵng ➔ Xe bo Tuyến Đà Nẵng)**:
-  - [ ] Tại `warehouse_dad`, vào menu `Xuất kho`.
-  - [ ] Chọn đơn hàng đang `LƯU KHO` tại Đà Nẵng.
-  - [ ] Chọn đơn vị tiếp nhận: `Xe bo Tuyến Đà Nẵng` (Hub cấp 2 vệ tinh).
-  - [ ] Bấm `[Xác nhận xuất kho]`: Đơn hàng chuyển trạng thái **`ĐÃ XUẤT KHO`** tại Đà Nẵng, bàn giao cho tài xế xe bo đi giao chặng cuối.
-- [ ] **5.6. Test Case TC-WH-06: Xác thực quyền hạn & Lịch sử kiểm toán độc quyền Super Admin**:
-  - [ ] Kiểm tra tại các tài khoản `warehouse_hyn`, `warehouse_dad`, `warehouse_hcm`:
+- [x] **5.5. Test Case TC-WH-05: Xuất kho chặng cuối bàn giao Xe bo (Đà Nẵng ➔ Xe bo Tuyến Đà Nẵng)**:
+  - [x] Tại `warehouse_dad`, vào menu `Xuất kho`.
+  - [x] Chọn đơn hàng đang `LƯU KHO` tại Đà Nẵng.
+  - [x] Chọn đơn vị tiếp nhận: `Xe bo Tuyến Đà Nẵng` (Hub cấp 2 vệ tinh).
+  - [x] Bấm `[Xác nhận xuất kho]`: Đơn hàng chuyển trạng thái **`ĐÃ XUẤT KHO`** tại Đà Nẵng, bàn giao cho tài xế xe bo đi giao chặng cuối.
+- [x] **5.6. Test Case TC-WH-06: Xác thực quyền hạn & Lịch sử kiểm toán độc quyền Super Admin**:
+  - [x] Kiểm tra tại các tài khoản `warehouse_hyn`, `warehouse_dad`, `warehouse_hcm`:
     - Tab/Nút `[Lịch sử kiểm toán]` bị ẩn hoàn toàn trên giao diện.
     - Gọi trực tiếp API `/v1/waybills/:id/audit-logs` trả về `403 Forbidden`.
-  - [ ] Đăng nhập `admin` (Super Admin):
+  - [x] Đăng nhập `admin` (Super Admin):
     - Mở chi tiết đơn hàng: Xem trọn vẹn toàn bộ **Timeline Stepper 3 chặng** & **Audit Trail**:
       `Khởi tạo (Hưng Yên) ➔ Lưu kho (Hưng Yên) ➔ Xuất kho (Hưng Yên) ➔ Luân chuyển (Trip) ➔ Nhập kho (Đà Nẵng) ➔ Lưu kho (Đà Nẵng) ➔ Xuất kho Xe bo (Đà Nẵng)`.
     - Dữ liệu lịch sử thể hiện chính xác từng mốc thời gian, người thực hiện, và thay đổi trạng thái qua từng kho.
-- [ ] **5.7. Tự động hóa Playwright & Regression**:
-  - [ ] Viết và chạy thành công file test Playwright: `npx playwright test frontend/e2e/12-warehouse-inter-hub-transfer.spec.ts`.
-  - [ ] Chụp ảnh bằng chứng màn hình luân chuyển liên Hub lưu vào `frontend/e2e/screenshots/`.
+- [x] **5.7. Tự động hóa Playwright & Regression**:
+  - [x] Viết và chạy thành công file test Playwright: `npx playwright test frontend/e2e/12-warehouse-inter-hub-transfer.spec.ts`.
+  - [x] Chụp ảnh bằng chứng màn hình luân chuyển liên Hub lưu vào `frontend/e2e/screenshots/`.
