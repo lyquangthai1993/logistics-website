@@ -68,7 +68,7 @@ jobs:
       - name: "5. Cài đặt Antigravity CLI (agy)"
         run: |
           echo "⬇️ Đang cài đặt Antigravity CLI..."
-          curl -fsSL https://antigravity.google/cli/install.sh | bash
+          curl -fsSL --compressed https://antigravity.google/cli/install.sh | bash
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           echo "$HOME/bin" >> $GITHUB_PATH
 
