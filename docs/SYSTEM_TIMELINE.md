@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 13/10/2026 | `feedback_13_10` | Feedback 13/10 — Chuẩn Hóa Cấu Trúc 15 Cột Báo Cáo E... | 8/8 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_13_10/RESOLUTION.md) |
 | 12/10/2026 20:36 | `feedback_12_10_task_33` | Feedback 12/10 (Task 33) — Tối Ưu Độ Sáng & Tinh Chỉ... | 7/7 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_12_10_task_33/RESOLUTION.md) |
 | 12/10/2026 | `feedback_12_10` | Feedback 12/10 — Chuẩn Hóa Nhận Diện Thương Hiệu Spi... | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_12_10/RESOLUTION.md) |
 | 09/10/2026 - 18:22 | `feedback_09_10_task_20` | Feedback 09/10 (Task 20) — Tích Hợp Nút Xuất Báo Cáo... | 18/18 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_20/RESOLUTION.md) |
@@ -46,6 +47,18 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_13_10] — Feedback 13/10 — Chuẩn Hóa Cấu Trúc 15 Cột Báo Cáo Excel Đơn Hàng Kho & Bóc Tách Chuyến Xe Nhập - Xuất (13/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (8/8 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Quản lý vận hành kho bãi Logistics TMS)
+- **Phạm vi**: Quản lý Đơn hàng kho (`/dashboard/warehouse/orders`) ➔ Nút xuất báo cáo Excel ([`WarehouseOrdersPage`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/orders/page.tsx)) • Chi tiết vận đơn & Timeline biến động hàng hóa ([`WarehouseWaybillDetailModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-waybill-detail-modal.tsx)) • Backend Warehouse Orders API: Controller ([`warehouse.controller.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.controller.ts)) & Service ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)) • Bảng dữ liệu thực thể biến động kho: [`OrderInventoryTransactionEntity`](file:///D:/Projects/logistics-website/backend/src/orders/infrastructure/persistence/relational/entities/order-inventory-transaction.entity.ts) & [`OrderEntity`](file:///D:/Projects/logistics-website/backend/src/orders/infrastructure/persistence/relational/entities/order.entity.ts)
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Nâng cấp `enrichWarehouseRows` trong `WarehouseService` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)); Cập nhật hàm gom nhóm `aggregateOrderGroup` trong `WarehouseService` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)); Bảo đảm tính toàn vẹn của API `GET /api/v1/warehouse/orders` với cờ `isExport=true`
+  * **Frontend**: Tái cấu trúc hàm `handleExportStoredOrdersExcel` trong [`frontend/src/app/dashboard/warehouse/orders/page.tsx`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/orders/page.tsx); Tuân thủ nghiêm ngặt Quy chuẩn giao diện hẹp (UI Compact Density & Zero Banned Classes)
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01_verified.png, screenshot_02_export_download_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_13_10/RESOLUTION.md) • [`TODO.md`](../feedback_13_10/TODO.md)
 
 ### 🚀 [FEEDBACK_12_10_TASK_33] — Feedback 12/10 (Task 33) — Tối Ưu Độ Sáng & Tinh Chỉnh Div Overlay Banner Đăng Nhập (Login Hero) (12/10/2026 20:36)
 - **Trạng thái**: ✅ Hoàn thành 100% (7/7 việc)
