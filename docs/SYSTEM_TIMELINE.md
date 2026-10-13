@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 13/10/2026 | `feedbacks/feedback_13_10_task_41` | Feedback 13/10 (Task 41) — Bảo Toàn Thông Tin Đích Đ... | 10/10 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_41/RESOLUTION.md) |
 | 13/10/2026 | `feedbacks/feedback_13_10_task_38` | Feedback 13/10 (Task 38) — Chuẩn hóa Hiển thị Thông ... | 15/15 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_38/RESOLUTION.md) |
 | 13/10/2026 | `feedbacks/feedback_13_10_task_37` | Feedback 13/10 (Task #37) — Khóa Quyền Thao Tác Đơn ... | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_37/RESOLUTION.md) |
 | 13/10/2026 | `feedback_13_10` | Feedback 13/10 — Chuẩn Hóa Cấu Trúc 15 Cột Báo Cáo E... | 8/8 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_13_10/RESOLUTION.md) |
@@ -49,6 +50,18 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_13_10_TASK_41] — Feedback 13/10 (Task 41) — Bảo Toàn Thông Tin Đích Đến Ban Đầu Của Đơn Hàng (Master Contract Destination Invariance) & Tách Biệt Hoàn Toàn Với Địa Chỉ Giao Khi Xuất Kho (13/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (10/10 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Chủ quản vận hành / Vận hành TMS)
+- **Phạm vi**: Quản lý Đơn hàng tại kho (`/warehouse/orders`) ➔ Bảng tổng hợp đơn hàng & Cột "ĐÍCH ĐẾN" ([`WarehouseOrdersPage`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/orders/page.tsx)) • Tác nghiệp Xuất kho & Chuyến xe luân chuyển ([`WarehouseOutboundTransferFlow`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-outbound-transfer-flow.tsx) & [`confirmOutbound`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)) • Cập nhật hình thức giao & đích đến trên chuyến xe ([`updateTripOrderDestination`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts) & [`WarehouseTripDetailModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) • Chi tiết Vận đơn & Lịch sử hành trình ([`WarehouseWaybillDetailModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-waybill-detail-modal.tsx)) • In tem nhận diện A4 Pallet ([`PalletLabelA4Modal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/pallet-label-a4-modal.tsx)) • Báo cáo xuất dữ liệu Excel đơn hàng lưu kho và xuất kho ([`handleExportStoredOrdersExcel`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/orders/page.tsx))
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Chấm dứt triệt để việc ghi đè Master Contract trong `confirmOutbound` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)); Tách biệt phạm vi cập nhật trong `updateTripOrderDestination` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)); Bổ sung / Chuẩn hóa cấu trúc dữ liệu trả về cho API `GET /api/v1/warehouse/orders`...
+  * **Frontend**: Chuẩn hóa hiển thị cột ĐÍCH ĐẾN tại trang Tổng Hợp Đơn Hàng Kho ([`page.tsx`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/orders/page.tsx)); Chuẩn hóa Báo cáo xuất file Excel ([`handleExportStoredOrdersExcel`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/orders/page.tsx)); Đồng bộ hiển thị trên các Modal liên quan...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_01_orders_table_verified.png, screenshot_task_41_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_13_10_task_41/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_13_10_task_41/TODO.md)
 
 ### 🚀 [FEEDBACK_13_10_TASK_38] — Feedback 13/10 (Task 38) — Chuẩn hóa Hiển thị Thông tin Chi tiết Hub Cấp 1 & Tuyến Xe Bo tại Cột "Địa Chỉ Giao" Màn hình Xuất Kho (13/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (15/15 việc)
