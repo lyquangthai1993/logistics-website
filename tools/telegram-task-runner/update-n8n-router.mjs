@@ -8,15 +8,16 @@ if (fs.existsSync(path.join(__dirname, '.env'))) {
   process.loadEnvFile(path.join(__dirname, '.env'));
 }
 
-const BASE_URL = 'https://n8n-n0al.onrender.com';
+const BASE_URL = process.env.N8N_BASE_URL || 'https://n8n-automation-production-d298.up.railway.app';
 const WORKFLOW_ID = 'IL2EeeayDVec4jHl';
 const PG_CRED_ID = '98mf2JbtaLmz0J3J';
 const TG_CRED_ID = 'TuI6c4213DQZTZ5X';
+const GH_PAT_TOKEN = process.env.GH_PAT_TOKEN || '';
 
 async function main() {
   console.log('1. Logging into n8n Cloud...');
-  const email = process.env.N8N_EMAIL;
-  const password = process.env.N8N_PASSWORD;
+  const email = process.env.N8N_EMAIL || 'lyquangthai1993@gmail.com';
+  const password = process.env.N8N_PASSWORD || 'Admin@123456!';
   if (!email || !password) {
     throw new Error('Missing N8N_EMAIL or N8N_PASSWORD in environment');
   }
@@ -90,23 +91,31 @@ let cleanText = '';
 let promptForDB = '';
 
 if (isForce) {
-  const folderMatch = rawText.match(/feedback_\\d{1,2}_\\d{1,2}[a-zA-Z0-9_]*/i);
+  const folderMatch = rawText.match(/(?:feedbacks[\\/])?feedback_\\d{1,2}_\\d{1,2}[a-zA-Z0-9_]*/i);
   modeBadge = '<code>todo-agent</code> (Thực thi code & kiểm thử)';
   modeGoal = folderMatch 
     ? 'Thực thi checklist riêng cho thư mục <code>' + folderMatch[0] + '</code>, sửa code & kiểm thử'
     : 'Quét toàn bộ checklist <code>TODO.md</code> hôm nay, sửa code & chạy build test';
   cleanText = rawText;
-  promptForDB = rawText;
+  const targetFolder = folderMatch ? folderMatch[0] : '';
+  promptForDB = 'Hãy kích hoạt skill todo-agent để thực thi công việc phát triển và kiểm thử hệ thống Spider Express Logistics TMS.\\n' +
+    (targetFolder ? ('MỤC TIÊU ƯU TIÊN: Tập trung giải quyết checklist trong thư mục: ' + targetFolder + '\\n\\n') : 'MỤC TIÊU: Quét và giải quyết các checklist TODO.md hôm nay.\\n\\n') +
+    'QUY TRÌNH THỰC THI BẮT BUỘC:\\n' +
+    '1. Sử dụng list_dir và view_file để đọc kỹ file TODO.md trong thư mục feedback mục tiêu.\\n' +
+    '2. Khảo sát chính xác các file mã nguồn liên quan trong backend/ (NestJS) và frontend/ (Next.js App Router).\\n' +
+    '3. Thực hiện sửa đổi mã nguồn theo đúng các mục việc chưa hoàn thành (- [ ]).\\n' +
+    '4. Kiểm tra biên dịch (build / typecheck / lint) để đảm bảo không phát sinh lỗi.\\n' +
+    '5. Cập nhật lại checklist trong TODO.md từ (- [ ]) sang (- [x]), ghi lại bằng chứng kỹ thuật và tóm tắt những file đã thay đổi.';
 } else if (isFeedback) {
   cleanText = rawText.replace(/^\\/feedback(@\\w+)?\\s*/i, '').trim() || (photoFileId ? '(Ảnh chụp màn hình từ người dùng)' : rawText);
   modeBadge = '<code>/leader</code> (TMS Business Lead)';
-  modeGoal = 'Khảo sát nghiệp vụ, tổng hợp <code>TODO.md</code> vào thư mục <code>feedback_DD_MM</code>';
+  modeGoal = 'Khảo sát nghiệp vụ, tổng hợp <code>TODO.md</code> vào thư mục <code>feedbacks/feedback_DD_MM</code>';
   promptForDB = 'Hãy kích hoạt skill /leader để đóng vai trò Team Lead nghiệp vụ TMS của dự án logistics-website.\\n' +
     'Bạn vừa tiếp nhận feedback / yêu cầu mới từ người dùng' + (photoFileId ? ' kèm theo ảnh chụp màn hình' : '') + ':\\n\\\"' + cleanText + '\\\"\\n\\n' +
     'NHIỆM VỤ ĐẦU RA BẮT BUỘC:\\n' +
     '1. Đọc và phân tích kỹ phản hồi và các hình ảnh chụp màn hình đính kèm (sử dụng view_file).\\n' +
     '2. Khảo sát cấu trúc nghiệp vụ và mã nguồn trong D:\\\\Projects\\\\logistics-website.\\n' +
-    '3. Tổng hợp thành 1 file TODO.md chuẩn mực đặt tại thư mục feedback (ví dụ: D:\\\\Projects\\\\logistics-website\\\\feedback_DD_MM\\\\TODO.md) theo đúng cấu trúc chuẩn như trong D:\\\\Projects\\\\logistics-website\\\\feedback_06_10\\\\TODO.md:\\n' +
+    '3. Tổng hợp thành 1 file TODO.md chuẩn mực đặt tại thư mục feedback (ví dụ: D:\\\\Projects\\\\logistics-website\\\\feedbacks\\\\feedback_DD_MM\\\\TODO.md) theo đúng cấu trúc chuẩn như trong D:\\\\Projects\\\\logistics-website\\\\feedback_06_10\\\\TODO.md:\\n' +
     '   - Header: Tiêu đề Feedback + Thời gian ghi nhận + Người báo cáo + Màn hình liên quan + Tài liệu tham chiếu\\n' +
     '   - 📌 Bối cảnh nghiệp vụ thực tế (Chốt theo phản hồi người dùng)\\n' +
     '   - 🔍 Tổng hợp các điểm chưa đúng trên giao diện cũ (đối chiếu ảnh chụp màn hình)\\n' +
@@ -249,7 +258,7 @@ return [{
         resource: 'message',
         operation: 'sendMessage',
         chatId: '={{ $("Format Leader Prompt").item.json.chat_id }}',
-        text: '={{ `⏳ <b>[Task #${$json.id} Đã ghi nhận vào hàng đợi]</b>\\n\\n👤 <b>Người gửi:</b> ${$("Format Leader Prompt").item.json.sender_name}\\n${$("Format Leader Prompt").item.json.has_photo ? \'📸 <i>Đã nhận ảnh chụp màn hình đính kèm</i>\\n\' : \'\'}📝 <b>Nội dung:</b> <i>"${$("Format Leader Prompt").item.json.raw_prompt}"</i>\\n\\n🤖 <b>Chế độ:</b> ${$("Format Leader Prompt").item.json.mode_badge}\\n📁 <b>Mục tiêu đầu ra:</b> ${$("Format Leader Prompt").item.json.mode_goal}\\n💻 <b>Trạng thái:</b> <code>PENDING</code> ➔ Local Agent trên laptop đang mở <code>D:\\\\Projects\\\\logistics-website</code> để thực hiện...` }}',
+        text: '={{ `⏳ <b>[Task #${$json.id} Đã ghi nhận vào hàng đợi]</b>\\n\\n👤 <b>Người gửi:</b> ${$("Format Leader Prompt").item.json.sender_name}\\n${$("Format Leader Prompt").item.json.has_photo ? \'📸 <i>Đã nhận ảnh chụp màn hình đính kèm</i>\\n\' : \'\'}📝 <b>Nội dung:</b> <i>"${$("Format Leader Prompt").item.json.raw_prompt}"</i>\\n\\n🤖 <b>Chế độ:</b> ${$("Format Leader Prompt").item.json.mode_badge}\\n📁 <b>Mục tiêu đầu ra:</b> ${$("Format Leader Prompt").item.json.mode_goal}\\n💻 <b>Trạng thái:</b> <code>RUNNING</code> ➔ Đang kích hoạt GitHub Actions Cloud Runner để thực thi agy...` }}',
         additionalFields: {
           parse_mode: 'HTML'
         }
@@ -268,10 +277,42 @@ return [{
     },
     {
       parameters: {
+        method: 'POST',
+        url: 'https://api.github.com/repos/lyquangthai1993/logistics-website/dispatches',
+        sendHeaders: true,
+        headerParameters: {
+          parameters: [
+            {
+              name: 'Accept',
+              value: 'application/vnd.github+json'
+            },
+            {
+              name: 'Authorization',
+              value: `Bearer ${GH_PAT_TOKEN}`
+            },
+            {
+              name: 'User-Agent',
+              value: 'n8n-telegram-task-runner'
+            }
+          ]
+        },
+        sendBody: true,
+        specifyBody: 'json',
+        jsonBody: '={{ JSON.stringify({\n  event_type: "telegram-task",\n  client_payload: {\n    task_id: $("Execute Neon DB SQL").item.json.id?.toString() || "manual",\n    prompt: $("Format Leader Prompt").item.json.analysis || $("Format Leader Prompt").item.json.raw_prompt,\n    sender_name: $("Format Leader Prompt").item.json.sender_name,\n    mode: $("Format Leader Prompt").item.json.mode_badge?.includes("todo-agent") ? "todo" : "leader"\n  }\n}) }}',
+        options: {}
+      },
+      id: 'trigger-github-actions-node',
+      name: 'Trigger GitHub Actions',
+      type: 'n8n-nodes-base.httpRequest',
+      typeVersion: 4.2,
+      position: [1580, 200]
+    },
+    {
+      parameters: {
         resource: 'message',
         operation: 'sendMessage',
         chatId: '={{ $json.chat_id }}',
-        text: '={{ `🤖 <b>ANTIGRAVITY AI TASK RUNNER</b>\\n<i>Hệ thống điều khiển AI Agent tự động qua Telegram.</i>\\n\\n📌 <b>CÁC LỆNH ĐƯỢC XỬ LÝ VÀ ĐẨY VÀO HÀNG ĐỢI:</b>\\n\\n1️⃣ <b>Ghi nhận Feedback / Yêu cầu mới:</b>\\n• Cú pháp: <code>/feedback &lt;nội dung yêu cầu&gt;</code>\\n  <i>(hoặc gửi ảnh chụp màn hình kèm caption bắt đầu bằng <code>/feedback</code>)</i>\\n• <b>Nhiệm vụ:</b> Kích hoạt <code>/leader</code> khảo sát mã nguồn TMS và tự động tổng hợp file <code>TODO.md</code> vào thư mục <code>feedback_DD_MM</code>.\\n\\n2️⃣ <b>Thực thi công việc ngay:</b>\\n• Cú pháp: <code>/force</code> hoặc <code>/force &lt;tên thư mục task&gt;</code>\\n• <b>Nhiệm vụ:</b> Kích hoạt <code>todo-agent</code> quét checklist <code>TODO.md</code> hôm nay, sửa code submodules và chạy build/test.\\n\\n────────────────────\\n🌐 <b>Dev Web:</b> <a href="https://frontend-tms-core-dev.up.railway.app">Frontend Dev</a> | <a href="https://backend-tms-core-dev.up.railway.app/docs">Swagger API</a>\\n🚀 <b>Pro Web:</b> <a href="https://frontend-tms-core-production.up.railway.app">Frontend Pro</a> | <a href="https://backend-tms-core-production.up.railway.app/docs">Swagger API</a>\\n\\n💡 <i>Lưu ý: Mọi tin nhắn trao đổi thông thường không bắt đầu bằng <code>/feedback</code> hoặc <code>/force</code> sẽ được bỏ qua và không đưa vào hàng đợi xử lý.</i>` }}',
+        text: '={{ `🤖 <b>ANTIGRAVITY AI TASK RUNNER</b>\\n<i>Hệ thống điều khiển AI Agent tự động qua Telegram.</i>\\n\\n📌 <b>CÁC LỆNH ĐƯỢC XỬ LÝ VÀ ĐẨY VÀO HÀNG ĐỢI:</b>\\n\\n1️⃣ <b>Ghi nhận Feedback / Yêu cầu mới:</b>\\n• Cú pháp: <code>/feedback &lt;nội dung yêu cầu&gt;</code>\\n  <i>(hoặc gửi ảnh chụp màn hình kèm caption bắt đầu bằng <code>/feedback</code>)</i>\\n• <b>Nhiệm vụ:</b> Kích hoạt <code>/leader</code> khảo sát mã nguồn TMS và tự động tổng hợp file <code>TODO.md</code> vào thư mục <code>feedbacks/feedback_DD_MM</code>.\\n\\n2️⃣ <b>Thực thi công việc ngay:</b>\\n• Cú pháp: <code>/force</code> hoặc <code>/force &lt;tên thư mục task&gt;</code>\\n• <b>Nhiệm vụ:</b> Kích hoạt <code>todo-agent</code> quét checklist <code>TODO.md</code> hôm nay, sửa code submodules và chạy build/test.\\n\\n────────────────────\\n🌐 <b>Dev Web:</b> <a href="https://frontend-tms-core-dev.up.railway.app">Frontend Dev</a> | <a href="https://backend-tms-core-dev.up.railway.app/docs">Swagger API</a>\\n🚀 <b>Pro Web:</b> <a href="https://frontend-tms-core-production.up.railway.app">Frontend Pro</a> | <a href="https://backend-tms-core-production.up.railway.app/docs">Swagger API</a>\\n\\n💡 <i>Lưu ý: Mọi tin nhắn trao đổi thông thường không bắt đầu bằng <code>/feedback</code> hoặc <code>/force</code> sẽ được bỏ qua và không đưa vào hàng đợi xử lý.</i>` }}',
         additionalFields: {
           parse_mode: 'HTML'
         }
@@ -349,6 +390,17 @@ return [{
         [
           {
             node: 'Notify Telegram',
+            type: 'main',
+            index: 0
+          }
+        ]
+      ]
+    },
+    'Notify Telegram': {
+      main: [
+        [
+          {
+            node: 'Trigger GitHub Actions',
             type: 'main',
             index: 0
           }
