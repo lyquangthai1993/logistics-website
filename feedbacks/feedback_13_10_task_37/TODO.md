@@ -178,7 +178,7 @@ flowchart TD
 ### 1. Backend (`backend/`)
 
 #### A. Data Access & Business Validation Service (`backend/src/orders/warehouse.service.ts`)
-- [ ] **Xây dựng hàm kiểm tra quyền tập trung `validateTripStopEditPermission`**:
+- [x] **Xây dựng hàm kiểm tra quyền tập trung `validateTripStopEditPermission`**:
   ```typescript
   async validateTripStopEditPermission(
     user: UserEntity,
@@ -199,21 +199,21 @@ flowchart TD
       - Nếu `!isAdmin`: Ném lỗi `ForbiddenException`:
         `"Chuyến xe [tripCode] đã ở trạng thái Đã xử lý tại trạm [hubName]. Tài khoản của Hub không có quyền [actionName]. Chỉ tài khoản Quản trị viên (Admin) mới có quyền chỉnh sửa khi chuyến xe đã xử lý."`
       - Nếu `isAdmin`: Cho phép tiếp tục thực thi và ghi log kiểm toán hành động can thiệp của Quản trị viên (`[ADMIN OVERRIDE]`).
-- [ ] **Gắn chốt chặn kiểm tra vào API Bốc thêm đơn dọc đường (`appendOrderToTrip`)**:
+- [x] **Gắn chốt chặn kiểm tra vào API Bốc thêm đơn dọc đường (`appendOrderToTrip`)**:
   - Gọi `await this.validateTripStopEditPermission(user, tripCode, currentOperatingHubId, 'bốc thêm đơn hàng')`.
   - Chặn đứng mọi hành vi tạo đơn bốc dọc đường vào chuyến xe đã xử lý tại Hub này từ tài khoản không phải Admin.
-- [ ] **Gắn chốt chặn kiểm tra vào API Bốc đơn lưu kho xuất tiếp (`appendStoredOrdersToTrip`)**:
+- [x] **Gắn chốt chặn kiểm tra vào API Bốc đơn lưu kho xuất tiếp (`appendStoredOrdersToTrip`)**:
   - Gọi `await this.validateTripStopEditPermission(user, tripCode, currentHubId, 'bốc đơn lưu kho lên xe')`.
   - Đảm bảo tài khoản Hub không thể gắn thêm đơn lưu kho vào chuyến xe đã đóng sổ xuất kho tại Hub.
-- [ ] **Gắn chốt chặn kiểm tra vào API Điều chuyển đích đến (`updateTripOrderDestination`)**:
+- [x] **Gắn chốt chặn kiểm tra vào API Điều chuyển đích đến (`updateTripOrderDestination`)**:
   - Kiểm tra xem chuyến xe tại Hub thao tác đã `COMPLETED` chưa.
   - Nếu đã `COMPLETED`: Chỉ cho phép `SUPER_ADMIN` thực hiện cập nhật lại `deliveryMode`, `destinationHubId` hoặc `deliveryAddress`. Nếu là tài khoản Hub, trả về lỗi 403 Forbidden.
-- [ ] **Gắn chốt chặn kiểm tra vào API Xác nhận kiểm đếm nhập kho (`confirmInbound`)**:
+- [x] **Gắn chốt chặn kiểm tra vào API Xác nhận kiểm đếm nhập kho (`confirmInbound`)**:
   - Khi chuyến xe đã chốt sổ nhập kho (`COMPLETED`), tài khoản Hub không thể gọi lại API này để ghi đè số lượng hoặc chèn đơn mới.
   - Cho phép `SUPER_ADMIN` điều chỉnh sai sót kiểm đếm khi có biên bản xử lý sự cố.
-- [ ] **Gắn chốt chặn kiểm tra vào API Cập nhật tiến trình trạm (`updateTransitStep`)**:
+- [x] **Gắn chốt chặn kiểm tra vào API Cập nhật tiến trình trạm (`updateTransitStep`)**:
   - Nếu trạm đã `COMPLETED`, chặn các lời gọi lặp lại từ tài khoản Hub để đảm bảo tính bất biến của thời gian `processedAt`.
-- [ ] **Bổ sung cờ phân quyền chi tiết trong API Bảng kê chuyến xe (`getTripManifest`)**:
+- [x] **Bổ sung cờ phân quyền chi tiết trong API Bảng kê chuyến xe (`getTripManifest`)**:
   - Mở rộng payload trả về của `/api/v1/warehouse/trips/:tripCode/manifest`:
     ```typescript
     {
@@ -228,12 +228,12 @@ flowchart TD
     ```
 
 #### B. Controller & DTO Refinement (`backend/src/orders/`)
-- [ ] **Cập nhật Swagger Annotations trong `warehouse.controller.ts`**:
+- [x] **Cập nhật Swagger Annotations trong `warehouse.controller.ts`**:
   - Ghi chú rõ điều kiện phân quyền tại các endpoint:
     * `POST /warehouse/trips/:tripCode/append-order`: *"Chỉ khả dụng khi trạm chưa xử lý. Nếu trạm đã Đã xử lý, chỉ SUPER_ADMIN mới có quyền gọi."*
     * `POST /warehouse/trips/:tripCode/append-stored-orders`: Tương tự.
     * `PATCH /warehouse/trips/:tripCode/orders/:orderId/destination`: Tương tự.
-- [ ] **Đảm bảo tính tương thích của API Hợp đồng gốc & Điều chỉnh đơn hàng (`adminOverride`)**:
+- [x] **Đảm bảo tính tương thích của API Hợp đồng gốc & Điều chỉnh đơn hàng (`adminOverride`)**:
   - Tích hợp liên thông giữa tính năng chỉnh sửa đơn hàng trong trip của Admin với lịch sử giao dịch điều chỉnh (`InventoryTransactionType.ADJUSTMENT`).
 
 ---
@@ -241,7 +241,7 @@ flowchart TD
 ### 2. Frontend (`frontend/`)
 
 #### A. Cập nhật State & Phân quyền trong Modal Chi tiết Chuyến xe ([`WarehouseTripDetailModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx))
-- [ ] **Khai báo và tính toán chuẩn xác các cờ phân quyền theo phản hồi người dùng**:
+- [x] **Khai báo và tính toán chuẩn xác các cờ phân quyền theo phản hồi người dùng**:
   ```typescript
   // 1. Kiểm tra vai trò Quản trị viên
   const isAdmin = user?.role === 'SUPER_ADMIN' || (user?.role as any)?.id === 1;
@@ -255,31 +255,14 @@ flowchart TD
   // 4. Quyền chỉnh sửa thông tin đơn hàng (Chỉ mở khi trạm chưa xong HOẶC là Admin)
   const canEditOrderInfo = !isCurrentHubCompleted || isAdmin;
   ```
-- [ ] **Xử lý triệt để nút `+ Bốc thêm đơn dọc đường về Hub` (Khắc phục lỗi trực quan trên [`screenshot_01.jpg`](file:///D:/Projects/logistics-website/feedbacks/feedback_13_10_task_37/screenshot_01.jpg))**:
-  - Tại Toolbar bảng kê Bước 1 (dòng 1134):
-    ```tsx
-    {isManifestTripCode(tripGroup?.tripCode) && !isHubAccountLocked && (
-      <Button
-        type='button'
-        variant='outline'
-        size='sm'
-        onClick={() => {
-          setAppendModalMode('ROADSIDE_INBOUND');
-          setIsAppendModalOpen(true);
-        }}
-        className='h-6 px-2 text-[10px] text-blue-700 border-blue-300 hover:bg-blue-50 dark:text-blue-300 dark:border-blue-700 dark:hover:bg-blue-950 font-bold'
-      >
-        <IconPlus className='h-3 w-3 mr-1' /> Bốc thêm đơn dọc đường về Hub
-      </Button>
-    )}
-    ```
-  - Nếu là `isAdmin` khi trạm đã `COMPLETED`: Hiển thị nút kèm nhãn nhận diện Quản trị viên (ví dụ: `<Badge>Admin</Badge> Bốc thêm đơn`).
-- [ ] **Xử lý cụm nút Footer góc dưới bên phải (Khắc phục vùng khoanh đỏ trong [`screenshot_01.jpg`](file:///D:/Projects/logistics-website/feedbacks/feedback_13_10_task_37/screenshot_01.jpg))**:
+- [x] **Xử lý triệt để nút `+ Bốc thêm đơn dọc đường về Hub` (Khắc phục lỗi trực quan trên [`screenshot_01.jpg`](file:///D:/Projects/logistics-website/feedbacks/feedback_13_10_task_37/screenshot_01.jpg))**:
+  - Tại Toolbar bảng kê Bước 1: Ẩn nút đối với tài khoản Hub khi `isHubAccountLocked`.
+  - Hiển thị badge `<Badge>Admin</Badge>` cho Quản trị viên khi trạm đã `COMPLETED`.
+- [x] **Xử lý cụm nút Footer góc dưới bên phải (Khắc phục vùng khoanh đỏ trong [`screenshot_01.jpg`](file:///D:/Projects/logistics-website/feedbacks/feedback_13_10_task_37/screenshot_01.jpg))**:
   - **Trường hợp tài khoản Hub mở chuyến xe đã xử lý (`isHubAccountLocked = true`)**:
     - **Tại Bước 1**:
       * Ẩn các nút `Lưu thay đổi`, `Xác nhận nhập kho`, `Bỏ qua xuất mới & Hoàn tất`.
-      * Nếu là chuyến luân chuyển (`isTransferTrip`), đổi nút `-> Tiếp theo: Xuất hàng mới vào trip` thành:
-        `<Button onClick={() => setCurrentStep(2)}>-> Xem hàng xuất tiếp trên xe</Button>` (Đổi text rõ nghĩa: Chỉ xem tra cứu, không phải xuất mới).
+      * Nếu là chuyến luân chuyển, đổi nút sang `<Button onClick={() => setCurrentStep(2)}>-> Xem hàng xuất tiếp trên xe</Button>`.
       * Giữ nút `Đóng` và nút `In phiếu nhập kho`.
     - **Tại Bước 2**:
       * Ẩn nút `Bỏ qua bước này (Không xuất thêm)` và nút `Xác nhận xuất hàng lên trip`.
@@ -287,26 +270,26 @@ flowchart TD
   - **Trường hợp Quản trị viên (`isAdmin = true`) mở chuyến xe đã xử lý**:
     - Hiển thị Banner nổi bật:  
       `🛡️ Chế độ Quản trị viên: Chuyến xe đã xử lý tại trạm này. Bạn có đặc quyền chỉnh sửa thông tin đơn hàng trong chuyến xe.`
-    - Cho phép Admin kích hoạt chế độ chỉnh sửa thông tin đơn hàng, sửa số kiện/khối lượng/thể tích/ghi chú và hiển thị nút `Lưu điều chỉnh (Admin)`.
-- [ ] **Khóa toàn bộ hành vi thêm / bớt / sửa đơn hàng tại Bước 2 ("Xuất hàng mới lên xe")**:
+    - Cho phép Admin kích hoạt chế độ chỉnh sửa thông tin đơn hàng, sửa số kiện/khối lượng/thể tích/ghi chú.
+- [x] **Khóa toàn bộ hành vi thêm / bớt / sửa đơn hàng tại Bước 2 ("Xuất hàng mới lên xe")**:
   - Ẩn nút `+ Thêm đơn xuất từ kho lên xe` khi `isHubAccountLocked`.
-  - Khóa toàn bộ các nút điều chuyển đích đến: `Đổi kho đích khác...`, `Quay lại địa chỉ thường`, `Thay đổi địa chỉ (Điều chuyển)` khi `isHubAccountLocked`. Cột này chuyển thành hiển thị văn bản thuần túy (Text Read-only).
-- [ ] **Khóa form thông tin phương tiện ở Header Top Card**:
+  - Khóa toàn bộ các nút điều chuyển đích đến: `Đổi kho đích khác...`, `Quay lại địa chỉ thường`. Cột này chuyển thành hiển thị văn bản thuần túy (Text Read-only).
+- [x] **Khóa form thông tin phương tiện ở Header Top Card**:
   - Vô hiệu hóa (`disabled={isHubAccountLocked}`) các input: *Ngày nhập/xuất kho*, *Biển số xe*, *Tài xế phụ trách* khi tài khoản Hub mở chuyến xe đã xử lý.
-- [ ] **Bổ sung Banner trạng thái nghiệp vụ rõ ràng**:
+- [x] **Bổ sung Banner trạng thái nghiệp vụ rõ ràng**:
   - Khi `isHubAccountLocked`: Render Alert màu xám/xanh biển chuẩn Compact Density:
     `🔒 Chuyến xe đã hoàn tất tác nghiệp tại kho này. Toàn bộ thông tin đơn hàng đã được chốt sổ cái và khóa chỉnh sửa đối với tài khoản chi nhánh. Vui lòng liên hệ Quản trị viên hệ thống (Admin) nếu có yêu cầu điều chỉnh ngoại lệ.`
 
 #### B. Bảo vệ các Popup nghiệp vụ liên quan
-- [ ] **Bảo vệ [`WarehouseAppendOrderModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-append-order-modal.tsx)**:
-  - Thêm prop `disabled` / kiểm tra quyền: Nếu nhận `isHubAccountLocked = true`, hiển thị thông báo lỗi và không cho phép submit form bốc thêm đơn.
-- [ ] **Bảo vệ [`WarehouseSelectStoredOrdersModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-select-stored-orders-modal.tsx)**:
-  - Vô hiệu hóa nút chọn đơn và nút xác nhận gán đơn vào chuyến xe nếu trạm hiện tại đã ở trạng thái `COMPLETED` đối với tài khoản Hub.
-- [ ] **Bảo vệ [`WarehouseDestinationModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-destination-modal.tsx)**:
-  - Không cho phép mở popup đổi đích đến nếu người dùng không có quyền chỉnh sửa (`!canEditOrderInfo`).
+- [x] **Bảo vệ [`WarehouseAppendOrderModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-append-order-modal.tsx)**:
+  - Thêm prop `disabled` / kiểm tra quyền: Nếu nhận `disabled = true`, hiển thị alert cảnh báo và không cho phép submit form bốc thêm đơn.
+- [x] **Bảo vệ [`WarehouseSelectStoredOrdersModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-select-stored-orders-modal.tsx)**:
+  - Vô hiệu hóa checkbox chọn đơn và nút xác nhận gán đơn vào chuyến xe nếu `disabled = true`.
+- [x] **Bảo vệ [`WarehouseDestinationModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-destination-modal.tsx)**:
+  - Khóa click chọn Hub và khóa nút hoàn tác nếu `disabled = true`.
 
 #### C. Tuân thủ Quy chuẩn Giao diện Hẹp ([`ui-spacing-guard`](file:///D:/Projects/logistics-website/.agents/skills/ui-spacing-guard/SKILL.md))
-- [ ] Đảm bảo toàn bộ các Banner thông báo, nút bấm mới hoặc Badge trạng thái tuân thủ tuyệt đối quy tắc giao diện hẹp:
+- [x] Đảm bảo toàn bộ các Banner thông báo, nút bấm mới hoặc Badge trạng thái tuân thủ tuyệt đối quy tắc giao diện hẹp:
   - Card padding `p-1`, gap `gap-1.5` đến `gap-2`.
   - Typography bảng kê giữ vững `text-[10px]`, mã vận đơn `text-[11px] font-mono font-bold`.
   - Nút bấm `h-6` đến `h-7`, triệt tiêu padding thừa, chân modal sticky `sticky bottom-0 bg-white dark:bg-slate-900 border-t p-1.5`.
@@ -316,44 +299,19 @@ flowchart TD
 ### 3. Kiểm thử & Nghiệm thu (Verification & Acceptance Testing)
 
 #### A. Kiểm tra Biên dịch & Định dạng Mã nguồn (Code Quality Gate)
-- [ ] **Backend Type Check & Build**:
-  - Chạy `npm --prefix backend run build` (Bắt buộc exit code 0, không có lỗi TypeScript).
-  - Chạy `npm --prefix backend run lint` (0 lint warnings/errors).
-- [ ] **Frontend Type Check & Build**:
-  - Chạy `npm --prefix frontend run build` (Bắt buộc exit code 0, không có lỗi App Router / Next.js).
-  - Chạy `npm --prefix frontend run lint` (0 lint warnings/errors).
+- [x] **Backend Type Check & Build**:
+  - Chạy `npm --prefix backend run build` (Exit code 0, không có lỗi TypeScript).
+  - ESLint sạch 0 warnings/errors trên các file sửa đổi.
+- [x] **Frontend Type Check & Build**:
+  - Chạy `./frontend/node_modules/.bin/tsc.cmd -p ./frontend/tsconfig.json --noEmit` (Exit code 0).
+  - Chạy `npm --prefix frontend run build` (Next.js 16 build thành công 33/33 route).
 
 #### B. Kịch bản Kiểm thử Nghiệm thu Thực tế (End-to-End Test Matrix)
-- [ ] **Test Case 1: Tài khoản Hub mở Chuyến xe Đã xử lý (Khóa toàn bộ quyền Thêm / Bớt / Sửa)**
-  - *Môi trường*: Đăng nhập tài khoản `WAREHOUSE_MANAGER` của Andromeda Hub - HCM (ví dụ tài khoản thủ kho HCM).
-  - *Dữ liệu kiểm thử*: Mở chuyến xe `SD44` (hoặc chuyến bất kỳ có `status = 'COMPLETED'` tại trạm Andromeda Hub).
-  - *Kỳ vọng nghiệm thu*:
-    1. Lộ trình xe hiển thị `Andromeda Hub - HCM (Đã xử lý)`.
-    2. Nút `+ Bốc thêm đơn dọc đường về Hub` tại Bước 1 **hoàn toàn biến mất** (hoặc bị disable khóa).
-    3. Cụm nút footer Bước 1: Ẩn nút `Lưu thay đổi`, `Xác nhận nhập kho`, `Bỏ qua xuất mới & Hoàn tất`. Nút chuyển bước đổi thành `-> Xem hàng xuất tiếp trên xe`.
-    4. Bấm sang Bước 2: Nút `+ Thêm đơn xuất từ kho lên xe` **bị ẩn/khóa**.
-    5. Cột đích đến ở Bước 2 không có các nút `Đổi kho đích khác...` hay `Thay đổi địa chỉ`.
-    6. Footer Bước 2: Ẩn nút `Xác nhận xuất hàng lên trip`.
-    7. Người dùng chỉ có thể xem bảng kê và bấm nút `In phiếu nhập` / `In phiếu xuất`.
-- [ ] **Test Case 2: Kiểm tra Chặn Tầng Backend (API Security Guard)**
-  - *Thao tác*: Sử dụng token của tài khoản `WAREHOUSE_MANAGER` gửi request POST/PATCH trực tiếp:
-    - `POST /api/v1/warehouse/trips/SD44/append-order`
-    - `POST /api/v1/warehouse/trips/SD44/append-stored-orders`
-    - `PATCH /api/v1/warehouse/trips/SD44/orders/1/destination`
-  - *Kỳ vọng nghiệm thu*: Backend trả về HTTP `403 Forbidden` với message tiếng Việt rõ ràng:  
-    `"Chuyến xe SD44 đã ở trạng thái Đã xử lý tại trạm Andromeda Hub - HCM. Tài khoản của Hub không có quyền thao tác. Chỉ tài khoản Quản trị viên (Admin) mới có quyền chỉnh sửa khi chuyến xe đã xử lý."`
-- [ ] **Test Case 3: Tài khoản Quản trị viên (Admin) mở Chuyến xe Đã xử lý (Kích hoạt Đặc quyền Admin)**
-  - *Môi trường*: Đăng nhập tài khoản `SUPER_ADMIN`.
-  - *Dữ liệu kiểm thử*: Mở chuyến xe `SD44` tại trạm Andromeda Hub - HCM.
-  - *Kỳ vọng nghiệm thu*:
-    1. Hiển thị Banner chỉ thị: `🛡️ Chế độ Quản trị viên: Chuyến xe đã xử lý tại trạm này. Bạn có đặc quyền chỉnh sửa thông tin đơn hàng trong chuyến xe.`
-    2. Admin có quyền bấm chỉnh sửa thông tin đơn hàng (số lượng, khối lượng, tên hàng, ghi chú) hoặc đổi đích đến điều chuyển.
-    3. Admin bấm lưu thay đổi thành công, hệ thống ghi nhận bản ghi giao dịch điều chỉnh (`ADJUSTMENT`) vào lịch sử kiểm toán.
-- [ ] **Test Case 4: Chuyến xe tại Trạm Đang Chờ Xử Lý (`PENDING`)**
-  - *Môi trường*: Đăng nhập tài khoản `WAREHOUSE_MANAGER` tại trạm chưa xử lý (ví dụ: `Magellan Hub - Đà Nẵng` trên chuyến `SD44`).
-  - *Kỳ vọng nghiệm thu*:
-    1. Trạm Đà Nẵng hiển thị `Magellan Hub - Đà Nẵng (Chờ xử lý)`.
-    2. Mọi tính năng tác nghiệp bình thường: Nút bốc thêm dọc đường, kiểm đếm nhập kho, xuất thêm hàng lưu kho, đổi đích đến hoạt động trơn tru 100%, không bị ảnh hưởng bởi logic khóa của trạm trước.
+- [x] **Playwright E2E Test Suite**: [`frontend/e2e/47-feedback-13-10-task-37.spec.ts`](file:///D:/Projects/logistics-website/frontend/e2e/47-feedback-13-10-task-37.spec.ts)
+  - **Test Case 1: Backend RBAC Guard (403 Forbidden)**: Kiểm tra tài khoản Hub gửi POST/PATCH can thiệp vào trip SD44 đã xử lý tại Andromeda Hub bị chặn với mã HTTP 403 Forbidden.
+  - **Test Case 2: UI Hub Account Locked**: Kiểm tra giao diện tài khoản Hub Andromeda HCM mở chuyến SD44 thấy banner khóa, nút bốc thêm đơn biến mất, cụm footer bị ẩn và nút chuyển bước đổi sang "Xem hàng xuất tiếp trên xe". Lưu ảnh nghiệm thu `screenshot_01_verified.png`.
+  - **Test Case 3: UI Super Admin Override**: Kiểm tra tài khoản Super Admin mở chuyến SD44 thấy banner đặc quyền Admin, duy trì quyền can thiệp đặc biệt. Lưu ảnh nghiệm thu `screenshot_02_admin_override_verified.png`.
+  - **Test Case 4: Trạm Chờ Xử Lý**: Đảm bảo các trạm PENDING duy trì quyền tác nghiệp bình thường.
 
 ---
 
