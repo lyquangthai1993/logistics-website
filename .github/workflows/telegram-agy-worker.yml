@@ -118,40 +118,77 @@ jobs:
           TELEGRAM_ALLOWED_CHAT_ID: ${{ secrets.TELEGRAM_ALLOWED_CHAT_ID }}
           TASK_ID: ${{ github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}
         run: |
-          ROOT_DIFF=$(git diff --stat)
-          BE_DIFF=$(git -C backend diff --stat 2>/dev/null || echo "")
-          FE_DIFF=$(git -C frontend diff --stat 2>/dev/null || echo "")
+          node -e '
+          const fs = require("fs");
+          const { execSync } = require("child_process");
 
-          DIFF_SUMMARY="Không có thay đổi file"
-          if [ -n "$ROOT_DIFF" ] || [ -n "$BE_DIFF" ] || [ -n "$FE_DIFF" ]; then
-            DIFF_SUMMARY="Đã sửa đổi mã nguồn:
-          $ROOT_DIFF
-          $BE_DIFF
-          $FE_DIFF"
-          fi
+          function escapeHtml(str) {
+            return String(str || "")
+              .replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;");
+          }
 
-          AGY_RES="Hoàn tất tác vụ"
-          if [ -f agy_output.txt ]; then
-            AGY_RES=$(tail -n 20 agy_output.txt)
-          fi
+          let rootDiff = "";
+          let beDiff = "";
+          let feDiff = "";
+          try { rootDiff = execSync("git diff --stat", { encoding: "utf8" }).trim(); } catch (_) {}
+          try { beDiff = execSync("git -C backend diff --stat", { encoding: "utf8" }).trim(); } catch (_) {}
+          try { feDiff = execSync("git -C frontend diff --stat", { encoding: "utf8" }).trim(); } catch (_) {}
 
-          STATUS_BADGE="🟢 HOÀN THÀNH"
-          if [ "${{ job.status }}" != "success" ]; then
-            STATUS_BADGE="🔴 THẤT BẠI"
-          fi
+          let diffSummary = "Không có thay đổi file";
+          if (rootDiff || beDiff || feDiff) {
+            diffSummary = [rootDiff, beDiff, feDiff].filter(Boolean).join("\n");
+          }
 
-          FINAL_MSG="${STATUS_BADGE}: Task #${TASK_ID} trên GitHub Actions Worker
+          let agyRes = "Hoàn tất tác vụ";
+          if (fs.existsSync("agy_output.txt")) {
+            const raw = fs.readFileSync("agy_output.txt", "utf8");
+            const lines = raw.trim().split(/\r?\n/);
+            agyRes = lines.slice(-20).join("\n") || "Hoàn tất tác vụ";
+          }
 
-          ### 1. Kết quả thực thi
-          <pre>${AGY_RES}</pre>
+          const statusBadge = process.env.JOB_STATUS === "success" ? "🟢 HOÀN THÀNH" : "🔴 THẤT BẠI";
+          const taskId = process.env.TASK_ID || "manual";
+          let commitHash = "unknown";
+          try { commitHash = execSync("git rev-parse --short HEAD", { encoding: "utf8" }).trim(); } catch (_) {}
 
-          ### 2. Thống kê Git Diff
-          <pre>${DIFF_SUMMARY}</pre>
+          const text = `${statusBadge}: <b>Task #${escapeHtml(taskId)}</b> trên GitHub Actions Worker\n\n` +
+            `▫️ <b>1. Kết quả thực thi:</b>\n<pre>${escapeHtml(agyRes)}</pre>\n\n` +
+            `▫️ <b>2. Thống kê Git Diff:</b>\n<pre>${escapeHtml(diffSummary)}</pre>\n\n` +
+            `▫️ <b>Runner:</b> GitHub Actions (Ubuntu)\n` +
+            `▫️ <b>Commit:</b> <code>${escapeHtml(commitHash)}</code>`;
 
-          ▫️ Runner: GitHub Actions (Ubuntu)
-          ▫️ Commit: $(git rev-parse --short HEAD)"
+          const token = process.env.TELEGRAM_BOT_TOKEN;
+          const chatId = process.env.TELEGRAM_ALLOWED_CHAT_ID;
 
-          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            -d "chat_id=${TELEGRAM_ALLOWED_CHAT_ID}" \
-            -d "parse_mode=HTML" \
-            -d "text=${FINAL_MSG}" || true
+          async function send() {
+            const url = `https://api.telegram.org/bot${token}/sendMessage`;
+            const payload = {
+              chat_id: chatId,
+              text,
+              parse_mode: "HTML"
+            };
+            try {
+              const res = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+              });
+              const data = await res.json();
+              if (!data.ok) {
+                console.warn("Telegram sendMessage failed with HTML, retrying plain text:", data.description);
+                payload.text = text.replace(/<[^>]+>/g, "");
+                delete payload.parse_mode;
+                await fetch(url, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(payload)
+                });
+              }
+            } catch (err) {
+              console.error("Failed to notify Telegram:", err.message);
+            }
+          }
+          send();
+          '
