@@ -105,19 +105,22 @@ jobs:
 
           if [ -n "$AGY_SESSION_TOKEN" ]; then
             echo "🔐 Đang cấu hình Linux Secret Service & D-Bus session..."
-            sudo apt-get update -qq && sudo apt-get install -y -qq dbus dbus-x11 gnome-keyring libsecret-tools python3-pip python3-keyring
-            pip3 install --quiet keyring SecretStorage --break-system-packages 2>/dev/null || pip3 install --quiet keyring SecretStorage || true
+            sudo apt-get update -qq && sudo apt-get install -y -qq dbus dbus-x11 gnome-keyring libsecret-tools
 
-            dbus-run-session -- bash -c '
-              echo -n "" | gnome-keyring-daemon --unlock --components=secrets 2>/dev/null || true
-              python3 -c "import keyring, os; keyring.set_password(\"gemini\", \"antigravity\", os.environ.get(\"AGY_SESSION_TOKEN\", \"\"))"
+            eval $(dbus-launch --sh-syntax)
+            export DBUS_SESSION_BUS_ADDRESS
+            eval $(echo -n "" | gnome-keyring-daemon --unlock --components=secrets 2>/dev/null || true)
 
-              echo "🚀 Đang khởi chạy agy headless mode với session keyring..."
-              agy -p "$RAW_PROMPT" \
-                --dangerously-skip-permissions \
-                --model "Gemini 3.6 Flash (High)" \
-                --output-format text > agy_output.txt 2>&1 || AGY_EXIT=$?
-            '
+            printf "%s" "$AGY_SESSION_TOKEN" | secret-tool store --label="gemini" service gemini username antigravity
+
+            echo "🔍 Kiểm tra Keyring đối soát:"
+            secret-tool lookup service gemini username antigravity | cut -c 1-30
+
+            echo "🚀 Đang khởi chạy agy headless mode với session keyring..."
+            agy -p "$RAW_PROMPT" \
+              --dangerously-skip-permissions \
+              --model "Gemini 3.6 Flash (High)" \
+              --output-format text > agy_output.txt 2>&1 || AGY_EXIT=$?
           else
             echo "🚀 Đang khởi chạy agy headless mode với API key..."
             export ANTIGRAVITY_API_KEY="$ANTIGRAVITY_API_KEY"
@@ -129,6 +132,9 @@ jobs:
           fi
 
           cat agy_output.txt
+          if [ -n "$AGY_EXIT" ] && [ "$AGY_EXIT" -ne 0 ]; then
+            exit $AGY_EXIT
+          fi
 
       - name: "8. Báo cáo Kết quả về Telegram (/telegram-task-responder)"
         if: always() && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_ALLOWED_CHAT_ID != ''
