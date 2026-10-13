@@ -116,20 +116,7 @@ jobs:
             export GNOME_KEYRING_CONTROL
 
             # Đảm bảo collection default/login tồn tại cho Secret Service
-            python3 -c "
-import secretstorage
-try:
-    conn = secretstorage.dbus_init()
-    try:
-        col = secretstorage.get_default_collection(conn)
-    except Exception:
-        col = secretstorage.create_collection(conn, 'login', alias='default')
-    if col.is_locked():
-        col.unlock()
-    print('Keyring collection status: ready')
-except Exception as e:
-    print('Keyring init warning:', e)
-" || true
+            python3 -c "import secretstorage; conn = secretstorage.dbus_init(); col = secretstorage.get_default_collection(conn) if list(secretstorage.get_all_collections(conn)) else secretstorage.create_collection(conn, 'login', alias='default'); col.unlock() if col.is_locked() else None; print('Keyring ready')" 2>/dev/null || true
 
             printf "%s" "$AGY_SESSION_TOKEN" | secret-tool store --label="gemini" service gemini username antigravity
 
