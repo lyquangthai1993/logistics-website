@@ -93,21 +93,40 @@ jobs:
 
       - name: "7. Khởi chạy Antigravity CLI (Headless Mode)"
         env:
+          AGY_SESSION_TOKEN: ${{ secrets.AGY_SESSION_TOKEN }}
           ANTIGRAVITY_API_KEY: ${{ secrets.ANTIGRAVITY_API_KEY }}
-          GEMINI_API_KEY: ${{ secrets.ANTIGRAVITY_API_KEY }}
           RAW_PROMPT: ${{ github.event.inputs.prompt || github.event.client_payload.prompt }}
           MODE: ${{ github.event.inputs.mode || github.event.client_payload.mode || 'leader' }}
         run: |
-          if [ -z "$ANTIGRAVITY_API_KEY" ]; then
-            echo "❌ Lỗi: Thiếu secret ANTIGRAVITY_API_KEY trên GitHub Repository Secrets!"
+          if [ -z "$AGY_SESSION_TOKEN" ] && [ -z "$ANTIGRAVITY_API_KEY" ]; then
+            echo "❌ Lỗi: Thiếu secret AGY_SESSION_TOKEN trên GitHub Repository Secrets!"
             exit 1
           fi
 
-          echo "🚀 Đang khởi chạy agy headless mode..."
-          agy -p "${RAW_PROMPT}" \
-            --dangerously-skip-permissions \
-            --model "Gemini 3.6 Flash (High)" \
-            --output-format text > agy_output.txt 2>&1 || AGY_EXIT=$?
+          if [ -n "$AGY_SESSION_TOKEN" ]; then
+            echo "🔐 Đang cấu hình Linux Secret Service & D-Bus session..."
+            sudo apt-get update -qq && sudo apt-get install -y -qq dbus dbus-x11 gnome-keyring libsecret-tools python3-pip python3-keyring
+            pip3 install --quiet keyring SecretStorage --break-system-packages 2>/dev/null || pip3 install --quiet keyring SecretStorage || true
+
+            dbus-run-session -- bash -c '
+              echo -n "" | gnome-keyring-daemon --unlock --components=secrets 2>/dev/null || true
+              python3 -c "import keyring, os; keyring.set_password(\"gemini\", \"antigravity\", os.environ.get(\"AGY_SESSION_TOKEN\", \"\"))"
+
+              echo "🚀 Đang khởi chạy agy headless mode với session keyring..."
+              agy -p "$RAW_PROMPT" \
+                --dangerously-skip-permissions \
+                --model "Gemini 3.6 Flash (High)" \
+                --output-format text > agy_output.txt 2>&1 || AGY_EXIT=$?
+            '
+          else
+            echo "🚀 Đang khởi chạy agy headless mode với API key..."
+            export ANTIGRAVITY_API_KEY="$ANTIGRAVITY_API_KEY"
+            export GEMINI_API_KEY="$ANTIGRAVITY_API_KEY"
+            agy -p "$RAW_PROMPT" \
+              --dangerously-skip-permissions \
+              --model "Gemini 3.6 Flash (High)" \
+              --output-format text > agy_output.txt 2>&1 || AGY_EXIT=$?
+          fi
 
           cat agy_output.txt
 
