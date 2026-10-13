@@ -987,7 +987,7 @@ export function generateResolutionDocument(parsed, rootDir = ROOT_DIR) {
 
   lines.push('## 1. 📌 Bối Cảnh Nghiệp Vụ & Phân Tích Nguyên Nhân Gốc Rễ (RCA)');
   lines.push('');
-  if (userQuote) {
+  if (userQuote && (!contextRaw || !contextRaw.includes(userQuote))) {
     lines.push(`### Phản hồi thực tế từ người dùng:`);
     lines.push(`> *"${userQuote}"*`);
     lines.push('');

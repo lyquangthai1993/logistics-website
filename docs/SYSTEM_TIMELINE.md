@@ -14,6 +14,8 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 13/10/2026 | `feedbacks/feedback_13_10_task_41` | Feedback 13/10 (Task 41) — Bảo Toàn Thông Tin Đích Đ... | 10/10 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_41/RESOLUTION.md) |
+| 13/10/2026 | `feedbacks/feedback_13_10_task_38` | Feedback 13/10 (Task 38) — Chuẩn hóa Hiển thị Thông ... | 15/15 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_38/RESOLUTION.md) |
 | 13/10/2026 | `feedbacks/feedback_13_10_task_37` | Feedback 13/10 (Task #37) — Khóa Quyền Thao Tác Đơn ... | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_37/RESOLUTION.md) |
 | 13/10/2026 | `feedback_13_10` | Feedback 13/10 — Chuẩn Hóa Cấu Trúc 15 Cột Báo Cáo E... | 8/8 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_13_10/RESOLUTION.md) |
 | 12/10/2026 20:36 | `feedback_12_10_task_33` | Feedback 12/10 (Task 33) — Tối Ưu Độ Sáng & Tinh Chỉ... | 7/7 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_12_10_task_33/RESOLUTION.md) |
@@ -49,6 +51,29 @@
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
 
+### 🚀 [FEEDBACK_13_10_TASK_41] — Feedback 13/10 (Task 41) — Bảo Toàn Thông Tin Đích Đến Ban Đầu Của Đơn Hàng (Master Contract Destination Invariance) & Tách Biệt Hoàn Toàn Với Địa Chỉ Giao Khi Xuất Kho (13/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (10/10 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Chủ quản vận hành / Vận hành TMS)
+- **Phạm vi**: Quản lý Đơn hàng tại kho (`/warehouse/orders`) ➔ Bảng tổng hợp đơn hàng & Cột "ĐÍCH ĐẾN" ([`WarehouseOrdersPage`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/orders/page.tsx)) • Tác nghiệp Xuất kho & Chuyến xe luân chuyển ([`WarehouseOutboundTransferFlow`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-outbound-transfer-flow.tsx) & [`confirmOutbound`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)) • Cập nhật hình thức giao & đích đến trên chuyến xe ([`updateTripOrderDestination`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts) & [`WarehouseTripDetailModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) • Chi tiết Vận đơn & Lịch sử hành trình ([`WarehouseWaybillDetailModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-waybill-detail-modal.tsx)) • In tem nhận diện A4 Pallet ([`PalletLabelA4Modal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/pallet-label-a4-modal.tsx)) • Báo cáo xuất dữ liệu Excel đơn hàng lưu kho và xuất kho ([`handleExportStoredOrdersExcel`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/orders/page.tsx))
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Chấm dứt triệt để việc ghi đè Master Contract trong `confirmOutbound` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)); Tách biệt phạm vi cập nhật trong `updateTripOrderDestination` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)); Bổ sung / Chuẩn hóa cấu trúc dữ liệu trả về cho API `GET /api/v1/warehouse/orders`...
+  * **Frontend**: Chuẩn hóa hiển thị cột ĐÍCH ĐẾN tại trang Tổng Hợp Đơn Hàng Kho ([`page.tsx`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/orders/page.tsx)); Chuẩn hóa Báo cáo xuất file Excel ([`handleExportStoredOrdersExcel`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/orders/page.tsx)); Đồng bộ hiển thị trên các Modal liên quan...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_01_orders_table_verified.png, screenshot_task_41_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_13_10_task_41/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_13_10_task_41/TODO.md)
+
+### 🚀 [FEEDBACK_13_10_TASK_38] — Feedback 13/10 (Task 38) — Chuẩn hóa Hiển thị Thông tin Chi tiết Hub Cấp 1 & Tuyến Xe Bo tại Cột "Địa Chỉ Giao" Màn hình Xuất Kho (13/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (15/15 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Quản lý nghiệp vụ / Vận hành) & @Antigravity Verification
+- **Phạm vi**: Quản lý Xuất kho (`/warehouse/outbound`) ➔ Tạo phiếu xuất kho (`activeView === 'MODE1_CUSTOMER'`) • Lưới nhập & chỉnh sửa dữ liệu hàng hóa xuất kho ([`WarehouseEditableGrid`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-editable-grid.tsx)) ➔ Cột `ĐỊA CHỈ GIAO *` ([`DeliveryAddressCell`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-editable-grid.tsx#L1073-L1208)) • Modal chọn đích điều chuyển Hub / Tuyến Xe Bo ([`WarehouseDestinationModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-destination-modal.tsx)) • Quản lý Chuyến xe trung chuyển ghé trạm ([`WarehouseTripDetailModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) ➔ Bước 2: Bảng kê xuất hàng mới lên xe tại Hub • Tra cứu tồn kho ([`WarehouseLookupModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-lookup-modal.tsx)) & API xác nhận xuất kho ([`WarehouseController`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.controller.ts))
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Kiểm tra và chuẩn hóa Endpoint Tra cứu Danh bạ Hub (`/api/v1/hubs/active`); Kiểm tra Quan hệ Thực thể trong `getOrders` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)); Rà soát DTO Xuất kho & Lưu nháp ([`confirm-outbound.dto.ts`](file:///D:/Projects/logistics-website/backend/src/orders/dto/confirm-outbound.dto.ts))
+  * **Frontend**: Xây dựng Helper / Component Card Đích Đến Chuẩn Hóa (`DestinationHubInfoCard`); Hoàn thiện Logic Phân giải Hub (`resolveHubOption`) trong `DeliveryAddressCell`; Đồng bộ hóa vào Tra cứu Hàng Tồn Kho (`WarehouseLookupModal`)...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_01_hub_l1_verified.png, screenshot_02_xe_bo_verified.png, screenshot_03_revert_verified.png, screenshot_task_38_verified.png, screenshot_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_13_10_task_38/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_13_10_task_38/TODO.md)
 ### 🚀 [FEEDBACK_13_10_TASK_37] — Feedback 13/10 (Task #37) — Khóa Quyền Thao Tác Đơn Hàng Đối Với Chuyến Xe Đã Xử Lý Tại Hub & Phân Quyền Đặc Quyền Admin (13/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (22/22 việc)
 - **Báo cáo bởi**: @【M】【C】【D】 (Quản lý nghiệp vụ / Vận hành) & @Antigravity Verification
@@ -58,9 +83,8 @@
   * **Frontend**: Khai báo và tính toán chuẩn xác các cờ phân quyền theo phản hồi người dùng; Xử lý triệt để nút `+ Bốc thêm đơn dọc đường về Hub` (Khắc phục lỗi trực quan trên [`screenshot_01.jpg`](file:///D:/Projects/logistics-website/feedbacks/feedback_13_10_task_37/screenshot_01.jpg)); Xử lý cụm nút Footer góc dưới bên phải (Khắc phục vùng khoanh đỏ trong [`screenshot_01.jpg`](file:///D:/Projects/logistics-website/feedbacks/feedback_13_10_task_37/screenshot_01.jpg))...
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
-  * Minh chứng hình ảnh: screenshot_01.jpg
+  * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_01_verified.png, screenshot_02_admin_override_verified.png
 - **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_13_10_task_37/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_13_10_task_37/TODO.md)
-
 ### 🚀 [FEEDBACK_13_10] — Feedback 13/10 — Chuẩn Hóa Cấu Trúc 15 Cột Báo Cáo Excel Đơn Hàng Kho & Bóc Tách Chuyến Xe Nhập - Xuất (13/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (8/8 việc)
 - **Báo cáo bởi**: @【M】【C】【D】 (Quản lý vận hành kho bãi Logistics TMS)

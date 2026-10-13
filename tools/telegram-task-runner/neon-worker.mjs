@@ -380,6 +380,44 @@ function getGitDiffStat() {
   }
 }
 
+// Tự động commit và push thư mục feedback (TODO.md + ảnh minh chứng) lên nhánh dev ngay khi lập xong
+function autoCommitAndPushTodoFolder(feedbackDir, taskId) {
+  if (!feedbackDir || !fs.existsSync(feedbackDir)) return { success: false, reason: 'Feedback directory not found' };
+  try {
+    const relFeedbackDir = path.relative(WORKSPACE_DIR, feedbackDir).replace(/\\/g, '/');
+    console.log(`[Task #${taskId}] 🚀 Tự động commit & push thư mục ${relFeedbackDir} lên origin/dev...`);
+
+    // 1. Chỉ stage đúng thư mục feedback này (bao gồm TODO.md và các ảnh chụp nếu có)
+    execSync(`git add "${relFeedbackDir}"`, { cwd: WORKSPACE_DIR, stdio: 'pipe' });
+
+    // 2. Kiểm tra xem có file nào được staged trong thư mục này không
+    const staged = execSync('git diff --staged --name-only', { cwd: WORKSPACE_DIR, encoding: 'utf8' }).trim();
+    if (!staged) {
+      console.log(`[Task #${taskId}] ℹ️ Không có file mới cần commit trong ${relFeedbackDir}.`);
+      return { success: true, alreadySynced: true, relFeedbackDir };
+    }
+
+    // 3. Commit đúng tài liệu feedback
+    const commitMsg = `docs(feedback): record TODO.md and assets for task #${taskId}`;
+    execSync(`git commit -m "${commitMsg}"`, { cwd: WORKSPACE_DIR, stdio: 'pipe' });
+
+    // 4. Pull rebase để đồng bộ nếu remote vừa có commit mới (tránh non-fast-forward reject)
+    try {
+      execSync('git pull origin dev --rebase', { cwd: WORKSPACE_DIR, stdio: 'pipe' });
+    } catch (pullErr) {
+      console.warn(`[Task #${taskId}] ℹ️ Lưu ý pull rebase:`, pullErr.message);
+    }
+
+    // 5. Push trực tiếp lên origin dev
+    execSync('git push origin dev', { cwd: WORKSPACE_DIR, stdio: 'pipe' });
+    console.log(`[Task #${taskId}] ✅ Đã push ${relFeedbackDir} lên origin/dev thành công!`);
+    return { success: true, commitMsg, relFeedbackDir };
+  } catch (err) {
+    console.warn(`[Task #${taskId}] ⚠️ Lỗi khi tự động commit/push TODO.md:`, err.message);
+    return { success: false, error: err.message, relFeedbackDir: path.relative(WORKSPACE_DIR, feedbackDir).replace(/\\/g, '/') };
+  }
+}
+
 // Xây dựng prompt chuẩn hóa với vai trò Team Lead nghiệp vụ /leader để tổng hợp TODO.md
 function buildLeaderPrompt(rawPrompt, feedbackDir, imagePaths = [], senderName = 'User') {
   const relativeFeedbackDir = path.relative(WORKSPACE_DIR, feedbackDir);
@@ -1631,6 +1669,12 @@ async function executeAgyTask(task) {
         const formattedHtml = markdownToTelegramHtml(cleanOutput);
         const gitDiff = getGitDiffStat();
 
+        // Tự động commit & push thư mục TODO.md lên nhánh dev ngay khi vừa lập xong trong Leader Mode
+        let todoPushResult = null;
+        if (!isSyncMode && !isTodoAgentMode && hasTodoCreated) {
+          todoPushResult = autoCommitAndPushTodoFolder(feedbackDir, taskId);
+        }
+
         let finalReport = isSyncMode
           ? `🎯 <b>[KẾT QUẢ TASK #${taskId}] - ĐỒNG BỘ DEV ➔ MASTER HOÀN TẤT</b> <code>(⏱️ ${timeStr})</code>\n\n` +
             `👤 <b>Người yêu cầu:</b> ${escapeHtml(senderName)}\n` +
@@ -1650,6 +1694,12 @@ async function executeAgyTask(task) {
               (savedImagePaths.length > 0 ? `📸 <b>Hình ảnh:</b> <code>${savedImagePaths.length} ảnh đã lưu trữ kèm TODO</code>\n` : '') +
               (conversationId ? `🆔 <b>Session:</b> <code>${conversationId}</code>\n\n` : '\n') +
               formattedHtml);
+
+        if (todoPushResult && todoPushResult.success && !todoPushResult.alreadySynced) {
+          finalReport += `\n\n🚀 <b>Git Cloud Sync:</b> Đã tự động commit & push <code>${escapeHtml(todoPushResult.relFeedbackDir)}</code> lên nhánh <code>origin/dev</code>. Sẵn sàng thực thi trên cả Local và Cloud!`;
+        } else if (todoPushResult && !todoPushResult.success) {
+          finalReport += `\n\n⚠️ <b>Git Cloud Sync:</b> Lưu ý chưa thể tự động push lên origin/dev (${escapeHtml(todoPushResult.error)}).`;
+        }
 
         if (gitDiff) {
           finalReport += `\n\n📊 <b>THAY ĐỔI MÃ NGUỒN (GIT DIFF):</b>\n<pre>${escapeHtml(gitDiff)}</pre>`;
