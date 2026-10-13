@@ -61,7 +61,6 @@
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_01_hub_l1_verified.png, screenshot_02_xe_bo_verified.png, screenshot_03_revert_verified.png, screenshot_task_38_verified.png, screenshot_verified.png
 - **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_13_10_task_38/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_13_10_task_38/TODO.md)
-
 ### 🚀 [FEEDBACK_13_10_TASK_37] — Feedback 13/10 (Task #37) — Khóa Quyền Thao Tác Đơn Hàng Đối Với Chuyến Xe Đã Xử Lý Tại Hub & Phân Quyền Đặc Quyền Admin (13/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (22/22 việc)
 - **Báo cáo bởi**: @【M】【C】【D】 (Quản lý nghiệp vụ / Vận hành) & @Antigravity Verification

@@ -143,12 +143,12 @@ Hậu quả vận hành thực tế:
 - **Kiểm tra sức khỏe Backend (Anti-Hang Health Check)**: `curl.exe -m 15 -i https://logistics-website-backend-1jho.onrender.com/api/v1/health` -> HTTP 200 OK.
 
 ### Hình ảnh minh chứng đã lưu trữ (6 tệp):
-- 📸 **screenshot_01.jpg**: [Xem hình ảnh](file:///D:/Projects/logistics-website/feedbacks/feedback_13_10_task_38/screenshot_01.jpg)
-- 📸 **screenshot_01_hub_l1_verified.png**: [Xem hình ảnh](file:///D:/Projects/logistics-website/feedbacks/feedback_13_10_task_38/screenshot_01_hub_l1_verified.png)
-- 📸 **screenshot_02_xe_bo_verified.png**: [Xem hình ảnh](file:///D:/Projects/logistics-website/feedbacks/feedback_13_10_task_38/screenshot_02_xe_bo_verified.png)
-- 📸 **screenshot_03_revert_verified.png**: [Xem hình ảnh](file:///D:/Projects/logistics-website/feedbacks/feedback_13_10_task_38/screenshot_03_revert_verified.png)
-- 📸 **screenshot_task_38_verified.png**: [Xem hình ảnh](file:///D:/Projects/logistics-website/feedbacks/feedback_13_10_task_38/screenshot_task_38_verified.png)
-- 📸 **screenshot_verified.png**: [Xem hình ảnh](file:///D:/Projects/logistics-website/feedbacks/feedback_13_10_task_38/screenshot_verified.png)
+- 📸 **screenshot_01.jpg**: [Xem hình ảnh](file:////home/runner/work/logistics-website/logistics-website/feedbacks/feedback_13_10_task_38/screenshot_01.jpg)
+- 📸 **screenshot_01_hub_l1_verified.png**: [Xem hình ảnh](file:////home/runner/work/logistics-website/logistics-website/feedbacks/feedback_13_10_task_38/screenshot_01_hub_l1_verified.png)
+- 📸 **screenshot_02_xe_bo_verified.png**: [Xem hình ảnh](file:////home/runner/work/logistics-website/logistics-website/feedbacks/feedback_13_10_task_38/screenshot_02_xe_bo_verified.png)
+- 📸 **screenshot_03_revert_verified.png**: [Xem hình ảnh](file:////home/runner/work/logistics-website/logistics-website/feedbacks/feedback_13_10_task_38/screenshot_03_revert_verified.png)
+- 📸 **screenshot_task_38_verified.png**: [Xem hình ảnh](file:////home/runner/work/logistics-website/logistics-website/feedbacks/feedback_13_10_task_38/screenshot_task_38_verified.png)
+- 📸 **screenshot_verified.png**: [Xem hình ảnh](file:////home/runner/work/logistics-website/logistics-website/feedbacks/feedback_13_10_task_38/screenshot_verified.png)
 
 ---
 
@@ -169,4 +169,4 @@ Hậu quả vận hành thực tế:
 ## 6. 🔗 Cơ Sở Dữ Liệu Kỹ Thuật Cho Các AI Agent Session Tiếp Theo
 
 > ⚠️ **LƯU Ý DÀNH CHO CÁC AI AGENT SESSION MỚI**:  
-> Tài liệu này cùng với [`TODO.md`](file:///D:/Projects/logistics-website/feedbacks/feedback_13_10_task_38/TODO.md) và [`docs/SYSTEM_TIMELINE.md`](file:///docs/SYSTEM_TIMELINE.md) là **CƠ SỞ KỸ THUẬT VÀ BẰNG CHỨNG BẤT BIẾN** đã được nghiệm thu. Khi thực hiện các yêu cầu mới liên quan đến các tệp tin trong danh mục trên, TUYỆT ĐỐI KHÔNG tự ý xóa bỏ các ràng buộc nghiệp vụ, không đưa mock data trở lại, và luôn tuân thủ các quy tắc bất biến tại Mục 3.
+> Tài liệu này cùng với [`TODO.md`](file:////home/runner/work/logistics-website/logistics-website/feedbacks/feedback_13_10_task_38/TODO.md) và [`docs/SYSTEM_TIMELINE.md`](file:///docs/SYSTEM_TIMELINE.md) là **CƠ SỞ KỸ THUẬT VÀ BẰNG CHỨNG BẤT BIẾN** đã được nghiệm thu. Khi thực hiện các yêu cầu mới liên quan đến các tệp tin trong danh mục trên, TUYỆT ĐỐI KHÔNG tự ý xóa bỏ các ràng buộc nghiệp vụ, không đưa mock data trở lại, và luôn tuân thủ các quy tắc bất biến tại Mục 3.
