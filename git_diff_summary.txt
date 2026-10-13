@@ -1,18 +1,26 @@
 === Root ===
- docs/SYSTEM_TIMELINE.md                             |   1 -
- feedbacks/feedback_13_10_task_38/RESOLUTION.md      |  14 +++++++-------
- .../screenshot_01_hub_l1_verified.png               | Bin 71935 -> 99774 bytes
- .../screenshot_02_xe_bo_verified.png                | Bin 72224 -> 99603 bytes
- .../screenshot_03_revert_verified.png               | Bin 66455 -> 93141 bytes
- .../screenshot_task_38_verified.png                 | Bin 72224 -> 99603 bytes
- .../feedback_13_10_task_38/screenshot_verified.png  | Bin 72224 -> 99603 bytes
- git_diff_summary.txt                                |   4 ----
- 8 files changed, 7 insertions(+), 12 deletions(-)
+ docs/SYSTEM_TIMELINE.md                  | 26 +++++++++++++++++++
+ feedbacks/feedback_13_10_task_45/TODO.md | 24 ++++++++---------
+ feedbacks/feedback_13_10_task_46/TODO.md | 44 ++++++++++++++++----------------
+ frontend                                 |  0
+ git_diff_summary.txt                     | 17 ------------
+ 5 files changed, 60 insertions(+), 51 deletions(-)
  M docs/SYSTEM_TIMELINE.md
- M feedbacks/feedback_13_10_task_38/RESOLUTION.md
- M feedbacks/feedback_13_10_task_38/screenshot_01_hub_l1_verified.png
- M feedbacks/feedback_13_10_task_38/screenshot_02_xe_bo_verified.png
- M feedbacks/feedback_13_10_task_38/screenshot_03_revert_verified.png
- M feedbacks/feedback_13_10_task_38/screenshot_task_38_verified.png
- M feedbacks/feedback_13_10_task_38/screenshot_verified.png
+ M feedbacks/feedback_13_10_task_45/TODO.md
+ M feedbacks/feedback_13_10_task_46/TODO.md
+ m frontend
  M git_diff_summary.txt
+?? feedbacks/feedback_13_10_task_45/RESOLUTION.md
+?? feedbacks/feedback_13_10_task_46/RESOLUTION.md
+=== Frontend ===
+ src/app/dashboard/warehouse/inbound/page.tsx       | 195 +++++--------------
+ src/app/dashboard/warehouse/outbound/page.tsx      | 207 +-------------------
+ .../warehouse/components/pallet-label-a4-modal.tsx | 216 ++++++++++++++-------
+ .../components/warehouse-trip-detail-modal.tsx     | 182 +++++++++++++----
+ .../components/warehouse-trip-tally-table.tsx      |  24 ++-
+ 5 files changed, 369 insertions(+), 455 deletions(-)
+ M src/app/dashboard/warehouse/inbound/page.tsx
+ M src/app/dashboard/warehouse/outbound/page.tsx
+ M src/features/warehouse/components/pallet-label-a4-modal.tsx
+ M src/features/warehouse/components/warehouse-trip-detail-modal.tsx
+ M src/features/warehouse/components/warehouse-trip-tally-table.tsx

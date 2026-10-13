@@ -14,42 +14,68 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 13/10/2026 | `feedbacks/feedback_13_10_task_46` | Feedback 13/10 (Task #46) — Chuẩn hóa Nút "Tiếp tục"... | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_46/RESOLUTION.md) |
+| 13/10/2026 | `feedbacks/feedback_13_10_task_45` | Feedback 13/10 (Task 45) — Loại Bỏ Chức Năng Chọn Nh... | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_45/RESOLUTION.md) |
 | 13/10/2026 | `feedbacks/feedback_13_10_task_41` | Feedback 13/10 (Task 41) — Bảo Toàn Thông Tin Đích Đ... | 10/10 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_41/RESOLUTION.md) |
 | 13/10/2026 | `feedbacks/feedback_13_10_task_38` | Feedback 13/10 (Task 38) — Chuẩn hóa Hiển thị Thông ... | 15/15 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_38/RESOLUTION.md) |
 | 13/10/2026 | `feedbacks/feedback_13_10_task_37` | Feedback 13/10 (Task #37) — Khóa Quyền Thao Tác Đơn ... | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_37/RESOLUTION.md) |
-| 13/10/2026 | `feedback_13_10` | Feedback 13/10 — Chuẩn Hóa Cấu Trúc 15 Cột Báo Cáo E... | 8/8 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_13_10/RESOLUTION.md) |
-| 12/10/2026 20:36 | `feedback_12_10_task_33` | Feedback 12/10 (Task 33) — Tối Ưu Độ Sáng & Tinh Chỉ... | 7/7 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_12_10_task_33/RESOLUTION.md) |
-| 12/10/2026 | `feedback_12_10` | Feedback 12/10 — Chuẩn Hóa Nhận Diện Thương Hiệu Spi... | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_12_10/RESOLUTION.md) |
-| 09/10/2026 - 18:22 | `feedback_09_10_task_20` | Feedback 09/10 (Task 20) — Tích Hợp Nút Xuất Báo Cáo... | 18/18 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_20/RESOLUTION.md) |
-| 09/10/2026 - 17:31 | `feedback_09_10_task_18` | Feedback 09/10 (Task 18) — Tối ưu Vị trí Nút Hành độ... | 26/26 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_18/RESOLUTION.md) |
-| 09/10/2026 | `feedback_09_10_task_16` | Feedback 09/10 (Task 16) — Chuẩn Hóa Hiển Thị Tỉnh/T... | 7/7 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_16/RESOLUTION.md) |
-| 09/10/2026 | `feedback_09_10_task_13` | Feedback 09/10 (Task 13) — Tách Cột Thông Tin Hàng H... | 27/27 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_13/RESOLUTION.md) |
-| 09/10/2026 | `feedback_09_10_task_10` | Feedback 09/10 Task 10 — Ràng Buộc Nghiệp Vụ Cột Ngà... | 21/21 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_10/RESOLUTION.md) |
-| 09/10/2026 | `feedback_09_10_task_9` | Feedback 09/10 Task 9 — Chuẩn Hóa Toàn Diện Bảng Đơn... | 18/18 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_9/RESOLUTION.md) |
-| 09/10/2026 | `feedback_09_10_task_8` | Feedback 09/10 Task 8 — Hoàn Thiện Quy Chuẩn Bảng Đơ... | 16/16 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_8/RESOLUTION.md) |
-| 09/10/2026 | `feedback_09_10_task_7` | Feedback 09/10 Task 7 — Tái Cấu Trúc Bảng Dữ Liệu Đơ... | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_7/RESOLUTION.md) |
-| 09/10/2026 | `feedback_09_10_task_6` | Feedback 09/10 Task 6 — Loại bỏ Cột Trạng thái Đơn h... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_6/RESOLUTION.md) |
-| 09/10/2026 (14:12) | `feedback_09_10_task_5` | Feedback 09/10 (Task 5) — Khắc phục lỗi Tạo mới Tài ... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_5/RESOLUTION.md) |
-| 09/10/2026 | `feedback_09_10` | Feedback 09/10 — Phân Định Tuyệt Đối Quy Trình Tác N... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10/RESOLUTION.md) |
-| 09/10/2026 | `feedback_09_10_task_4` | Feedback 09/10 (Task 4) — Loại Bỏ Nút "Xem Tài Khoản... | 3/3 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_09_10_task_4/RESOLUTION.md) |
+| 13/10/2026 | `feedback_13_10` | Feedback 13/10 — Chuẩn Hóa Cấu Trúc 15 Cột Báo Cáo E... | 8/8 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 12/10/2026 20:36 | `feedback_12_10_task_33` | Feedback 12/10 (Task 33) — Tối Ưu Độ Sáng & Tinh Chỉ... | 7/7 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 12/10/2026 | `feedback_12_10` | Feedback 12/10 — Chuẩn Hóa Nhận Diện Thương Hiệu Spi... | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 09/10/2026 - 18:22 | `feedback_09_10_task_20` | Feedback 09/10 (Task 20) — Tích Hợp Nút Xuất Báo Cáo... | 18/18 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 09/10/2026 - 17:31 | `feedback_09_10_task_18` | Feedback 09/10 (Task 18) — Tối ưu Vị trí Nút Hành độ... | 26/26 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 09/10/2026 | `feedback_09_10_task_16` | Feedback 09/10 (Task 16) — Chuẩn Hóa Hiển Thị Tỉnh/T... | 7/7 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 09/10/2026 | `feedback_09_10_task_13` | Feedback 09/10 (Task 13) — Tách Cột Thông Tin Hàng H... | 27/27 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 09/10/2026 | `feedback_09_10_task_10` | Feedback 09/10 Task 10 — Ràng Buộc Nghiệp Vụ Cột Ngà... | 21/21 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 09/10/2026 | `feedback_09_10_task_9` | Feedback 09/10 Task 9 — Chuẩn Hóa Toàn Diện Bảng Đơn... | 18/18 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 09/10/2026 | `feedback_09_10_task_8` | Feedback 09/10 Task 8 — Hoàn Thiện Quy Chuẩn Bảng Đơ... | 16/16 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 09/10/2026 | `feedback_09_10_task_7` | Feedback 09/10 Task 7 — Tái Cấu Trúc Bảng Dữ Liệu Đơ... | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 09/10/2026 | `feedback_09_10_task_6` | Feedback 09/10 Task 6 — Loại bỏ Cột Trạng thái Đơn h... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 09/10/2026 (14:12) | `feedback_09_10_task_5` | Feedback 09/10 (Task 5) — Khắc phục lỗi Tạo mới Tài ... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 09/10/2026 | `feedback_09_10` | Feedback 09/10 — Phân Định Tuyệt Đối Quy Trình Tác N... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 09/10/2026 | `feedback_09_10_task_4` | Feedback 09/10 (Task 4) — Loại Bỏ Nút "Xem Tài Khoản... | 3/3 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
 | 08/10/2026 | `release_v1.0.0` | **Release v1.0.0 — Milestone Chốt Toàn Bộ Flow Nghiệp Vụ Cốt Lõi Vận Hành TMS** | 7 Flows | ✅ DONE (100%) | [RELEASE_v1.0.0_BUSINESS_FLOWS.md](RELEASE_v1.0.0_BUSINESS_FLOWS.md) |
-| 07/10/2026 | `feedback_07_10_task_29` | Feedback 07/10 Task 29 — Chuẩn Hóa Logic Mặc Định Nh... | 11/11 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_07_10_task_29/RESOLUTION.md) |
-| 07/10/2026 | `feedback_07_10_task_27` | Feedback 07/10 Task 27 — Khắc Phục Lỗi Mặc Định Nhập... | 11/11 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_07_10_task_27/RESOLUTION.md) |
-| 07/10/2026 | `feedback_07_10_task_24` | Feedback 07/10 Task 24 — Tùy biến Hình thức & Địa ch... | 57/57 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_07_10_task_24/RESOLUTION.md) |
-| 07/10/2026 | `feedback_07_10_task_22` | Feedback 07/10 Task 22 — Mở Rộng Kích Thước & Tối Ưu... | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_07_10_task_22/RESOLUTION.md) |
-| 07/10/2026 (13:49) | `feedback_07_10_task_21` | Feedback 07/10 Task 21 — Khắc phục Lỗi Không Hiển th... | 30/30 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_07_10_task_21/RESOLUTION.md) |
-| 07/10/2026 | `feedback_07_10_task_12` | Feedback 07/10 Task 12 — Chuẩn Hóa Quản Lý Tồn Kho &... | 19/19 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_07_10_task_12/RESOLUTION.md) |
-| 07/10/2026 | `feedback_07_10_task_11` | Tối ưu Giao diện Bảng Kê Xuất Kho: Loại Bỏ Cột Trạng Thái Thừa & Compact Density | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_07_10_task_11/RESOLUTION.md) |
-| 07/10/2026 | `feedback_07_10_task_10` | Chuẩn Hóa Cột Kho Đích & Gán Đơn Lưu Kho Sẵn Có Lên Chuyến Xuất Kho | 18/18 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_07_10_task_10/RESOLUTION.md) |
-| 07/10/2026 | `feedback_07_10` | Chuẩn Hóa Cột Kho Đích / Nơi Giao & Đồng Bộ Phiếu Xuất Kho | 32/32 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_07_10/RESOLUTION.md) |
-| 06/10/2026 | `feedback_06_10` | Bốc Hàng Dọc Đường (Roadside Pickup) & Gán Vào Chuyến Xe Đang Chạy | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_06_10/RESOLUTION.md) |
-| 05/10/2026 | `feedback_05_10` | Gom Hàng Inbound, Chuyến Xe Nháp, Tái Sử Dụng Mã Chuyến & Bộ Lọc Trạng Thái | 42/42 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_05_10/RESOLUTION.md) |
-| 04/10/2026 | `feedback_04_10` | Tách Rời Kiểm Đếm Inbound & Chuyến Xe, Excel Parser & Chuẩn Hóa UTC | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_04_10/RESOLUTION.md) |
-| 18/08/2026 | `feedback_17_8` | Chuẩn Hóa Toàn Diện TanStack Table v8, Phân Trang, RBAC & Mail Simulation | 33/33 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_17_8/RESOLUTION.md) |
+| 07/10/2026 | `feedback_07_10_task_29` | Feedback 07/10 Task 29 — Chuẩn Hóa Logic Mặc Định Nh... | 11/11 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 07/10/2026 | `feedback_07_10_task_27` | Feedback 07/10 Task 27 — Khắc Phục Lỗi Mặc Định Nhập... | 11/11 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 07/10/2026 | `feedback_07_10_task_24` | Feedback 07/10 Task 24 — Tùy biến Hình thức & Địa ch... | 57/57 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 07/10/2026 | `feedback_07_10_task_22` | Feedback 07/10 Task 22 — Mở Rộng Kích Thước & Tối Ưu... | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 07/10/2026 (13:49) | `feedback_07_10_task_21` | Feedback 07/10 Task 21 — Khắc phục Lỗi Không Hiển th... | 30/30 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 07/10/2026 | `feedback_07_10_task_12` | Feedback 07/10 Task 12 — Chuẩn Hóa Quản Lý Tồn Kho &... | 19/19 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 07/10/2026 | `feedback_07_10_task_11` | Tối ưu Giao diện Bảng Kê Xuất Kho: Loại Bỏ Cột Trạng Thái Thừa & Compact Density | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 07/10/2026 | `feedback_07_10_task_10` | Chuẩn Hóa Cột Kho Đích & Gán Đơn Lưu Kho Sẵn Có Lên Chuyến Xuất Kho | 18/18 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 07/10/2026 | `feedback_07_10` | Chuẩn Hóa Cột Kho Đích / Nơi Giao & Đồng Bộ Phiếu Xuất Kho | 32/32 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 06/10/2026 | `feedback_06_10` | Bốc Hàng Dọc Đường (Roadside Pickup) & Gán Vào Chuyến Xe Đang Chạy | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 05/10/2026 | `feedback_05_10` | Gom Hàng Inbound, Chuyến Xe Nháp, Tái Sử Dụng Mã Chuyến & Bộ Lọc Trạng Thái | 42/42 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 04/10/2026 | `feedback_04_10` | Tách Rời Kiểm Đếm Inbound & Chuyến Xe, Excel Parser & Chuẩn Hóa UTC | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
+| 18/08/2026 | `feedback_17_8` | Chuẩn Hóa Toàn Diện TanStack Table v8, Phân Trang, RBAC & Mail Simulation | 33/33 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_) |
 
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_13_10_TASK_46] — Feedback 13/10 (Task #46) — Chuẩn hóa Nút "Tiếp tục" Nhập kho & Phân định Rạch ròi Chế độ Xem / In Tem Nhận Diện với Chế độ Chỉnh sửa Chuyến xe (13/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (22/22 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Quản lý nghiệp vụ / Vận hành TMS)
+- **Phạm vi**: Quản lý Nhập kho (`/dashboard/warehouse/inbound`) ➔ Bảng danh sách chuyến xe nhập kho ([`page.tsx`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/inbound/page.tsx)), bổ sung nút "Tiếp tục" ở cột THAO TÁC, chuẩn hóa hành vi click vào mã chuyến xe. • Quản lý Xuất kho (`/dashboard/warehouse/outbound`) ➔ Bảng danh sách chuyến xe xuất kho ([`page.tsx`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/outbound/page.tsx)), chuẩn hóa hành vi click vào mã chuyến xe. • Modal Chi tiết Chuyến xe ([`WarehouseTripDetailModal.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) ➔ Phân định triệt để giữa Chế độ Xem thuần túy (Read-only inspection) và Chế độ Chỉnh sửa/Tác nghiệp (Edit/Action workflow); tích hợp trực tiếp tính năng In Tem Nhận Diện Hàng Hóa. • Modal In Tem Nhận Diện Hàng Hóa ([`PalletLabelA4Modal.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/pallet-label-a4-modal.tsx)) ➔ Kết nối in tem nhận diện A4 / Pallet label cho từng đơn hàng hoặc toàn bộ đơn trong chuyến xe. • Backend API (`backend/src/orders/warehouse.controller.ts`, `warehouse.service.ts`) ➔ Đảm bảo dữ liệu manifest, trạng thái stop của trip và các thao tác cập nhật chuyến xe đáp ứng 100% nghiệp vụ.
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Kiểm tra & Chuẩn hóa API `inbound-trips` ([`warehouse.controller.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.controller.ts) & [`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)); Kiểm tra API `trips/:tripCode/manifest` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)); Bảo đảm quyền hạn RBAC ([`rbac-matrix.md`](file:///D:/Projects/logistics-website/.agents/rules/rbac-matrix.md))
+  * **Frontend**: Thêm nút `[✏️ Tiếp tục]` vào cột THAO TÁC cho các chuyến xe `Chờ xử lý` (`grp.status === 'PENDING'`); Giữ nút `[🖨️ In phiếu nhập]` cho các chuyến xe `Đã xử lý` (`grp.status === 'COMPLETED'`); Loại bỏ nút "Xem đơn" thừa thãi ở cột THAO TÁC...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_13_10_task_46/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_13_10_task_46/TODO.md)
+
+### 🚀 [FEEDBACK_13_10_TASK_45] — Feedback 13/10 (Task 45) — Loại Bỏ Chức Năng Chọn Nhiều Trip & Nút Xác Nhận Nhập/Xuất Kho Hàng Loạt Ngoài Màn Hình Danh Sách (Chuyển Giao Trọn Vẹn Sang Tác Nghiệp Theo Chuyến Xe & Kiểm Đếm Thực Tế) (13/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (12/12 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Chủ quản vận hành / Vận hành TMS)
+- **Phạm vi**: Quản lý Nhập kho (`/warehouse/inbound`) ➔ Bảng điều độ chuyến xe đến & Thanh tác vụ chọn hàng loạt ([`WarehouseInboundPage`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/inbound/page.tsx)) • Quản lý Xuất kho (`/warehouse/outbound`) ➔ Bảng điều độ chuyến xe đi & Thanh tác vụ chọn hàng loạt ([`WarehouseOutboundPage`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/outbound/page.tsx)) • Tác nghiệp Kiểm đếm & Dỡ hàng theo Chuyến xe ([`WarehouseTripDetailModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) • Tác nghiệp Lập phiếu xuất & Điều độ chuyến xe xuất kho ([`WarehouseOutboundTransferFlow`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-outbound-transfer-flow.tsx) & Form Xuất kho Mode 1 / Mode 2)
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Rà soát & Bảo toàn Endpoints xác nhận kho trong `WarehouseController` & `WarehouseService`
+  * **Frontend**: Xóa bỏ State & Logic chọn nhiều đơn hàng; Xóa bỏ Thanh tác vụ hàng loạt nổi (Batch Action Bar); Xóa bỏ Cột Checkbox trong Bảng Chuyến xe Nhập kho...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_13_10_task_45/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_13_10_task_45/TODO.md)
 
 ### 🚀 [FEEDBACK_13_10_TASK_41] — Feedback 13/10 (Task 41) — Bảo Toàn Thông Tin Đích Đến Ban Đầu Của Đơn Hàng (Master Contract Destination Invariance) & Tách Biệt Hoàn Toàn Với Địa Chỉ Giao Khi Xuất Kho (13/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (10/10 việc)
