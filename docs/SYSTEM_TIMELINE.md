@@ -14,6 +14,8 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 13/10/2026 | `feedbacks/feedback_13_10_task_46` | Feedback 13/10 (Task #46) — Chuẩn hóa Nút "Tiếp tục"... | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_46/RESOLUTION.md) |
+| 13/10/2026 | `feedbacks/feedback_13_10_task_45` | Feedback 13/10 (Task 45) — Loại Bỏ Chức Năng Chọn Nh... | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_45/RESOLUTION.md) |
 | 13/10/2026 | `feedbacks/feedback_13_10_task_41` | Feedback 13/10 (Task 41) — Bảo Toàn Thông Tin Đích Đ... | 10/10 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_41/RESOLUTION.md) |
 | 13/10/2026 | `feedbacks/feedback_13_10_task_38` | Feedback 13/10 (Task 38) — Chuẩn hóa Hiển thị Thông ... | 15/15 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_38/RESOLUTION.md) |
 | 13/10/2026 | `feedbacks/feedback_13_10_task_37` | Feedback 13/10 (Task #37) — Khóa Quyền Thao Tác Đơn ... | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_37/RESOLUTION.md) |
@@ -50,6 +52,30 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_13_10_TASK_46] — Feedback 13/10 (Task #46) — Chuẩn hóa Nút "Tiếp tục" Nhập kho & Phân định Rạch ròi Chế độ Xem / In Tem Nhận Diện với Chế độ Chỉnh sửa Chuyến xe (13/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (22/22 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Quản lý nghiệp vụ / Vận hành TMS)
+- **Phạm vi**: Quản lý Nhập kho (`/dashboard/warehouse/inbound`) ➔ Bảng danh sách chuyến xe nhập kho ([`page.tsx`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/inbound/page.tsx)), bổ sung nút "Tiếp tục" ở cột THAO TÁC, chuẩn hóa hành vi click vào mã chuyến xe. • Quản lý Xuất kho (`/dashboard/warehouse/outbound`) ➔ Bảng danh sách chuyến xe xuất kho ([`page.tsx`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/outbound/page.tsx)), chuẩn hóa hành vi click vào mã chuyến xe. • Modal Chi tiết Chuyến xe ([`WarehouseTripDetailModal.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) ➔ Phân định triệt để giữa Chế độ Xem thuần túy (Read-only inspection) và Chế độ Chỉnh sửa/Tác nghiệp (Edit/Action workflow); tích hợp trực tiếp tính năng In Tem Nhận Diện Hàng Hóa. • Modal In Tem Nhận Diện Hàng Hóa ([`PalletLabelA4Modal.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/pallet-label-a4-modal.tsx)) ➔ Kết nối in tem nhận diện A4 / Pallet label cho từng đơn hàng hoặc toàn bộ đơn trong chuyến xe. • Backend API (`backend/src/orders/warehouse.controller.ts`, `warehouse.service.ts`) ➔ Đảm bảo dữ liệu manifest, trạng thái stop của trip và các thao tác cập nhật chuyến xe đáp ứng 100% nghiệp vụ.
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Kiểm tra & Chuẩn hóa API `inbound-trips` ([`warehouse.controller.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.controller.ts) & [`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)); Kiểm tra API `trips/:tripCode/manifest` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)); Bảo đảm quyền hạn RBAC ([`rbac-matrix.md`](file:///D:/Projects/logistics-website/.agents/rules/rbac-matrix.md))
+  * **Frontend**: Thêm nút `[✏️ Tiếp tục]` vào cột THAO TÁC cho các chuyến xe `Chờ xử lý` (`grp.status === 'PENDING'`); Giữ nút `[🖨️ In phiếu nhập]` cho các chuyến xe `Đã xử lý` (`grp.status === 'COMPLETED'`); Loại bỏ nút "Xem đơn" thừa thãi ở cột THAO TÁC...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_13_10_task_46/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_13_10_task_46/TODO.md)
+
+### 🚀 [FEEDBACK_13_10_TASK_45] — Feedback 13/10 (Task 45) — Loại Bỏ Chức Năng Chọn Nhiều Trip & Nút Xác Nhận Nhập/Xuất Kho Hàng Loạt Ngoài Màn Hình Danh Sách (Chuyển Giao Trọn Vẹn Sang Tác Nghiệp Theo Chuyến Xe & Kiểm Đếm Thực Tế) (13/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (12/12 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Chủ quản vận hành / Vận hành TMS)
+- **Phạm vi**: Quản lý Nhập kho (`/warehouse/inbound`) ➔ Bảng điều độ chuyến xe đến & Thanh tác vụ chọn hàng loạt ([`WarehouseInboundPage`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/inbound/page.tsx)) • Quản lý Xuất kho (`/warehouse/outbound`) ➔ Bảng điều độ chuyến xe đi & Thanh tác vụ chọn hàng loạt ([`WarehouseOutboundPage`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/outbound/page.tsx)) • Tác nghiệp Kiểm đếm & Dỡ hàng theo Chuyến xe ([`WarehouseTripDetailModal`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) • Tác nghiệp Lập phiếu xuất & Điều độ chuyến xe xuất kho ([`WarehouseOutboundTransferFlow`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-outbound-transfer-flow.tsx) & Form Xuất kho Mode 1 / Mode 2)
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Rà soát & Bảo toàn Endpoints xác nhận kho trong `WarehouseController` & `WarehouseService`
+  * **Frontend**: Xóa bỏ State & Logic chọn nhiều đơn hàng; Xóa bỏ Thanh tác vụ hàng loạt nổi (Batch Action Bar); Xóa bỏ Cột Checkbox trong Bảng Chuyến xe Nhập kho...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_13_10_task_45/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_13_10_task_45/TODO.md)
 
 ### 🚀 [FEEDBACK_13_10_TASK_41] — Feedback 13/10 (Task 41) — Bảo Toàn Thông Tin Đích Đến Ban Đầu Của Đơn Hàng (Master Contract Destination Invariance) & Tách Biệt Hoàn Toàn Với Địa Chỉ Giao Khi Xuất Kho (13/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (10/10 việc)

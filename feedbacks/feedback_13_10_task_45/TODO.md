@@ -120,7 +120,7 @@ flowchart TD
 > [!NOTE]
 > Các endpoint `POST /api/v1/warehouse/inbound/confirm` và `POST /api/v1/warehouse/outbound/confirm` hiện vẫn đang được sử dụng hợp lệ bởi các modal tác nghiệp nghiệp vụ chuyên sâu (`WarehouseTripDetailModal`, `WarehouseTallyModal`, `WarehouseInboundTransferFlow`, `WarehouseOutboundTransferFlow`). Do đó, Backend không xóa bỏ endpoint này mà chỉ rà soát tính toàn vẹn và bảo mật dữ liệu.
 
-- [ ] **Rà soát & Bảo toàn Endpoints xác nhận kho trong `WarehouseController` & `WarehouseService`**:
+- [x] **Rà soát & Bảo toàn Endpoints xác nhận kho trong `WarehouseController` & `WarehouseService`**:
   - File: [`backend/src/orders/warehouse.controller.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.controller.ts) & [`backend/src/orders/warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts).
   - Đảm bảo endpoint `POST /api/v1/warehouse/inbound/confirm` kiểm tra chặt chẽ quyền thao tác của Hub hiện tại (`user.hubId`), ngăn chặn việc xác nhận đơn hàng không thuộc phạm vi kho của người dùng.
   - Đảm bảo endpoint `POST /api/v1/warehouse/outbound/confirm` yêu cầu đầy đủ thông tin chuyến xe, biển số, tài xế trước khi ghi nhận xuất kho.
@@ -131,13 +131,13 @@ flowchart TD
 ### 2. Frontend (`frontend/`)
 
 #### A. Màn hình Quản lý Nhập kho ([`frontend/src/app/dashboard/warehouse/inbound/page.tsx`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/inbound/page.tsx))
-- [ ] **Xóa bỏ State & Logic chọn nhiều đơn hàng**:
+- [x] **Xóa bỏ State & Logic chọn nhiều đơn hàng**:
   - Xóa bỏ state `selectedOrderIds` (`const [selectedOrderIds, setSelectedOrderIds] = useState<number[]>([]);`).
   - Xóa bỏ state `isBatchSubmitting` (`const [isBatchSubmitting, setIsBatchSubmitting] = useState(false);`).
   - Xóa bỏ hàm `handleBatchConfirmInbound` (lines 481–517).
   - Dọn dẹp biến tính toán `allVisibleOrders` nếu không còn mục đích sử dụng khác ngoài checkbox chọn tất cả.
   - Dọn dẹp các lệnh reset `setSelectedOrderIds([])` trong các hiệu ứng chuyển tab, tìm kiếm, ngày tháng.
-- [ ] **Xóa bỏ Thanh tác vụ hàng loạt nổi (Batch Action Bar)**:
+- [x] **Xóa bỏ Thanh tác vụ hàng loạt nổi (Batch Action Bar)**:
   - Xóa bỏ toàn bộ khối JSX lines 897–932:
     ```tsx
     {selectedOrderIds.length > 0 && (
@@ -146,7 +146,7 @@ flowchart TD
       </div>
     )}
     ```
-- [ ] **Xóa bỏ Cột Checkbox trong Bảng Chuyến xe Nhập kho**:
+- [x] **Xóa bỏ Cột Checkbox trong Bảng Chuyến xe Nhập kho**:
   - Xóa thẻ `<th>` checkbox ở `<thead>`:
     ```tsx
     <th className='py-1.5 px-2 w-[36px] text-center'>
@@ -159,7 +159,7 @@ flowchart TD
       <input type='checkbox' ... />
     </td>
     ```
-- [ ] **Điều chỉnh `colSpan` của Bảng**:
+- [x] **Điều chỉnh `colSpan` của Bảng**:
   - Dòng Loading (`isLoadingOrders`): Điều chỉnh từ `colSpan={6}` thành `colSpan={5}`.
   - Dòng Empty state (`vehicleGroups.length === 0`): Điều chỉnh từ `colSpan={6}` thành `colSpan={5}`.
   - Dòng Nested sub-row (`isExpanded`): Điều chỉnh từ `colSpan={6}` thành `colSpan={5}`.
@@ -167,13 +167,13 @@ flowchart TD
 ---
 
 #### B. Màn hình Quản lý Xuất kho ([`frontend/src/app/dashboard/warehouse/outbound/page.tsx`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/outbound/page.tsx))
-- [ ] **Xóa bỏ State & Logic chọn nhiều chuyến nháp**:
+- [x] **Xóa bỏ State & Logic chọn nhiều chuyến nháp**:
   - Xóa bỏ state `selectedTripCodes` (`const [selectedTripCodes, setSelectedTripCodes] = useState<string[]>([]);`).
   - Xóa bỏ state `isBatchSubmitting` (`const [isBatchSubmitting, setIsBatchSubmitting] = useState(false);`).
   - Xóa bỏ hàm `handleBatchConfirmOutbound` (lines 762–824).
   - Xóa bỏ hàm không dùng `handleExportVehicleTrip` (lines 826–862) để tránh code thừa (dead code).
   - Dọn dẹp biến `draftGroups` nếu không còn sử dụng cho checkbox.
-- [ ] **Xóa bỏ Thanh tác vụ xuất hàng loạt nổi (Batch Action Bar)**:
+- [x] **Xóa bỏ Thanh tác vụ xuất hàng loạt nổi (Batch Action Bar)**:
   - Xóa bỏ toàn bộ khối JSX lines 1204–1238:
     ```tsx
     {selectedTripCodes.length > 0 && (
@@ -182,7 +182,7 @@ flowchart TD
       </div>
     )}
     ```
-- [ ] **Xóa bỏ Cột Checkbox trong Bảng Chuyến xe Xuất kho**:
+- [x] **Xóa bỏ Cột Checkbox trong Bảng Chuyến xe Xuất kho**:
   - Xóa thẻ `<th>` checkbox ở `<thead>`:
     ```tsx
     <th className='py-1.5 px-2 w-[36px] text-center'>
@@ -195,7 +195,7 @@ flowchart TD
       <input type='checkbox' ... />
     </td>
     ```
-- [ ] **Điều chỉnh `colSpan` của Bảng**:
+- [x] **Điều chỉnh `colSpan` của Bảng**:
   - Dòng Loading (`isLoading`): Điều chỉnh từ `colSpan={6}` thành `colSpan={5}`.
   - Dòng Empty state (`vehicleGroups.length === 0`): Điều chỉnh từ `colSpan={6}` thành `colSpan={5}`.
   - Dòng Nested sub-row (`isExpanded`): Điều chỉnh từ `colSpan={6}` thành `colSpan={5}`.
@@ -203,7 +203,7 @@ flowchart TD
 ---
 
 #### C. Quy chuẩn Giao diện hẹp & Trải nghiệm Người dùng (UI Compact Density)
-- [ ] **Bảo toàn tỷ lệ và cấu trúc bảng sau khi bỏ cột Checkbox**:
+- [x] **Bảo toàn tỷ lệ và cấu trúc bảng sau khi bỏ cột Checkbox**:
   - 5 cột chuẩn gồm: `CHUYẾN XE / TRIP` (150px) | `XE & TÀI XẾ` (150px) | `SỐ KIỆN / TẢI TRỌNG` (130px) | `TRẠNG THÁI` (100px) | `THAO TÁC` (180px).
   - Giữ nguyên typography chuẩn: Header `text-[10px]`, ô dữ liệu `text-[11px]`, mã chuyến `font-mono font-bold`.
   - Giữ nguyên khả năng mở rộng xem danh sách đơn (`isExpanded` / `Xem đơn` / `Thu gọn`).
@@ -213,10 +213,10 @@ flowchart TD
 
 ### 3. Kiểm thử & Nghiệm thu (Definition of Done)
 
-- [ ] **Kiểm tra Biên dịch & Linting (Zero Compilation Errors)**:
+- [x] **Kiểm tra Biên dịch & Linting (Zero Compilation Errors)**:
   - Chạy `npm run lint --prefix backend` và `npm run build --prefix backend` đạt PASS (0 lỗi).
   - Chạy `npm run build --prefix frontend` đạt PASS (Next.js compiled successfully, TypeScript passed, 0 lỗi type).
-- [ ] **Kịch bản kiểm thử Nghiệp vụ Thực tế (Manual & E2E Verification)**:
+- [x] **Kịch bản kiểm thử Nghiệp vụ Thực tế (Manual & E2E Verification)**:
   - **Kịch bản 1: Màn hình Nhập kho (`/warehouse/inbound`)**:
     1. Đăng nhập tài khoản Quản lý kho (ví dụ: `wh_hcm@spider.com` hoặc `wh_danang@spider.com`).
     2. Truy cập màn hình Quản lý Nhập kho.

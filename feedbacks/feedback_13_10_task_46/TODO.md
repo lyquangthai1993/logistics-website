@@ -136,7 +136,7 @@ flowchart TD
 ## 📋 Danh sách công việc triển khai (Action Checklist)
 
 ### 1. Backend (`backend/`)
-- [ ] **Kiểm tra & Chuẩn hóa API `inbound-trips` ([`warehouse.controller.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.controller.ts) & [`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts))**:
+- [x] **Kiểm tra & Chuẩn hóa API `inbound-trips` ([`warehouse.controller.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.controller.ts) & [`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts))**:
   - Đảm bảo trường `status` của chuyến xe tại trạm dừng hiện tại (`TripStopEntity`) trả về chính xác: `'PENDING'` (Chờ xử lý) hoặc `'COMPLETED'` (Đã xử lý).
   - Đảm bảo danh sách đơn hàng con (`orders`) trong chuyến xe trả về đầy đủ các thông tin cần thiết phục vụ in tem nhận diện:
     * `orderCode`: Mã vận đơn.
@@ -149,9 +149,9 @@ flowchart TD
     * `province`: Tỉnh / Thành phố đích.
     * `accompanyingDocs`: Chứng từ đi kèm.
     * `notes`: Ghi chú vận hành.
-- [ ] **Kiểm tra API `trips/:tripCode/manifest` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts))**:
+- [x] **Kiểm tra API `trips/:tripCode/manifest` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts))**:
   - Đảm bảo bảng kê toàn bộ hàng trên chuyến xe trả về đầy đủ metadata cho từng dòng (`TripManifestLine`), bao gồm thông tin kho gửi, kho nhận và thông tin tem nhận diện.
-- [ ] **Bảo đảm quyền hạn RBAC ([`rbac-matrix.md`](file:///D:/Projects/logistics-website/.agents/rules/rbac-matrix.md))**:
+- [x] **Bảo đảm quyền hạn RBAC ([`rbac-matrix.md`](file:///D:/Projects/logistics-website/.agents/rules/rbac-matrix.md))**:
   - Xác nhận các vai trò `WAREHOUSE_MANAGER` và `SUPER_ADMIN` được cấp quyền gọi API lấy dữ liệu manifest, xác nhận nhập kho và bốc thêm đơn trên chuyến xe.
 
 ---
@@ -159,7 +159,7 @@ flowchart TD
 ### 2. Frontend (`frontend/`)
 
 #### A. Cải tiến Màn hình Nhập kho ([`inbound/page.tsx`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/inbound/page.tsx))
-- [ ] **Thêm nút `[✏️ Tiếp tục]` vào cột THAO TÁC cho các chuyến xe `Chờ xử lý` (`grp.status === 'PENDING'`)**:
+- [x] **Thêm nút `[✏️ Tiếp tục]` vào cột THAO TÁC cho các chuyến xe `Chờ xử lý` (`grp.status === 'PENDING'`)**:
   - Giao diện nút bấm:
     ```tsx
     <Button
@@ -173,23 +173,23 @@ flowchart TD
     </Button>
     ```
   - Nếu là chuyến xe nháp tạo nội bộ tại kho này (`initialStatus === 'DRAFT'`): Có thể bổ sung thêm nút `[🗑️ Hủy nháp]` tương tự bên Xuất kho.
-- [ ] **Giữ nút `[🖨️ In phiếu nhập]` cho các chuyến xe `Đã xử lý` (`grp.status === 'COMPLETED'`)**:
+- [x] **Giữ nút `[🖨️ In phiếu nhập]` cho các chuyến xe `Đã xử lý` (`grp.status === 'COMPLETED'`)**:
   - Hiển thị nút in phiếu nhập cho xe đã dỡ hàng xong.
-- [ ] **Loại bỏ nút "Xem đơn" thừa thãi ở cột THAO TÁC**:
+- [x] **Loại bỏ nút "Xem đơn" thừa thãi ở cột THAO TÁC**:
   - Việc mở rộng sub-row đã được đảm nhiệm bởi nút chevron ở cột Chuyến xe, loại bỏ nút này để giao diện gọn gàng và đồng bộ với màn hình Xuất kho.
-- [ ] **Tách bạch 2 luồng Modal**:
+- [x] **Tách bạch 2 luồng Modal**:
   - State `isTripViewModalOpen`: Dành riêng cho chế độ **Xem & In tem nhận diện** khi người dùng click vào mã chuyến xe `grp.tripCode`.
   - State `isTripEditModalOpen`: Dành riêng cho chế độ **Chỉnh sửa / Tác nghiệp** khi người dùng bấm nút `[✏️ Tiếp tục]` ở cột Thao tác.
   - Hàm `handleOpenTripDetail(grp)`: Mở `isTripViewModalOpen = true`.
   - Hàm `handleResumeInboundTrip(grp)`: Mở `isTripEditModalOpen = true`.
 
 #### B. Chuẩn hóa Màn hình Xuất kho ([`outbound/page.tsx`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/outbound/page.tsx))
-- [ ] **Đảm bảo click vào mã chuyến xe `grp.tripCode` chỉ mở Modal ở Chế độ Xem & In tem nhận diện**:
+- [x] **Đảm bảo click vào mã chuyến xe `grp.tripCode` chỉ mở Modal ở Chế độ Xem & In tem nhận diện**:
   - Giữ nguyên nút `[✏️ Tiếp tục]` và `[🗑️ Hủy nháp]` ở cột THAO TÁC cho chuyến nháp.
   - Khi click vào `grp.tripCode`: Mở `WarehouseTripDetailModal` với `readOnly={true}` và `mode='OUTBOUND'`.
 
 #### C. Nâng cấp Modal Chi tiết Chuyến xe ([`warehouse-trip-detail-modal.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx))
-- [ ] **Sửa triệt để logic `effectiveReadOnly`**:
+- [x] **Sửa triệt để logic `effectiveReadOnly`**:
   - Loại bỏ hoàn toàn việc bypass của Admin khi prop `readOnly = true`:
     ```tsx
     const effectiveReadOnly = useMemo(() => {
@@ -200,11 +200,11 @@ flowchart TD
       ...
     }, [readOnly, tripGroup, isHubAccountLocked, ...]);
     ```
-- [ ] **Tích hợp Modal In Tem Nhận Diện Hàng Hóa (`PalletLabelA4Modal`)**:
+- [x] **Tích hợp Modal In Tem Nhận Diện Hàng Hóa (`PalletLabelA4Modal`)**:
   - Import `PalletLabelA4Modal` và `PalletLabelData`.
   - Khai báo state `selectedLabelData: PalletLabelData | null`.
   - Render `<PalletLabelA4Modal isOpen={Boolean(selectedLabelData)} onClose={() => setSelectedLabelData(null)} data={selectedLabelData} />`.
-- [ ] **Bổ sung cột THAO TÁC và nút "In tem" trong Bảng danh sách đơn hàng của Modal**:
+- [x] **Bổ sung cột THAO TÁC và nút "In tem" trong Bảng danh sách đơn hàng của Modal**:
   - Tại bảng danh sách đơn hàng khi xem chi tiết chuyến xe:
     - Bổ sung cột `THAO TÁC` (w-[80px] text-center).
     - Render nút:
@@ -220,7 +220,7 @@ flowchart TD
         <IconPrinter className='h-3 w-3 mr-1' /> In tem
       </Button>
       ```
-- [ ] **Bổ sung nút "In tất cả tem nhận diện" tại Toolbar / Header Modal**:
+- [x] **Bổ sung nút "In tất cả tem nhận diện" tại Toolbar / Header Modal**:
   - Thêm nút hành động:
     ```tsx
     <Button
@@ -233,7 +233,7 @@ flowchart TD
       <IconPrinter className='mr-1.5 h-3.5 w-3.5' /> In toàn bộ tem nhận diện ({rows.length} đơn)
     </Button>
     ```
-- [ ] **Khóa cứng toàn bộ UI khi ở Chế độ Xem (`effectiveReadOnly === true`)**:
+- [x] **Khóa cứng toàn bộ UI khi ở Chế độ Xem (`effectiveReadOnly === true`)**:
   - Biển số xe, tên tài xế, ngày nhận/xuất: Render dưới dạng Badge hoặc Text cố định (có icon khóa `IconLock` nhỏ).
   - Ẩn toàn bộ:
     * Nút `Lưu thay đổi`.
@@ -245,11 +245,11 @@ flowchart TD
     * Nút In phiếu xe (nếu chuyến xe đã hoàn tất xử lý).
 
 #### D. Tuân thủ Quy chuẩn Giao diện Hẹp & Không dư thừa Icon (UI Compact Density Mandate)
-- [ ] **Khoảng cách & Padding**:
+- [x] **Khoảng cách & Padding**:
   - Modal body: `p-2` (tối đa `p-2.5`), `overflow-y-auto max-h-[85vh]`.
   - Cột thao tác trong bảng: nút cao `h-6` đến `h-7`, typography `text-[10px]`, padding `px-2`.
   - Không sinh các class cấm: `p-4`, `p-6`, `space-y-4`, `gap-4`.
-- [ ] **Zero Redundant Icons**:
+- [x] **Zero Redundant Icons**:
   - Không kết hợp emoji/ký tự thừa với icon (`<Button><IconPencil /> Tiếp tục</Button>`, tuyệt đối không dùng `<Button><IconPencil /> ✏️ Tiếp tục</Button>`).
 
 ---
@@ -257,16 +257,16 @@ flowchart TD
 ### 3. Kiểm thử & Nghiệm thu (Definition of Done)
 
 #### A. Kiểm tra Biên dịch & Linting Toàn diện
-- [ ] **Backend Type Check & Build**:
+- [x] **Backend Type Check & Build**:
   - Chạy `npm run lint --prefix backend` ➔ Đạt 0 lỗi linting.
   - Chạy `npm run build --prefix backend` ➔ NestJS compile PASS (0 errors).
-- [ ] **Frontend Type Check & Build**:
+- [x] **Frontend Type Check & Build**:
   - Chạy `npm run lint --prefix frontend` ➔ Đạt 0 lỗi linting.
   - Chạy `npm run build --prefix frontend` ➔ Next.js Turbopack compile PASS (33/33 static pages generated, 0 TypeScript errors).
 
 #### B. Kịch bản Kiểm thử Nghiệm thu Chi tiết (Test Scenarios)
 
-- [ ] **Kịch bản 1: Màn hình Nhập kho — Thao tác nút `[✏️ Tiếp tục]` trên chuyến xe `Chờ xử lý`**:
+- [x] **Kịch bản 1: Màn hình Nhập kho — Thao tác nút `[✏️ Tiếp tục]` trên chuyến xe `Chờ xử lý`**:
   1. Đăng nhập tài khoản Thủ kho (`WAREHOUSE_MANAGER` tại *Magellan Hub - Đà Nẵng* hoặc *Andromeda Hub - HCM*).
   2. Truy cập `/dashboard/warehouse/inbound`.
   3. Tại bảng danh sách chuyến xe, chuyển sang tab `Chờ xử lý`.
@@ -274,7 +274,7 @@ flowchart TD
   5. Bấm vào nút `[✏️ Tiếp tục]`.
   6. **Kỳ vọng**: Hệ thống mở modal tác nghiệp chuyến xe nhập kho ở chế độ **CHỈNH SỬA** (`readOnly = false`). Có đầy đủ bảng kiểm đếm dỡ hàng (checkbox, ô nhập số kiện thực nhận), nút `Bốc thêm đơn dọc đường`, nút `Xác nhận nhập kho` và nút `Lưu thay đổi`.
 
-- [ ] **Kịch bản 2: Màn hình Nhập kho — Thao tác click vào Mã chuyến xe (`tripCode`)**:
+- [x] **Kịch bản 2: Màn hình Nhập kho — Thao tác click vào Mã chuyến xe (`tripCode`)**:
   1. Đang ở `/dashboard/warehouse/inbound`.
   2. Click chuột trực tiếp vào mã chuyến xe (ví dụ `SD48` hoặc `SD22`).
   3. **Kỳ vọng**:
@@ -285,7 +285,7 @@ flowchart TD
      - Trên từng dòng đơn hàng xuất hiện nút `[🖨️ In tem]`. Bấm vào mở popup `PalletLabelA4Modal` hiển thị đúng tem nhận diện hàng hóa của đơn đó.
      - Footer modal chỉ có nút `[Đóng]`.
 
-- [ ] **Kịch bản 3: Màn hình Xuất kho — Thao tác click vào Mã chuyến xe (`tripCode`)**:
+- [x] **Kịch bản 3: Màn hình Xuất kho — Thao tác click vào Mã chuyến xe (`tripCode`)**:
   1. Truy cập `/dashboard/warehouse/outbound`.
   2. Click chuột vào mã chuyến xe bất kỳ (kể cả chuyến `Chờ xử lý` như `SD48` hoặc chuyến `Đã xử lý` như `SD40`).
   3. **Kỳ vọng**:
@@ -294,12 +294,12 @@ flowchart TD
      - Có nút `[🖨️ In tem]` cho từng đơn để in tem nhận diện hàng hóa A4.
      - Không có chức năng chỉnh sửa hay xuất kho bên trong modal xem này.
 
-- [ ] **Kịch bản 4: Màn hình Xuất kho — Thao tác nút `[✏️ Tiếp tục]` trên chuyến xe `Chờ xử lý`**:
+- [x] **Kịch bản 4: Màn hình Xuất kho — Thao tác nút `[✏️ Tiếp tục]` trên chuyến xe `Chờ xử lý`**:
   1. Đang ở `/dashboard/warehouse/outbound`.
   2. Tại dòng chuyến xe `SD48` (trạng thái `Chờ xử lý`), bấm nút `[✏️ Tiếp tục]` ở cột THAO TÁC.
   3. **Kỳ vọng**: Mở ra giao diện lập phiếu xuất kho với đầy đủ thông tin xe, tài xế và các dòng đơn hàng của chuyến `SD48` để tiếp tục thao tác chỉnh sửa hoặc bấm `Xác nhận xuất kho`.
 
-- [ ] **Kịch bản 5: Kiểm tra Độc lập với Tài khoản Quản trị viên (`SUPER_ADMIN`)**:
+- [x] **Kịch bản 5: Kiểm tra Độc lập với Tài khoản Quản trị viên (`SUPER_ADMIN`)**:
   1. Đăng nhập tài khoản có quyền `SUPER_ADMIN`.
   2. Vào cả màn hình Nhập kho và Xuất kho.
   3. Click vào mã chuyến xe `tripCode`.
