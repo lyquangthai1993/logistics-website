@@ -78,7 +78,7 @@
   * **Frontend**: Bổ sung import `IconTrash` trong [`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx).; Thêm state `cancellingDraftCode` quản lý trạng thái loading khi đang xóa chuyến nháp.; Cài đặt hàm `handleCancelDraft(tripCode: string)`...
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
-  * Minh chứng hình ảnh: screenshot_01.jpg
+  * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_01_verified.png, screenshot_inbound_board_verified.png
 - **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_14_10_task_54/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_14_10_task_54/TODO.md)
 ### 🚀 [FEEDBACK_14_10_TASK_52] — Feedback 14/10 (Task #52) — Loại Bỏ Tiêu Đề "Kiểm Đếm Dỡ Hàng & Nhập Kho" Và Nút "Bốc Thêm Đơn Dọc Đường" Ở Màn Hình Xem Đơn Hàng Trong Trip Xuất, Nhập Tạo Mới Từ Hub Của Account (14/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (9/9 việc)

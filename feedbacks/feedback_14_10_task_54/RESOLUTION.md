@@ -77,8 +77,10 @@ Kèm ảnh chụp màn hình thực tế: `feedbacks/feedback_14_10_task_54/scre
   * Backend: `https://logistics-website-backend-1jho.onrender.com`
 - **Kiểm tra sức khỏe Backend (Anti-Hang Health Check)**: `curl.exe -m 15 -i https://logistics-website-backend-1jho.onrender.com/api/v1/health` -> HTTP 200 OK.
 
-### Hình ảnh minh chứng đã lưu trữ (1 tệp):
+### Hình ảnh minh chứng đã lưu trữ (3 tệp):
 - 📸 **screenshot_01.jpg**: [Xem hình ảnh](file:////home/runner/work/logistics-website/logistics-website/feedbacks/feedback_14_10_task_54/screenshot_01.jpg)
+- 📸 **screenshot_01_verified.png**: [Xem hình ảnh](file:////home/runner/work/logistics-website/logistics-website/feedbacks/feedback_14_10_task_54/screenshot_01_verified.png)
+- 📸 **screenshot_inbound_board_verified.png**: [Xem hình ảnh](file:////home/runner/work/logistics-website/logistics-website/feedbacks/feedback_14_10_task_54/screenshot_inbound_board_verified.png)
 
 ---
 
@@ -90,9 +92,10 @@ Kèm ảnh chụp màn hình thực tế: `feedbacks/feedback_14_10_task_54/scre
 | 2 | `backend/src/orders/warehouse.service.ts` | Backend (NestJS) |
 | 3 | `frontend/src/app/dashboard/warehouse/inbound/page.tsx` | Frontend (Next.js) |
 | 4 | `frontend/e2e/54-feedback-14-10-task-54-inbound-draft-cancel-buttons.spec.ts` | Frontend (Next.js) |
-| 5 | `tools/telegram-task-runner/update-n8n-router.mjs` | Source |
-| 6 | `.github/workflows/telegram-agy-worker.yml` | Source |
-| 7 | `docs/SYSTEM_TIMELINE.md` | Documentation |
+| 5 | `feedbacks/feedback_14_10_task_54/screenshot_01_verified.png` | Source |
+| 6 | `tools/telegram-task-runner/update-n8n-router.mjs` | Source |
+| 7 | `.github/workflows/telegram-agy-worker.yml` | Source |
+| 8 | `docs/SYSTEM_TIMELINE.md` | Documentation |
 
 ---
 
