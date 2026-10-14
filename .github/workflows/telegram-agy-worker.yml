@@ -96,24 +96,88 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           echo "$HOME/bin" >> $GITHUB_PATH
 
-      - name: "6. Thông báo Bắt đầu về Telegram"
-        if: env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_ALLOWED_CHAT_ID != ''
+      - name: "6. Thông báo Bắt đầu về Telegram & Đánh dấu IN_PROGRESS trong Database"
+        if: always()
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_ALLOWED_CHAT_ID: ${{ secrets.TELEGRAM_ALLOWED_CHAT_ID }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           TASK_ID: ${{ github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}
           SENDER: ${{ github.event.inputs.sender_name || github.event.client_payload.sender_name || 'User' }}
           RAW_PROMPT: ${{ github.event.inputs.prompt || github.event.client_payload.prompt }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          MSG="⏳ <b>[Antigravity GitHub Worker] Đang tiếp nhận Task #${TASK_ID}...</b>
-          👤 <b>Người yêu cầu:</b> @${SENDER}
-          📝 <b>Yêu cầu:</b> <code>${RAW_PROMPT}</code>
-          🚀 <i>Worker đang khởi động CLI agy trên GitHub Actions...</i>"
-          
-          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            -d "chat_id=${TELEGRAM_ALLOWED_CHAT_ID}" \
-            -d "parse_mode=HTML" \
-            -d "text=${MSG}" || true
+          node -e '
+          const taskId = process.env.TASK_ID;
+          const sender = process.env.SENDER || "User";
+          const rawPrompt = process.env.RAW_PROMPT || "";
+          const runId = process.env.GITHUB_RUN_ID || "";
+          const serverUrl = process.env.GITHUB_SERVER_URL || "https://github.com";
+          const repo = process.env.GITHUB_REPOSITORY || "lyquangthai1993/logistics-website";
+          const runUrl = runId ? `${serverUrl}/${repo}/actions/runs/${runId}` : `${serverUrl}/${repo}/actions`;
+
+          function escapeHtml(str) {
+            return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+          }
+
+          async function markInProgress() {
+            const dbUrl = process.env.DATABASE_URL;
+            if (!dbUrl || !taskId || taskId === "manual" || isNaN(Number(taskId))) return;
+            try {
+              let pg;
+              try { pg = require("pg"); } catch (_) { pg = require("./tools/telegram-task-runner/node_modules/pg"); }
+              const { Client } = pg;
+              const isNeon = dbUrl.includes("neon.tech");
+              const client = new Client({
+                connectionString: dbUrl,
+                ssl: isNeon ? { rejectUnauthorized: false } : false
+              });
+              await client.connect();
+              await client.query(
+                "UPDATE telegram_tasks SET status = '\''IN_PROGRESS'\'', started_at = NOW() WHERE id = $1 AND status NOT IN ('\''COMPLETED'\'')",
+                [parseInt(taskId, 10)]
+              );
+              await client.end();
+              console.log(`🚀 Đã đánh dấu Task #${taskId} sang trạng thái IN_PROGRESS trong Database.`);
+            } catch (err) {
+              console.warn("⚠️ Không thể cập nhật IN_PROGRESS:", err.message);
+            }
+          }
+
+          async function notifyStart() {
+            const token = process.env.TELEGRAM_BOT_TOKEN;
+            const chatId = process.env.TELEGRAM_ALLOWED_CHAT_ID;
+            if (!token || !chatId) return;
+
+            const msg = `⏳ <b>[Antigravity GitHub Worker] Đang tiếp nhận Task #${escapeHtml(taskId)}...</b>\n\n` +
+              `👤 <b>Người yêu cầu:</b> @${escapeHtml(sender)}\n` +
+              `📝 <b>Yêu cầu:</b> <code>${escapeHtml(rawPrompt)}</code>\n\n` +
+              `🔗 <b>Workflow:</b> <a href="${runUrl}">Theo dõi Live Log Run #${escapeHtml(runId)}</a>`;
+
+            try {
+              await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  chat_id: chatId,
+                  text: msg,
+                  parse_mode: "HTML",
+                  reply_markup: {
+                    inline_keyboard: [
+                      [{ text: "⚡ Xem Live Log Trên GitHub", url: runUrl }]
+                    ]
+                  }
+                })
+              });
+            } catch (err) {
+              console.warn("⚠️ Không thể gửi thông báo bắt đầu:", err.message);
+            }
+          }
+
+          Promise.allSettled([markInProgress(), notifyStart()]);
+          '
 
       - name: "7. Khởi chạy Antigravity CLI (Headless Mode)"
         env:
