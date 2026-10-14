@@ -1,5 +1,5 @@
 === Root ===
- git_diff_summary.txt | 29 -----------------------------
- 1 file changed, 29 deletions(-)
+ git_diff_summary.txt | 4 ----
+ 1 file changed, 4 deletions(-)
  M git_diff_summary.txt
-?? feedbacks/feedback_14_10_task_76/
+?? feedbacks/feedback_14_10_task_77/
