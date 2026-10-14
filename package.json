@@ -10,6 +10,7 @@
     "install:all": "npm install --prefix backend && npm install --prefix frontend && npm install --prefix tools/telegram-task-runner",
     "repo:status": "git status -sb && git -C backend status -sb && git -C frontend status -sb",
     "repo:tracking": "git branch -vv && git -C backend branch -vv && git -C frontend branch -vv",
+    "repo:sync": "node scripts/repo-sync.mjs",
     "test:e2e": "npm run e2e --prefix frontend",
     "test:e2e:check": "npm run e2e:check --prefix frontend",
     "test:e2e:report": "npm run e2e:report --prefix frontend",
