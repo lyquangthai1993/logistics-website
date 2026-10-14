@@ -375,11 +375,17 @@ jobs:
               echo "🚀 [Lần push $attempt/$max_retries] Đang đồng bộ và push tại $dir..."
               local has_stash=0
               if [ "$dir" = "." ]; then
+                git rebase --abort 2>/dev/null || true
                 if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
                   echo "📦 Cất tạm thay đổi vào stash trước khi pull..."
                   git stash push -u -m "push-retry-stash" 2>/dev/null && has_stash=1
                 fi
-                git pull --rebase origin dev || true
+                git fetch origin dev || true
+                if ! git pull --rebase origin dev; then
+                  echo "⚠️ Rebase gặp xung đột, chuyển sang chiến lược merge tự động..."
+                  git rebase --abort 2>/dev/null || true
+                  git pull --no-rebase -s ort -X ours origin dev --no-edit || true
+                fi
                 if [ $has_stash -eq 1 ]; then
                   echo "📦 Khôi phục thay đổi từ stash..."
                   git stash pop 2>/dev/null || true
@@ -389,11 +395,17 @@ jobs:
                   return 0
                 fi
               else
+                git -C "$dir" rebase --abort 2>/dev/null || true
                 if [ -n "$(git -C "$dir" status --porcelain 2>/dev/null)" ]; then
                   echo "📦 Cất tạm thay đổi vào stash tại $dir trước khi pull..."
                   git -C "$dir" stash push -u -m "push-retry-stash" 2>/dev/null && has_stash=1
                 fi
-                git -C "$dir" pull --rebase origin dev || true
+                git -C "$dir" fetch origin dev || true
+                if ! git -C "$dir" pull --rebase origin dev; then
+                  echo "⚠️ Rebase tại $dir gặp xung đột, chuyển sang chiến lược merge tự động..."
+                  git -C "$dir" rebase --abort 2>/dev/null || true
+                  git -C "$dir" pull --no-rebase -s ort -X ours origin dev --no-edit || true
+                fi
                 if [ $has_stash -eq 1 ]; then
                   echo "📦 Khôi phục thay đổi từ stash tại $dir..."
                   git -C "$dir" stash pop 2>/dev/null || true
@@ -412,6 +424,7 @@ jobs:
             echo "❌ Git push tại $dir thất bại sau $max_retries lần thử (bị remote từ chối hoặc conflict)." > /tmp/workflow_error.txt
             return 1
           }
+
 
           if [ -d "backend" ] && [ -n "$HAS_BE" ]; then
             echo "📦 Đang xử lý commit & push trong backend/..."
