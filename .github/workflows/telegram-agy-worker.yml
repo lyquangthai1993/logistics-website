@@ -130,15 +130,26 @@ jobs:
                   task = updateRes.rows[0];
                   console.log(`🎯 [FIFO Queue] Đã claim Task #${task.id} (Tạo lúc: ${task.created_at}) sang IN_PROGRESS.`);
                 } else if (requestedId && requestedId !== "manual" && !isNaN(Number(requestedId))) {
-                  // Nếu không còn task PENDING nào, kiểm tra task theo requestedId (ví dụ trường hợp chạy lại / force)
+                  // Nếu không còn task PENDING nào, kiểm tra task theo requestedId
                   const reqRes = await client.query(
                     "SELECT * FROM telegram_tasks WHERE id = $1",
                     [parseInt(requestedId, 10)]
                   );
                   if (reqRes.rows.length > 0) {
-                    task = reqRes.rows[0];
-                    await client.query("UPDATE telegram_tasks SET status = $1, started_at = NOW() WHERE id = $2", ["IN_PROGRESS", task.id]);
-                    console.log(`🎯 [Direct Task] Đã kích hoạt lại Task #${task.id} sang IN_PROGRESS.`);
+                    const existingTask = reqRes.rows[0];
+                    const promptToCheck = (existingTask.raw_prompt || "") + " " + (rawPrompt || "");
+                    const isExplicitForce = promptToCheck.includes("/force") || promptToCheck.includes("/retry");
+
+                    if (!isExplicitForce && ["IN_PROGRESS", "COMPLETED", "TODO_CREATED"].includes(existingTask.status)) {
+                      console.log(`⏭️ [Deduplication] Task #${existingTask.id} đã ở trạng thái '${existingTask.status}'. Bỏ qua lượt kích hoạt trùng lặp.`);
+                      task = null;
+                      taskId = "manual";
+                      rawPrompt = "";
+                    } else {
+                      await client.query("UPDATE telegram_tasks SET status = $1, started_at = NOW() WHERE id = $2", ["IN_PROGRESS", existingTask.id]);
+                      task = existingTask;
+                      console.log(`🎯 [Direct Task] Đã kích hoạt lại Task #${task.id} sang IN_PROGRESS.`);
+                    }
                   }
                 }
 
@@ -155,13 +166,16 @@ jobs:
               if (task.raw_prompt && (task.raw_prompt.includes("/force") || task.raw_prompt.includes("todo-agent") || task.raw_prompt.includes("/todo"))) {
                 mode = "todo";
               }
+            } else {
+              taskId = "manual";
+              rawPrompt = "";
             }
 
             setOutput("task_id", taskId);
             setOutput("prompt", rawPrompt);
             setOutput("sender_name", sender);
             setOutput("mode", mode);
-            setOutput("has_task", (taskId && (taskId !== "manual" || rawPrompt)) ? "true" : "false");
+            setOutput("has_task", (task && taskId && taskId !== "manual") ? "true" : "false");
 
             // Tác vụ được nhận diện và claim thành công trong im lặng (Zero spam khi bắt đầu)
             console.log(`✅ [Intake] Task #${taskId} sẵn sàng chuyển sang Job 2 thực thi.`);
@@ -638,7 +652,7 @@ jobs:
   finalize-task:
     name: "📢 3. Báo cáo Telegram & Cập nhật Neon DB"
     needs: [intake-task, execute-task]
-    if: always()
+    if: always() && needs.intake-task.outputs.has_task != 'false'
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -667,6 +681,7 @@ jobs:
           GH_PAT_TOKEN: ${{ secrets.GH_PAT_TOKEN || secrets.GITHUB_TOKEN }}
           TASK_ID: ${{ needs.intake-task.outputs.task_id || github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}
           SENDER: ${{ needs.intake-task.outputs.sender_name || github.event.inputs.sender_name || github.event.client_payload.sender_name || 'User' }}
+          MODE: ${{ needs.intake-task.outputs.mode || 'leader' }}
           EXECUTE_STATUS: ${{ needs.execute-task.result }}
           GITHUB_RUN_ID: ${{ github.run_id }}
           GITHUB_SERVER_URL: ${{ github.server_url }}
@@ -836,10 +851,29 @@ jobs:
               ]
             };
 
+            const mode = process.env.MODE || "leader";
+            const isLeaderMode = mode === "leader";
             const isDone = executeStatus === "success";
-            const titleHeader = isDone 
-              ? `✅ <b>[TASK #${escapeHtml(taskId)}] HOÀN THÀNH (DONE)</b>`
-              : `❌ <b>[TASK #${escapeHtml(taskId)}] THẤT BẠI (FAIL)</b>`;
+
+            let titleHeader = "";
+            let statusSubtext = "";
+            let finalTaskStatus = "FAILED";
+
+            if (isDone) {
+              if (isLeaderMode) {
+                titleHeader = `📋 <b>[TASK #${escapeHtml(taskId)}] ĐÃ LẬP KẾ HOẠCH (TODO_CREATED)</b>`;
+                statusSubtext = `📋 <i>Đã phân tích yêu cầu & lập checklist TODO.md sẵn sàng triển khai.</i>\n\n`;
+                finalTaskStatus = "TODO_CREATED";
+              } else {
+                titleHeader = `✅ <b>[TASK #${escapeHtml(taskId)}] HOÀN THÀNH (DONE)</b>`;
+                statusSubtext = `✅ <i>Hoàn tất kiểm định & nghiệm thu kỹ thuật.</i>\n\n`;
+                finalTaskStatus = "COMPLETED";
+              }
+            } else {
+              titleHeader = `❌ <b>[TASK #${escapeHtml(taskId)}] THẤT BẠI (FAIL)</b>`;
+              statusSubtext = `⚠️ <b>Lỗi chính:</b> <code>${escapeHtml(detailedError.slice(0, 300))}</code>\n\n`;
+              finalTaskStatus = "FAILED";
+            }
 
             // 1. Kiểm tra ảnh bằng chứng nghiệm thu trong artifact
             let evidencePath = null;
@@ -866,7 +900,7 @@ jobs:
                   `👤 <b>Người yêu cầu:</b> @${escapeHtml(sender)}\n` +
                   `▫️ <b>Commit:</b> <code>${escapeHtml(commitHash)}</code> (Branch dev)\n` +
                   `▫️ <b>Bằng chứng:</b> <code>${escapeHtml(path.basename(evidencePath))}</code>\n` +
-                  `✅ <i>Nghiệm thu thành công và đối soát bằng chứng giao diện.</i>\n\n` +
+                  (isLeaderMode ? `📋 <i>Đã tổng hợp kế hoạch TODO.md.</i>\n\n` : `✅ <i>Nghiệm thu thành công và đối soát bằng chứng giao diện.</i>\n\n`) +
                   `🔗 <a href="${runUrl}">Xem chi tiết Live Log Run #${escapeHtml(runId)}</a>`;
 
                 formData.append("caption", photoCaption);
@@ -894,9 +928,7 @@ jobs:
               const summaryCard = `${titleHeader}\n\n` +
                 `👤 <b>Người yêu cầu:</b> @${escapeHtml(sender)}\n` +
                 `▫️ <b>Commit:</b> <code>${escapeHtml(commitHash)}</code> (Branch dev)\n` +
-                (!isDone && detailedError
-                  ? `⚠️ <b>Lỗi chính:</b> <code>${escapeHtml(detailedError.slice(0, 300))}</code>\n\n`
-                  : `✅ <i>Hoàn tất kiểm định & nghiệm thu kỹ thuật.</i>\n\n`) +
+                statusSubtext +
                 `🔗 <a href="${runUrl}">Xem chi tiết Live Log Run #${escapeHtml(runId)}</a>`;
 
               await postTelegramMessage({
@@ -918,7 +950,7 @@ jobs:
                 ssl: dbUrl.includes("neon.tech") ? { rejectUnauthorized: false } : false
               });
               await client.connect();
-              const newStatus = executeStatus === "success" ? "COMPLETED" : "FAILED";
+              const newStatus = finalTaskStatus;
               const errorBase = detailedError || (agyRes !== "Hoàn tất tác vụ" ? agyRes : null) || "Tiến trình GitHub Actions thất bại";
               const errorVal = executeStatus === "success" 
                 ? null 
@@ -931,8 +963,9 @@ jobs:
               console.log(`✅ Đã cập nhật task #${taskId} sang trạng thái ${newStatus} trong Database.`);
 
               // TỰ ĐỘNG QUÉT & GIẢI PHÓNG HÀNG ĐỢI (AUTO-DRAIN QUEUE)
+              // Chỉ tự động kích hoạt task PENDING đã tồn tại trên 30 giây để tránh xung đột với webhook tức thời từ N8N
               const remaining = await client.query(
-                "SELECT id, sender_name, raw_prompt FROM telegram_tasks WHERE status = $1 ORDER BY id ASC LIMIT 1",
+                "SELECT id, sender_name, raw_prompt FROM telegram_tasks WHERE status = $1 AND created_at < NOW() - INTERVAL '30 seconds' ORDER BY id ASC LIMIT 1",
                 ["PENDING"]
               );
               if (remaining.rows.length > 0) {
