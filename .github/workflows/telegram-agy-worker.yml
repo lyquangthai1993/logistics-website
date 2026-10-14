@@ -335,8 +335,10 @@ jobs:
         if: success()
         env:
           GH_PAT_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
-          TASK_ID: ${{ github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}
-          MODE: ${{ github.event.inputs.mode || github.event.client_payload.mode || 'leader' }}
+          TASK_ID: ${{ needs.intake-task.outputs.task_id || github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}
+          MODE: ${{ needs.intake-task.outputs.mode || github.event.inputs.mode || github.event.client_payload.mode || 'leader' }}
+          SENDER: ${{ needs.intake-task.outputs.sender_name || 'User' }}
+          RAW_PROMPT: ${{ needs.intake-task.outputs.prompt || '' }}
           NEXT_PUBLIC_API_URL: "https://backend-tms-core-dev.up.railway.app"
           API_URL: "https://backend-tms-core-dev.up.railway.app"
           CI: "true"
@@ -353,8 +355,8 @@ jobs:
           } > git_diff_summary.txt 2>&1
 
           if [ -z "$HAS_ROOT" ] && [ -z "$HAS_BE" ] && [ -z "$HAS_FE" ]; then
-            if [ "$MODE" = "audit" ] || [[ "$TASK_ID" == *"audit"* ]]; then
-              echo "ℹ️ Tác vụ audit chế độ chỉ đọc. Bỏ qua commit/push."
+            if [ "$MODE" = "audit" ] || [[ "$TASK_ID" == *"audit"* ]] || [[ "$SENDER" == *"Schedule Trigger"* ]] || [[ "$RAW_PROMPT" == *"/todo-agent quét"* ]]; then
+              echo "ℹ️ Tác vụ quét/kiểm tra định kỳ (Không có file thay đổi do toàn bộ task đã hoàn thành). Hoàn tất tác vụ an toàn."
               exit 0
             else
               echo "❌ Lỗi kiểm định: AI Worker kết thúc nhưng không có bất kỳ file nào được tạo hoặc sửa đổi (Zero file changes). Đánh dấu thất bại để ngăn báo cáo khống." > /tmp/workflow_error.txt
