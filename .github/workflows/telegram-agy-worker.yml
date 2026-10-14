@@ -171,6 +171,10 @@ jobs:
 
           echo "🏁 Tiến trình agy hoàn tất với exit code: ${AGY_EXIT:-0}"
           if [ -n "$AGY_EXIT" ] && [ "$AGY_EXIT" -ne 0 ]; then
+            echo "❌ AGY CLI kết thúc với mã lỗi $AGY_EXIT:" > /tmp/workflow_error.txt
+            if [ -f /tmp/agy_output.txt ]; then
+              tail -n 35 /tmp/agy_output.txt >> /tmp/workflow_error.txt
+            fi
             exit $AGY_EXIT
           fi
 
@@ -245,6 +249,8 @@ jobs:
 
               if [ $attempt -ge $max_attempts ]; then
                 echo "❌ Đã thử tự động sửa $max_attempts lần nhưng vẫn không đạt chuẩn quy tắc mã nguồn. Chặn push để bảo vệ codebase."
+                echo "❌ Lỗi commit/linter tại $dir/ sau $max_attempts lần thử:" > /tmp/workflow_error.txt
+                echo "$COMMIT_OUT" | tail -n 35 >> /tmp/workflow_error.txt
                 return 1
               fi
 
@@ -320,6 +326,7 @@ jobs:
             done
 
             echo "❌ Push tại $dir thất bại sau $max_retries lần thử."
+            echo "❌ Git push tại $dir thất bại sau $max_retries lần thử (bị remote từ chối hoặc conflict)." > /tmp/workflow_error.txt
             return 1
           }
 
@@ -405,6 +412,11 @@ jobs:
             }
           }
 
+          let detailedError = "";
+          if (fs.existsSync("/tmp/workflow_error.txt")) {
+            detailedError = fs.readFileSync("/tmp/workflow_error.txt", "utf8").trim();
+          }
+
           let agyRes = "Hoàn tất tác vụ";
           const outPath = fs.existsSync("/tmp/agy_output.txt") ? "/tmp/agy_output.txt" : (fs.existsSync("agy_output.txt") ? "agy_output.txt" : "");
           if (outPath) {
@@ -415,7 +427,7 @@ jobs:
             }
           }
           if (agyRes === "Hoàn tất tác vụ" && process.env.JOB_STATUS !== "success") {
-            agyRes = "Quá trình thực thi gặp sự cố trong phiên khởi tạo hệ thống / Keyring. Chi tiết xem tại log GitHub Actions.";
+            agyRes = detailedError || "Quá trình thực thi gặp sự cố trong phiên khởi tạo hệ thống / Keyring. Chi tiết xem tại log GitHub Actions.";
           }
 
           if (agyRes.length > 1500) {
@@ -430,8 +442,11 @@ jobs:
           let commitHash = "unknown";
           try { commitHash = execSync("git rev-parse --short HEAD", { encoding: "utf8" }).trim(); } catch (_) {}
 
-          const text = `${statusBadge}: <b>Task #${escapeHtml(taskId)}</b> trên GitHub Actions Worker\n\n` +
-            `▫️ <b>1. Kết quả thực thi:</b>\n<pre>${escapeHtml(agyRes)}</pre>\n\n` +
+          let text = `${statusBadge}: <b>Task #${escapeHtml(taskId)}</b> trên GitHub Actions Worker\n\n`;
+          if (process.env.JOB_STATUS !== "success" && detailedError) {
+            text += `⚠️ <b>Chi tiết lỗi phát sinh:</b>\n<pre>${escapeHtml(detailedError.slice(0, 1200))}</pre>\n\n`;
+          }
+          text += `▫️ <b>1. Kết quả thực thi:</b>\n<pre>${escapeHtml(agyRes)}</pre>\n\n` +
             `▫️ <b>2. Thống kê Git Diff:</b>\n<pre>${escapeHtml(diffSummary)}</pre>\n\n` +
             `▫️ <b>Runner:</b> GitHub Actions (Ubuntu)\n` +
             `▫️ <b>Commit:</b> <code>${escapeHtml(commitHash)}</code> (Branch dev)`;
@@ -485,13 +500,15 @@ jobs:
               });
               await client.connect();
               const newStatus = process.env.JOB_STATUS === "success" ? "COMPLETED" : "FAILED";
-              const errorVal = process.env.JOB_STATUS === "success" ? null : agyRes.slice(0, 500);
+              const errorVal = process.env.JOB_STATUS === "success" 
+                ? null 
+                : (detailedError || (agyRes !== "Hoàn tất tác vụ" ? agyRes : null) || "Tiến trình GitHub Actions thất bại").slice(0, 2000);
               await client.query(
                 "UPDATE telegram_tasks SET status = $1, completed_at = NOW(), result = $2, error = $3 WHERE id = $4",
                 [newStatus, agyRes, errorVal, parseInt(taskId, 10)]
               );
               await client.end();
-              console.log(`✅ Đã cập nhật task #${taskId} sang trạng thái ${newStatus} trong Database.`);
+              console.log(`✅ Đã cập nhật task #${taskId} sang trạng thái ${newStatus} trong Database (error ghi nhận: ${errorVal ? "Có" : "Không"}).`);
             } catch (dbErr) {
               console.warn("⚠️ Không thể cập nhật Database telegram_tasks:", dbErr.message);
             }
