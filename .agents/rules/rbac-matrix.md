@@ -10,9 +10,9 @@
 
 | Trường | Giá trị |
 |---|---|
-| **Phiên bản** | v1.7 |
-| **Cập nhật lần cuối** | 2026-10-05 |
-| **Cập nhật bởi** | Antigravity (Fix: Bảng chuyến xe xuất kho theo chuyến) |
+| **Phiên bản** | v1.8 |
+| **Cập nhật lần cuối** | 2026-10-14 |
+| **Cập nhật bởi** | Antigravity (Daily RBAC Audit & Task #37, #38, #41, #45, #46 Trip Ops) |
 
 ---
 
@@ -85,6 +85,7 @@
 | `/v1/orders/:id/admin-override` | PATCH | ✅ *(Bắt buộc `auditReason`, ghi phiếu DCH)* | ❌ | ❌ | ❌ |
 | `/v1/orders/:id/submit` | PATCH | ✅ | ✅ | ❌ | ❌ |
 | `/v1/orders/:id/no-vehicle` | PATCH | ✅ | ❌ | ✅ | ❌ |
+| `/v1/orders/refresh-metrics` | POST | ✅ | ✅ | ❌ | ✅ |
 | `/v1/orders/:id` | DELETE | ✅ | ✅ | ❌ | ✅ *(Chỉ xóa đơn DRAFT)* |
 
 > **Hợp đồng gốc bất biến**: Sau trạng thái DRAFT, mọi thay đổi trường hợp đồng (`totalQuantity/Weight/Volume`, kho đi/đến, địa chỉ, tên hàng...) qua `PATCH /orders/:id` đều bị chặn 403 — kể cả SUPER_ADMIN. SUPER_ADMIN chỉ điều chỉnh qua `PATCH /orders/:id/admin-override`.
@@ -103,9 +104,14 @@
 | `/v1/warehouse/inbound-trips` | GET | ✅ | ❌ | ❌ | ✅ |
 | `/v1/warehouse/outbound-trips` | GET | ✅ | ❌ | ❌ | ✅ *(Chỉ chuyến xuất từ kho được gán)* |
 | `/v1/warehouse/trips/:tripCode/manifest` | GET | ✅ | ✅ | ✅ | ✅ |
+| `/v1/warehouse/trips/:tripCode/available-outbound-orders` | GET | ✅ | ❌ | ❌ | ✅ *(Chỉ đơn tại kho được gán)* |
+| `/v1/warehouse/trips/:tripCode/append-order` | POST | ✅ | ❌ | ❌ | ✅ *(Khóa khi trạm COMPLETED)* |
+| `/v1/warehouse/trips/:tripCode/append-stored-orders` | POST | ✅ | ❌ | ❌ | ✅ *(Khóa khi trạm COMPLETED)* |
+| `/v1/warehouse/trips/:tripCode/orders/:orderId/destination` | PATCH | ✅ | ❌ | ❌ | ✅ *(Khóa khi trạm COMPLETED)* |
+| `/v1/warehouse/trips/:tripCode/transit-step` | POST | ✅ | ❌ | ❌ | ✅ *(Khóa khi trạm COMPLETED)* |
 | `/v1/warehouse/inbound/quick-create` | POST | ✅ | ❌ | ❌ | ✅ |
 | `/v1/warehouse/inbound/batch-create` | POST | ✅ | ❌ | ❌ | ✅ |
-| `/v1/warehouse/inbound/confirm` | POST | ✅ | ❌ | ❌ | ✅ *(Kiểm đếm chọn lọc, ghi phiếu PNK)* |
+| `/v1/warehouse/inbound/confirm` | POST | ✅ | ❌ | ❌ | ✅ *(Kiểm đếm chọn lọc, ghi phiếu PNK, khóa khi COMPLETED)* |
 | `/v1/warehouse/outbound/confirm` | POST | ✅ | ❌ | ❌ | ✅ *(Ghi phiếu PXK / PGH; `draftTripCode` = xác nhận chuyến nháp)* |
 | `/v1/warehouse/outbound/draft` | POST | ✅ | ❌ | ❌ | ✅ *(Lưu nháp chuyến xuất — cấp mã SD, chưa trừ tồn)* |
 | `/v1/warehouse/outbound/drafts/:tripCode` | DELETE | ✅ | ❌ | ❌ | ✅ *(Hủy nháp — chỉ nháp của kho được gán)* |
@@ -248,6 +254,12 @@ Khi không chắc → tham chiếu skill `tms-domain-lead` trước khi implemen
 - Một Hub có thể có **nhiều tài khoản WM** (quan hệ 1 Hub : N Users).
 - Các role khác (DISPATCHER, FLEET_MANAGER) **không được gán hub** — backend không validate nhưng form frontend ẩn field này.
 - Khi Hub bị xóa mềm: `hubId` của user **SET NULL** (ON DELETE SET NULL) — user không bị ảnh hưởng.
+
+### Rule 8 — Stop Ledger Invariant & Khóa Quyền Trên Chuyến Xe Đã Xử Lý (Task #37)
+- Khi trạm dừng của chuyến xe tại một Hub đã chuyển sang trạng thái `COMPLETED` ("Đã xử lý"), toàn bộ tài khoản thuộc Hub đó (`WAREHOUSE_MANAGER` hoặc user có `hubId` tương ứng) bị **KHÓA TOÀN BỘ QUYỀN** thêm, bớt, chỉnh sửa đơn hàng trên chuyến xe.
+- Chế độ xem của tài khoản Hub tự động chuyển thành **CHỈ ĐỌC (READ-ONLY)**; các nút bốc thêm đơn, xuất đơn lưu kho, đổi đích đến, xác nhận nhập/xuất đều bị ẩn/vô hiệu hóa.
+- `SUPER_ADMIN` là vai trò DUY NHẤT được cấp đặc quyền mở khóa can thiệp (Admin Override), có ghi nhận truy vết kiểm toán (Audit Trail).
+- Backend kiểm soát tập trung qua hàm `validateTripStopEditPermission` trong `WarehouseService`.
 
 ---
 
