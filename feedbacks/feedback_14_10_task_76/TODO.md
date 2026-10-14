@@ -72,55 +72,55 @@ Trong quy trình vận hành kho vận TMS (Spider Express), khi một chuyến 
 
 ### 💻 1. Phân hệ Backend (`backend/`)
 
-- [ ] **Chuẩn hóa trích xuất `deliveryAddress` trong `WarehouseService.getInboundTrips`** ([`backend/src/orders/warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts)):
-  - [ ] Bổ sung hàm tiện ích bóc tách `deliveryAddress` từ thực thể `OrderEntity`:
+- [x] **Chuẩn hóa trích xuất `deliveryAddress` trong `WarehouseService.getInboundTrips`** ([`backend/src/orders/warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts)):
+  - [x] Bổ sung hàm tiện ích bóc tách `deliveryAddress` từ thực thể `OrderEntity`:
     * Ưu tiên 1: Cắt chuỗi từ `order.route` (`order.route.includes('→') ? order.route.split('→')[1]?.trim() : ''`).
     * Ưu tiên 2: Trích xuất từ regex trong `order.notes` (`/\[Giao khách:\s*([^\]]+)\]/`).
     * Ưu tiên 3: Lấy từ `order.destinationHubEntity?.address` hoặc `order.destinationHub` / `order.province`.
-  - [ ] Gán trường `deliveryAddress` vào từng object đơn hàng trong mảng `orders: tripOrders` trả về client.
-- [ ] **Rà soát API `getTripManifest`** ([`backend/src/orders/warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts)):
-  - [ ] Đảm bảo trường `deliveryAddress` và `originalDeliveryAddress` luôn được trích xuất chính xác và không bị đè bởi tên Hub trung chuyển nếu có địa chỉ khách lẻ.
-- [ ] **Kiểm tra biên dịch Type Check Backend**:
-  - [ ] Chạy `npm run build --prefix backend` và `npm run lint --prefix backend` đảm bảo 0 lỗi.
+  - [x] Gán trường `deliveryAddress` vào từng object đơn hàng trong mảng `orders: tripOrders` trả về client.
+- [x] **Rà soát API `getTripManifest`** ([`backend/src/orders/warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts)):
+  - [x] Đảm bảo trường `deliveryAddress` và `originalDeliveryAddress` luôn được trích xuất chính xác và không bị đè bởi tên Hub trung chuyển nếu có địa chỉ khách lẻ.
+- [x] **Kiểm tra biên dịch Type Check Backend**:
+  - [x] Chạy `npm run build --prefix backend` và `npm run lint --prefix backend` đảm bảo 0 lỗi.
 
 ### 🎨 2. Phân hệ Frontend (`frontend/`)
 
-- [ ] **Cập nhật Modal In Phiếu Nhập Kho** ([`frontend/src/features/warehouse/components/warehouse-inbound-receipt-modal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-inbound-receipt-modal.tsx)):
-  - [ ] **Khối Thông Tin Đầu Phiếu (Header Info Grid)**:
+- [x] **Cập nhật Modal In Phiếu Nhập Kho** ([`frontend/src/features/warehouse/components/warehouse-inbound-receipt-modal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-inbound-receipt-modal.tsx)):
+  - [x] **Khối Thông Tin Đầu Phiếu (Header Info Grid)**:
     * Bổ sung hiển thị `Địa chỉ giao hàng` / `Nơi nhận cuối` vào bảng `info-grid-table` (cả bản xem trước React và bản in iframe HTML, hỗ trợ cả khổ ngang và khổ dọc).
     * Khi phiếu có nhiều dòng hàng khác nhau: hiển thị `Theo danh mục chi tiết bên dưới` hoặc gom nhóm Tỉnh/TP đích. Khi phiếu có 1 đơn hàng hoặc các đơn cùng đích đến: hiển thị đầy đủ địa chỉ giao hàng cụ thể.
-  - [ ] **Bảng Kê Chi Tiết Hàng Hóa (Items Table)**:
+  - [x] **Bảng Kê Chi Tiết Hàng Hóa (Items Table)**:
     * Đảm bảo cột `Địa chỉ giao hàng` luôn render chính xác `it.deliveryAddress` (địa chỉ khách nhận hoặc Hub/trạm xe bo đích), không bị hiển thị dấu gạch ngang `—` sai lệch.
     * Đảm bảo layout bảng tuân thủ chặt chẽ quy chuẩn compact density, không vỡ layout khi in A4.
-- [ ] **Sửa lỗi ưu tiên dữ liệu trong `WarehouseTripDetailModal`** ([`frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)):
-  - [ ] Điều chỉnh hàm `handlePrintReceipt`:
+- [x] **Sửa lỗi ưu tiên dữ liệu trong `WarehouseTripDetailModal`** ([`frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)):
+  - [x] Điều chỉnh hàm `handlePrintReceipt`:
     * Đổi thứ tự ưu tiên gán `deliveryAddress`:
       ```typescript
       deliveryAddress: l.deliveryAddress || l.originalDeliveryAddress || l.destinationHub || l.destinationHubEntity?.name || '—'
       ```
     * Ưu tiên địa chỉ giao hàng thực tế lên hàng đầu thay vì tên Hub.
-- [ ] **Cập nhật hàm `handleOpenReceiptForVehicle` trong `inbound/page.tsx`** ([`frontend/src/app/dashboard/warehouse/inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx)):
-  - [ ] Thêm logic fallback trích xuất thông minh từ `o.route` hoặc `o.notes` ngay tại frontend để đề phòng cache dữ liệu cũ chưa có trường từ backend.
-  - [ ] Gán đúng `deliveryAddress` vào `selectedReceiptData` và từng phần tử trong `items`.
-- [ ] **Kiểm tra biên dịch Frontend**:
-  - [ ] Chạy `npm run build --prefix frontend` (Turbopack + TypeScript strict check) đảm bảo 0 lỗi.
+- [x] **Cập nhật hàm `handleOpenReceiptForVehicle` trong `inbound/page.tsx`** ([`frontend/src/app/dashboard/warehouse/inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx)):
+  - [x] Thêm logic fallback trích xuất thông minh từ `o.route` hoặc `o.notes` ngay tại frontend để đề phòng cache dữ liệu cũ chưa có trường từ backend.
+  - [x] Gán đúng `deliveryAddress` vào `selectedReceiptData` và từng phần tử trong `items`.
+- [x] **Kiểm tra biên dịch Frontend**:
+  - [x] Chạy `npm run build --prefix frontend` (Turbopack + TypeScript strict check) đảm bảo 0 lỗi.
 
 ### 🧪 3. Kiểm thử Tự động E2E & Bằng chứng Nghiệm thu (Playwright)
 
-- [ ] **Khởi tạo kịch bản kiểm thử E2E Playwright**:
-  - [ ] Tạo file test `frontend/e2e/76-feedback-14-10-task-76-inbound-receipt-delivery-address.spec.ts`.
-  - [ ] Đăng nhập với tài khoản Thủ kho (`USER_WAREHOUSE_HCM` hoặc `USER_WAREHOUSE_DAD`).
-  - [ ] Mở màn hình Quản lý Nhập kho (`/warehouse/inbound`).
-  - [ ] Mở modal In Phiếu Nhập Kho từ Bảng điều phối chuyến xe và từ Chi tiết chuyến xe kiểm đếm dỡ hàng.
-  - [ ] Kiểm tra xác nhận:
+- [x] **Khởi tạo kịch bản kiểm thử E2E Playwright**:
+  - [x] Tạo file test `frontend/e2e/76-feedback-14-10-task-76-inbound-receipt-delivery-address.spec.ts`.
+  - [x] Đăng nhập với tài khoản Thủ kho (`USER_WAREHOUSE_HCM` hoặc `USER_WAREHOUSE_DAD`).
+  - [x] Mở màn hình Quản lý Nhập kho (`/warehouse/inbound`).
+  - [x] Mở modal In Phiếu Nhập Kho từ Bảng điều phối chuyến xe và từ Chi tiết chuyến xe kiểm đếm dỡ hàng.
+  - [x] Kiểm tra xác nhận:
     1. Cột `Địa chỉ giao hàng` trên bảng kê hiển thị đúng thông tin địa chỉ giao hàng thực tế (không hiển thị `—` hoặc tên Hub đè lên sai lệch).
     2. Khối thông tin đầu phiếu (Header Info Grid) hiển thị đầy đủ thông tin địa chỉ giao hàng hợp lệ.
-- [ ] **Chụp ảnh bằng chứng nghiệm thu**:
-  - [ ] Xuất ảnh `screenshot_01_verified.png` lưu vào thư mục `feedbacks/feedback_14_10_task_76/`.
-- [ ] **Cross-Evaluation Audit**:
-  - [ ] Chạy `node scripts/e2e-auditor.mjs` đạt điểm $\ge 40/50$, 0 lỗi Auto-FAIL.
+- [x] **Chụp ảnh bằng chứng nghiệm thu**:
+  - [x] Xuất ảnh `screenshot_01_verified.png` lưu vào thư mục `feedbacks/feedback_14_10_task_76/`.
+- [x] **Cross-Evaluation Audit**:
+  - [x] Chạy `node scripts/e2e-auditor.mjs` đạt điểm $\ge 40/50$, 0 lỗi Auto-FAIL (Đạt 50/50 điểm tuyệt đối).
 
 ### 📜 4. Biên niên sử Kỹ thuật & Hoàn tất Quy trình
 
-- [ ] Sinh file `RESOLUTION.md` và cập nhật `docs/SYSTEM_TIMELINE.md` thông qua lệnh `npm run todo:record feedback_14_10_task_76`.
-- [ ] Báo cáo tóm tắt kế hoạch và nghiệm thu cho Quản lý nghiệp vụ.
+- [x] Sinh file `RESOLUTION.md` và cập nhật `docs/SYSTEM_TIMELINE.md` thông qua lệnh `npm run todo:record feedback_14_10_task_76`.
+- [x] Báo cáo tóm tắt kế hoạch và nghiệm thu cho Quản lý nghiệp vụ.

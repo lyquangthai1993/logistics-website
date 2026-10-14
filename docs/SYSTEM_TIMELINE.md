@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 14/10/2026 15:10:00 | `feedbacks/feedback_14_10_task_76` | Feedback 14/10 (Task #76) — Bổ Sung & Chuẩn Hóa Thôn... | 29/29 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_76/RESOLUTION.md) |
 | 14/10/2026 | `feedbacks/feedback_14_10_task_73` | Task Checklist: Feedback 14/10 (Task #73) — Hiển Thị... | 10/10 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_73/RESOLUTION.md) |
 | 14/10/2026 | `feedbacks/feedback_14_10_task_71` | Feedback 14/10 (Task #71) — Cố Định Cột Mã Vận Đơn K... | 14/14 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_71/RESOLUTION.md) |
 | 14/10/2026 | `feedbacks/feedback_14_10_task_70` | Feedback 14/10 (Task #70) — Loại Bỏ Nút Mũi Tên Mở R... | 16/16 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_70/RESOLUTION.md) |
@@ -59,6 +60,18 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_14_10_TASK_76] — Feedback 14/10 (Task #76) — Bổ Sung & Chuẩn Hóa Thông Tin "Địa Chỉ Giao Hàng" Vào Phiếu Nhập Kho (Inbound Receipt) (14/10/2026 15:10:00)
+- **Trạng thái**: ✅ Hoàn thành 100% (29/29 việc)
+- **Báo cáo bởi**: @User / Vận hành Kho (TMS Warehouse Operator)
+- **Phạm vi**: Quản lý Nhập kho (`/warehouse/inbound`) ➔ Phiếu Nhập Kho A4 ([`WarehouseInboundReceiptModal`](file:///frontend/src/features/warehouse/components/warehouse-inbound-receipt-modal.tsx)) • Bảng điều phối nhập kho ([`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx)) • Modal Chi tiết chuyến xe & Kiểm đếm dỡ hàng ([`WarehouseTripDetailModal`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) • Backend Quản lý Kho bãi ([`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts))
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Chuẩn hóa trích xuất `deliveryAddress` trong `WarehouseService.getInboundTrips`** ([`backend/src/orders/warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts)); Bổ sung hàm tiện ích bóc tách `deliveryAddress` từ thực thể `OrderEntity`; Gán trường `deliveryAddress` vào từng object đơn hàng trong mảng `orders: tripOrders` trả về client....
+  * **Frontend**: Cập nhật Modal In Phiếu Nhập Kho** ([`frontend/src/features/warehouse/components/warehouse-inbound-receipt-modal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-inbound-receipt-modal.tsx)); Khối Thông Tin Đầu Phiếu (Header Info Grid); Bảng Kê Chi Tiết Hàng Hóa (Items Table)...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_01.png, screenshot_01_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_14_10_task_76/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_14_10_task_76/TODO.md)
 
 ### 🚀 [FEEDBACK_14_10_TASK_73] — Task Checklist: Feedback 14/10 (Task #73) — Hiển Thị Nội Dung Cột Tỉnh/TP Tại Ô "GIAO ĐẾN" Trên Tem Nhận Diện Hàng Hóa A4 (14/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (10/10 việc)
