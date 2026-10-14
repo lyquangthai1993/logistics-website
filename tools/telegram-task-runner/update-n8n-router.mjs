@@ -117,11 +117,16 @@ if (isForce) {
     '4. Kiểm tra biên dịch (build / typecheck / lint) để đảm bảo không phát sinh lỗi.\\n' +
     '5. Cập nhật lại checklist trong TODO.md từ (- [ ]) sang (- [x]), ghi lại bằng chứng kỹ thuật và tóm tắt những file đã thay đổi.';
 } else if (isFeedback) {
-  cleanText = rawText.replace(/^\\/feedback(@\\w+)?\\s*/i, '').trim() || (photoFileId ? '(Ảnh chụp màn hình từ người dùng)' : rawText);
+  const strippedText = rawText.replace(/^\\/feedback(@\\w+)?\\s*/i, '').trim();
+  const isEmptyCommand = !strippedText && !photoFileId;
+  cleanText = strippedText || (photoFileId ? '(Ảnh chụp màn hình từ người dùng)' : 'Khảo sát & kiểm tra sức khỏe nghiệp vụ toàn diện hệ thống TMS');
   modeBadge = '<code>/leader</code> (TMS Business Lead)';
-  modeGoal = 'Khảo sát nghiệp vụ, tổng hợp <code>TODO.md</code> vào thư mục <code>feedbacks/feedback_DD_MM_task_&lt;id&gt;</code>';
+  modeGoal = isEmptyCommand
+    ? 'Khảo sát sức khỏe nghiệp vụ toàn diện & rà soát các màn hình TMS (Lệnh rỗng)'
+    : 'Khảo sát nghiệp vụ, tổng hợp <code>TODO.md</code> vào thư mục <code>feedbacks/feedback_DD_MM_task_&lt;id&gt;</code>';
   promptForDB = 'Hãy kích hoạt skill /leader để đóng vai trò Team Lead nghiệp vụ TMS của dự án logistics-website.\\n' +
     'Bạn vừa tiếp nhận feedback / yêu cầu mới từ người dùng' + (photoFileId ? ' kèm theo ảnh chụp màn hình' : '') + ':\\n\\\"' + cleanText + '\\\"\\n\\n' +
+    (isEmptyCommand ? 'LƯU Ý ĐẶC BIỆT (LỆNH RỖNG): Người dùng gửi lệnh /feedback mà chưa đính kèm mô tả chi tiết hoặc ảnh màn hình. Hãy:\\n1. Khảo sát toàn diện sức khỏe hệ thống TMS sau chuỗi hotfix gần nhất (Nhập kho, Xuất kho, Tem nhãn A4, Phiếu in).\\n2. Gửi phản hồi kèm thông điệp hướng dẫn tương tác rõ ràng:\\n   \\\"💡 Bạn vừa gửi lệnh /feedback. Vui lòng gửi kèm mô tả chi tiết hoặc gửi ảnh màn hình lỗi với caption /feedback <nội dung> để AI phân tích chính xác từng màn hình cụ thể.\\\"\\n\\n' : '') +
     'NHIỆM VỤ ĐẦU RA BẮT BUỘC:\\n' +
     '1. Đọc và phân tích kỹ phản hồi và các hình ảnh chụp màn hình đính kèm (sử dụng view_file).\\n' +
     '2. Khảo sát cấu trúc nghiệp vụ và mã nguồn trong dự án (backend/ NestJS và frontend/ Next.js App Router).\\n' +

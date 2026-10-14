@@ -14,6 +14,8 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 14/10/2026 17:15:00 | `feedbacks/feedback_14_10_task_78` | Feedback 14/10 (Task #78) — Tự Động Hiển Thị Modal P... | 24/24 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_78/RESOLUTION.md) |
+| 14/10/2026 16:55:00 | `feedbacks/feedback_14_10_task_77` | Feedback 14/10 (Task #77) — Khảo Sát & Chuẩn Hóa Cơ ... | 24/24 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_77/RESOLUTION.md) |
 | 14/10/2026 15:10:00 | `feedbacks/feedback_14_10_task_76` | Feedback 14/10 (Task #76) — Bổ Sung & Chuẩn Hóa Thôn... | 29/29 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_76/RESOLUTION.md) |
 | 14/10/2026 | `feedbacks/feedback_14_10_task_73` | Task Checklist: Feedback 14/10 (Task #73) — Hiển Thị... | 10/10 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_73/RESOLUTION.md) |
 | 14/10/2026 | `feedbacks/feedback_14_10_task_71` | Feedback 14/10 (Task #71) — Cố Định Cột Mã Vận Đơn K... | 14/14 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_71/RESOLUTION.md) |
@@ -60,6 +62,30 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_14_10_TASK_78] — Feedback 14/10 (Task #78) — Tự Động Hiển Thị Modal Phiếu Nhập Kho Khi Bấm Xác Nhận Nhập Kho (Đồng Bộ Trải Nghiệm In Ấn Với Luồng Xuất Kho) (14/10/2026 17:15:00)
+- **Trạng thái**: ✅ Hoàn thành 100% (24/24 việc)
+- **Báo cáo bởi**: @User / @Thai (Quản lý nghiệp vụ / Vận hành TMS)
+- **Phạm vi**: **Phân hệ Quản lý Nhập kho TMS (Inbound Dock Management)**: • Bảng điều phối nhập kho ([`page.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/app/dashboard/warehouse/inbound/page.tsx)) • Màn hình tạo mới nhập kho trực tiếp từ xe đến / khách gửi (`activeView === 'MODE1_CUSTOMER'`) • Luồng luân chuyển nội bộ nhập kho ([`warehouse-inbound-transfer-flow.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-inbound-transfer-flow.tsx)) • Modal kiểm đếm dỡ hàng chuyến xe ([`warehouse-trip-detail-modal.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) • **Phân hệ In ấn Chứng từ Kho Vận (Warehouse Vouchers & Invoices)**: • Modal Phiếu Nhập Kho A4 Khổ ngang & Khổ dọc ([`warehouse-inbound-receipt-modal.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-inbound-receipt-modal.tsx)) • Đối chiếu tính nhất quán trải nghiệm với Phiếu Xuất Kho A4 ([`warehouse-outbound-receipt-modal.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-outbound-receipt-modal.tsx)) • **Backend API Quản lý Kho bãi & Tiếp nhận chuyến xe** ([`warehouse.controller.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.controller.ts), [`warehouse.service.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts))
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Rà soát endpoint `POST /api/v1/warehouse/inbound/batch-create` trong [`warehouse.controller.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.controller.ts) và phương thức `batchCreateInboundOrders` trong [`warehouse.service.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts); Đảm bảo response trả về đầy đủ contract: `{ tripCode, licensePlate, driverName, count, orders, invoiceCode }`.; Đảm bảo các `orders` trả về có nạp đầy đủ thông tin địa chỉ giao hàng (`deliveryAddress`), loại hàng, số kiện....
+  * **Frontend**: Cập nhật màn hình Nhập kho chính [`frontend/src/app/dashboard/warehouse/inbound/page.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/app/dashboard/warehouse/inbound/page.tsx); Chuẩn hóa nhãn nút bấm tại chân trang Mode 1 từ `Xác nhận tiếp nhận & Lưu kho` thành `<Button><IconCircleCheck /> Xác nhận nhập kho</Button>`.; Trong hàm `handleSubmitMode1`...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: mau_phieu_nhap_kho.JPG, screenshot_01_verified.png, tham_chieu_modal_phieu_nhap_kho_hien_tai.png, tham_chieu_phieu_xuat_kho_sau_khi_tao.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_14_10_task_78/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_14_10_task_78/TODO.md)
+
+### 🚀 [FEEDBACK_14_10_TASK_77] — Feedback 14/10 (Task #77) — Khảo Sát & Chuẩn Hóa Cơ Chế Tiếp Nhận Phản Hồi Nghiệp Vụ TMS Qua Telegram Bot (@please_choose_auto_bot) (14/10/2026 16:55:00)
+- **Trạng thái**: ✅ Hoàn thành 100% (24/24 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 / @User (Quản lý nghiệp vụ / Vận hành TMS)
+- **Phạm vi**: **Kênh Tự động hóa Điều hành & Tiếp nhận Yêu cầu**: Telegram Task Runner ([`bot.mjs`](file:///tools/telegram-task-runner/bot.mjs), [`neon-worker.mjs`](file:///tools/telegram-task-runner/neon-worker.mjs), n8n Routing Workflow [`update-n8n-router.mjs`](file:///tools/telegram-task-runner/update-n8n-router.mjs)) • **Phân hệ Quản lý Kho bãi TMS (Warehouse Management)**: Bảng điều phối nhập kho ([`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx)), Bảng điều phối xuất kho ([`outbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/outbound/page.tsx)), Kiểm đếm dỡ hàng ([`WarehouseTripDetailModal`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) • **Phân hệ In ấn Chứng từ Vận tải (Vouchers & Labels)**: Phiếu Nhập Kho A4 ([`WarehouseInboundReceiptModal`](file:///frontend/src/features/warehouse/components/warehouse-inbound-receipt-modal.tsx)), Phiếu Xuất Kho A4 ([`WarehouseOutboundReceiptModal`](file:///frontend/src/features/warehouse/components/warehouse-outbound-receipt-modal.tsx)), Tem Pallet Nhận Diện A4 ([`WarehouseWaybillA4Modal`](file:///frontend/src/features/warehouse/components/warehouse-waybill-a4-modal.tsx)) • **Backend Quản lý Kho & Điều vận API** ([`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts), [`warehouse.controller.ts`](file:///backend/src/orders/warehouse.controller.ts))
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Rà soát service quản lý kho bãi [`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts); Đảm bảo phương thức `getInboundTrips` trích xuất chính xác `deliveryAddress` cho mọi trạng thái đơn hàng.; Đảm bảo endpoint in ấn phiếu nhập kho `GET /api/v1/warehouse/inbound/receipt-data` trả về đầy đủ các trường: `tripCode`, `licensePlate`, `driverName`, `destinationHubName`, `deliveryAddress`, `items`....
+  * **Frontend**: Rà soát các component giao diện kho bãi; [`warehouse-inbound-receipt-modal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-inbound-receipt-modal.tsx): Kiểm tra hiển thị địa chỉ giao hàng trên cả Header Info Grid và Data Table, định dạng in ấn `@media print` khổ A4 chuẩn mực.; [`warehouse-outbound-receipt-modal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-outbound-receipt-modal.tsx): Kiểm tra tính nhất quán với phiếu nhập kho....
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_14_10_task_77/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_14_10_task_77/TODO.md)
 
 ### 🚀 [FEEDBACK_14_10_TASK_76] — Feedback 14/10 (Task #76) — Bổ Sung & Chuẩn Hóa Thông Tin "Địa Chỉ Giao Hàng" Vào Phiếu Nhập Kho (Inbound Receipt) (14/10/2026 15:10:00)
 - **Trạng thái**: ✅ Hoàn thành 100% (29/29 việc)

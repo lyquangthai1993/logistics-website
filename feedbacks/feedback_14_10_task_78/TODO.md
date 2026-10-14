@@ -138,17 +138,17 @@ flowchart TD
 ## 📋 Danh sách công việc triển khai (Action Checklist)
 
 ### 1. Backend NestJS 11+ (`backend/`)
-- [ ] Rà soát endpoint `POST /api/v1/warehouse/inbound/batch-create` trong [`warehouse.controller.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.controller.ts) và phương thức `batchCreateInboundOrders` trong [`warehouse.service.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts):
-  - [ ] Đảm bảo response trả về đầy đủ contract: `{ tripCode, licensePlate, driverName, count, orders, invoiceCode }`.
-  - [ ] Đảm bảo các `orders` trả về có nạp đầy đủ thông tin địa chỉ giao hàng (`deliveryAddress`), loại hàng, số kiện.
-- [ ] Rà soát endpoint `POST /api/v1/warehouse/inbound/confirm`:
-  - [ ] Đảm bảo trả về đầy đủ `tripCode`, `invoiceCode`, và danh sách `orders` vừa được xác nhận nhập kho.
-- [ ] Kiểm tra biên dịch backend: `npm run build --prefix backend` đạt `Exit code 0` (100% không lỗi TypeScript).
+- [x] Rà soát endpoint `POST /api/v1/warehouse/inbound/batch-create` trong [`warehouse.controller.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.controller.ts) và phương thức `batchCreateInboundOrders` trong [`warehouse.service.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts):
+  - [x] Đảm bảo response trả về đầy đủ contract: `{ tripCode, licensePlate, driverName, count, orders, invoiceCode }`.
+  - [x] Đảm bảo các `orders` trả về có nạp đầy đủ thông tin địa chỉ giao hàng (`deliveryAddress`), loại hàng, số kiện.
+- [x] Rà soát endpoint `POST /api/v1/warehouse/inbound/confirm`:
+  - [x] Đảm bảo trả về đầy đủ `tripCode`, `invoiceCode`, và danh sách `orders` vừa được xác nhận nhập kho.
+- [x] Kiểm tra biên dịch backend: `npm run build --prefix backend` đạt `Exit code 0` (100% không lỗi TypeScript).
 
 ### 2. Frontend Next.js 15 App Router (`frontend/`)
-- [ ] Cập nhật màn hình Nhập kho chính [`frontend/src/app/dashboard/warehouse/inbound/page.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/app/dashboard/warehouse/inbound/page.tsx):
-  - [ ] Chuẩn hóa nhãn nút bấm tại chân trang Mode 1 từ `Xác nhận tiếp nhận & Lưu kho` thành `<Button><IconCircleCheck /> Xác nhận nhập kho</Button>`.
-  - [ ] Trong hàm `handleSubmitMode1`:
+- [x] Cập nhật màn hình Nhập kho chính [`frontend/src/app/dashboard/warehouse/inbound/page.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/app/dashboard/warehouse/inbound/page.tsx):
+  - [x] Chuẩn hóa nhãn nút bấm tại chân trang Mode 1 từ `Xác nhận tiếp nhận & Lưu kho` thành `<Button><IconCircleCheck /> Xác nhận nhập kho</Button>`.
+  - [x] Trong hàm `handleSubmitMode1`:
     * Sau khi gọi API `/api/v1/warehouse/inbound/batch-create` thành công, khởi tạo đối tượng `receiptData: InboundReceiptData` với đầy đủ:
       - `tripCode`: `batchResult?.tripCode`
       - `orderCode`: `batchResult?.invoiceCode || batchResult?.orders?.[0]?.orderCode || mode1Rows[0]?.orderCode || 'INBOUND'`
@@ -166,23 +166,23 @@ flowchart TD
     * Kích hoạt `setIsInboundReceiptModalOpen(true)` để hiển thị ngay modal Phiếu Nhập Kho.
     * Đặt `setActiveView('BOARD')` và làm mới danh sách chuyến xe ngầm bên dưới (`fetchInboundTrips()`, `fetchKpi()`).
     * Reset sạch sẽ state form Mode 1 (`setMode1Rows`, `setLicensePlate`, `setDriverName`).
-- [ ] Cập nhật luồng Luân chuyển nội bộ [`warehouse-inbound-transfer-flow.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-inbound-transfer-flow.tsx):
-  - [ ] Thêm callback `onOpenReceipt?: (data: InboundReceiptData) => void`.
-  - [ ] Sau khi xác nhận nhập kho thành công trong `handleSubmitInbound`, tự động chuẩn bị dữ liệu phiếu và gọi `onOpenReceipt`.
-- [ ] Cập nhật modal Kiểm đếm dỡ hàng [`warehouse-trip-detail-modal.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx):
-  - [ ] Trong `handleConfirmTally`: Sau khi kiểm đếm nhập kho thành công, tự động gọi `onOpenReceipt` để bật phiếu in nhập kho ngay mà thủ kho không cần bấm thêm nút in.
-- [ ] Rà soát modal Phiếu Nhập Kho [`warehouse-inbound-receipt-modal.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-inbound-receipt-modal.tsx):
-  - [ ] Đảm bảo hiển thị hoàn hảo cả 2 khổ giấy: Khổ ngang (A4 Landscape) và Khổ dọc (A4 Portrait).
-  - [ ] Đảm bảo nhãn in ấn rõ ràng: Nút `In phiếu nhập (Khổ ngang)` / `In phiếu nhập (Khổ dọc)`.
-  - [ ] Đảm bảo khi đóng modal thì quay về đúng trạng thái Board với dữ liệu mới nhất.
-- [ ] Tuân thủ nghiêm ngặt Quy chuẩn UI Compact Density:
-  - [ ] Tuyệt đối cấm các class: `p-4`, `p-6`, `space-y-3`, `gap-4`.
-  - [ ] Padding modal body: `p-2` (max `p-2.5`).
-- [ ] Kiểm tra biên dịch frontend: `npm --prefix frontend run typecheck` đạt `Exit code 0`.
+- [x] Cập nhật luồng Luân chuyển nội bộ [`warehouse-inbound-transfer-flow.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-inbound-transfer-flow.tsx):
+  - [x] Thêm callback `onOpenReceipt?: (data: InboundReceiptData) => void`.
+  - [x] Sau khi xác nhận nhập kho thành công trong `handleSubmitInbound`, tự động chuẩn bị dữ liệu phiếu và gọi `onOpenReceipt`.
+- [x] Cập nhật modal Kiểm đếm dỡ hàng [`warehouse-trip-detail-modal.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx):
+  - [x] Trong `handleConfirmTally`: Sau khi kiểm đếm nhập kho thành công, tự động gọi `onOpenReceipt` để bật phiếu in nhập kho ngay mà thủ kho không cần bấm thêm nút in.
+- [x] Rà soát modal Phiếu Nhập Kho [`warehouse-inbound-receipt-modal.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-inbound-receipt-modal.tsx):
+  - [x] Đảm bảo hiển thị hoàn hảo cả 2 khổ giấy: Khổ ngang (A4 Landscape) và Khổ dọc (A4 Portrait).
+  - [x] Đảm bảo nhãn in ấn rõ ràng: Nút `In phiếu nhập (Khổ ngang)` / `In phiếu nhập (Khổ dọc)`.
+  - [x] Đảm bảo khi đóng modal thì quay về đúng trạng thái Board với dữ liệu mới nhất.
+- [x] Tuân thủ nghiêm ngặt Quy chuẩn UI Compact Density:
+  - [x] Tuyệt đối cấm các class: `p-4`, `p-6`, `space-y-3`, `gap-4`.
+  - [x] Padding modal body: `p-2` (max `p-2.5`).
+- [x] Kiểm tra biên dịch frontend: `npm --prefix frontend run typecheck` đạt `Exit code 0`.
 
 ### 3. Kiểm Thử Tự Động Playwright E2E & Nghiệm Thu Thị Giác
-- [ ] Xây dựng kịch bản kiểm thử tự động Playwright E2E tại [`frontend/e2e/42-feedback-14-10-task-78-auto-inbound-receipt-modal.spec.ts`](file:///home/runner/work/logistics-website/logistics-website/frontend/e2e/42-feedback-14-10-task-78-auto-inbound-receipt-modal.spec.ts).
-- [ ] Kịch bản kiểm thử chi tiết:
+- [x] Xây dựng kịch bản kiểm thử tự động Playwright E2E tại [`frontend/e2e/42-feedback-14-10-task-78-auto-inbound-receipt-modal.spec.ts`](file:///home/runner/work/logistics-website/logistics-website/frontend/e2e/42-feedback-14-10-task-78-auto-inbound-receipt-modal.spec.ts).
+- [x] Kịch bản kiểm thử chi tiết:
   1. Đăng nhập hệ thống với tài khoản Thủ kho HCM (`warehouse_hcm` / `USER_WAREHOUSE_HCM`).
   2. Điều hướng vào phân hệ Nhập kho `/dashboard/warehouse/inbound`.
   3. Bấm nút **"Tạo đơn nhập mới"** để chuyển sang giao diện tạo mới nhập kho (`MODE1_CUSTOMER`).

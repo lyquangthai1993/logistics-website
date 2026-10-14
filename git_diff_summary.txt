@@ -1,6 +1,40 @@
 === Root ===
- feedbacks/feedback_14_10_task_78/TODO.md | 164 ++++++++++++++++---------------
- git_diff_summary.txt                     |   4 -
- 2 files changed, 83 insertions(+), 85 deletions(-)
+ backend                                          |  0
+ docs/SYSTEM_TIMELINE.md                          | 26 +++++++++++++
+ feedbacks/feedback_14_10_task_77/TODO.md         | 48 ++++++++++++------------
+ feedbacks/feedback_14_10_task_78/TODO.md         | 48 ++++++++++++------------
+ frontend                                         |  0
+ git_diff_summary.txt                             |  5 ---
+ tools/telegram-task-runner/update-n8n-router.mjs |  9 ++++-
+ 7 files changed, 81 insertions(+), 55 deletions(-)
+ m backend
+ M docs/SYSTEM_TIMELINE.md
+ M feedbacks/feedback_14_10_task_77/TODO.md
  M feedbacks/feedback_14_10_task_78/TODO.md
+ m frontend
  M git_diff_summary.txt
+ M tools/telegram-task-runner/update-n8n-router.mjs
+?? feedbacks/feedback_14_10_task_77/RESOLUTION.md
+?? feedbacks/feedback_14_10_task_77/screenshot_01_verified.png
+?? feedbacks/feedback_14_10_task_78/RESOLUTION.md
+?? feedbacks/feedback_14_10_task_78/screenshot_01_verified.png
+=== Backend ===
+ src/orders/warehouse.controller.ts |  21 +++-
+ src/orders/warehouse.service.ts    | 228 ++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 247 insertions(+), 2 deletions(-)
+ M src/orders/warehouse.controller.ts
+ M src/orders/warehouse.service.ts
+=== Frontend ===
+ src/app/dashboard/warehouse/inbound/page.tsx       | 64 +++++++++++++++++-
+ .../components/warehouse-inbound-receipt-modal.tsx | 42 ++++++------
+ .../components/warehouse-inbound-transfer-flow.tsx | 75 +++++++++++++++++++++-
+ .../warehouse-outbound-receipt-modal.tsx           | 58 ++++++++---------
+ .../components/warehouse-trip-detail-modal.tsx     | 53 +++++++++++++++
+ 5 files changed, 239 insertions(+), 53 deletions(-)
+ M src/app/dashboard/warehouse/inbound/page.tsx
+ M src/features/warehouse/components/warehouse-inbound-receipt-modal.tsx
+ M src/features/warehouse/components/warehouse-inbound-transfer-flow.tsx
+ M src/features/warehouse/components/warehouse-outbound-receipt-modal.tsx
+ M src/features/warehouse/components/warehouse-trip-detail-modal.tsx
+?? e2e/41-feedback-14-10-task-77-system-operational-audit.spec.ts
+?? e2e/42-feedback-14-10-task-78-auto-inbound-receipt-modal.spec.ts

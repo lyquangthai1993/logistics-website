@@ -77,36 +77,36 @@ Trong quá trình vận hành hệ thống Logistics TMS (Spider Express), ngư�
 ## 📋 Danh sách công việc triển khai (Action Checklist)
 
 ### 1. Kênh Tự Động Hóa & Telegram Bot Router (`tools/telegram-task-runner/`)
-- [ ] Rà soát và hoàn thiện hàm xử lý lệnh `/feedback` trong [`update-n8n-router.mjs`](file:///tools/telegram-task-runner/update-n8n-router.mjs) để xử lý mượt mà cả trường hợp có tham số và trường hợp lệnh rỗng.
-- [ ] Đảm bảo cơ chế tự động gửi thông báo phản hồi (Silent/Compact Mode) không gây spam tin nhắn trong nhóm điều hành Telegram.
-- [ ] Kiểm tra cơ chế tự động giải phóng hàng đợi (Auto-Drain FIFO Queue) trong [`telegram-agy-worker.yml`](file:///.github/workflows/telegram-agy-worker.yml) để đảm bảo không bị nghẽn task khi có nhiều yêu cầu gửi liên tục.
+- [x] Rà soát và hoàn thiện hàm xử lý lệnh `/feedback` trong [`update-n8n-router.mjs`](file:///tools/telegram-task-runner/update-n8n-router.mjs) để xử lý mượt mà cả trường hợp có tham số và trường hợp lệnh rỗng.
+- [x] Đảm bảo cơ chế tự động gửi thông báo phản hồi (Silent/Compact Mode) không gây spam tin nhắn trong nhóm điều hành Telegram.
+- [x] Kiểm tra cơ chế tự động giải phóng hàng đợi (Auto-Drain FIFO Queue) trong [`telegram-agy-worker.yml`](file:///.github/workflows/telegram-agy-worker.yml) để đảm bảo không bị nghẽn task khi có nhiều yêu cầu gửi liên tục.
 
 ### 2. Backend NestJS 11+ (`backend/`)
-- [ ] Rà soát service quản lý kho bãi [`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts):
-  - [ ] Đảm bảo phương thức `getInboundTrips` trích xuất chính xác `deliveryAddress` cho mọi trạng thái đơn hàng.
-  - [ ] Đảm bảo endpoint in ấn phiếu nhập kho `GET /api/v1/warehouse/inbound/receipt-data` trả về đầy đủ các trường: `tripCode`, `licensePlate`, `driverName`, `destinationHubName`, `deliveryAddress`, `items`.
-  - [ ] Đảm bảo endpoint hủy chuyến nháp nhập kho `DELETE /api/v1/warehouse/inbound/drafts/:tripCode` xử lý đúng chuẩn HTTP 200/204 khi thành công và 404 khi không tìm thấy.
-- [ ] Kiểm tra biên dịch backend: `npm run build --prefix backend` đạt `Exit code 0` (100% không có lỗi TypeScript).
+- [x] Rà soát service quản lý kho bãi [`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts):
+  - [x] Đảm bảo phương thức `getInboundTrips` trích xuất chính xác `deliveryAddress` cho mọi trạng thái đơn hàng.
+  - [x] Đảm bảo endpoint in ấn phiếu nhập kho `GET /api/v1/warehouse/inbound/receipt-data` trả về đầy đủ các trường: `tripCode`, `licensePlate`, `driverName`, `destinationHubName`, `deliveryAddress`, `items`.
+  - [x] Đảm bảo endpoint hủy chuyến nháp nhập kho `DELETE /api/v1/warehouse/inbound/drafts/:tripCode` xử lý đúng chuẩn HTTP 200/204 khi thành công và 404 khi không tìm thấy.
+- [x] Kiểm tra biên dịch backend: `npm run build --prefix backend` đạt `Exit code 0` (100% không có lỗi TypeScript).
 
 ### 3. Frontend Next.js 15 App Router (`frontend/`)
-- [ ] Rà soát các component giao diện kho bãi:
-  - [ ] [`warehouse-inbound-receipt-modal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-inbound-receipt-modal.tsx): Kiểm tra hiển thị địa chỉ giao hàng trên cả Header Info Grid và Data Table, định dạng in ấn `@media print` khổ A4 chuẩn mực.
-  - [ ] [`warehouse-outbound-receipt-modal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-outbound-receipt-modal.tsx): Kiểm tra tính nhất quán với phiếu nhập kho.
-  - [ ] [`warehouse-trip-detail-modal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx): Kiểm tra luồng truyền dữ liệu vào phiếu in khi thủ kho bấm nút "In phiếu".
-  - [ ] [`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx): Kiểm tra nút in phiếu nhanh tại từng hàng xe đến kho.
-- [ ] Quét và rà soát triệt để quy chuẩn UI Compact Density:
-  - [ ] Không có class cấm: `p-4`, `p-5`, `p-6`, `space-y-3`, `gap-4`.
-  - [ ] Bảng dữ liệu sử dụng typography compact `text-[10px]`.
-- [ ] Kiểm tra biên dịch frontend: `npm --prefix frontend run typecheck` đạt `Exit code 0`.
+- [x] Rà soát các component giao diện kho bãi:
+  - [x] [`warehouse-inbound-receipt-modal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-inbound-receipt-modal.tsx): Kiểm tra hiển thị địa chỉ giao hàng trên cả Header Info Grid và Data Table, định dạng in ấn `@media print` khổ A4 chuẩn mực.
+  - [x] [`warehouse-outbound-receipt-modal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-outbound-receipt-modal.tsx): Kiểm tra tính nhất quán với phiếu nhập kho.
+  - [x] [`warehouse-trip-detail-modal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx): Kiểm tra luồng truyền dữ liệu vào phiếu in khi thủ kho bấm nút "In phiếu".
+  - [x] [`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx): Kiểm tra nút in phiếu nhanh tại từng hàng xe đến kho.
+- [x] Quét và rà soát triệt để quy chuẩn UI Compact Density:
+  - [x] Không có class cấm: `p-4`, `p-5`, `p-6`, `space-y-3`, `gap-4`.
+  - [x] Bảng dữ liệu sử dụng typography compact `text-[10px]`.
+- [x] Kiểm tra biên dịch frontend: `npm --prefix frontend run typecheck` đạt `Exit code 0`.
 
 ### 4. Kiểm Thử Tự Động Playwright E2E & Nghiệm Thu Thị Giác
-- [ ] Xây dựng bộ kiểm thử tự động Playwright E2E chuyên biệt cho Task #77 tại [`frontend/e2e/41-feedback-14-10-task-77-system-operational-audit.spec.ts`](file:///frontend/e2e/41-feedback-14-10-task-77-system-operational-audit.spec.ts).
-- [ ] Kịch bản kiểm thử:
-  - [ ] Đăng nhập hệ thống với tài khoản Thủ kho HCM (`warehouse_hcm` / `USER_WAREHOUSE_HCM`) hoặc Super Admin (`admin`).
-  - [ ] Điều hướng tới Bảng điều phối nhập kho `/dashboard/warehouse/inbound`.
-  - [ ] Kiểm tra danh sách chuyến xe đến kho, xác nhận có ít nhất 1 chuyến xe hiển thị (Non-Empty Visual Evidence Gate).
-  - [ ] Mở Phiếu Nhập Kho A4 của chuyến xe, assert sự hiện diện của cột "Địa chỉ giao hàng" và dữ liệu tương ứng.
-  - [ ] Chụp ảnh màn hình bằng chứng nghiệm thu thực tế: `feedbacks/feedback_14_10_task_77/screenshot_01_verified.png`.
+- [x] Xây dựng bộ kiểm thử tự động Playwright E2E chuyên biệt cho Task #77 tại [`frontend/e2e/41-feedback-14-10-task-77-system-operational-audit.spec.ts`](file:///frontend/e2e/41-feedback-14-10-task-77-system-operational-audit.spec.ts).
+- [x] Kịch bản kiểm thử:
+  - [x] Đăng nhập hệ thống với tài khoản Thủ kho HCM (`warehouse_hcm` / `USER_WAREHOUSE_HCM`) hoặc Super Admin (`admin`).
+  - [x] Điều hướng tới Bảng điều phối nhập kho `/dashboard/warehouse/inbound`.
+  - [x] Kiểm tra danh sách chuyến xe đến kho, xác nhận có ít nhất 1 chuyến xe hiển thị (Non-Empty Visual Evidence Gate).
+  - [x] Mở Phiếu Nhập Kho A4 của chuyến xe, assert sự hiện diện của cột "Địa chỉ giao hàng" và dữ liệu tương ứng.
+  - [x] Chụp ảnh màn hình bằng chứng nghiệm thu thực tế: `feedbacks/feedback_14_10_task_77/screenshot_01_verified.png`.
 
 ---
 
