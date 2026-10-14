@@ -30,6 +30,9 @@
     "deploy:railway:frontend": "node scripts/railway-deploy.mjs frontend",
     "hooks:railway": "node scripts/install-railway-hooks.mjs"
   },
+  "dependencies": {
+    "pg": "^8.13.3"
+  },
   "devDependencies": {
     "docx": "^9.7.1"
   }
