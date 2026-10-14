@@ -368,11 +368,12 @@ jobs:
 
           echo "✅ Đã tự động commit & push thành công lên nhánh dev!"
 
-      - name: "9. Báo cáo Kết quả về Telegram (/telegram-task-responder)"
+      - name: "9. Báo cáo Kết quả về Telegram & Cập nhật Database"
         if: always() && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_ALLOWED_CHAT_ID != ''
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_ALLOWED_CHAT_ID: ${{ secrets.TELEGRAM_ALLOWED_CHAT_ID }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           TASK_ID: ${{ github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}
           JOB_STATUS: ${{ job.status }}
         run: |
@@ -466,5 +467,38 @@ jobs:
               console.error("Failed to notify Telegram:", err.message);
             }
           }
-          send();
+
+          async function updateDatabase() {
+            const dbUrl = process.env.DATABASE_URL;
+            if (!dbUrl || !taskId || taskId === "manual" || isNaN(Number(taskId))) {
+              console.log("ℹ️ Bỏ qua cập nhật DB (DATABASE_URL rỗng hoặc taskId không hợp lệ)");
+              return;
+            }
+            try {
+              let pg;
+              try { pg = require("pg"); } catch (_) { pg = require("./tools/telegram-task-runner/node_modules/pg"); }
+              const { Client } = pg;
+              const isNeon = dbUrl.includes("neon.tech");
+              const client = new Client({
+                connectionString: dbUrl,
+                ssl: isNeon ? { rejectUnauthorized: false } : false
+              });
+              await client.connect();
+              const newStatus = process.env.JOB_STATUS === "success" ? "COMPLETED" : "FAILED";
+              const errorVal = process.env.JOB_STATUS === "success" ? null : agyRes.slice(0, 500);
+              await client.query(
+                "UPDATE telegram_tasks SET status = $1, completed_at = NOW(), result = $2, error = $3 WHERE id = $4",
+                [newStatus, agyRes, errorVal, parseInt(taskId, 10)]
+              );
+              await client.end();
+              console.log(`✅ Đã cập nhật task #${taskId} sang trạng thái ${newStatus} trong Database.`);
+            } catch (dbErr) {
+              console.warn("⚠️ Không thể cập nhật Database telegram_tasks:", dbErr.message);
+            }
+          }
+
+          async function main() {
+            await Promise.allSettled([send(), updateDatabase()]);
+          }
+          main();
           '

@@ -15,6 +15,7 @@
     "test:e2e:check": "npm run e2e:check --prefix frontend",
     "test:e2e:report": "npm run e2e:report --prefix frontend",
     "e2e:audit": "node scripts/e2e-auditor.mjs",
+    "audit:rbac": "node scripts/audit-rbac-daily.mjs",
     "telegram:bot": "node tools/telegram-task-runner/bot.mjs",
     "telegram:worker": "node tools/telegram-task-runner/neon-worker.mjs",
     "telegram:worker:dev": "node --watch-path=tools/telegram-task-runner tools/telegram-task-runner/neon-worker.mjs",
@@ -28,6 +29,9 @@
     "deploy:railway:backend": "node scripts/railway-deploy.mjs backend",
     "deploy:railway:frontend": "node scripts/railway-deploy.mjs frontend",
     "hooks:railway": "node scripts/install-railway-hooks.mjs"
+  },
+  "dependencies": {
+    "pg": "^8.13.3"
   },
   "devDependencies": {
     "docx": "^9.7.1"

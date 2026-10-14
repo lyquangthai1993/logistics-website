@@ -1,0 +1,58 @@
+name: Daily RBAC & Security Audit Workflow (22:00 PM)
+
+on:
+  schedule:
+    # 15:00 UTC corresponds to 22:00 (10:00 PM) GMT+7 (Hanoi / Ho Chi Minh time)
+    - cron: '0 15 * * *'
+  workflow_dispatch:
+    inputs:
+      notify_telegram:
+        description: 'Gửi kết quả audit về Telegram'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+concurrency:
+  group: rbac-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rbac-audit:
+    name: "🛡️ Rà Soát Bảo Mật & RBAC Toàn Hệ Thống (10:00 PM)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: "1. Checkout Repositories & Submodules"
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT_TOKEN || secrets.GITHUB_TOKEN }}
+          ref: dev
+          submodules: recursive
+          fetch-depth: 50
+
+      - name: "2. Cài Đặt Node.js Runtime"
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: "3. Cài Đặt Phụ Trợ (Root Dependencies)"
+        run: |
+          npm ci --ignore-scripts || npm install --no-audit
+
+      - name: "4. Thực Thi Kịch Bản Audit RBAC & Lịch Sử 7 Ngày"
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_ALLOWED_CHAT_ID: ${{ secrets.TELEGRAM_ALLOWED_CHAT_ID || secrets.ALLOWED_CHAT_ID || '-5509877448' }}
+        run: |
+          echo "🚀 Khởi chạy kiểm toán bảo mật RBAC & rà soát SYSTEM_TIMELINE.md..."
+          node scripts/audit-rbac-daily.mjs
+
+      - name: "5. Báo Cáo Trạng Thái Audit"
+        if: always()
+        run: |
+          echo "✅ Quá trình rà soát bảo mật RBAC hoàn tất lúc $(date)."
