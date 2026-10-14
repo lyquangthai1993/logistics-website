@@ -1,5 +1,24 @@
 === Root ===
- git_diff_summary.txt | 39 ---------------------------------------
- 1 file changed, 39 deletions(-)
+ docs/SYSTEM_TIMELINE.md                            |   9 +++
+ feedbacks/feedback_14_10_task_67/RESOLUTION.md     |  80 ++++++++++++---------
+ .../screenshot_01_verified.png                     | Bin 29386 -> 37768 bytes
+ frontend                                           |   0
+ git_diff_summary.txt                               |   4 --
+ 5 files changed, 55 insertions(+), 38 deletions(-)
+ M docs/SYSTEM_TIMELINE.md
+ M feedbacks/feedback_14_10_task_67/RESOLUTION.md
+ M feedbacks/feedback_14_10_task_73/screenshot_01_verified.png
+ m frontend
  M git_diff_summary.txt
-?? feedbacks/feedback_14_10_task_80/
+=== Frontend ===
+ src/app/dashboard/warehouse/inbound/page.tsx       |  2 +-
+ .../warehouse/components/pallet-label-a4-modal.tsx | 44 ++++++++++++----------
+ .../components/warehouse-editable-grid.tsx         |  4 +-
+ .../components/warehouse-lookup-modal.tsx          |  4 +-
+ .../warehouse-outbound-transfer-flow.tsx           |  4 +-
+ 5 files changed, 31 insertions(+), 27 deletions(-)
+ M src/app/dashboard/warehouse/inbound/page.tsx
+ M src/features/warehouse/components/pallet-label-a4-modal.tsx
+ M src/features/warehouse/components/warehouse-editable-grid.tsx
+ M src/features/warehouse/components/warehouse-lookup-modal.tsx
+ M src/features/warehouse/components/warehouse-outbound-transfer-flow.tsx

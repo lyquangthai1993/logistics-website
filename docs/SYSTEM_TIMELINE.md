@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 14/10/2026 | `feedbacks/feedback_14_10_task_67` | Feedback 14/10 - Task #67: Cải Thiện Cơ Chế Reply Te... | 7/7 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_67/RESOLUTION.md) |
 | 14/10/2026 17:15:00 | `feedbacks/feedback_14_10_task_78` | Feedback 14/10 (Task #78) — Tự Động Hiển Thị Modal P... | 24/24 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_78/RESOLUTION.md) |
 | 14/10/2026 16:55:00 | `feedbacks/feedback_14_10_task_77` | Feedback 14/10 (Task #77) — Khảo Sát & Chuẩn Hóa Cơ ... | 24/24 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_77/RESOLUTION.md) |
 | 14/10/2026 15:10:00 | `feedbacks/feedback_14_10_task_76` | Feedback 14/10 (Task #76) — Bổ Sung & Chuẩn Hóa Thôn... | 29/29 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_76/RESOLUTION.md) |
@@ -62,6 +63,14 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_14_10_TASK_67] — Feedback 14/10 - Task #67: Cải Thiện Cơ Chế Reply Telegram (Chia Nhỏ / Tinh Gọn) & Quét Hàng Đợi Task DB (14/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (7/7 việc)
+- **Năng lực & Tính năng mới**:
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: Có lưu trữ trong thư mục
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_14_10_task_67/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_14_10_task_67/TODO.md)
 
 ### 🚀 [FEEDBACK_14_10_TASK_78] — Feedback 14/10 (Task #78) — Tự Động Hiển Thị Modal Phiếu Nhập Kho Khi Bấm Xác Nhận Nhập Kho (Đồng Bộ Trải Nghiệm In Ấn Với Luồng Xuất Kho) (14/10/2026 17:15:00)
 - **Trạng thái**: ✅ Hoàn thành 100% (24/24 việc)
