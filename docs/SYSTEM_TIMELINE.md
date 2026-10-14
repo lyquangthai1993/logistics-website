@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 14/10/2026 | `feedbacks/feedback_14_10_task_52` | Feedback 14/10 (Task #52) — Loại Bỏ Tiêu Đề "Kiểm Đế... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_52/RESOLUTION.md) |
 | 14/10/2026 | `feedbacks/feedback_14_10_task_51` | Feedback 14/10 (Task #51) — Cho Phép Chọn Đơn Hàng N... | 14/14 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_51/RESOLUTION.md) |
 | 13/10/2026 | `feedbacks/feedback_13_10_task_46` | Feedback 13/10 (Task #46) — Chuẩn hóa Nút "Tiếp tục"... | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_46/RESOLUTION.md) |
 | 13/10/2026 | `feedbacks/feedback_13_10_task_45` | Feedback 13/10 (Task 45) — Loại Bỏ Chức Năng Chọn Nh... | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_45/RESOLUTION.md) |
@@ -53,6 +54,17 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_14_10_TASK_52] — Feedback 14/10 (Task #52) — Loại Bỏ Tiêu Đề "Kiểm Đếm Dỡ Hàng & Nhập Kho" Và Nút "Bốc Thêm Đơn Dọc Đường" Ở Màn Hình Xem Đơn Hàng Trong Trip Xuất, Nhập Tạo Mới Từ Hub Của Account (14/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (9/9 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 / @Thai (Quản lý nghiệp vụ / Vận hành TMS)
+- **Phạm vi**: Modal Chi tiết Chuyến xe & Xem đơn hàng ([`warehouse-trip-detail-modal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) ➔ Quản lý hiển thị Header Bar, ẩn khối tiêu đề dỡ hàng và ẩn nút bốc thêm đơn dọc đường khi xem đơn hoặc chuyến xe xuất phát từ Hub hiện tại. • Màn hình Quản lý Xuất kho ([`outbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/outbound/page.tsx)) ➔ Mở modal xem đơn hàng trong chuyến xe xuất kho (`mode='OUTBOUND'`, `readOnly={true}`). • Màn hình Quản lý Nhập kho ([`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx)) ➔ Mở modal xem chi tiết đơn hàng chuyến xe nhập kho tạo mới trực tiếp tại Hub (`mode='INBOUND'`, `readOnly={true}`). • Kiểm thử tự động E2E ([`52-trip-detail-view-clean-header-and-no-roadside.spec.ts`](file:///frontend/e2e/52-trip-detail-view-clean-header-and-no-roadside.spec.ts)).
+- **Năng lực & Tính năng mới**:
+  * **Frontend**: Bổ sung computed helper nhận diện Chuyến xe tạo mới từ Hub hiện tại (`isTripOriginHere`); Loại bỏ khối tiêu đề phụ `Kiểm đếm dỡ hàng & Nhập kho` (Phần khoanh đỏ 1); Loại bỏ triệt để nút `+ Bốc thêm đơn dọc đường về Hub` (Phần khoanh đỏ 2)...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_14_10_task_52/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_14_10_task_52/TODO.md)
 
 ### 🚀 [FEEDBACK_14_10_TASK_51] — Feedback 14/10 (Task #51) — Cho Phép Chọn Đơn Hàng Nháp (DRAFT) Khi Lập Trip Xuất Kho & Ràng Buộc Khóa Trạng Thái Chuyến Xe Chỉ Ở "Chờ Xử Lý" (PENDING) (14/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (14/14 việc)
