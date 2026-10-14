@@ -1,5 +1,30 @@
 === Root ===
- git_diff_summary.txt | 4 ----
- 1 file changed, 4 deletions(-)
+ docs/SYSTEM_TIMELINE.md                  | 26 ++++++++++++++++++++++++++
+ feedbacks/feedback_14_10_task_70/TODO.md | 32 ++++++++++++++++----------------
+ feedbacks/feedback_14_10_task_71/TODO.md | 28 ++++++++++++++--------------
+ frontend                                 |  0
+ git_diff_summary.txt                     |  4 ----
+ 5 files changed, 56 insertions(+), 34 deletions(-)
+ M docs/SYSTEM_TIMELINE.md
+ M feedbacks/feedback_14_10_task_70/TODO.md
+ M feedbacks/feedback_14_10_task_71/TODO.md
+ m frontend
  M git_diff_summary.txt
-?? feedbacks/feedback_14_10_task_71/
+?? feedbacks/feedback_14_10_task_70/RESOLUTION.md
+?? feedbacks/feedback_14_10_task_71/RESOLUTION.md
+=== Frontend ===
+ ...ehouse-trip-lifecycle-and-hub-isolation.spec.ts |  11 +-
+ src/app/dashboard/warehouse/inbound/page.tsx       | 413 ++++-------------
+ src/app/dashboard/warehouse/outbound/page.tsx      | 487 ++++-----------------
+ .../warehouse-outbound-transfer-flow.tsx           |   8 +-
+ .../components/warehouse-trip-detail-modal.tsx     |  79 +++-
+ .../components/warehouse-trip-tally-table.tsx      |  42 +-
+ 6 files changed, 275 insertions(+), 765 deletions(-)
+ M e2e/26-warehouse-trip-lifecycle-and-hub-isolation.spec.ts
+ M src/app/dashboard/warehouse/inbound/page.tsx
+ M src/app/dashboard/warehouse/outbound/page.tsx
+ M src/features/warehouse/components/warehouse-outbound-transfer-flow.tsx
+ M src/features/warehouse/components/warehouse-trip-detail-modal.tsx
+ M src/features/warehouse/components/warehouse-trip-tally-table.tsx
+?? e2e/70-feedback-14-10-task-70-remove-accordion-chevron.spec.ts
+?? e2e/71-feedback-14-10-task-71-mobile-trip-sticky-and-readonly.spec.ts

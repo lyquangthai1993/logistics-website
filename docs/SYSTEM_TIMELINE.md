@@ -14,6 +14,8 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 14/10/2026 | `feedbacks/feedback_14_10_task_71` | Feedback 14/10 (Task #71) — Cố Định Cột Mã Vận Đơn K... | 14/14 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_71/RESOLUTION.md) |
+| 14/10/2026 | `feedbacks/feedback_14_10_task_70` | Feedback 14/10 (Task #70) — Loại Bỏ Nút Mũi Tên Mở R... | 16/16 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_70/RESOLUTION.md) |
 | 14/10/2026 | `feedbacks/feedback_14_10_task_53` | Feedback 14/10 (Task #53) — Thay Thế Cột "ĐIỂM BỐC H... | 15/15 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_53/RESOLUTION.md) |
 | 14/10/2026 | `feedbacks/feedback_14_10_task_54` | Feedback 14/10 (Task #54) — Thiết Kế Đồng Bộ 2 Nút "... | 21/21 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_54/RESOLUTION.md) |
 | 14/10/2026 | `feedbacks/feedback_14_10_task_52` | Feedback 14/10 (Task #52) — Loại Bỏ Tiêu Đề "Kiểm Đế... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_52/RESOLUTION.md) |
@@ -56,6 +58,30 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_14_10_TASK_71] — Feedback 14/10 (Task #71) — Cố Định Cột Mã Vận Đơn Khi Cuộn Ngang (Sticky Column) và Khóa Chặt Nghiệp Vụ Mobile (Chỉ Xem & In Tem Nhận Diện, Loại Bỏ Chỉnh Sửa, Thêm, Xóa Trong Trip Nhập/Xuất Kho) (14/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (14/14 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Quản lý nghiệp vụ / Vận hành TMS) & User Feedback
+- **Phạm vi**: Quản lý Nhập kho (`/dashboard/warehouse/inbound`) ➔ Chi tiết Chuyến xe Nhập kho ([`WarehouseTripDetailModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)), Bảng kiểm đếm dỡ hàng ([`WarehouseTripTallyTable.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-tally-table.tsx)), Luồng nhập luân chuyển ([`WarehouseInboundTransferFlow.tsx`](file:///frontend/src/features/warehouse/components/warehouse-inbound-transfer-flow.tsx)). • Quản lý Xuất kho (`/dashboard/warehouse/outbound`) ➔ Chi tiết Chuyến xe Xuất kho ([`WarehouseTripDetailModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)), Bước 2 Xuất hàng mới lên xe, Luồng xuất luân chuyển ([`WarehouseOutboundTransferFlow.tsx`](file:///frontend/src/features/warehouse/components/warehouse-outbound-transfer-flow.tsx)). • Các thành phần bảng & tương tác dữ liệu hàng hóa trên Mobile: Khóa chỉnh sửa dữ liệu, ẩn nút thêm đơn, ẩn nút xóa đơn, cố định cột Mã vận đơn (`orderCode`) khi cuộn ngang (`overflow-x-auto`). • Backend API (`backend/src/orders/warehouse.controller.ts`, `warehouse.service.ts`) ➔ Đảm bảo các API Manifest chuyến xe (`/trips/:tripCode/manifest`), dữ liệu tem nhận diện Pallet A4 và danh sách chuyến xe hoạt động an toàn, chính xác.
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Xác Nhận API Manifest Chuyến Xe; Xác Nhận Dữ Liệu In Tem Pallet A4; Kiểm Tra Build Backend
+  * **Frontend**: Bảng Đơn Hàng Bước 1 (Nhập kho) trong [`WarehouseTripDetailModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx); Bảng Đơn Hàng Bước 2 (Xuất kho) trong [`WarehouseTripDetailModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx); Bảng Kiểm Đếm Nhập Kho trong [`WarehouseTripTallyTable.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-tally-table.tsx)...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: Có lưu trữ trong thư mục
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_14_10_task_71/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_14_10_task_71/TODO.md)
+
+### 🚀 [FEEDBACK_14_10_TASK_70] — Feedback 14/10 (Task #70) — Loại Bỏ Nút Mũi Tên Mở Rộng Dòng (Accordion Chevron `>`) và Tinh Gọn Bảng Kê Chuyến Xe Xuất Kho / Nhập Kho Chuẩn Hóa Chế Độ Xem Chi Tiết Qua Modal (14/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (16/16 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 (Quản lý nghiệp vụ / Vận hành TMS)
+- **Phạm vi**: Quản lý Xuất kho (`/dashboard/warehouse/outbound`) ➔ Bảng danh sách chuyến xe xuất kho ([`page.tsx`](file:///frontend/src/app/dashboard/warehouse/outbound/page.tsx)), loại bỏ nút bấm mũi tên `>` mở rộng dòng ở cột `CHUYẾN XE / TRIP`, loại bỏ khối sub-row accordion lồng bảng và loại bỏ nút "Mở rộng tất cả / Thu gọn tất cả" trên thanh công cụ. • Quản lý Nhập kho (`/dashboard/warehouse/inbound`) ➔ Bảng danh sách chuyến xe nhập kho ([`page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx)), đồng bộ giao diện (UI/UX Parity) loại bỏ nút bấm mũi tên `>` ở cột `CHUYẾN XE / TRIP`, loại bỏ khối sub-row accordion và nút "Thu gọn / Mở rộng tất cả" trên thanh công cụ. • Modal Chi tiết Chuyến xe ([`WarehouseTripDetailModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) ➔ Đảm bảo duy trì và bảo toàn 100% chức năng xem chi tiết đơn hàng và in tem nhận diện khi click vào mã chuyến xe `grp.tripCode` ở chế độ Read-only an toàn. • Backend API (`backend/src/orders/warehouse.controller.ts`, `warehouse.service.ts`) ➔ Đảm bảo hợp đồng dữ liệu cho các endpoint danh sách chuyến xe và chi tiết manifest hoạt động chuẩn xác, không ảnh hưởng tới dữ liệu đơn hàng.
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Kiểm tra Tính Toàn Vẹn Endpoint Danh sách Chuyến xe; Kiểm tra API Manifest Chuyến xe; Kiểm tra Biên dịch Backend
+  * **Frontend**: Loại bỏ Nút Mũi Tên Mở Rộng Dòng `>` ở cột `CHUYẾN XE / TRIP`; Loại bỏ Khối Nested Sub-row Accordion; Loại bỏ Nút "Mở rộng tất cả / Thu gọn tất cả" trên Toolbar...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_14_10_task_70/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_14_10_task_70/TODO.md)
 
 ### 🚀 [FEEDBACK_14_10_TASK_53] — Feedback 14/10 (Task #53) — Thay Thế Cột "ĐIỂM BỐC HÀNG" Bằng "BIỂN SỐ XE NHẬP DỰ KIẾN" Trong Màn Hình Xem Đơn Hàng Trip Xuất Kho (14/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (15/15 việc)

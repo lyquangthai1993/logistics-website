@@ -116,36 +116,36 @@ flowchart TD
 ### 1. Frontend (Next.js 15 App Router - `frontend/`)
 
 #### A. Cải tiến Màn hình Xuất kho ([`frontend/src/app/dashboard/warehouse/outbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/outbound/page.tsx))
-- [ ] **Loại bỏ Nút Mũi Tên Mở Rộng Dòng `>` ở cột `CHUYẾN XE / TRIP`**:
+- [x] **Loại bỏ Nút Mũi Tên Mở Rộng Dòng `>` ở cột `CHUYẾN XE / TRIP`**:
   - Gỡ bỏ thẻ `<button onClick={() => toggleExpandVehicle(grp.groupKey)}...>` chứa `IconChevronRight`/`IconChevronDown` tại dòng chuyến xe.
   - Căn chỉnh lại `div` bọc mã chuyến xe: hiển thị trực tiếp nút `<button onClick={() => handleOpenTripDetail(grp)}...>` với mã `grp.tripCode` và badge `{grp.orders.length} đơn`.
-- [ ] **Loại bỏ Khối Nested Sub-row Accordion**:
+- [x] **Loại bỏ Khối Nested Sub-row Accordion**:
   - Xóa bỏ hoàn toàn khối `{isExpanded && (<tr className='bg-slate-50/80...'><td colSpan={5}>...</td></tr>)}`.
   - Triệt tiêu bảng con lồng ghép, giảm hơn 150 dòng mã dư thừa.
-- [ ] **Loại bỏ Nút "Mở rộng tất cả / Thu gọn tất cả" trên Toolbar**:
+- [x] **Loại bỏ Nút "Mở rộng tất cả / Thu gọn tất cả" trên Toolbar**:
   - Gỡ bỏ nút bấm `<Button onClick={toggleAllGroups}>... Mở rộng tất cả ({vehicleGroups.length} xe)...</Button>` trên thanh công cụ.
-- [ ] **Dọn dẹp State, Hàm và Icons Không Còn Sử Dụng**:
+- [x] **Dọn dẹp State, Hàm và Icons Không Còn Sử Dụng**:
   - Gỡ bỏ state `expandedVehicleKeys`.
   - Gỡ bỏ các hàm `toggleExpandVehicle`, `toggleAllGroups`, biến `allExpanded`.
   - Dọn dẹp các icon imports không còn dùng: `IconChevronRight`, `IconChevronDown`, `IconFoldUp`, `IconFoldDown` (nếu không dùng ở nơi khác trong file).
 
 #### B. Đồng bộ Màn hình Nhập kho ([`frontend/src/app/dashboard/warehouse/inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx))
-- [ ] **Loại bỏ Nút Mũi Tên Mở Rộng Dòng `>` ở cột `CHUYẾN XE / TRIP`**:
+- [x] **Loại bỏ Nút Mũi Tên Mở Rộng Dòng `>` ở cột `CHUYẾN XE / TRIP`**:
   - Gỡ bỏ thẻ `<button onClick={() => toggleExpandVehicle(grp.groupKey)}...>` tại dòng chuyến xe nhập kho.
   - Hiển thị trực tiếp nút bấm mã chuyến xe `grp.tripCode` kèm badge `{grp.orders.length} đơn`.
-- [ ] **Loại bỏ Khối Nested Sub-row Accordion Nhập Kho**:
+- [x] **Loại bỏ Khối Nested Sub-row Accordion Nhập Kho**:
   - Xóa bỏ khối `{isExpanded && (<tr ...><td colSpan={5}>...</td></tr>)}` của bảng nhập kho.
-- [ ] **Loại bỏ Nút "Mở rộng tất cả / Thu gọn" trên Toolbar Nhập Kho**:
+- [x] **Loại bỏ Nút "Mở rộng tất cả / Thu gọn" trên Toolbar Nhập Kho**:
   - Gỡ bỏ nút `toggleAllGroups` trên thanh công cụ Nhập kho.
-- [ ] **Dọn dẹp State và Hàm Liên Quan**:
+- [x] **Dọn dẹp State và Hàm Liên Quan**:
   - Gỡ bỏ state `expandedVehicleKeys`, hàm `toggleExpandVehicle`, hàm `toggleAllGroups`, biến `allExpanded`.
 
 #### C. Bảo toàn & Kiểm tra Tính Năng Xem Chi Tiết Chuyến Xe & In Tem Nhận Diện
-- [ ] **Xác nhận Thao tác Click vào Mã Chuyến Xe**:
+- [x] **Xác nhận Thao tác Click vào Mã Chuyến Xe**:
   - Click vào `grp.tripCode` tại cả Xuất kho và Nhập kho vẫn kích hoạt `handleOpenTripDetail(grp)` và mở [`WarehouseTripDetailModal`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx) ở chế độ `readOnly={true}`.
   - Modal hiển thị đầy đủ danh sách các đơn hàng con, số kiện, kg, m³, điểm bốc, điểm giao.
   - Tính năng In Tem Nhận Diện Hàng Hóa A4 (`PalletLabelA4Modal`) trên từng đơn và in toàn bộ tem nhận diện hoạt động bình thường 100%.
-- [ ] **Xác nhận Nút Thao tác Tiếp tục & Hủy nháp**:
+- [x] **Xác nhận Nút Thao tác Tiếp tục & Hủy nháp**:
   - Nút `Tiếp tục` và `Hủy nháp` tại cột THAO TÁC cho các chuyến `Chờ xử lý` không bị xê dịch hay ảnh hưởng.
   - Nút `In phiếu xuất` / `In phiếu nhập` cho các chuyến `Đã xử lý` hiển thị đúng vị trí.
 
@@ -153,21 +153,21 @@ flowchart TD
 
 ### 2. Backend (NestJS 11 - `backend/`)
 
-- [ ] **Kiểm tra Tính Toàn Vẹn Endpoint Danh sách Chuyến xe**:
+- [x] **Kiểm tra Tính Toàn Vẹn Endpoint Danh sách Chuyến xe**:
   - Endpoint `GET /api/v1/warehouse/outbound-trips` tiếp tục trả về cấu trúc chuyến xe và danh sách `orders` đầy đủ (phục vụ hiển thị badge số đơn và truyền dữ liệu cho modal xem chi tiết).
   - Endpoint `GET /api/v1/warehouse/inbound-trips` tiếp tục phản hồi đầy đủ dữ liệu.
-- [ ] **Kiểm tra API Manifest Chuyến xe**:
+- [x] **Kiểm tra API Manifest Chuyến xe**:
   - Endpoint `GET /api/v1/warehouse/trips/:tripCode/manifest` hoạt động ổn định, đảm bảo dữ liệu cho `WarehouseTripDetailModal`.
-- [ ] **Kiểm tra Biên dịch Backend**:
+- [x] **Kiểm tra Biên dịch Backend**:
   - Chạy lệnh `npm --prefix backend run build` đạt `Exit code 0` (0 lỗi).
 
 ---
 
 ### 3. Kiểm Thử Tự Động & Chứng Nhận Chất Lượng (Playwright E2E)
 
-- [ ] **Cập nhật các E2E Test Suite Hiện Có (nếu có tham chiếu nút mở rộng)**:
+- [x] **Cập nhật các E2E Test Suite Hiện Có (nếu có tham chiếu nút mở rộng)**:
   - Rà soát [`frontend/e2e/26-warehouse-trip-lifecycle-and-hub-isolation.spec.ts`](file:///frontend/e2e/26-warehouse-trip-lifecycle-and-hub-isolation.spec.ts): Nếu kịch bản có bước click nút "Mở rộng tất cả" hoặc nút chevron, cập nhật sang thao tác click vào mã chuyến xe `SDxx` để mở modal kiểm tra các đơn hàng con hoặc kiểm tra trực tiếp qua hàng xe.
-- [ ] **Xây dựng Kịch bản Kiểm thử E2E Chuyên biệt cho Task #70**:
+- [x] **Xây dựng Kịch bản Kiểm thử E2E Chuyên biệt cho Task #70**:
   - File kiểm thử: `frontend/e2e/70-feedback-14-10-task-70-remove-accordion-chevron.spec.ts`.
   - **Kịch bản 1: Màn hình Xuất kho (`/dashboard/warehouse/outbound`)**:
     1. Đăng nhập tài khoản thủ kho HCM (`USER_WAREHOUSE_HCM`).
@@ -182,7 +182,7 @@ flowchart TD
     4. Click vào mã chuyến xe: Modal `WarehouseTripDetailModal` mở ra ở chế độ Read-only.
   - **Kịch bản 3: Bằng chứng hình ảnh nghiệm thu thực tế**:
     - Chụp ảnh màn hình verified lưu vào `feedbacks/feedback_14_10_task_70/screenshot_01_verified.png` chứng minh giao diện sạch sẽ, không còn nút `>` khoanh đỏ.
-- [ ] **Kiểm tra Type Check & Lint Toàn diện**:
+- [x] **Kiểm tra Type Check & Lint Toàn diện**:
   - Chạy `npm run lint --prefix frontend` và `npm run build --prefix frontend` (0 errors).
 
 ---

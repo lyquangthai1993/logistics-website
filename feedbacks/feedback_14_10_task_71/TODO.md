@@ -95,39 +95,39 @@ flowchart TD
 ### 1. Frontend (Next.js 15 App Router & Tailwind CSS)
 
 #### A. Cố Định Cột Mã Vận Đơn Khi Cuộn Ngang (Sticky Column Implementation)
-- [ ] **Bảng Đơn Hàng Bước 1 (Nhập kho) trong [`WarehouseTripDetailModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)**:
+- [x] **Bảng Đơn Hàng Bước 1 (Nhập kho) trong [`WarehouseTripDetailModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)**:
   - Thiết lập cột STT: `sticky left-0 z-20 bg-slate-100 dark:bg-slate-800` (ở `th`) và `sticky left-0 z-10 bg-white dark:bg-slate-900` (ở `td`), độ rộng cố định `w-[36px]`.
   - Thiết lập cột MÃ VẬN ĐƠN: `sticky left-[36px] z-20 bg-slate-100 dark:bg-slate-800` (ở `th`) và `sticky left-[36px] z-10 bg-white dark:bg-slate-900` (ở `td`), độ rộng `w-[130px]`.
   - Thêm bóng đổ và viền ngăn cách: `shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15)] border-r border-slate-200 dark:border-slate-700`.
-- [ ] **Bảng Đơn Hàng Bước 2 (Xuất kho) trong [`WarehouseTripDetailModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)**:
+- [x] **Bảng Đơn Hàng Bước 2 (Xuất kho) trong [`WarehouseTripDetailModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)**:
   - Cố định tương tự: STT `sticky left-0` (`w-[36px]`) và MÃ VẬN ĐƠN `sticky left-[36px]` (`w-[130px]`) với nền đặc và viền đổ bóng.
   - Bổ sung cột THAO TÁC chứa nút **"In tem"** (`PalletLabelA4Modal`) cho từng dòng đơn hàng xuất tiếp để hỗ trợ in tem trực tiếp trên mobile.
-- [ ] **Bảng Kiểm Đếm Nhập Kho trong [`WarehouseTripTallyTable.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-tally-table.tsx)**:
+- [x] **Bảng Kiểm Đếm Nhập Kho trong [`WarehouseTripTallyTable.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-tally-table.tsx)**:
   - Trên mobile, ẩn checkbox chọn dòng dỡ (`hidden sm:table-cell`).
   - Thiết lập cột STT: `sticky left-0 z-20` (`w-[32px]`).
   - Thiết lập cột MÃ VẬN ĐƠN: `sticky left-[32px] z-20` trên mobile (hoặc tính theo độ rộng checkbox trên desktop), thêm `shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15)] border-r`.
-- [ ] **Bảng Hàng Bốc Lên Xe trong [`WarehouseOutboundTransferFlow.tsx`](file:///frontend/src/features/warehouse/components/warehouse-outbound-transfer-flow.tsx)**:
+- [x] **Bảng Hàng Bốc Lên Xe trong [`WarehouseOutboundTransferFlow.tsx`](file:///frontend/src/features/warehouse/components/warehouse-outbound-transfer-flow.tsx)**:
   - Cố định cột STT (`sticky left-0`) và MÃ ĐƠN HÀNG (`sticky left-[40px]`) kèm đổ bóng phân cách.
 
 #### B. Khóa Chặt Nghiệp Vụ Trên Giao Diện Mobile (Chỉ Xem & In Tem Nhận Diện)
-- [ ] **Tích hợp Mobile Hook (`useIsMobile`)**:
+- [x] **Tích hợp Mobile Hook (`useIsMobile`)**:
   - Import `useIsMobile` từ `@/hooks/use-mobile`.
   - Kiểm tra trạng thái thiết bị di động: `const isMobile = useIsMobile();`.
-- [ ] **Cưỡng Chế Chế Độ Chỉ Xem (Enforced Read-only on Mobile)**:
+- [x] **Cưỡng Chế Chế Độ Chỉ Xem (Enforced Read-only on Mobile)**:
   - Trong [`WarehouseTripDetailModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx):
     - Đặt biến cờ: `const isMobileReadOnly = isMobile || readOnly;`.
     - Khi `isMobile === true`, modal luôn render bảng chỉ xem (`readOnly table`), **tuyệt đối không render `WarehouseEditableGrid`**.
     - Khóa các action footer tác nghiệp nặng (chỉ giữ lại nút Đóng, nút chuyển bước Xem và nút In Tem).
-- [ ] **Loại Bỏ Hoàn Toàn Chức Năng Thêm Đơn Trên Mobile**:
+- [x] **Loại Bỏ Hoàn Toàn Chức Năng Thêm Đơn Trên Mobile**:
   - Bước 1 (Nhập kho): Ẩn hoàn toàn nút **"Bốc thêm đơn dọc đường về Hub"** trên mobile (`hidden sm:inline-flex` hoặc `{!isMobile && ...}`).
   - Bước 2 (Xuất kho): Ẩn hoàn toàn nút **"Thêm đơn xuất từ kho lên xe"** trên mobile (`hidden sm:inline-flex` hoặc `{!isMobile && ...}`).
-- [ ] **Loại Bỏ Hoàn Toàn Chức Năng Chỉnh Sửa & Xóa Đơn Trên Mobile**:
+- [x] **Loại Bỏ Hoàn Toàn Chức Năng Chỉnh Sửa & Xóa Đơn Trên Mobile**:
   - Bước 2: Ẩn nút **"Thay đổi địa chỉ (Điều chuyển)"** (`setSelectedOrderForDestModal`) khi `isMobile === true`, chỉ hiển thị thông tin địa chỉ/kho đích ở dạng văn bản chỉ đọc.
   - Trong [`WarehouseTripTallyTable.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-tally-table.tsx):
     - Khi `isMobile === true`, ô "THỰC NHẬN" không hiển thị thẻ `<Input>`, mà hiển thị số kiện dạng văn bản / badge cố định (`${s?.actualQuantity ?? expected} kiện`).
     - Khóa tương tác chỉnh sửa lý do chênh lệch trên điện thoại.
   - Loại bỏ hoàn toàn các nút xóa dòng (`deleteRow`, `IconTrash`, "Xóa đơn") trên điện thoại.
-- [ ] **Bảo Toàn & Tối Ưu Nút In Tem Nhận Diện Đơn Hàng Trên Mobile**:
+- [x] **Bảo Toàn & Tối Ưu Nút In Tem Nhận Diện Đơn Hàng Trên Mobile**:
   - Nút **"In tem"** cho từng đơn hàng hiển thị gọn gàng, rõ ràng và có kích thước bấm ngón tay thuận tiện (`h-7 px-2 text-[11px]`).
   - Nút **"In toàn bộ tem chuyến xe"** (Batch print) ở header/footer của modal hoạt động trơn tru trên mobile.
 
@@ -135,18 +135,18 @@ flowchart TD
 
 ### 2. Backend (NestJS 11 - `backend/`)
 
-- [ ] **Xác Nhận API Manifest Chuyến Xe**:
+- [x] **Xác Nhận API Manifest Chuyến Xe**:
   - Endpoint `GET /api/v1/warehouse/trips/:tripCode/manifest` cung cấp đầy đủ thông tin `lines`: `orderCode`, `goodsDescription`, `totalQuantity`, `totalWeight`, `totalVolume`, `pickupAddress`, `deliveryAddress`, `destinationHub`, phục vụ hiển thị chi tiết chỉ đọc trên mobile.
-- [ ] **Xác Nhận Dữ Liệu In Tem Pallet A4**:
+- [x] **Xác Nhận Dữ Liệu In Tem Pallet A4**:
   - Đảm bảo dữ liệu đơn hàng trả về có đủ các trường cho `PalletLabelData` (mã vận đơn, số kiện, khối lượng, thể tích, kho đi, kho đến).
-- [ ] **Kiểm Tra Build Backend**:
+- [x] **Kiểm Tra Build Backend**:
   - Chạy `npm --prefix backend run build` đạt `Exit code 0`.
 
 ---
 
 ### 3. Kiểm Thử Tự Động & Chứng Nhận Chất Lượng (Playwright E2E)
 
-- [ ] **Xây dựng Kịch Bản E2E Chuyên Biệt Cho Task #71**:
+- [x] **Xây dựng Kịch Bản E2E Chuyên Biệt Cho Task #71**:
   - File kiểm thử: `frontend/e2e/71-feedback-14-10-task-71-mobile-trip-sticky-and-readonly.spec.ts`.
   - **Cấu hình Viewport Mobile**: `page.setViewportSize({ width: 375, height: 667 })` (iPhone SE / Standard Mobile Screen).
   - **Kịch bản 1: Màn hình Nhập kho trên Mobile (`/dashboard/warehouse/inbound`)**:
@@ -169,7 +169,7 @@ flowchart TD
     - Chụp ảnh màn hình verified lưu vào `feedbacks/feedback_14_10_task_71/screenshot_01_verified.png` chứng minh:
       * Cột Mã vận đơn được cố định rõ ràng khi cuộn ngang trên viewport mobile 375px.
       * Giao diện hoàn toàn sạch sẽ, không còn các nút thêm/sửa/xóa, chỉ có chế độ xem và nút in tem nhận diện.
-- [ ] **Kiểm Tra Type Check & Lint Toàn Diện**:
+- [x] **Kiểm Tra Type Check & Lint Toàn Diện**:
   - Chạy `npm run lint --prefix frontend` và `npm run build --prefix frontend` (0 errors).
 
 ---
