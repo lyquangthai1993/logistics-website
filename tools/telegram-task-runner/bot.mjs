@@ -155,7 +155,6 @@ async function recoverInterruptedTasks() {
           callback_data: `clarify_opt_${idx}`,
         },
       ]);
-      buttons.push([{ text: '🛑 Hủy yêu cầu này', callback_data: '/cancel' }]);
 
       await sendTelegramMessage(
         pending.chatId || ALLOWED_CHAT_ID,
@@ -362,7 +361,6 @@ const TASK_ACTIONS_KEYBOARD = {
     [
       { text: '⚡ Tiến độ (Log)', callback_data: '/log' },
       { text: '📋 Hàng đợi', callback_data: '/queue' },
-      { text: '🛑 Hủy task', callback_data: '/cancel' },
     ],
     [
       { text: '📊 Git Status', callback_data: '/status' },
@@ -1382,7 +1380,6 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
             callback_data: `clarify_opt_${idx}`,
           },
         ]);
-        buttons.push([{ text: '🛑 Hủy yêu cầu này', callback_data: '/cancel' }]);
 
         let clarifyMsg =
           `❓ <b>YÊU CẦU CẦN LÀM RÕ / XÁC NHẬN</b> <code>(⏱️ ${timeStr})</code>\n\n` +
