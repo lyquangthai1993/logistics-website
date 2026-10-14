@@ -64,6 +64,7 @@ Every E2E test file is evaluated across 5 objective dimensions:
 |---|---|---|
 | Misses a core operational branch (e.g. testing Inbound but omitting Outbound transfer) | -3 per branch | No |
 | **Shallow Assertion**: Asserts only HTTP status (`res.ok()` / `200`) without verifying key business payload fields (`orderCode`, `originHubId`, `destinationHubId`, `status`) | -4 per test | **YES (if all tests shallow)** |
+| **Hub / Account Mismatch (Un-scoped Blind Login)**: Testing Hub-scoped operational screens (Inbound, Outbound, Inventory) using default `admin` or un-scoped accounts instead of the dedicated Hub persona (`USER_WAREHOUSE_HCM`, `USER_WAREHOUSE_HYN`, `USER_WAREHOUSE_DAD`) matching the feedback image | -4 | **YES (if results in 0 rows)** |
 | Hardcodes fixed IDs without fallback for unassigned accounts (e.g. assumes `user.hubId` is always non-null for `SUPER_ADMIN`) | -3 | No |
 | Omits negative / edge test cases (e.g. invalid status transition, duplicate code) | -2 | No |
 | Test titles are generic (`test 1`, `test api`) instead of business-descriptive (`[Role/Module]: Action -> Expected Result`) | -2 | No |
@@ -122,7 +123,8 @@ Every E2E test file is evaluated across 5 objective dimensions:
 | Checkpoint | Deduction | Auto-FAIL? |
 |---|---|---|
 | **Zero Visual Evidence**: Test verifies complex modals/steppers but saves 0 screenshot artifacts | -4 | No |
-| Screenshots saved outside the designated evidence directories (`frontend/evidence/` or `playwright-report/`) | -2 | No |
+| **Fake Visual Evidence (Empty Table Fallback Screenshot)**: Using `if (count > 0) ... else { save screenshot of empty table }` without asserting target element presence, silencing failures and generating misleading 0-row screenshots for row-level features | -6 | **YES** |
+| Screenshots saved outside the designated evidence directories (`frontend/evidence/` or `feedbacks/feedback_DD_MM*/`) | -2 | No |
 | Asserts obsolete Radix data attributes (`data-radix-scroll-area-viewport`) instead of Base UI 2026 (`data-slot="scroll-area-viewport"`) | -3 | No |
 | Verifies button presence but does not check for Zero Redundant Icons (e.g. `<Button>+ Tạo đơn</Button>`) | -2 | No |
 | Missing verification of sticky action toolbars or compact typography | -2 | No |

@@ -88,6 +88,16 @@ Whenever the user refers to, asks for, or mentions **"domain pro"** (hoặc "dom
 - **System Evolutionary Timeline & Technical Memory Mandate ("Biên Niên Sử & Ký Ức Kỹ Thuật Bất Biến")**:
   - Whenever completing any feedback, bug fix, or major architectural feature, operating agents MUST record technical documentation via `npm run todo:record <folder>` to generate [`RESOLUTION.md`](file:///d:/Projects/logistics-website/docs/SYSTEM_TIMELINE.md) and update [`docs/SYSTEM_TIMELINE.md`](file:///d:/Projects/logistics-website/docs/SYSTEM_TIMELINE.md).
   - When starting a new session or onboarding to unfamiliar modules, all AI agents MUST read `docs/SYSTEM_TIMELINE.md` and `CODEBASE_AUDIT.md` to establish context on existing capabilities, design decisions, and proven operational invariants.
+- **Multimodal Visual Context & Hub-Scoped Account Selection Mandate (Quy chuẩn giải mã ngữ cảnh Hub từ ảnh chụp & chọn đúng tài khoản kiểm thử)**:
+  - Khi phân tích ảnh chụp màn hình feedback (`feedbacks/feedback_DD_MM*/*.jpg`, `*.png`), agent BẮT BUỘC thực hiện OCR giải mã đầy đủ 3 thành phần ngữ cảnh:
+    1. **Hub / Kho bãi thực tế**: Đọc tiêu đề, breadcrumb và badge trên ảnh (ví dụ `Andromeda Hub - HCM`, `Polaris Hub - Hưng Yên`, `Magellan Hub - Đà Nẵng`).
+    2. **Khớp tài khoản kiểm thử chuẩn xác (`frontend/e2e/helpers/auth.ts`)**:
+       - `Andromeda Hub - HCM` ➔ Bắt buộc dùng `USER_WAREHOUSE_HCM` (username `warehouse_hcm`).
+       - `Polaris Hub - Hưng Yên` ➔ Dùng `USER_WAREHOUSE_HYN` (username `warehouse_hyn`) hoặc `USER_DISPATCHER` (`dispatcher`).
+       - `Magellan Hub - Đà Nẵng` ➔ Dùng `USER_WAREHOUSE_DAD` (username `warehouse_dad`) hoặc `USER_FLEET` (`fleet`).
+       - Toàn hệ thống / Multi-hub ➔ Dùng `USER_ADMIN` (`admin`).
+       - **NGHIÊM CẤM TUYỆT ĐỐI**: Dùng tài khoản `admin` hoặc `TEST_USERS[0]` một cách mù quáng cho các màn hình bị Hub-scoping (như Nhập kho, Xuất kho, Bảng kê tồn kho Hub) vì sẽ dẫn tới tình trạng dữ liệu trống (0 dòng).
+    3. **Nguyên tắc ảnh nghiệm thu không được chụp bảng trống (Non-Empty Visual Evidence Gate)**: Khi kiểm thử một tính năng cấp dòng (nút bấm, badge, trạng thái hàng), kịch bản test bắt buộc phải assert có ít nhất 1 dòng dữ liệu (`expect(count).toBeGreaterThan(0)`). NGHIÊM CẤM viết nhánh fallback `if (count > 0) ... else { chụp bảng trống }` và coi đó là test đạt. Mọi ảnh chụp bảng trống khi nghiệm thu tính năng cấp dòng đều bị coi là FAKE EVIDENCE và bị loại bỏ.
 
 ## Model Selection Strategy & Guidelines (3-Phase Hybrid Pipeline)
 - 🧠 **Pha 1: Phân tích Feedback, Multimodal OCR & Lập Plan (`/plan`, Discovery)**: Ưu tiên **Gemini Pro (Gemini 2.5 Pro / 3.8 Pro)** nhờ cửa sổ ngữ cảnh khổng lồ (1M–2M tokens), khả năng native multimodal đọc hiểu ảnh chụp màn hình lỗi giao diện trong folder feedback (`feedback_DD_MM*`), bóc tách RCA và sinh checklist nguyên tử `TODO.md` kèm kịch bản E2E & Edge Cases.
