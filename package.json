@@ -22,6 +22,8 @@
     "task:pending": "node scripts/query-incomplete-tasks.mjs",
     "task:progress": "node scripts/check-in-progress.mjs",
     "task:retry": "node scripts/task-retry.mjs",
+    "report:today": "node scripts/report-today.mjs",
+    "report:today:send": "node scripts/report-today.mjs --send",
     "todo:scan": "node scripts/todo-agent.mjs scan",
     "todo:today": "node scripts/todo-agent.mjs today",
     "todo:inspect": "node scripts/todo-agent.mjs inspect",

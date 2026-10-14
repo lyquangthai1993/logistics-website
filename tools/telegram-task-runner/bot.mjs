@@ -1879,6 +1879,17 @@ async function handleMessage(msg) {
     return;
   }
 
+  if (text.startsWith('/report-today') || text.startsWith('/report_today') || text.startsWith('/today') || text.startsWith('/report')) {
+    try {
+      const { execSync } = await import('node:child_process');
+      const out = execSync('node scripts/report-today.mjs', { cwd: WORKSPACE_DIR, encoding: 'utf-8' });
+      await sendTelegramMessage(chatId, `<pre>${escapeHtml(out)}</pre>`, 'HTML', TASK_ACTIONS_KEYBOARD);
+    } catch (err) {
+      await sendTelegramMessage(chatId, `⚠️ <b>Lỗi khi tải báo cáo hôm nay:</b> ${escapeHtml(err.message)}`, 'HTML');
+    }
+    return;
+  }
+
   if (text.startsWith('/status')) {
     const statusMsg = `📊 <b>TRẠNG THÁI GIT HIỆN TẠI:</b>\n\n${getGitStatusSummary()}`;
     await sendTelegramMessage(chatId, statusMsg, 'HTML', TASK_ACTIONS_KEYBOARD);

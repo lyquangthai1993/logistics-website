@@ -18,9 +18,6 @@ async function main() {
   console.log('1. Logging into n8n Cloud...');
   const email = process.env.N8N_EMAIL || 'lyquangthai1993@gmail.com';
   const password = process.env.N8N_PASSWORD || 'Admin@123456!';
-  if (!email || !password) {
-    throw new Error('Missing N8N_EMAIL or N8N_PASSWORD in environment');
-  }
 
   const loginRes = await fetch(`${BASE_URL}/rest/login`, {
     method: 'POST',
@@ -37,33 +34,47 @@ async function main() {
   const cookie = loginRes.headers.get('set-cookie');
   console.log('Login successful.');
 
-  console.log('\n2. Fetching current workflow...');
-  const wfRes = await fetch(`${BASE_URL}/rest/workflows/${WORKFLOW_ID}`, {
-    headers: { 'Cookie': cookie }
-  });
-  const wfData = await wfRes.json();
-  const currentWf = wfData.data;
-
-  // Code lọc nghiêm ngặt: CHỈ /feedback HOẶC /force... MỚI ĐƯỢC XỬ LÝ LÀ TASK!
   const jsCode = `
-const msg = $input.item.json.body?.message;
-if (!msg) return [];
+const msg = $input.item.json.body?.message || $input.item.json.body?.callback_query?.message;
+const callbackQuery = $input.item.json.body?.callback_query;
+if (!msg && !callbackQuery) return [];
 
-const rawText = (msg.text || msg.caption || '').trim();
+const rawText = (callbackQuery ? callbackQuery.data : (msg.text || msg.caption || '')).trim();
 
 let photoFileId = null;
-if (msg.photo && Array.isArray(msg.photo) && msg.photo.length > 0) {
+if (msg?.photo && Array.isArray(msg.photo) && msg.photo.length > 0) {
   photoFileId = msg.photo[msg.photo.length - 1].file_id;
-} else if (msg.document && msg.document.mime_type && msg.document.mime_type.startsWith('image/')) {
+} else if (msg?.document && msg?.document.mime_type && msg.document.mime_type.startsWith('image/')) {
   photoFileId = msg.document.file_id;
 }
 
-const sender = msg.from?.first_name || msg.from?.username || 'User';
-const cId = msg.chat.id.toString();
-const mId = msg.message_id ? msg.message_id.toString() : '';
-const mediaGroupId = msg.media_group_id ? msg.media_group_id.toString() : '';
+const sender = (callbackQuery ? callbackQuery.from?.first_name : msg?.from?.first_name) || 'User';
+const cId = (callbackQuery ? callbackQuery.message?.chat?.id : msg?.chat?.id)?.toString() || '-5509877448';
+const mId = (callbackQuery ? callbackQuery.message?.message_id : msg?.message_id)?.toString() || '';
+const mediaGroupId = msg?.media_group_id ? msg.media_group_id.toString() : '';
 
-// 1. Phân loại lệnh Trợ giúp / Bắt đầu (HELP)
+// 1. Phân loại lệnh Báo cáo nhanh hôm nay (REPORT_TODAY)
+const isReportToday = /^\\s*(\\/report[-_]?today|\\/today|\\/report)(@\\w+)?/i.test(rawText);
+if (isReportToday) {
+  return [{
+    json: {
+      route: 'REPORT_TODAY',
+      chat_id: cId,
+      message_id: mId,
+      sender_name: sender,
+      sql: "SELECT id, sender_name, substring(raw_prompt from 1 for 70) as task_name, status, " +
+           "to_char(created_at AT TIME ZONE 'Asia/Ho_Chi_Minh', 'HH24:MI') as created_time, " +
+           "to_char(completed_at AT TIME ZONE 'Asia/Ho_Chi_Minh', 'HH24:MI') as completed_time, " +
+           "substring(error from 1 for 100) as error_msg " +
+           "FROM telegram_tasks " +
+           "WHERE (created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh')::date " +
+           "   OR (completed_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh')::date " +
+           "ORDER BY id ASC;"
+    }
+  }];
+}
+
+// 2. Phân loại lệnh Trợ giúp / Bắt đầu (HELP)
 const isHelp = /^\\s*(\\/help|\\/start)(@\\w+)?/i.test(rawText);
 if (isHelp) {
   return [{
@@ -76,11 +87,10 @@ if (isHelp) {
   }];
 }
 
-// 2. Kiểm tra chặt chẽ: CHỈ /feedback HOẶC /force... MỚI ĐƯỢC XỬ LÝ LÀ TASK
+// 3. Kiểm tra: CHỈ /feedback HOẶC /force... MỚI ĐƯỢC XỬ LÝ LÀ TASK
 const isFeedback = /^\\s*\\/feedback(@\\w+)?/i.test(rawText);
 const isForce = /^\\s*\\/force(@\\w+)?/i.test(rawText);
 
-// NẾU KHÔNG PHẢI /feedback VÀ KHÔNG PHẢI /force -> BỎ QUA HOÀN TOÀN (KHÔNG GHI VÀO DB)
 if (!isFeedback && !isForce) {
   return [];
 }
@@ -155,6 +165,75 @@ return [{
 }];
 `.trim();
 
+  const formatReportCode = `
+const rows = $input.all().map(item => item.json).filter(r => r.id);
+const promptNode = $('Format Leader Prompt').first().json;
+const chatId = promptNode?.chat_id || '-5509877448';
+
+const doneTasks = rows.filter(r => r.status === 'COMPLETED');
+const failTasks = rows.filter(r => ['FAILED', 'DEV_E2E_FAILED', 'DEV_DEPLOY_TIMEOUT'].includes(r.status));
+const runningTasks = rows.filter(r => ['IN_PROGRESS', 'PENDING', 'VERIFYING_LOCAL', 'VERIFYING_DEV'].includes(r.status));
+const cancelTasks = rows.filter(r => r.status === 'CANCELLED');
+
+const now = new Date();
+const dateStr = now.toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', year: 'numeric' });
+const timeStr = now.toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit' });
+
+let text = '📊 <b>BÁO CÁO TIẾN ĐỘ TASK HÔM NAY (' + dateStr + ' ' + timeStr + ')</b>\\n';
+text += '━━━━━━━━━━━━━━━━━━━━\\n';
+text += '🎯 <b>Tổng số task:</b> <b>' + rows.length + '</b>\\n';
+text += '✅ <b>Hoàn thành (DONE):</b> <b>' + doneTasks.length + '</b>\\n';
+text += '❌ <b>Thất bại (FAIL):</b> <b>' + failTasks.length + '</b>\\n';
+if (runningTasks.length > 0) {
+  text += '⏳ <b>Đang thực thi:</b> <b>' + runningTasks.length + '</b>\\n';
+}
+if (cancelTasks.length > 0) {
+  text += '🚫 <b>Đã hủy / Gộp:</b> <b>' + cancelTasks.length + '</b>\\n';
+}
+text += '━━━━━━━━━━━━━━━━━━━━\\n\\n';
+
+if (rows.length === 0) {
+  text += '<i>Hôm nay chưa có task nào được ghi nhận trên hệ thống.</i>\\n';
+} else {
+  text += '<b>📋 DANH SÁCH CHI TIẾT CÁC TASK:</b>\\n';
+  for (const t of rows) {
+    let icon = '⚪';
+    let statusLabel = t.status;
+    if (t.status === 'COMPLETED') {
+      icon = '✅';
+      statusLabel = 'DONE';
+    } else if (['FAILED', 'DEV_E2E_FAILED', 'DEV_DEPLOY_TIMEOUT'].includes(t.status)) {
+      icon = '❌';
+      statusLabel = 'FAIL';
+    } else if (['IN_PROGRESS', 'PENDING', 'VERIFYING_LOCAL', 'VERIFYING_DEV'].includes(t.status)) {
+      icon = '⏳';
+      statusLabel = 'RUNNING';
+    } else if (t.status === 'CANCELLED') {
+      icon = '🚫';
+      statusLabel = 'CANCEL';
+    }
+
+    const time = t.completed_time || t.created_time || '';
+    const safeTitle = (t.task_name || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    text += icon + ' <b>#' + t.id + ' [' + statusLabel + ']</b> <code>(' + time + ')</code>: ' + safeTitle + '\\n';
+    if (t.error_msg && icon === '❌') {
+      const safeErr = t.error_msg.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').slice(0, 100);
+      text += '   ⚠️ <i>Lỗi: ' + safeErr + '</i>\\n';
+    }
+  }
+}
+
+text += '\\n━━━━━━━━━━━━━━━━━━━━\\n';
+text += '🌐 <a href="https://frontend-tms-core-dev.up.railway.app">Frontend Dev</a> | 🚀 <a href="https://frontend-tms-core-production.up.railway.app">Frontend Pro</a>';
+
+return [{
+  json: {
+    chat_id: chatId,
+    report_text: text
+  }
+}];
+`.trim();
+
   const newNodes = [
     {
       parameters: {
@@ -167,7 +246,8 @@ return [{
       name: 'Webhook Trigger',
       type: 'n8n-nodes-base.webhook',
       typeVersion: 2,
-      position: [200, 300]
+      position: [200, 300],
+      webhookId: '2e963c75-8854-420f-998e-ea9950cf11a8'
     },
     {
       parameters: {
@@ -180,7 +260,7 @@ return [{
           },
           conditions: [
             {
-              leftValue: '={{ $json.body?.message?.chat?.id?.toString() }}',
+              leftValue: '={{ $json.body?.message?.chat?.id?.toString() || $json.body?.callback_query?.message?.chat?.id?.toString() }}',
               rightValue: '-5509877448',
               operator: {
                 type: 'string',
@@ -209,31 +289,43 @@ return [{
     },
     {
       parameters: {
-        conditions: {
-          options: {
-            caseSensitive: true,
-            leftValue: '',
-            typeValidation: 'strict',
-            version: 2
-          },
-          conditions: [
+        rules: {
+          values: [
             {
-              leftValue: '={{ $json.route }}',
-              rightValue: 'TASK',
-              operator: {
-                type: 'string',
-                operation: 'equals'
-              }
+              conditions: {
+                options: { caseSensitive: true, leftValue: '', typeValidation: 'strict', version: 2 },
+                conditions: [{ leftValue: '={{ $json.route }}', rightValue: 'TASK', operator: { type: 'string', operation: 'equals' } }],
+                combinator: 'and'
+              },
+              renameOutput: true,
+              outputKey: 'Task Route'
+            },
+            {
+              conditions: {
+                options: { caseSensitive: true, leftValue: '', typeValidation: 'strict', version: 2 },
+                conditions: [{ leftValue: '={{ $json.route }}', rightValue: 'REPORT_TODAY', operator: { type: 'string', operation: 'equals' } }],
+                combinator: 'and'
+              },
+              renameOutput: true,
+              outputKey: 'Report Route'
+            },
+            {
+              conditions: {
+                options: { caseSensitive: true, leftValue: '', typeValidation: 'strict', version: 2 },
+                conditions: [{ leftValue: '={{ $json.route }}', rightValue: 'HELP', operator: { type: 'string', operation: 'equals' } }],
+                combinator: 'and'
+              },
+              renameOutput: true,
+              outputKey: 'Help Route'
             }
-          ],
-          combinator: 'and'
+          ]
         },
         options: {}
       },
-      id: 'is-task-route-node',
-      name: 'Is Task Route?',
-      type: 'n8n-nodes-base.if',
-      typeVersion: 2.2,
+      id: 'route-switch-node',
+      name: 'Route Switch',
+      type: 'n8n-nodes-base.switch',
+      typeVersion: 3.2,
       position: [860, 300]
     },
     {
@@ -245,33 +337,11 @@ return [{
       name: 'Enqueue Task to Neon DB',
       type: 'n8n-nodes-base.postgres',
       typeVersion: 2.5,
-      position: [1100, 200],
+      position: [1120, 160],
       credentials: {
         postgres: {
           id: PG_CRED_ID,
           name: 'Neon Singapore PostgreSQL'
-        }
-      }
-    },
-    {
-      parameters: {
-        resource: 'message',
-        operation: 'sendMessage',
-        chatId: '={{ $("Format Leader Prompt").item.json.chat_id }}',
-        text: '={{ `⏳ <b>[Task #${$json.id} Đã ghi nhận vào hàng đợi]</b>\\n\\n👤 <b>Người gửi:</b> ${$("Format Leader Prompt").item.json.sender_name}\\n${$("Format Leader Prompt").item.json.has_photo ? \'📸 <i>Đã nhận ảnh chụp màn hình đính kèm</i>\\n\' : \'\'}📝 <b>Nội dung:</b> <i>"${$("Format Leader Prompt").item.json.raw_prompt}"</i>\\n\\n🤖 <b>Chế độ:</b> ${$("Format Leader Prompt").item.json.mode_badge}\\n📁 <b>Mục tiêu đầu ra:</b> ${$("Format Leader Prompt").item.json.mode_goal}\\n💻 <b>Trạng thái:</b> <code>RUNNING</code> ➔ Đang kích hoạt GitHub Actions Cloud Runner để thực thi agy...` }}',
-        additionalFields: {
-          parse_mode: 'HTML'
-        }
-      },
-      id: 'notify-tg-node',
-      name: 'Notify Telegram',
-      type: 'n8n-nodes-base.telegram',
-      typeVersion: 1.2,
-      position: [1340, 200],
-      credentials: {
-        telegramApi: {
-          id: TG_CRED_ID,
-          name: 'Telegram Bot Account'
         }
       }
     },
@@ -282,18 +352,9 @@ return [{
         sendHeaders: true,
         headerParameters: {
           parameters: [
-            {
-              name: 'Accept',
-              value: 'application/vnd.github+json'
-            },
-            {
-              name: 'Authorization',
-              value: `Bearer ${GH_PAT_TOKEN}`
-            },
-            {
-              name: 'User-Agent',
-              value: 'n8n-telegram-task-runner'
-            }
+            { name: 'Accept', value: 'application/vnd.github+json' },
+            { name: 'Authorization', value: `Bearer ${GH_PAT_TOKEN}` },
+            { name: 'User-Agent', value: 'n8n-telegram-task-runner' }
           ]
         },
         sendBody: true,
@@ -305,23 +366,87 @@ return [{
       name: 'Trigger GitHub Actions',
       type: 'n8n-nodes-base.httpRequest',
       typeVersion: 4.2,
-      position: [1580, 200]
+      position: [1360, 160]
+    },
+    {
+      parameters: {
+        operation: 'executeQuery',
+        query: '={{ $json.sql }}'
+      },
+      id: 'query-today-tasks-node',
+      name: 'Query Today Tasks',
+      type: 'n8n-nodes-base.postgres',
+      typeVersion: 2.5,
+      position: [1120, 320],
+      credentials: {
+        postgres: {
+          id: PG_CRED_ID,
+          name: 'Neon Singapore PostgreSQL'
+        }
+      }
+    },
+    {
+      parameters: {
+        jsCode: formatReportCode
+      },
+      id: 'format-today-report-node',
+      name: 'Format Today Report',
+      type: 'n8n-nodes-base.code',
+      typeVersion: 2,
+      position: [1360, 320]
     },
     {
       parameters: {
         resource: 'message',
         operation: 'sendMessage',
         chatId: '={{ $json.chat_id }}',
-        text: '={{ `🤖 <b>ANTIGRAVITY AI TASK RUNNER</b>\\n<i>Hệ thống điều khiển AI Agent tự động qua Telegram.</i>\\n\\n📌 <b>CÁC LỆNH ĐƯỢC XỬ LÝ VÀ ĐẨY VÀO HÀNG ĐỢI:</b>\\n\\n1️⃣ <b>Ghi nhận Feedback / Yêu cầu mới:</b>\\n• Cú pháp: <code>/feedback &lt;nội dung yêu cầu&gt;</code>\\n  <i>(hoặc gửi ảnh chụp màn hình kèm caption bắt đầu bằng <code>/feedback</code>)</i>\\n• <b>Nhiệm vụ:</b> Kích hoạt <code>/leader</code> khảo sát mã nguồn TMS và tự động tổng hợp file <code>TODO.md</code> vào thư mục <code>feedbacks/feedback_DD_MM</code>.\\n\\n2️⃣ <b>Thực thi công việc ngay:</b>\\n• Cú pháp: <code>/force</code> hoặc <code>/force &lt;tên thư mục task&gt;</code>\\n• <b>Nhiệm vụ:</b> Kích hoạt <code>todo-agent</code> quét checklist <code>TODO.md</code> hôm nay, sửa code submodules và chạy build/test.\\n\\n────────────────────\\n🌐 <b>Dev Web:</b> <a href="https://frontend-tms-core-dev.up.railway.app">Frontend Dev</a> | <a href="https://backend-tms-core-dev.up.railway.app/docs">Swagger API</a>\\n🚀 <b>Pro Web:</b> <a href="https://frontend-tms-core-production.up.railway.app">Frontend Pro</a> | <a href="https://backend-tms-core-production.up.railway.app/docs">Swagger API</a>\\n\\n💡 <i>Lưu ý: Mọi tin nhắn trao đổi thông thường không bắt đầu bằng <code>/feedback</code> hoặc <code>/force</code> sẽ được bỏ qua và không đưa vào hàng đợi xử lý.</i>` }}',
+        text: '={{ $json.report_text }}',
         additionalFields: {
-          parse_mode: 'HTML'
+          parse_mode: 'HTML',
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: '📊 Cập nhật /report-today', callback_data: '/report-today' },
+                { text: '🌐 Mở Dev Web', url: 'https://frontend-tms-core-dev.up.railway.app' }
+              ]
+            ]
+          }
+        }
+      },
+      id: 'send-today-report-node',
+      name: 'Send Today Report',
+      type: 'n8n-nodes-base.telegram',
+      typeVersion: 1.2,
+      position: [1600, 320],
+      credentials: {
+        telegramApi: {
+          id: TG_CRED_ID,
+          name: 'Telegram Bot Account'
+        }
+      }
+    },
+    {
+      parameters: {
+        resource: 'message',
+        operation: 'sendMessage',
+        chatId: '={{ $json.chat_id }}',
+        text: '={{ `🤖 <b>ANTIGRAVITY AI TASK RUNNER</b>\\n<i>Hệ thống điều khiển AI Agent tự động qua Telegram.</i>\\n\\n📌 <b>CÁC LỆNH ĐƯỢC HỖ TRỢ:</b>\\n\\n📊 <b>Báo cáo nhanh hôm nay:</b>\\n• Cú pháp: <code>/report-today</code> hoặc <code>/today</code>\\n• <b>Nhiệm vụ:</b> Báo cáo tổng hợp số lượng task DONE, FAIL và danh sách chi tiết các task đã thực thi trong ngày.\\n\\n1️⃣ <b>Ghi nhận Feedback / Yêu cầu mới:</b>\\n• Cú pháp: <code>/feedback &lt;nội dung&gt;</code>\\n  <i>(hoặc gửi ảnh chụp kèm caption bắt đầu bằng <code>/feedback</code>)</i>\\n• <b>Nhiệm vụ:</b> Kích hoạt <code>/leader</code> khảo sát mã nguồn TMS và tổng hợp <code>TODO.md</code>.\\n\\n2️⃣ <b>Thực thi công việc ngay:</b>\\n• Cú pháp: <code>/force</code> hoặc <code>/force &lt;tên thư mục task&gt;</code>\\n• <b>Nhiệm vụ:</b> Kích hoạt <code>todo-agent</code> quét checklist <code>TODO.md</code> hôm nay, sửa code và chạy test.\\n\\n────────────────────\\n🌐 <b>Dev Web:</b> <a href="https://frontend-tms-core-dev.up.railway.app">Frontend Dev</a> | <a href="https://backend-tms-core-dev.up.railway.app/docs">Swagger API</a>\\n🚀 <b>Pro Web:</b> <a href="https://frontend-tms-core-production.up.railway.app">Frontend Pro</a> | <a href="https://backend-tms-core-production.up.railway.app/docs">Swagger API</a>` }}',
+        additionalFields: {
+          parse_mode: 'HTML',
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: '📊 Báo Cáo Hôm Nay (/report-today)', callback_data: '/report-today' }
+              ]
+            ]
+          }
         }
       },
       id: 'send-help-node',
       name: 'Send Help Message',
       type: 'n8n-nodes-base.telegram',
       typeVersion: 1.2,
-      position: [1100, 420],
+      position: [1120, 480],
       credentials: {
         telegramApi: {
           id: TG_CRED_ID,
@@ -334,82 +459,48 @@ return [{
   const newConnections = {
     'Webhook Trigger': {
       main: [
-        [
-          {
-            node: 'Filter Allowed Chat',
-            type: 'main',
-            index: 0
-          }
-        ]
+        [{ node: 'Filter Allowed Chat', type: 'main', index: 0 }]
       ]
     },
     'Filter Allowed Chat': {
       main: [
-        [
-          {
-            node: 'Format Leader Prompt',
-            type: 'main',
-            index: 0
-          }
-        ]
+        [{ node: 'Format Leader Prompt', type: 'main', index: 0 }]
       ]
     },
     'Format Leader Prompt': {
       main: [
-        [
-          {
-            node: 'Is Task Route?',
-            type: 'main',
-            index: 0
-          }
-        ]
+        [{ node: 'Route Switch', type: 'main', index: 0 }]
       ]
     },
-    'Is Task Route?': {
+    'Route Switch': {
       main: [
-        // Index 0: TRUE (Task -> Enqueue)
-        [
-          {
-            node: 'Enqueue Task to Neon DB',
-            type: 'main',
-            index: 0
-          }
-        ],
-        // Index 1: FALSE (Help -> Send Help Message)
-        [
-          {
-            node: 'Send Help Message',
-            type: 'main',
-            index: 0
-          }
-        ]
+        // Output 0: Task Route
+        [{ node: 'Enqueue Task to Neon DB', type: 'main', index: 0 }],
+        // Output 1: Report Route
+        [{ node: 'Query Today Tasks', type: 'main', index: 0 }],
+        // Output 2: Help Route
+        [{ node: 'Send Help Message', type: 'main', index: 0 }]
       ]
     },
     'Enqueue Task to Neon DB': {
       main: [
-        [
-          {
-            node: 'Notify Telegram',
-            type: 'main',
-            index: 0
-          }
-        ]
+        // Connect directly to Trigger GitHub Actions without spamming Telegram!
+        [{ node: 'Trigger GitHub Actions', type: 'main', index: 0 }]
       ]
     },
-    'Notify Telegram': {
+    'Query Today Tasks': {
       main: [
-        [
-          {
-            node: 'Trigger GitHub Actions',
-            type: 'main',
-            index: 0
-          }
-        ]
+        [{ node: 'Format Today Report', type: 'main', index: 0 }]
+      ]
+    },
+    'Format Today Report': {
+      main: [
+        [{ node: 'Send Today Report', type: 'main', index: 0 }]
       ]
     }
   };
 
-  console.log('\n3. Updating workflow on n8n via PATCH...');
+  console.log('\n2. Updating workflow on n8n via PATCH...');
   const updateRes = await fetch(`${BASE_URL}/rest/workflows/${WORKFLOW_ID}`, {
     method: 'PATCH',
     headers: {
@@ -429,7 +520,7 @@ return [{
   const updateData = await updateRes.json();
   console.log('Update success! New versionId:', updateData.data?.versionId);
 
-  console.log('\n4. Reactivating workflow...');
+  console.log('\n3. Reactivating workflow...');
   const actRes = await fetch(`${BASE_URL}/rest/workflows/${WORKFLOW_ID}/activate`, {
     method: 'POST',
     headers: {

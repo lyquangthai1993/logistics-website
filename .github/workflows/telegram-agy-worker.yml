@@ -163,35 +163,8 @@ jobs:
             setOutput("mode", mode);
             setOutput("has_task", (taskId && (taskId !== "manual" || rawPrompt)) ? "true" : "false");
 
-            // Gửi thông báo Telegram bắt đầu
-            const token = process.env.TELEGRAM_BOT_TOKEN;
-            const chatId = process.env.TELEGRAM_ALLOWED_CHAT_ID;
-            if (token && chatId) {
-              const msg = `⏳ <b>[Antigravity GitHub Worker] Đang tiếp nhận Task #${escapeHtml(taskId)}...</b>\n\n` +
-                `👤 <b>Người yêu cầu:</b> @${escapeHtml(sender)}\n` +
-                `🤖 <b>Chế độ:</b> <code>${escapeHtml(mode)}</code>\n` +
-                `📝 <b>Yêu cầu:</b> <code>${escapeHtml(rawPrompt.slice(0, 300))}</code>\n\n` +
-                `🔗 <b>Workflow:</b> <a href="${runUrl}">Theo dõi Live Log Run #${escapeHtml(runId)}</a>`;
-
-              try {
-                await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    chat_id: chatId,
-                    text: msg,
-                    parse_mode: "HTML",
-                    reply_markup: {
-                      inline_keyboard: [
-                        [{ text: "⚡ Xem Live Log Trên GitHub", url: runUrl }]
-                      ]
-                    }
-                  })
-                });
-              } catch (tgErr) {
-                console.warn("⚠️ Không thể gửi thông báo bắt đầu:", tgErr.message);
-              }
-            }
+            // Tác vụ được nhận diện và claim thành công trong im lặng (Zero spam khi bắt đầu)
+            console.log(`✅ [Intake] Task #${taskId} sẵn sàng chuyển sang Job 2 thực thi.`);
           }
 
           main().catch(err => {
@@ -854,9 +827,17 @@ jobs:
 
             const keyboard = {
               inline_keyboard: [
-                [{ text: "🔍 Xem Log GitHub Actions", url: runUrl }]
+                [
+                  { text: executeStatus === "success" ? "⚡ Xem Live Log GitHub" : "🔍 Xem Log Thất Bại", url: runUrl },
+                  { text: "🌐 Mở Dev Web", url: "https://frontend-tms-core-dev.up.railway.app" }
+                ]
               ]
             };
+
+            const isDone = executeStatus === "success";
+            const titleHeader = isDone 
+              ? `✅ <b>[TASK #${escapeHtml(taskId)}] HOÀN THÀNH (DONE)</b>`
+              : `❌ <b>[TASK #${escapeHtml(taskId)}] THẤT BẠI (FAIL)</b>`;
 
             // 1. Kiểm tra ảnh bằng chứng nghiệm thu trong artifact
             let evidencePath = null;
@@ -870,7 +851,7 @@ jobs:
             }
 
             let photoSent = false;
-            if (evidencePath && fs.existsSync(evidencePath)) {
+            if (isDone && evidencePath && fs.existsSync(evidencePath)) {
               console.log(`📸 Phát hiện ảnh bằng chứng nghiệm thu: ${evidencePath}. Đang gửi qua Telegram sendPhoto...`);
               try {
                 const fileBuffer = fs.readFileSync(evidencePath);
@@ -879,15 +860,12 @@ jobs:
                 formData.append("chat_id", String(chatId));
                 formData.append("photo", blob, path.basename(evidencePath));
 
-                const photoCaption = `${statusBadge}: <b>Task #${escapeHtml(taskId)}</b> trên GitHub Actions\n\n` +
+                const photoCaption = `${titleHeader}\n\n` +
                   `👤 <b>Người yêu cầu:</b> @${escapeHtml(sender)}\n` +
-                  `▫️ <b>Runner:</b> GitHub Actions (Ubuntu)\n` +
                   `▫️ <b>Commit:</b> <code>${escapeHtml(commitHash)}</code> (Branch dev)\n` +
                   `▫️ <b>Bằng chứng:</b> <code>${escapeHtml(path.basename(evidencePath))}</code>\n` +
-                  (executeStatus !== "success" && detailedError
-                    ? `⚠️ <b>Lỗi:</b> ${escapeHtml(detailedError.slice(0, 250))}\n`
-                    : `✅ <i>Nghiệm thu thành công và đối soát bằng chứng giao diện.</i>\n`) +
-                  `▫️ <b>Workflow:</b> <a href="${runUrl}">Run #${escapeHtml(runId)}</a>`;
+                  `✅ <i>Nghiệm thu thành công và đối soát bằng chứng giao diện.</i>\n\n` +
+                  `🔗 <a href="${runUrl}">Xem chi tiết Live Log Run #${escapeHtml(runId)}</a>`;
 
                 formData.append("caption", photoCaption);
                 formData.append("parse_mode", "HTML");
@@ -909,16 +887,15 @@ jobs:
               }
             }
 
-            // Nếu không có ảnh hoặc gửi ảnh lỗi, gửi thẻ tóm tắt Executive Summary Card
+            // Nếu không gửi ảnh (hoặc task FAIL), gửi DUY NHẤT 1 Thẻ tóm tắt hoàn chỉnh (DONE hoặc FAIL)
             if (!photoSent) {
-              const summaryCard = `${statusBadge}: <b>Task #${escapeHtml(taskId)}</b> trên GitHub Actions Worker\n\n` +
+              const summaryCard = `${titleHeader}\n\n` +
                 `👤 <b>Người yêu cầu:</b> @${escapeHtml(sender)}\n` +
-                `▫️ <b>Runner:</b> GitHub Actions (Ubuntu)\n` +
                 `▫️ <b>Commit:</b> <code>${escapeHtml(commitHash)}</code> (Branch dev)\n` +
-                (executeStatus !== "success" && detailedError
-                  ? `⚠️ <b>Lỗi chính:</b> ${escapeHtml(detailedError.slice(0, 300))}\n`
-                  : `✅ <i>Hoàn tất kiểm định & nghiệm thu kỹ thuật.</i>\n`) +
-                `▫️ <b>Workflow Run:</b> <a href="${runUrl}">Chi tiết Run #${escapeHtml(runId)} trên GitHub</a>`;
+                (!isDone && detailedError
+                  ? `⚠️ <b>Lỗi chính:</b> <code>${escapeHtml(detailedError.slice(0, 300))}</code>\n\n`
+                  : `✅ <i>Hoàn tất kiểm định & nghiệm thu kỹ thuật.</i>\n\n`) +
+                `🔗 <a href="${runUrl}">Xem chi tiết Live Log Run #${escapeHtml(runId)}</a>`;
 
               await postTelegramMessage({
                 chat_id: chatId,
@@ -926,33 +903,6 @@ jobs:
                 parse_mode: "HTML",
                 reply_markup: keyboard
               });
-            }
-
-            // 2. Gửi Chi tiết Lỗi (nếu có, chia nhỏ an toàn nếu vượt quá giới hạn)
-            if (executeStatus !== "success" && detailedError) {
-              const errorBlock = `⚠️ <b>[Task #${escapeHtml(taskId)}] Chi tiết lỗi phát sinh:</b>\n<pre>${escapeHtml(detailedError)}</pre>`;
-              const errorChunks = splitTelegramHtml(errorBlock, 3800, { withPartPrefix: true });
-              for (const ch of errorChunks) {
-                await postTelegramMessage({ chat_id: chatId, text: ch, parse_mode: "HTML" });
-              }
-            }
-
-            // 3. Gửi Toàn bộ Kết quả Thực thi / Báo cáo DoD (chia nhỏ an toàn, bảo tồn toàn vẹn log)
-            if (agyRes && agyRes !== "Hoàn tất tác vụ") {
-              const resultBlock = `▫️ <b>[Task #${escapeHtml(taskId)}] Báo cáo kết quả thực thi & DoD:</b>\n<pre>${escapeHtml(agyRes)}</pre>`;
-              const resultChunks = splitTelegramHtml(resultBlock, 3800, { withPartPrefix: true });
-              for (const ch of resultChunks) {
-                await postTelegramMessage({ chat_id: chatId, text: ch, parse_mode: "HTML" });
-              }
-            }
-
-            // 4. Gửi Thống kê Git Diff (nếu có thay đổi mã nguồn)
-            if (diffSummary && diffSummary !== "Không có thay đổi file") {
-              const diffBlock = `▫️ <b>[Task #${escapeHtml(taskId)}] Thống kê Git Diff:</b>\n<pre>${escapeHtml(diffSummary)}</pre>`;
-              const diffChunks = splitTelegramHtml(diffBlock, 3800, { withPartPrefix: true });
-              for (const ch of diffChunks) {
-                await postTelegramMessage({ chat_id: chatId, text: ch, parse_mode: "HTML" });
-              }
             }
           }
 
