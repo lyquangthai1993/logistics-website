@@ -1826,7 +1826,21 @@ async function startWorker() {
 
       if (res.rows && res.rows.length > 0) {
         const task = res.rows[0];
-        await executeAgyTask(task);
+        try {
+          await executeAgyTask(task);
+        } catch (taskErr) {
+          console.error(`❌ Task #${task.id} gặp lỗi unhandled:`, taskErr);
+          const errDetail = String(taskErr?.stack || taskErr?.message || taskErr).slice(0, 2000);
+          try {
+            await pool.query(`
+              UPDATE telegram_tasks 
+              SET status = 'FAILED', error = $1, completed_at = NOW() 
+              WHERE id = $2;
+            `, [errDetail, task.id]);
+          } catch (dbErr) {
+            console.error('❌ Không thể cập nhật trạng thái lỗi vào DB:', dbErr.message);
+          }
+        }
       } else {
         await new Promise((resolve) => setTimeout(resolve, 3000));
       }

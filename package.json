@@ -20,6 +20,7 @@
     "telegram:worker": "node tools/telegram-task-runner/neon-worker.mjs",
     "telegram:worker:dev": "node --watch-path=tools/telegram-task-runner tools/telegram-task-runner/neon-worker.mjs",
     "task:pending": "node scripts/query-incomplete-tasks.mjs",
+    "task:retry": "node scripts/task-retry.mjs",
     "todo:scan": "node scripts/todo-agent.mjs scan",
     "todo:today": "node scripts/todo-agent.mjs today",
     "todo:inspect": "node scripts/todo-agent.mjs inspect",
