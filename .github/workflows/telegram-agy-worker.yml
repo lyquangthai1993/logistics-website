@@ -383,6 +383,9 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           TASK_ID: ${{ github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}
           JOB_STATUS: ${{ job.status }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           node -e '
           const fs = require("fs");
@@ -394,6 +397,11 @@ jobs:
               .replace(/</g, "&lt;")
               .replace(/>/g, "&gt;");
           }
+
+          const runId = process.env.GITHUB_RUN_ID || "";
+          const serverUrl = process.env.GITHUB_SERVER_URL || "https://github.com";
+          const repo = process.env.GITHUB_REPOSITORY || "lyquangthai1993/logistics-website";
+          const runUrl = runId ? `${serverUrl}/${repo}/actions/runs/${runId}` : `${serverUrl}/${repo}/actions`;
 
           let diffSummary = "Không có thay đổi file";
           if (fs.existsSync("git_diff_summary.txt")) {
@@ -449,7 +457,8 @@ jobs:
           text += `▫️ <b>1. Kết quả thực thi:</b>\n<pre>${escapeHtml(agyRes)}</pre>\n\n` +
             `▫️ <b>2. Thống kê Git Diff:</b>\n<pre>${escapeHtml(diffSummary)}</pre>\n\n` +
             `▫️ <b>Runner:</b> GitHub Actions (Ubuntu)\n` +
-            `▫️ <b>Commit:</b> <code>${escapeHtml(commitHash)}</code> (Branch dev)`;
+            `▫️ <b>Commit:</b> <code>${escapeHtml(commitHash)}</code> (Branch dev)\n` +
+            `▫️ <b>Workflow Run:</b> <a href="${runUrl}">Chi tiết Run #${escapeHtml(runId)} trên GitHub</a>`;
 
           const token = process.env.TELEGRAM_BOT_TOKEN;
           const chatId = process.env.TELEGRAM_ALLOWED_CHAT_ID;
@@ -459,7 +468,14 @@ jobs:
             const payload = {
               chat_id: chatId,
               text,
-              parse_mode: "HTML"
+              parse_mode: "HTML",
+              reply_markup: {
+                inline_keyboard: [
+                  [
+                    { text: '🔍 Xem Log GitHub Actions', url: runUrl }
+                  ]
+                ]
+              }
             };
             try {
               const res = await fetch(url, {
@@ -500,12 +516,14 @@ jobs:
               });
               await client.connect();
               const newStatus = process.env.JOB_STATUS === "success" ? "COMPLETED" : "FAILED";
+              const errorBase = detailedError || (agyRes !== "Hoàn tất tác vụ" ? agyRes : null) || "Tiến trình GitHub Actions thất bại";
               const errorVal = process.env.JOB_STATUS === "success" 
                 ? null 
-                : (detailedError || (agyRes !== "Hoàn tất tác vụ" ? agyRes : null) || "Tiến trình GitHub Actions thất bại").slice(0, 2000);
+                : `${errorBase.slice(0, 1800)}\n\n🔗 Workflow: ${runUrl}`;
+              const finalResult = `${agyRes}\n\n🔗 Workflow: ${runUrl}`;
               await client.query(
                 "UPDATE telegram_tasks SET status = $1, completed_at = NOW(), result = $2, error = $3 WHERE id = $4",
-                [newStatus, agyRes, errorVal, parseInt(taskId, 10)]
+                [newStatus, finalResult, errorVal, parseInt(taskId, 10)]
               );
               await client.end();
               console.log(`✅ Đã cập nhật task #${taskId} sang trạng thái ${newStatus} trong Database (error ghi nhận: ${errorVal ? "Có" : "Không"}).`);
