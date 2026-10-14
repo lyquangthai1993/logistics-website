@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 14/10/2026 | `feedbacks/feedback_14_10_task_51` | Feedback 14/10 (Task #51) — Cho Phép Chọn Đơn Hàng N... | 14/14 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_51/RESOLUTION.md) |
 | 13/10/2026 | `feedbacks/feedback_13_10_task_46` | Feedback 13/10 (Task #46) — Chuẩn hóa Nút "Tiếp tục"... | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_46/RESOLUTION.md) |
 | 13/10/2026 | `feedbacks/feedback_13_10_task_45` | Feedback 13/10 (Task 45) — Loại Bỏ Chức Năng Chọn Nh... | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_45/RESOLUTION.md) |
 | 13/10/2026 | `feedbacks/feedback_13_10_task_41` | Feedback 13/10 (Task 41) — Bảo Toàn Thông Tin Đích Đ... | 10/10 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_41/RESOLUTION.md) |
@@ -52,6 +53,18 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_14_10_TASK_51] — Feedback 14/10 (Task #51) — Cho Phép Chọn Đơn Hàng Nháp (DRAFT) Khi Lập Trip Xuất Kho & Ràng Buộc Khóa Trạng Thái Chuyến Xe Chỉ Ở "Chờ Xử Lý" (PENDING) (14/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (14/14 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 / @Thai (Quản lý nghiệp vụ / Vận hành TMS)
+- **Phạm vi**: Quản lý Xuất kho (`/dashboard/warehouse/outbound`) ➔ Tạo phiếu xuất kho Mode 1 (Giao khách hàng) & Mode 2 (Trung chuyển liên Hub), bảng điều độ chuyến xe ([`page.tsx`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/outbound/page.tsx)). • Modal Tra cứu & Chọn đơn hàng xuất kho ([`WarehouseLookupModal.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-lookup-modal.tsx)) ➔ Mở khóa đơn hàng nháp (`DRAFT`), hiển thị số kiện kế hoạch thay vì "Hết tồn khả dụng", kích hoạt nút `[Chọn đơn này]`. • Lưới nhập & Chỉnh sửa đơn hàng xuất kho ([`WarehouseEditableGrid.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-editable-grid.tsx)) ➔ Cho phép tìm kiếm, nhập mã và gán đơn hàng nháp lên lưới xuất kho, gán số lượng xuất theo `totalQuantity`. • Helper tính toán Tồn kho khả dụng ([`outbound-stock.ts`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/lib/outbound-stock.ts)) ➔ Chuẩn hóa hàm `availableOutboundStock` đối với các đơn hàng ở trạng thái `DRAFT` / `PENDING` / `WAITING`. • Luồng xuất kho luân chuyển ([`WarehouseOutboundTransferFlow.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-outbound-transfer-flow.tsx)) ➔ Tab DRAFT và logic chặn xác nhận xuất kho khi có đơn nháp. • Modal Chọn đơn lưu kho bốc lên chuyến xe ([`WarehouseSelectStoredOrdersModal.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-select-stored-orders-modal.tsx)). • Backend API (`backend/src/orders/warehouse.controller.ts`, `warehouse.service.ts`, `operational-ledger.service.ts`) ➔ Chốt chặn nghiệp vụ nghiêm ngặt trong `confirmOutbound`, `saveOutboundDraft`, `updateTransitStep` và `getAvailableOutboundOrders`.
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Bổ sung chốt chặn nghiệp vụ trong `confirmOutbound` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)); Chuẩn hóa tính toán tồn kho trong `saveOutboundDraft` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts)); Rà soát `updateTransitStep` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts))...
+  * **Frontend**: Nâng cấp hàm `availableOutboundStock`; Mở khóa hoàn toàn cho Đơn nháp (`DRAFT`); Hỗ trợ gõ mã và tự động điền đơn nháp...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01_lookup_modal_draft_selectable_verified.png, screenshot_02_outbound_draft_banner_and_pending_guard_verified.png, screenshot_03_draft_trip_saved_pending_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_14_10_task_51/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_14_10_task_51/TODO.md)
 
 ### 🚀 [FEEDBACK_13_10_TASK_46] — Feedback 13/10 (Task #46) — Chuẩn hóa Nút "Tiếp tục" Nhập kho & Phân định Rạch ròi Chế độ Xem / In Tem Nhận Diện với Chế độ Chỉnh sửa Chuyến xe (13/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (22/22 việc)

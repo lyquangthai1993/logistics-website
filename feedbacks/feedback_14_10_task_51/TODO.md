@@ -98,7 +98,7 @@ flowchart TD
 
 ### 1. Backend (`backend/`)
 
-- [ ] **Bổ sung chốt chặn nghiệp vụ trong `confirmOutbound` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts))**:
+- [x] **Bổ sung chốt chặn nghiệp vụ trong `confirmOutbound` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts))**:
   - Quét danh sách đơn hàng `orders` trong transaction xuất kho.
   - Kiểm tra xem có đơn hàng nào thuộc nhóm trạng thái đơn nháp (`DRAFT`, `WAITING`, `PENDING`) hay không:
     ```typescript
@@ -114,19 +114,19 @@ flowchart TD
     ```
   - Đảm bảo trả về HTTP 400 Bad Request với thông điệp tiếng Việt thân thiện, không bao giờ để lọt chuyến xe chứa đơn nháp sang trạng thái `COMPLETED`.
 
-- [ ] **Chuẩn hóa tính toán tồn kho trong `saveOutboundDraft` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts))**:
+- [x] **Chuẩn hóa tính toán tồn kho trong `saveOutboundDraft` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts))**:
   - Khi lưu nháp phiếu xuất kho (`POST /api/v1/warehouse/outbound/draft`):
     * Nhận diện đơn hàng có trạng thái đơn nháp: `const isDraft = DRAFT_LIKE_STATUSES.includes(order.status);`
     * Nếu là đơn nháp: `availableQty = order.remainingQuantity ?? order.totalQuantity ?? 0;` (bỏ qua kiểm tra `hubStock` sổ cái).
     * Cho phép lưu nháp thành công, gán `quantityAllocated = qty`.
     * Đảm bảo `TripStopEntity` của trạm xuất phát được tạo/cập nhật với `status: TripStopStatus.PENDING` ("Chờ xử lý").
 
-- [ ] **Rà soát `updateTransitStep` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts))**:
+- [x] **Rà soát `updateTransitStep` ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts))**:
   - Khi người dùng thực hiện cập nhật trạm trung chuyển chuyển sang `COMPLETED`:
     * Kiểm tra xem các đơn hàng gắn với chuyến xe tại trạm đó có đơn nào đang là `DRAFT` không.
     * Nếu có, ngăn chặn chuyển trạng thái sang `COMPLETED` và trả về thông báo lỗi yêu cầu xử lý đơn nháp trước.
 
-- [ ] **Đảm bảo API Tra cứu đơn hàng xuất kho trả về đơn nháp ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts))**:
+- [x] **Đảm bảo API Tra cứu đơn hàng xuất kho trả về đơn nháp ([`warehouse.service.ts`](file:///D:/Projects/logistics-website/backend/src/orders/warehouse.service.ts))**:
   - Trong `getOrders` (`GET /api/v1/warehouse/orders`):
     * Khi `status = 'DRAFT'` hoặc `status = 'ALL'`: Đảm bảo đơn nháp tại Hub xuất phát được lấy lên đầy đủ.
     * Đảm bảo trường `hubStock` hoặc `totalQuantity` của đơn nháp được trả về chính xác cho Frontend.
@@ -138,7 +138,7 @@ flowchart TD
 ### 2. Frontend (`frontend/`)
 
 #### A. Cải tiến Helper Tồn kho Xuất ([`outbound-stock.ts`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/lib/outbound-stock.ts))
-- [ ] **Nâng cấp hàm `availableOutboundStock`**:
+- [x] **Nâng cấp hàm `availableOutboundStock`**:
   - Bổ sung nhận diện trạng thái `status`:
     ```typescript
     export function availableOutboundStock(order: StockSource & { status?: string; hubStatus?: string | null }): number {
@@ -164,7 +164,7 @@ flowchart TD
     ```
 
 #### B. Nâng cấp Modal Tra cứu Đơn hàng ([`warehouse-lookup-modal.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-lookup-modal.tsx))
-- [ ] **Mở khóa hoàn toàn cho Đơn nháp (`DRAFT`)**:
+- [x] **Mở khóa hoàn toàn cho Đơn nháp (`DRAFT`)**:
   - Sửa điều kiện `isOutOfStock`:
     ```typescript
     const isDraft = displayStatus === 'DRAFT' || row.status === 'DRAFT';
@@ -177,7 +177,7 @@ flowchart TD
   - Giữ nguyên Badge trạng thái `Đơn nháp` màu Slate để thủ kho phân biệt rõ với đơn `Lưu kho`.
 
 #### C. Tối ưu Lưới nhập Xuất kho ([`warehouse-editable-grid.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-editable-grid.tsx))
-- [ ] **Hỗ trợ gõ mã và tự động điền đơn nháp**:
+- [x] **Hỗ trợ gõ mã và tự động điền đơn nháp**:
   - Trong `handleBlurOrderCode`:
     * Kiểm tra xem đơn tìm thấy có phải đơn nháp không: `const isDraft = ['DRAFT', 'PENDING', 'WAITING'].includes(foundOrder.status);`
     * Nếu là đơn nháp: Cho phép chọn bình thường, lấy `availStock = Number(foundOrder.remainingQuantity ?? foundOrder.totalQuantity) || 1`.
@@ -186,7 +186,7 @@ flowchart TD
     * Tuyệt đối không hiển thị warning *"hiện không còn tồn khả dụng tại kho này, không thể xuất"*.
 
 #### D. Kiểm soát & Khóa Trạng thái Xuất kho ([`outbound/page.tsx`](file:///D:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/outbound/page.tsx))
-- [ ] **Thêm cơ chế phát hiện Đơn nháp trong Form Xuất kho (Mode 1 & Mode 2)**:
+- [x] **Thêm cơ chế phát hiện Đơn nháp trong Form Xuất kho (Mode 1 & Mode 2)**:
   - Khai báo computed state:
     ```typescript
     const hasDraftOrdersInNote = useMemo(() => {
@@ -196,7 +196,7 @@ flowchart TD
       });
     }, [mode1Rows]);
     ```
-- [ ] **Khóa nút "Xác nhận xuất kho" khi có đơn nháp**:
+- [x] **Khóa nút "Xác nhận xuất kho" khi có đơn nháp**:
   - Tại thanh Action Footer của Form:
     * Nếu `hasDraftOrdersInNote === true`:
       - Nút **`[Xác nhận xuất kho]`**: Disabled hoặc khi click sẽ hiển thị Modal/Toast cảnh báo:
@@ -205,7 +205,7 @@ flowchart TD
       - Nút **`[Lưu nháp]`**: Được đánh dấu là hành động chính (Primary / Highlight), cho phép lưu chuyến xe dưới trạng thái `Chờ xử lý` (`PENDING`).
     * Nếu `hasDraftOrdersInNote === false`:
       - Cả 2 nút `[Lưu nháp]` và `[Xác nhận xuất kho]` hoạt động bình thường.
-- [ ] **Hiển thị Banner cảnh báo nghiệp vụ trong Form khi phát hiện đơn nháp**:
+- [x] **Hiển thị Banner cảnh báo nghiệp vụ trong Form khi phát hiện đơn nháp**:
   - Thêm một Callout Alert nhỏ gọn (tuân thủ quy chuẩn `ui-compact-density`):
     ```tsx
     {hasDraftOrdersInNote && (
@@ -219,7 +219,7 @@ flowchart TD
     ```
 
 #### E. Đồng bộ Luồng Xuất Luân Chuyển ([`warehouse-outbound-transfer-flow.tsx`](file:///D:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-outbound-transfer-flow.tsx))
-- [ ] **Kiểm soát xác nhận xuất kho luân chuyển**:
+- [x] **Kiểm soát xác nhận xuất kho luân chuyển**:
   - Trong `handleConfirmTransfer`:
     * Kiểm tra `selectedOrders.some(o => ['DRAFT', 'PENDING'].includes(o.status))`.
     * Nếu có đơn nháp được chọn: Chặn thực thi, thông báo toast lỗi rõ ràng: *"Chuyến luân chuyển chứa đơn nháp, chỉ có thể bấm 'Lưu nháp' ở trạng thái Chờ xử lý."*
@@ -230,11 +230,11 @@ flowchart TD
 
 ### 3. Kiểm thử & Đảm bảo chất lượng (Verification & Quality Gate)
 
-- [ ] **Kiểm tra Unit / Logic**:
+- [x] **Kiểm tra Unit / Logic**:
   - Test helper `availableOutboundStock` với các object đơn hàng có `status = 'DRAFT'`, `status = 'INBOUND'`, `hubStock = 0`, `totalQuantity = 10`.
   - Đảm bảo đơn nháp luôn trả về `totalQuantity` (10 kiện), không bao giờ trả về 0.
 
-- [ ] **Kiểm thử E2E Tự Động (Playwright E2E Suite)**:
+- [x] **Kiểm thử E2E Tự Động (Playwright E2E Suite)**:
   - Tạo kịch bản kiểm thử tự động `frontend/e2e/51-draft-order-outbound-pending-guard.spec.ts`:
     * **Test case 1**: Tạo một đơn hàng mới ở trạng thái `DRAFT` (ví dụ mã `HCM-TEST-DRAFT-01`, 5 kiện).
     * **Test case 2**: Đăng nhập tài khoản Thủ kho (`WAREHOUSE_MANAGER`), mở trang `/dashboard/warehouse/outbound`, bấm `Tạo phiếu xuất kho`.
@@ -251,7 +251,7 @@ flowchart TD
     * **Test case 6 (API Security Gate)**: Thử gửi trực tiếp payload chứa đơn nháp lên `POST /api/v1/warehouse/outbound/confirm`:
       - Xác minh Backend trả về HTTP 400 Bad Request với nội dung từ chối chuẩn mực.
 
-- [ ] **Bằng chứng Nghiệm thu (Visual Evidence)**:
+- [x] **Bằng chứng Nghiệm thu (Visual Evidence)**:
   - Chụp ảnh màn hình kiểm thử thực tế:
     * `screenshot_01_lookup_modal_draft_selectable_verified.png`: Modal tra cứu hiển thị đơn nháp với nút "Chọn đơn này" khả dụng.
     * `screenshot_02_outbound_draft_banner_and_pending_guard_verified.png`: Lưới xuất kho chứa đơn nháp, banner cảnh báo nghiệp vụ và trạng thái chặn xuất kho.
