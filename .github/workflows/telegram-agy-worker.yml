@@ -42,6 +42,12 @@ jobs:
     name: "📥 1. Tiếp nhận Task & Đánh dấu DB"
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    outputs:
+      task_id: ${{ steps.claim.outputs.task_id }}
+      prompt: ${{ steps.claim.outputs.prompt }}
+      sender_name: ${{ steps.claim.outputs.sender_name }}
+      mode: ${{ steps.claim.outputs.mode }}
+      has_task: ${{ steps.claim.outputs.has_task }}
 
     steps:
       - name: "Cài đặt Node.js môi trường tiếp nhận"
@@ -54,6 +60,7 @@ jobs:
           npm install --no-package-lock --no-save pg
 
       - name: "Đánh dấu IN_PROGRESS vào Database & Báo Telegram bắt đầu"
+        id: claim
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_ALLOWED_CHAT_ID: ${{ secrets.TELEGRAM_ALLOWED_CHAT_ID }}
@@ -61,14 +68,25 @@ jobs:
           TASK_ID: ${{ github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}
           SENDER: ${{ github.event.inputs.sender_name || github.event.client_payload.sender_name || 'User' }}
           RAW_PROMPT: ${{ github.event.inputs.prompt || github.event.client_payload.prompt }}
+          MODE: ${{ github.event.inputs.mode || github.event.client_payload.mode || 'leader' }}
           GITHUB_RUN_ID: ${{ github.run_id }}
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           node -e '
-          const taskId = process.env.TASK_ID;
-          const sender = process.env.SENDER || "User";
-          const rawPrompt = process.env.RAW_PROMPT || "";
+          const fs = require("fs");
+          const outputFile = process.env.GITHUB_OUTPUT;
+          function setOutput(key, value) {
+            if (outputFile) {
+              if (String(value).includes("\n")) {
+                const delimiter = "EOF_" + Math.random().toString(36).substring(2);
+                fs.appendFileSync(outputFile, `${key}<<${delimiter}\n${value}\n${delimiter}\n`);
+              } else {
+                fs.appendFileSync(outputFile, `${key}=${value}\n`);
+              }
+            }
+          }
+
           const runId = process.env.GITHUB_RUN_ID || "";
           const serverUrl = process.env.GITHUB_SERVER_URL || "https://github.com";
           const repo = process.env.GITHUB_REPOSITORY || "lyquangthai1993/logistics-website";
@@ -78,58 +96,108 @@ jobs:
             return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
           }
 
-          async function markInProgress() {
+          async function main() {
             const dbUrl = process.env.DATABASE_URL;
-            if (!dbUrl || !taskId || taskId === "manual" || isNaN(Number(taskId))) return;
-            try {
-              const { Client } = require("pg");
-              const client = new Client({
-                connectionString: dbUrl,
-                ssl: dbUrl.includes("neon.tech") ? { rejectUnauthorized: false } : false
-              });
-              await client.connect();
-              await client.query(
-                "UPDATE telegram_tasks SET status = $1, started_at = NOW() WHERE id = $2 AND status NOT IN ($3)",
-                ["IN_PROGRESS", parseInt(taskId, 10), "COMPLETED"]
-              );
-              await client.end();
-              console.log(`🚀 Đã đánh dấu Task #${taskId} sang trạng thái IN_PROGRESS trong Database.`);
-            } catch (err) {
-              console.warn("⚠️ Không thể cập nhật IN_PROGRESS:", err.message);
-            }
-          }
+            let requestedId = process.env.TASK_ID;
+            let sender = process.env.SENDER || "User";
+            let rawPrompt = process.env.RAW_PROMPT || "";
+            let mode = process.env.MODE || "leader";
+            let taskId = requestedId;
+            let task = null;
 
-          async function notifyStart() {
+            if (dbUrl) {
+              try {
+                const { Client } = require("pg");
+                const client = new Client({
+                  connectionString: dbUrl,
+                  ssl: dbUrl.includes("neon.tech") ? { rejectUnauthorized: false } : false
+                });
+                await client.connect();
+
+                // 1. Quét tìm task cần thực thi (FIFO Queue Claiming)
+                // Ưu tiên claim task PENDING cũ nhất trong DB
+                const pendingRes = await client.query(
+                  "SELECT * FROM telegram_tasks WHERE status = $1 ORDER BY id ASC LIMIT 1",
+                  ["PENDING"]
+                );
+
+                if (pendingRes.rows.length > 0) {
+                  const targetId = pendingRes.rows[0].id;
+                  const updateRes = await client.query(
+                    "UPDATE telegram_tasks SET status = $1, started_at = NOW() WHERE id = $2 RETURNING *",
+                    ["IN_PROGRESS", targetId]
+                  );
+                  task = updateRes.rows[0];
+                  console.log(`🎯 [FIFO Queue] Đã claim Task #${task.id} (Tạo lúc: ${task.created_at}) sang IN_PROGRESS.`);
+                } else if (requestedId && requestedId !== "manual" && !isNaN(Number(requestedId))) {
+                  // Nếu không còn task PENDING nào, kiểm tra task theo requestedId (ví dụ trường hợp chạy lại / force)
+                  const reqRes = await client.query(
+                    "SELECT * FROM telegram_tasks WHERE id = $1",
+                    [parseInt(requestedId, 10)]
+                  );
+                  if (reqRes.rows.length > 0) {
+                    task = reqRes.rows[0];
+                    await client.query("UPDATE telegram_tasks SET status = $1, started_at = NOW() WHERE id = $2", ["IN_PROGRESS", task.id]);
+                    console.log(`🎯 [Direct Task] Đã kích hoạt lại Task #${task.id} sang IN_PROGRESS.`);
+                  }
+                }
+
+                await client.end();
+              } catch (err) {
+                console.warn("⚠️ Lỗi truy vấn Database khi claim task:", err.message);
+              }
+            }
+
+            if (task) {
+              taskId = String(task.id);
+              sender = task.sender_name || sender;
+              rawPrompt = (task.analysis || task.raw_prompt || rawPrompt).replace(/<id>/g, taskId);
+              if (task.raw_prompt && (task.raw_prompt.includes("/force") || task.raw_prompt.includes("todo-agent") || task.raw_prompt.includes("/todo"))) {
+                mode = "todo";
+              }
+            }
+
+            setOutput("task_id", taskId);
+            setOutput("prompt", rawPrompt);
+            setOutput("sender_name", sender);
+            setOutput("mode", mode);
+            setOutput("has_task", (taskId && (taskId !== "manual" || rawPrompt)) ? "true" : "false");
+
+            // Gửi thông báo Telegram bắt đầu
             const token = process.env.TELEGRAM_BOT_TOKEN;
             const chatId = process.env.TELEGRAM_ALLOWED_CHAT_ID;
-            if (!token || !chatId) return;
+            if (token && chatId) {
+              const msg = `⏳ <b>[Antigravity GitHub Worker] Đang tiếp nhận Task #${escapeHtml(taskId)}...</b>\n\n` +
+                `👤 <b>Người yêu cầu:</b> @${escapeHtml(sender)}\n` +
+                `🤖 <b>Chế độ:</b> <code>${escapeHtml(mode)}</code>\n` +
+                `📝 <b>Yêu cầu:</b> <code>${escapeHtml(rawPrompt.slice(0, 300))}</code>\n\n` +
+                `🔗 <b>Workflow:</b> <a href="${runUrl}">Theo dõi Live Log Run #${escapeHtml(runId)}</a>`;
 
-            const msg = `⏳ <b>[Antigravity GitHub Worker] Đang tiếp nhận Task #${escapeHtml(taskId)}...</b>\n\n` +
-              `👤 <b>Người yêu cầu:</b> @${escapeHtml(sender)}\n` +
-              `📝 <b>Yêu cầu:</b> <code>${escapeHtml(rawPrompt)}</code>\n\n` +
-              `🔗 <b>Workflow:</b> <a href="${runUrl}">Theo dõi Live Log Run #${escapeHtml(runId)}</a>`;
-
-            try {
-              await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  chat_id: chatId,
-                  text: msg,
-                  parse_mode: "HTML",
-                  reply_markup: {
-                    inline_keyboard: [
-                      [{ text: "⚡ Xem Live Log Trên GitHub", url: runUrl }]
-                    ]
-                  }
-                })
-              });
-            } catch (err) {
-              console.warn("⚠️ Không thể gửi thông báo bắt đầu:", err.message);
+              try {
+                await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    chat_id: chatId,
+                    text: msg,
+                    parse_mode: "HTML",
+                    reply_markup: {
+                      inline_keyboard: [
+                        [{ text: "⚡ Xem Live Log Trên GitHub", url: runUrl }]
+                      ]
+                    }
+                  })
+                });
+              } catch (tgErr) {
+                console.warn("⚠️ Không thể gửi thông báo bắt đầu:", tgErr.message);
+              }
             }
           }
 
-          Promise.allSettled([markInProgress(), notifyStart()]);
+          main().catch(err => {
+            console.error("Lỗi nghiêm trọng tại intake-task:", err);
+            setOutput("has_task", "false");
+          });
           '
 
   # =========================================================================
@@ -138,6 +206,7 @@ jobs:
   execute-task:
     name: "🤖 2. Thực thi AI & Kiểm định Mã Nguồn"
     needs: [intake-task]
+    if: needs.intake-task.outputs.has_task != 'false'
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
@@ -231,8 +300,9 @@ jobs:
         env:
           AGY_SESSION_TOKEN: ${{ secrets.AGY_SESSION_TOKEN }}
           ANTIGRAVITY_API_KEY: ${{ secrets.ANTIGRAVITY_API_KEY }}
-          RAW_PROMPT: ${{ github.event.inputs.prompt || github.event.client_payload.prompt }}
-          MODE: ${{ github.event.inputs.mode || github.event.client_payload.mode || 'leader' }}
+          RAW_PROMPT: ${{ needs.intake-task.outputs.prompt || github.event.inputs.prompt || github.event.client_payload.prompt }}
+          MODE: ${{ needs.intake-task.outputs.mode || github.event.inputs.mode || github.event.client_payload.mode || 'leader' }}
+          TASK_ID: ${{ needs.intake-task.outputs.task_id || github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}
         run: |
           if [ -z "$AGY_SESSION_TOKEN" ] && [ -z "$ANTIGRAVITY_API_KEY" ]; then
             echo "❌ Lỗi: Thiếu secret AGY_SESSION_TOKEN trên GitHub Repository Secrets!"
@@ -523,7 +593,7 @@ jobs:
             const raw = fs.readFileSync(outPath, "utf8").trim();
             if (raw) {
               const lines = raw.split(/\r?\n/);
-              agyRes = lines.slice(-25).join("\n");
+              agyRes = lines.slice(-80).join("\n");
             }
           }
 
@@ -533,7 +603,7 @@ jobs:
           fs.mkdirSync("/tmp/task_summary", { recursive: true });
 
           // Tìm ảnh bằng chứng nghiệm thu trong thư mục feedback của task
-          const taskId = "${{ github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}";
+          const taskId = "${{ needs.intake-task.outputs.task_id || github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}";
           let evidenceFileName = null;
           const feedbacksDir = "feedbacks";
           if (fs.existsSync(feedbacksDir)) {
@@ -592,7 +662,7 @@ jobs:
   # =========================================================================
   finalize-task:
     name: "📢 3. Báo cáo Telegram & Cập nhật Neon DB"
-    needs: [execute-task]
+    needs: [intake-task, execute-task]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -619,7 +689,9 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_ALLOWED_CHAT_ID: ${{ secrets.TELEGRAM_ALLOWED_CHAT_ID }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          TASK_ID: ${{ github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}
+          GH_PAT_TOKEN: ${{ secrets.GH_PAT_TOKEN || secrets.GITHUB_TOKEN }}
+          TASK_ID: ${{ needs.intake-task.outputs.task_id || github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}
+          SENDER: ${{ needs.intake-task.outputs.sender_name || github.event.inputs.sender_name || github.event.client_payload.sender_name || 'User' }}
           EXECUTE_STATUS: ${{ needs.execute-task.result }}
           GITHUB_RUN_ID: ${{ github.run_id }}
           GITHUB_SERVER_URL: ${{ github.server_url }}
@@ -639,6 +711,9 @@ jobs:
           const runUrl = runId ? `${serverUrl}/${repo}/actions/runs/${runId}` : `${serverUrl}/${repo}/actions`;
           const executeStatus = process.env.EXECUTE_STATUS || "failure";
           const taskId = process.env.TASK_ID || "manual";
+          const sender = process.env.SENDER || "User";
+          const token = process.env.TELEGRAM_BOT_TOKEN;
+          const chatId = process.env.TELEGRAM_ALLOWED_CHAT_ID;
 
           let diffSummary = "Không có thay đổi file";
           let detailedError = "";
@@ -661,32 +736,129 @@ jobs:
             detailedError = "Tiến trình thực thi AI gặp sự cố hoặc timeout trong Giai đoạn 2. Chi tiết xem tại log GitHub Actions.";
           }
 
-          if (agyRes.length > 1500) {
-            agyRes = agyRes.slice(0, 1500) + "\n...[cắt bớt do giới hạn Telegram]";
-          }
-          if (diffSummary.length > 1200) {
-            diffSummary = diffSummary.slice(0, 1200) + "\n...[cắt bớt]";
-          }
-
           const statusBadge = executeStatus === "success" ? "🟢 HOÀN THÀNH" : "🔴 THẤT BẠI";
 
-          let text = `${statusBadge}: <b>Task #${escapeHtml(taskId)}</b> trên GitHub Actions Worker\n\n`;
-          if (executeStatus !== "success" && detailedError) {
-            text += `⚠️ <b>Chi tiết lỗi phát sinh:</b>\n<pre>${escapeHtml(detailedError.slice(0, 1200))}</pre>\n\n`;
-          }
-          text += `▫️ <b>1. Kết quả thực thi:</b>\n<pre>${escapeHtml(agyRes)}</pre>\n\n` +
-            `▫️ <b>2. Thống kê Git Diff:</b>\n<pre>${escapeHtml(diffSummary)}</pre>\n\n` +
-            `▫️ <b>Runner:</b> GitHub Actions (Ubuntu)\n` +
-            `▫️ <b>Commit:</b> <code>${escapeHtml(commitHash)}</code> (Branch dev)\n` +
-            `▫️ <b>Workflow Run:</b> <a href="${runUrl}">Chi tiết Run #${escapeHtml(runId)} trên GitHub</a>`;
+          // Thuật toán chia nhỏ chuỗi bảo toàn thẻ HTML của Telegram
+          const SUPPORTED_TAGS = new Set([
+            "b", "strong", "i", "em", "u", "ins", "s", "strike", "del", 
+            "span", "tg-spoiler", "a", "code", "pre", "blockquote"
+          ]);
 
-          const token = process.env.TELEGRAM_BOT_TOKEN;
-          const chatId = process.env.TELEGRAM_ALLOWED_CHAT_ID;
+          function splitTelegramHtml(text, maxLen = 3800, options = {}) {
+            if (!text || typeof text !== "string") return [];
+            const { withPartPrefix = false } = options;
+            if (text.length <= maxLen) return [text];
+
+            const rawChunks = [];
+            let remaining = text;
+            const effectiveMaxLen = withPartPrefix ? Math.max(500, maxLen - 35) : maxLen;
+
+            while (remaining.length > 0) {
+              if (remaining.length <= effectiveMaxLen) {
+                rawChunks.push(remaining);
+                break;
+              }
+
+              let targetIdx = effectiveMaxLen;
+              let splitIdx = remaining.lastIndexOf("\n\n", targetIdx);
+              if (splitIdx === -1 || splitIdx < 1000) {
+                splitIdx = remaining.lastIndexOf("\n", targetIdx);
+              }
+              if (splitIdx === -1 || splitIdx < 1000) {
+                splitIdx = remaining.lastIndexOf(" ", targetIdx);
+              }
+              if (splitIdx === -1 || splitIdx < 500) {
+                splitIdx = targetIdx;
+              }
+
+              const openAngle = remaining.lastIndexOf("<", splitIdx);
+              const closeAngle = remaining.lastIndexOf(">", splitIdx);
+              if (openAngle !== -1 && (closeAngle === -1 || closeAngle < openAngle)) {
+                if (openAngle > 0) {
+                  splitIdx = openAngle;
+                } else {
+                  const nextClose = remaining.indexOf(">", splitIdx);
+                  if (nextClose !== -1) splitIdx = nextClose + 1;
+                }
+              }
+
+              let chunk = remaining.slice(0, splitIdx);
+              let rest = remaining.slice(splitIdx);
+
+              const tagRegex = /<(\/)?([a-z0-9-]+)(?:\s+[^>]*)?>/gi;
+              const openTagStack = [];
+              let match;
+
+              while ((match = tagRegex.exec(chunk)) !== null) {
+                const isClosing = match[1] === "/";
+                const tagName = match[2].toLowerCase();
+                if (!SUPPORTED_TAGS.has(tagName)) continue;
+
+                if (!isClosing) {
+                  openTagStack.push({ name: tagName, fullTag: match[0] });
+                } else {
+                  for (let i = openTagStack.length - 1; i >= 0; i--) {
+                    if (openTagStack[i].name === tagName) {
+                      openTagStack.splice(i, 1);
+                      break;
+                    }
+                  }
+                }
+              }
+
+              if (openTagStack.length > 0) {
+                const closingTags = openTagStack.slice().reverse().map(t => `</${t.name}>`).join("");
+                chunk += closingTags;
+                const openingTags = openTagStack.map(t => t.fullTag).join("");
+                rest = openingTags + rest;
+              }
+
+              rawChunks.push(chunk.trim());
+              remaining = rest.trim();
+            }
+
+            if (!withPartPrefix || rawChunks.length <= 1) return rawChunks;
+            const total = rawChunks.length;
+            return rawChunks.map((c, idx) => `📄 <i>[Phần ${idx + 1}/${total}]</i>\n${c}`);
+          }
+
+          async function postTelegramMessage(payload) {
+            const url = `https://api.telegram.org/bot${token}/sendMessage`;
+            try {
+              const res = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+              });
+              const data = await res.json();
+              if (!data.ok && payload.parse_mode) {
+                console.warn("sendMessage non-ok, retrying without parse_mode:", data.description);
+                payload.text = payload.text.replace(/<[^>]+>/g, "");
+                delete payload.parse_mode;
+                const retryRes = await fetch(url, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(payload)
+                });
+                return await retryRes.json();
+              }
+              return data;
+            } catch (err) {
+              console.error("Network error in postTelegramMessage:", err.message);
+              return null;
+            }
+          }
 
           async function send() {
             if (!token || !chatId) return;
 
-            // Kiểm tra ảnh bằng chứng nghiệm thu trong artifact
+            const keyboard = {
+              inline_keyboard: [
+                [{ text: "🔍 Xem Log GitHub Actions", url: runUrl }]
+              ]
+            };
+
+            // 1. Kiểm tra ảnh bằng chứng nghiệm thu trong artifact
             let evidencePath = null;
             const exts = [".png", ".jpg", ".jpeg", ".webp"];
             for (const ext of exts) {
@@ -696,12 +868,6 @@ jobs:
                 break;
               }
             }
-
-            const keyboard = {
-              inline_keyboard: [
-                [{ text: "🔍 Xem Log GitHub Actions", url: runUrl }]
-              ]
-            };
 
             let photoSent = false;
             if (evidencePath && fs.existsSync(evidencePath)) {
@@ -713,12 +879,13 @@ jobs:
                 formData.append("chat_id", String(chatId));
                 formData.append("photo", blob, path.basename(evidencePath));
 
-                const photoCaption = `${statusBadge}: <b>Task #${escapeHtml(taskId)}</b>\n\n` +
+                const photoCaption = `${statusBadge}: <b>Task #${escapeHtml(taskId)}</b> trên GitHub Actions\n\n` +
+                  `👤 <b>Người yêu cầu:</b> @${escapeHtml(sender)}\n` +
                   `▫️ <b>Runner:</b> GitHub Actions (Ubuntu)\n` +
                   `▫️ <b>Commit:</b> <code>${escapeHtml(commitHash)}</code> (Branch dev)\n` +
                   `▫️ <b>Bằng chứng:</b> <code>${escapeHtml(path.basename(evidencePath))}</code>\n` +
                   (executeStatus !== "success" && detailedError
-                    ? `⚠️ <b>Lỗi:</b> ${escapeHtml(detailedError.slice(0, 300))}\n`
+                    ? `⚠️ <b>Lỗi:</b> ${escapeHtml(detailedError.slice(0, 250))}\n`
                     : `✅ <i>Nghiệm thu thành công và đối soát bằng chứng giao diện.</i>\n`) +
                   `▫️ <b>Workflow:</b> <a href="${runUrl}">Run #${escapeHtml(runId)}</a>`;
 
@@ -742,35 +909,52 @@ jobs:
               }
             }
 
-            // Gửi báo cáo chi tiết qua sendMessage
-            const url = `https://api.telegram.org/bot${token}/sendMessage`;
-            const payload = {
-              chat_id: chatId,
-              text,
-              parse_mode: "HTML",
-              reply_markup: photoSent ? undefined : keyboard
-            };
-            try {
-              const res = await fetch(url, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
+            // Nếu không có ảnh hoặc gửi ảnh lỗi, gửi thẻ tóm tắt Executive Summary Card
+            if (!photoSent) {
+              const summaryCard = `${statusBadge}: <b>Task #${escapeHtml(taskId)}</b> trên GitHub Actions Worker\n\n` +
+                `👤 <b>Người yêu cầu:</b> @${escapeHtml(sender)}\n` +
+                `▫️ <b>Runner:</b> GitHub Actions (Ubuntu)\n` +
+                `▫️ <b>Commit:</b> <code>${escapeHtml(commitHash)}</code> (Branch dev)\n` +
+                (executeStatus !== "success" && detailedError
+                  ? `⚠️ <b>Lỗi chính:</b> ${escapeHtml(detailedError.slice(0, 300))}\n`
+                  : `✅ <i>Hoàn tất kiểm định & nghiệm thu kỹ thuật.</i>\n`) +
+                `▫️ <b>Workflow Run:</b> <a href="${runUrl}">Chi tiết Run #${escapeHtml(runId)} trên GitHub</a>`;
+
+              await postTelegramMessage({
+                chat_id: chatId,
+                text: summaryCard,
+                parse_mode: "HTML",
+                reply_markup: keyboard
               });
-              const data = await res.json();
-              if (!data.ok) {
-                payload.text = text.replace(/<[^>]+>/g, "");
-                delete payload.parse_mode;
-                await fetch(url, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(payload)
-                });
+            }
+
+            // 2. Gửi Chi tiết Lỗi (nếu có, chia nhỏ an toàn nếu vượt quá giới hạn)
+            if (executeStatus !== "success" && detailedError) {
+              const errorBlock = `⚠️ <b>[Task #${escapeHtml(taskId)}] Chi tiết lỗi phát sinh:</b>\n<pre>${escapeHtml(detailedError)}</pre>`;
+              const errorChunks = splitTelegramHtml(errorBlock, 3800, { withPartPrefix: true });
+              for (const ch of errorChunks) {
+                await postTelegramMessage({ chat_id: chatId, text: ch, parse_mode: "HTML" });
               }
-            } catch (err) {
-              console.error("Failed to notify Telegram:", err.message);
+            }
+
+            // 3. Gửi Toàn bộ Kết quả Thực thi / Báo cáo DoD (chia nhỏ an toàn, bảo tồn toàn vẹn log)
+            if (agyRes && agyRes !== "Hoàn tất tác vụ") {
+              const resultBlock = `▫️ <b>[Task #${escapeHtml(taskId)}] Báo cáo kết quả thực thi & DoD:</b>\n<pre>${escapeHtml(agyRes)}</pre>`;
+              const resultChunks = splitTelegramHtml(resultBlock, 3800, { withPartPrefix: true });
+              for (const ch of resultChunks) {
+                await postTelegramMessage({ chat_id: chatId, text: ch, parse_mode: "HTML" });
+              }
+            }
+
+            // 4. Gửi Thống kê Git Diff (nếu có thay đổi mã nguồn)
+            if (diffSummary && diffSummary !== "Không có thay đổi file") {
+              const diffBlock = `▫️ <b>[Task #${escapeHtml(taskId)}] Thống kê Git Diff:</b>\n<pre>${escapeHtml(diffSummary)}</pre>`;
+              const diffChunks = splitTelegramHtml(diffBlock, 3800, { withPartPrefix: true });
+              for (const ch of diffChunks) {
+                await postTelegramMessage({ chat_id: chatId, text: ch, parse_mode: "HTML" });
+              }
             }
           }
-
 
           async function updateDatabase() {
             const dbUrl = process.env.DATABASE_URL;
@@ -792,8 +976,41 @@ jobs:
                 "UPDATE telegram_tasks SET status = $1, completed_at = NOW(), result = $2, error = $3 WHERE id = $4",
                 [newStatus, finalResult, errorVal, parseInt(taskId, 10)]
               );
+              console.log(`✅ Đã cập nhật task #${taskId} sang trạng thái ${newStatus} trong Database.`);
+
+              // TỰ ĐỘNG QUÉT & GIẢI PHÓNG HÀNG ĐỢI (AUTO-DRAIN QUEUE)
+              const remaining = await client.query(
+                "SELECT id, sender_name, raw_prompt FROM telegram_tasks WHERE status = $1 ORDER BY id ASC LIMIT 1",
+                ["PENDING"]
+              );
+              if (remaining.rows.length > 0) {
+                const nextTask = remaining.rows[0];
+                console.log(`🔁 Phát hiện còn Task #${nextTask.id} ("${nextTask.raw_prompt}") đang PENDING trong Database! Đang tự động kích hoạt lượt chạy kế tiếp...`);
+                const ghPat = process.env.GH_PAT_TOKEN;
+                if (ghPat) {
+                  const dispatchRes = await fetch("https://api.github.com/repos/lyquangthai1993/logistics-website/dispatches", {
+                    method: "POST",
+                    headers: {
+                      "Authorization": `Bearer ${ghPat}`,
+                      "Accept": "application/vnd.github+json",
+                      "User-Agent": "Antigravity-Queue-Drainer"
+                    },
+                    body: JSON.stringify({
+                      event_type: "telegram-task",
+                      client_payload: {
+                        task_id: String(nextTask.id)
+                      }
+                    })
+                  });
+                  if (dispatchRes.status === 204) {
+                    console.log(`🚀 Đã tự động kích hoạt GitHub Actions cho Task #${nextTask.id} thành công!`);
+                  } else {
+                    console.warn(`⚠️ Kích hoạt Task #${nextTask.id} trả về status: ${dispatchRes.status}`);
+                  }
+                }
+              }
+
               await client.end();
-              console.log(`✅ Đã cập nhật task #${taskId} sang trạng thái ${newStatus} trong Database (error: ${errorVal ? "Có" : "Không"}).`);
             } catch (dbErr) {
               console.warn("⚠️ Không thể cập nhật Database telegram_tasks:", dbErr.message);
             }

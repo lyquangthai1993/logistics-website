@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { spawn, execSync } from 'node:child_process';
 import pg from 'pg';
 import { getTodayTasksSummary } from '../../scripts/todo-agent.mjs';
+import { splitTelegramHtml } from './split-html.mjs';
 
 const { Pool } = pg;
 const __filename = fileURLToPath(import.meta.url);
@@ -166,32 +167,12 @@ function markdownToTelegramHtml(markdown) {
   return text.trim();
 }
 
-// Gửi tin nhắn Telegram (chia nhỏ nếu vượt quá 4000 ký tự)
-async function sendTelegramMessage(chatId, text, parseMode = 'HTML', replyMarkup = null) {
+// Gửi tin nhắn Telegram (chia nhỏ nếu vượt quá 3800 ký tự bằng thuật toán bảo toàn HTML)
+async function sendTelegramMessage(chatId, text, parseMode = 'HTML', replyMarkup = null, options = {}) {
   if (!text) return null;
-  const MAX_LEN = 3900;
-  const chunks = [];
-
-  if (text.length <= MAX_LEN) {
-    chunks.push(text);
-  } else {
-    let remaining = text;
-    while (remaining.length > 0) {
-      if (remaining.length <= MAX_LEN) {
-        chunks.push(remaining);
-        break;
-      }
-      let splitIdx = remaining.lastIndexOf('\n\n', MAX_LEN);
-      if (splitIdx === -1 || splitIdx < 1000) {
-        splitIdx = remaining.lastIndexOf('\n', MAX_LEN);
-      }
-      if (splitIdx === -1 || splitIdx < 1000) {
-        splitIdx = MAX_LEN;
-      }
-      chunks.push(remaining.slice(0, splitIdx).trim());
-      remaining = remaining.slice(splitIdx).trim();
-    }
-  }
+  const chunks = parseMode === 'HTML'
+    ? splitTelegramHtml(text, 3800, { withPartPrefix: true, ...options })
+    : [text];
 
   let lastRes = null;
   for (let i = 0; i < chunks.length; i++) {
