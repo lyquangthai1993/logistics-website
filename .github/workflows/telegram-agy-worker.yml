@@ -54,7 +54,10 @@ jobs:
           git config --global user.name "Antigravity AI Worker"
           git config --global user.email "antigravity-bot@users.noreply.github.com"
 
-          echo "🔄 Đang chuyển tất cả submodule sang nhánh dev..."
+          echo "🔄 Đang chuyển tất cả submodule và root sang nhánh dev..."
+          git checkout dev 2>/dev/null || git checkout -B dev origin/dev
+          git pull origin dev || true
+
           if [ -d "backend" ]; then
             cd backend
             git checkout dev 2>/dev/null || git checkout -B dev origin/dev
@@ -198,7 +201,7 @@ jobs:
             git config --global url."https://x-access-token:${GH_PAT_TOKEN}@github.com/".insteadOf "https://github.com/"
           fi
 
-          # Hàm commit có cơ chế tự động sửa lỗi và thử lại (Fix & Retry Loop tối đa 3 lần, KHÔNG bypass --no-verify)
+          # Hàm commit có cơ chế tự động sửa lỗi và thử lại (Fix & Retry Loop tối đa 3 lần, an toàn khi stage rỗng)
           commit_with_self_healing() {
             local dir=$1
             local msg=$2
@@ -210,10 +213,18 @@ jobs:
               
               if [ "$dir" = "." ]; then
                 git add -A
+                if git diff --cached --quiet; then
+                  echo "ℹ️ Stage tại $dir/ không có thay đổi mới nào. Bỏ qua commit."
+                  return 0
+                fi
                 COMMIT_OUT=$(git commit -m "$msg" 2>&1)
                 COMMIT_CODE=$?
               else
                 git -C "$dir" add -A
+                if git -C "$dir" diff --cached --quiet; then
+                  echo "ℹ️ Stage tại $dir/ không có thay đổi mới nào. Bỏ qua commit."
+                  return 0
+                fi
                 COMMIT_OUT=$(git -C "$dir" commit -m "$msg" 2>&1)
                 COMMIT_CODE=$?
               fi
@@ -259,12 +270,45 @@ jobs:
             return 1
           }
 
+          # Hàm push an toàn chống race condition / non-fast-forward rejection với auto rebase và retry
+          push_with_retry() {
+            local dir=$1
+            local max_retries=3
+            local attempt=1
+
+            while [ $attempt -le $max_retries ]; do
+              echo "🚀 [Lần push $attempt/$max_retries] Đang đồng bộ và push tại $dir..."
+              if [ "$dir" = "." ]; then
+                git pull --rebase origin dev || true
+                if HUSKY=0 git push --no-verify origin dev; then
+                  echo "✅ Push thành công tại root repo!"
+                  return 0
+                fi
+              else
+                git -C "$dir" pull --rebase origin dev || true
+                if HUSKY=0 git -C "$dir" push --no-verify origin dev; then
+                  echo "✅ Push thành công tại $dir!"
+                  return 0
+                fi
+              fi
+              echo "⚠️ Push tại $dir bị từ chối (có thể remote vừa nhận commit mới), thử rebase và push lại sau 2s..."
+              sleep 2
+              attempt=$((attempt + 1))
+            done
+
+            echo "❌ Push tại $dir thất bại sau $max_retries lần thử."
+            return 1
+          }
+
           # 1. Submodule Backend
           if [ -d "backend" ] && [ -n "$HAS_BE" ]; then
             echo "📦 Đang xử lý commit & push trong backend/..."
-            git -C backend checkout dev 2>/dev/null || git -C backend checkout -B dev origin/dev
+            git -C backend checkout dev 2>/dev/null || git -C backend switch dev 2>/dev/null || true
             if commit_with_self_healing "backend" "feat(backend): task #${TASK_ID} auto-implemented by Antigravity worker"; then
-              HUSKY=0 git -C backend push --no-verify origin dev
+              if ! push_with_retry "backend"; then
+                echo "❌ Backend push thất bại, dừng quy trình push."
+                exit 1
+              fi
             else
               echo "❌ Backend commit thất bại, dừng quy trình push."
               exit 1
@@ -274,9 +318,12 @@ jobs:
           # 2. Submodule Frontend
           if [ -d "frontend" ] && [ -n "$HAS_FE" ]; then
             echo "📦 Đang xử lý commit & push trong frontend/..."
-            git -C frontend checkout dev 2>/dev/null || git -C frontend checkout -B dev origin/dev
+            git -C frontend checkout dev 2>/dev/null || git -C frontend switch dev 2>/dev/null || true
             if commit_with_self_healing "frontend" "feat(frontend): task #${TASK_ID} auto-implemented by Antigravity worker"; then
-              HUSKY=0 git -C frontend push --no-verify origin dev
+              if ! push_with_retry "frontend"; then
+                echo "❌ Frontend push thất bại, dừng quy trình push."
+                exit 1
+              fi
             else
               echo "❌ Frontend commit thất bại, dừng quy trình push."
               exit 1
@@ -285,9 +332,12 @@ jobs:
 
           # 3. Root Repository (cập nhật submodule pointer và feedback artifacts)
           echo "📦 Đang commit & push thay đổi trong root repo..."
-          git checkout dev 2>/dev/null || git checkout -B dev origin/dev
+          git checkout dev 2>/dev/null || git switch dev 2>/dev/null || true
           if commit_with_self_healing "." "chore(task): update task #${TASK_ID} artifacts and submodules"; then
-            HUSKY=0 git push --no-verify origin dev
+            if ! push_with_retry "."; then
+              echo "❌ Root repo push thất bại, dừng quy trình push."
+              exit 1
+            fi
           else
             echo "❌ Root repo commit thất bại, dừng quy trình push."
             exit 1
