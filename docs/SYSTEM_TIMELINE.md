@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 14/10/2026 | `feedbacks/feedback_14_10_task_73` | Task Checklist: Feedback 14/10 (Task #73) — Hiển Thị... | 10/10 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_73/RESOLUTION.md) |
 | 14/10/2026 | `feedbacks/feedback_14_10_task_71` | Feedback 14/10 (Task #71) — Cố Định Cột Mã Vận Đơn K... | 14/14 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_71/RESOLUTION.md) |
 | 14/10/2026 | `feedbacks/feedback_14_10_task_70` | Feedback 14/10 (Task #70) — Loại Bỏ Nút Mũi Tên Mở R... | 16/16 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_70/RESOLUTION.md) |
 | 14/10/2026 | `feedbacks/feedback_14_10_task_53` | Feedback 14/10 (Task #53) — Thay Thế Cột "ĐIỂM BỐC H... | 15/15 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_53/RESOLUTION.md) |
@@ -58,6 +59,16 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_14_10_TASK_73] — Task Checklist: Feedback 14/10 (Task #73) — Hiển Thị Nội Dung Cột Tỉnh/TP Tại Ô "GIAO ĐẾN" Trên Tem Nhận Diện Hàng Hóa A4 (14/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (10/10 việc)
+- **Năng lực & Tính năng mới**:
+  * **Frontend**: Cập nhật file `frontend/src/features/warehouse/components/pallet-label-a4-modal.tsx`; Đảo thứ tự ưu tiên: Ưu tiên trường `province` (hoặc `destinationCity` / `destinationProvince`) lên đầu tiên cho `destinationDisplay` và `itemDestDisplay`.; Hỗ trợ hàm trích xuất fallback thông minh: nếu `province` trống nhưng `deliveryAddress` / `originalDestination` có chứa tên Tỉnh/TP ở cuối chuỗi địa chỉ thì trích xuất hoặc fallback an toàn....
+  * **Cơ sở dữ liệu**: Sinh biên bản kỹ thuật `RESOLUTION.md` và đồng bộ `docs/SYSTEM_TIMELINE.md` qua `npm run todo:record feedback_14_10_task_73`.; Cập nhật Task #73 thành `COMPLETED` trong database `telegram_tasks`.
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_01_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_14_10_task_73/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_14_10_task_73/TODO.md)
 
 ### 🚀 [FEEDBACK_14_10_TASK_71] — Feedback 14/10 (Task #71) — Cố Định Cột Mã Vận Đơn Khi Cuộn Ngang (Sticky Column) và Khóa Chặt Nghiệp Vụ Mobile (Chỉ Xem & In Tem Nhận Diện, Loại Bỏ Chỉnh Sửa, Thêm, Xóa Trong Trip Nhập/Xuất Kho) (14/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (14/14 việc)
