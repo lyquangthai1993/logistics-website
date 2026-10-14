@@ -182,20 +182,50 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
+
+      - name: "3.1. Khôi phục Cache Dependencies (Root, Backend, Frontend)"
+        id: deps-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            backend/node_modules
+            frontend/node_modules
+            ~/.npm
+          key: npm-deps-${{ runner.os }}-${{ hashFiles('package-lock.json', 'backend/package-lock.json', 'frontend/package-lock.json') }}
+          restore-keys: |
+            npm-deps-${{ runner.os }}-
 
       - name: "4. Cài đặt Project Dependencies"
+        if: steps.deps-cache.outputs.cache-hit != 'true'
         run: |
-          npm ci || npm install
-          if [ -d "backend" ]; then (cd backend && npm ci || npm install); fi
-          if [ -d "frontend" ]; then (cd frontend && npm ci || npm install); fi
+          echo "📦 Cache miss: Đang cài đặt dependencies cho các dự án..."
+          npm install --prefer-offline --no-audit || npm install
+          if [ -d "backend" ]; then (cd backend && npm install --prefer-offline --no-audit || npm install); fi
+          if [ -d "frontend" ]; then (cd frontend && npm install --prefer-offline --no-audit || npm install); fi
+
+      - name: "4.1. Khôi phục Cache Antigravity CLI (agy)"
+        id: agy-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.local/bin/agy
+            ~/.local/share/antigravity
+            ~/bin/agy
+          key: agy-cli-${{ runner.os }}
 
       - name: "5. Cài đặt Antigravity CLI (agy)"
         run: |
-          echo "⬇️ Đang cài đặt Antigravity CLI..."
-          curl -fsSL --compressed https://antigravity.google/cli/install.sh | bash
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           echo "$HOME/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+          if command -v agy >/dev/null 2>&1; then
+            echo "⚡ Khôi phục Antigravity CLI từ Cache thành công: $(agy --version 2>/dev/null || echo 'ready')"
+          else
+            echo "⬇️ Đang cài đặt Antigravity CLI mới từ Google..."
+            curl -fsSL --compressed https://antigravity.google/cli/install.sh | bash
+          fi
+
 
       - name: "6. Khởi chạy Antigravity CLI (Headless Mode)"
         env:
@@ -473,6 +503,7 @@ jobs:
         run: |
           node -e '
           const fs = require("fs");
+          const path = require("path");
           const { execSync } = require("child_process");
 
           let diffSummary = "Không có thay đổi file";
@@ -499,14 +530,51 @@ jobs:
           let commitHash = "unknown";
           try { commitHash = execSync("git rev-parse --short HEAD", { encoding: "utf8" }).trim(); } catch (_) {}
 
+          fs.mkdirSync("/tmp/task_summary", { recursive: true });
+
+          // Tìm ảnh bằng chứng nghiệm thu trong thư mục feedback của task
+          const taskId = "${{ github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}";
+          let evidenceFileName = null;
+          const feedbacksDir = "feedbacks";
+          if (fs.existsSync(feedbacksDir)) {
+            const folders = fs.readdirSync(feedbacksDir).filter(f => {
+              if (taskId && taskId !== "manual") return f.includes(`task_${taskId}`);
+              return f.startsWith("feedback_");
+            });
+            folders.sort().reverse();
+            for (const f of folders) {
+              const fPath = path.join(feedbacksDir, f);
+              if (!fs.statSync(fPath).isDirectory()) continue;
+              const files = fs.readdirSync(fPath);
+              const verified = files.find(x => /screenshot_.*verified\.(png|jpg|webp)$/i.test(x));
+              let evImg = null;
+              const testEvDir = path.join(fPath, "test-evidence");
+              if (fs.existsSync(testEvDir)) {
+                const evList = fs.readdirSync(testEvDir).filter(x => /\.(png|jpg|webp)$/i.test(x));
+                if (evList.length > 0) evImg = path.join(testEvDir, evList[evList.length - 1]);
+              }
+              const anyImg = files.filter(x => /screenshot_.*\.(png|jpg|webp)$/i.test(x)).pop();
+
+              const chosen = verified ? path.join(fPath, verified) : (evImg || (anyImg ? path.join(fPath, anyImg) : null));
+              if (chosen && fs.existsSync(chosen)) {
+                const ext = path.extname(chosen).toLowerCase() || ".png";
+                const dest = path.join("/tmp/task_summary", `evidence${ext}`);
+                fs.copyFileSync(chosen, dest);
+                evidenceFileName = `evidence${ext}`;
+                console.log(`📸 Đã sao chép ảnh bằng chứng nghiệm thu: ${chosen} -> ${dest}`);
+                break;
+              }
+            }
+          }
+
           const data = {
             diffSummary,
             detailedError,
             agyRes,
-            commitHash
+            commitHash,
+            evidenceFileName
           };
 
-          fs.mkdirSync("/tmp/task_summary", { recursive: true });
           fs.writeFileSync("/tmp/task_summary/summary.json", JSON.stringify(data, null, 2));
           console.log("✅ Đã ghi nhận tổng hợp kết quả sang /tmp/task_summary/summary.json");
           '
@@ -516,7 +584,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: task-summary-artifact
-          path: /tmp/task_summary/summary.json
+          path: /tmp/task_summary/
           retention-days: 1
 
   # =========================================================================
@@ -559,6 +627,7 @@ jobs:
         run: |
           node -e '
           const fs = require("fs");
+          const path = require("path");
 
           function escapeHtml(str) {
             return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -575,6 +644,7 @@ jobs:
           let detailedError = "";
           let agyRes = "Hoàn tất tác vụ";
           let commitHash = "unknown";
+          let evidenceFileName = null;
 
           if (fs.existsSync("/tmp/task_summary/summary.json")) {
             try {
@@ -583,6 +653,7 @@ jobs:
               if (parsed.detailedError) detailedError = parsed.detailedError;
               if (parsed.agyRes) agyRes = parsed.agyRes;
               if (parsed.commitHash) commitHash = parsed.commitHash;
+              if (parsed.evidenceFileName) evidenceFileName = parsed.evidenceFileName;
             } catch (_) {}
           }
 
@@ -614,16 +685,59 @@ jobs:
 
           async function send() {
             if (!token || !chatId) return;
+
+            // Kiểm tra ảnh bằng chứng nghiệm thu trong artifact
+            let evidencePath = null;
+            const exts = [".png", ".jpg", ".jpeg", ".webp"];
+            for (const ext of exts) {
+              const p = `/tmp/task_summary/evidence${ext}`;
+              if (fs.existsSync(p)) {
+                evidencePath = p;
+                break;
+              }
+            }
+
+            const keyboard = {
+              inline_keyboard: [
+                [{ text: "🔍 Xem Log GitHub Actions", url: runUrl }]
+              ]
+            };
+
+            // Nếu có ảnh bằng chứng nghiệm thu -> Dùng sendPhoto kèm caption
+            if (evidencePath && fs.existsSync(evidencePath)) {
+              console.log(`📸 Phát hiện ảnh bằng chứng nghiệm thu: ${evidencePath}. Đang gửi qua Telegram sendPhoto...`);
+              try {
+                const fileBuffer = fs.readFileSync(evidencePath);
+                const blob = new Blob([fileBuffer]);
+                const formData = new FormData();
+                formData.append("chat_id", String(chatId));
+                formData.append("photo", blob, path.basename(evidencePath));
+                formData.append("caption", text.slice(0, 1020));
+                formData.append("parse_mode", "HTML");
+                formData.append("reply_markup", JSON.stringify(keyboard));
+
+                const photoRes = await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+                  method: "POST",
+                  body: formData
+                });
+                const photoData = await photoRes.json();
+                if (photoData.ok) {
+                  console.log("✅ Đã gửi ảnh bằng chứng nghiệm thu thành công lên Telegram!");
+                  return;
+                }
+                console.warn("sendPhoto non-ok, falling back to sendMessage:", photoData.description);
+              } catch (pErr) {
+                console.warn("Lỗi khi gửi sendPhoto:", pErr.message);
+              }
+            }
+
+            // Fallback gửi qua sendMessage thông thường
             const url = `https://api.telegram.org/bot${token}/sendMessage`;
             const payload = {
               chat_id: chatId,
               text,
               parse_mode: "HTML",
-              reply_markup: {
-                inline_keyboard: [
-                  [{ text: "🔍 Xem Log GitHub Actions", url: runUrl }]
-                ]
-              }
+              reply_markup: keyboard
             };
             try {
               const res = await fetch(url, {
@@ -645,6 +759,7 @@ jobs:
               console.error("Failed to notify Telegram:", err.message);
             }
           }
+
 
           async function updateDatabase() {
             const dbUrl = process.env.DATABASE_URL;
