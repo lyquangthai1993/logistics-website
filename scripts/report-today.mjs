@@ -53,14 +53,15 @@ const client = new Client({
 await client.connect();
 
 const sql = `
-  SELECT id, sender_name, substring(raw_prompt from 1 for 70) as task_name, status, 
+  SELECT id, task_id, sender_name, substring(raw_prompt from 1 for 70) as task_name, status, 
          to_char(created_at AT TIME ZONE 'Asia/Ho_Chi_Minh', 'HH24:MI') as created_time,
          to_char(completed_at AT TIME ZONE 'Asia/Ho_Chi_Minh', 'HH24:MI') as completed_time,
          substring(error from 1 for 100) as error_msg
   FROM telegram_tasks 
-  WHERE (created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh')::date
-     OR (completed_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh')::date
-  ORDER BY id ASC;
+  WHERE task_id IS NOT NULL 
+    AND ((created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh')::date
+     OR (completed_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh')::date)
+  ORDER BY task_id ASC;
 `;
 
 const res = await client.query(sql);
@@ -112,7 +113,7 @@ if (rows.length === 0) {
 
     const time = t.completed_time || t.created_time || '';
     const safeTitle = (t.task_name || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    text += `${icon} <b>#${t.id} [${statusLabel}]</b> <code>(${time})</code>: ${safeTitle}\n`;
+    text += `${icon} <b>#${t.task_id || t.id} [${statusLabel}]</b> <code>(${time})</code>: ${safeTitle}\n`;
     if (t.error_msg && icon === '❌') {
       const safeErr = t.error_msg.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').slice(0, 100);
       text += `   ⚠️ <i>Lỗi: ${safeErr}</i>\n`;

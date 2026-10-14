@@ -62,14 +62,14 @@ if (isReportToday) {
       chat_id: cId,
       message_id: mId,
       sender_name: sender,
-      sql: "SELECT id, sender_name, substring(raw_prompt from 1 for 70) as task_name, status, " +
+      sql: "SELECT id, task_id, sender_name, substring(raw_prompt from 1 for 70) as task_name, status, " +
            "to_char(created_at AT TIME ZONE 'Asia/Ho_Chi_Minh', 'HH24:MI') as created_time, " +
            "to_char(completed_at AT TIME ZONE 'Asia/Ho_Chi_Minh', 'HH24:MI') as completed_time, " +
            "substring(error from 1 for 100) as error_msg " +
            "FROM telegram_tasks " +
-           "WHERE (created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh')::date " +
-           "   OR (completed_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh')::date " +
-           "ORDER BY id ASC;"
+           "WHERE task_id IS NOT NULL AND ((created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh')::date " +
+           "   OR (completed_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh')::date) " +
+           "ORDER BY task_id ASC;"
     }
   }];
 }
@@ -143,15 +143,15 @@ function sqlEscape(str) {
   return String(str).replace(/'/g, \"''\");
 }
 
-const sql = \"SELECT add_telegram_task('\" + 
-  sqlEscape(cId) + \"', '\" + 
-  sqlEscape(mId) + \"', '\" + 
-  sqlEscape(sender) + \"', '\" + 
-  sqlEscape(cleanText) + \"', '\" + 
-  sqlEscape(promptForDB) + \"', \" + 
-  (mediaGroupId ? (\"'\" + sqlEscape(mediaGroupId) + \"'\") : \"NULL\") + \", \" + 
-  (photoFileId ? (\"'\" + sqlEscape(photoFileId) + \"'\") : \"NULL\") + 
-\") AS id;\";
+const sql = "SELECT * FROM add_telegram_task('" + 
+  sqlEscape(cId) + "', '" + 
+  sqlEscape(mId) + "', '" + 
+  sqlEscape(sender) + "', '" + 
+  sqlEscape(cleanText) + "', '" + 
+  sqlEscape(promptForDB) + "', " + 
+  (mediaGroupId ? ("'" + sqlEscape(mediaGroupId) + "'") : "NULL") + ", " + 
+  (photoFileId ? ("'" + sqlEscape(photoFileId) + "'") : "NULL") + 
+");";
 
 return [{
   json: {
@@ -171,7 +171,7 @@ return [{
 `.trim();
 
   const formatReportCode = `
-const rows = $input.all().map(item => item.json).filter(r => r.id);
+const rows = $input.all().map(item => item.json).filter(r => r.id && r.task_id != null);
 const promptNode = $('Format Leader Prompt').first().json;
 const chatId = promptNode?.chat_id || '-5509877448';
 
@@ -220,7 +220,7 @@ if (rows.length === 0) {
 
     const time = t.completed_time || t.created_time || '';
     const safeTitle = (t.task_name || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    text += icon + ' <b>#' + t.id + ' [' + statusLabel + ']</b> <code>(' + time + ')</code>: ' + safeTitle + '\\n';
+    text += icon + ' <b>#' + (t.task_id || t.id) + ' [' + statusLabel + ']</b> <code>(' + time + ')</code>: ' + safeTitle + '\\n';
     if (t.error_msg && icon === '❌') {
       const safeErr = t.error_msg.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').slice(0, 100);
       text += '   ⚠️ <i>Lỗi: ' + safeErr + '</i>\\n';
@@ -364,7 +364,7 @@ return [{
         },
         sendBody: true,
         specifyBody: 'json',
-        jsonBody: '={{ JSON.stringify({\n  event_type: "telegram-task",\n  client_payload: {\n    task_id: $("Enqueue Task to Neon DB").item.json.id?.toString() || "manual",\n    prompt: (($("Format Leader Prompt").item.json.analysis || $("Format Leader Prompt").item.json.raw_prompt) || "").replace(/<id>/g, $("Enqueue Task to Neon DB").item.json.id?.toString() || ""),\n    sender_name: $("Format Leader Prompt").item.json.sender_name,\n    mode: $("Format Leader Prompt").item.json.mode_badge?.includes("todo-agent") ? "todo" : "leader"\n  }\n}) }}',
+        jsonBody: '={{ JSON.stringify({\n  event_type: "telegram-task",\n  client_payload: {\n    task_id: ($("Enqueue Task to Neon DB").item.json.task_id != null ? $("Enqueue Task to Neon DB").item.json.task_id.toString() : ($("Enqueue Task to Neon DB").item.json.id?.toString() || "manual")),\n    db_id: $("Enqueue Task to Neon DB").item.json.id?.toString() || "",\n    prompt: (($("Format Leader Prompt").item.json.analysis || $("Format Leader Prompt").item.json.raw_prompt) || "").replace(/<id>/g, ($("Enqueue Task to Neon DB").item.json.task_id != null ? $("Enqueue Task to Neon DB").item.json.task_id.toString() : ($("Enqueue Task to Neon DB").item.json.id?.toString() || "")),\n    sender_name: $("Format Leader Prompt").item.json.sender_name,\n    mode: $("Format Leader Prompt").item.json.mode_badge?.includes("todo-agent") ? "todo" : "leader"\n  }\n}) }}',
         options: {}
       },
       id: 'trigger-github-actions-node',

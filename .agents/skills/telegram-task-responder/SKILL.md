@@ -100,6 +100,13 @@ Every response must open with a direct status badge and a 1-sentence verdict on 
   - *Model tối ưu*: **Gemini 2.5 Flash / Gemini 3.8 Flash**.
   - *Đặc tính*: Tốc độ siêu tốc, độ trễ thấp, định dạng mobile-first ngắn gọn không thừa thãi, tổng hợp kết quả test và đồng bộ timeline tức thì.
 
+### Rule 8: Task ID vs. Execution Control Commands (task_id Mandate)
+- **`telegram_tasks.task_id` Specification**:
+  - `task_id` is a sequential operational counter assigned exclusively to actual feedback/work tasks.
+  - Rows with `raw_prompt` containing `/force` (e.g. `/force@please_choose_auto_bot`, `/force feedback_...`) are execution control triggers, NOT new tasks. Their `task_id` is strictly `NULL`.
+  - In Telegram reports, progress summaries, and folder names, always reference tasks via `task_id` (`#<task_id>`, `feedbacks/feedback_DD_MM_task_<task_id>`), NEVER the internal database auto-increment `id`.
+  - All `/report-today`, queue metrics, and summary cards filter `WHERE task_id IS NOT NULL`, preventing `/force` triggers from polluting task lists or inflating task counters.
+
 ---
 
 ## 3. Recommended Output Templates for Telegram
