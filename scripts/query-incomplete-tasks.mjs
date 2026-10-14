@@ -41,18 +41,17 @@ const client = new Client({
 
 await client.connect();
 
-// Query chuẩn xác lọc các task nghiệp vụ thực tế chưa hoàn thành (bỏ qua các lệnh điều khiển bot như /force, /cancel, /help, /todo)
+// Query chuẩn xác lọc các task nghiệp vụ thực tế chưa hoàn thành (loại trừ task_id null và các task đã COMPLETED/CANCELLED)
 const query = `
-  SELECT id, message_id, sender_name, raw_prompt, status, created_at,
+  SELECT id, task_id, message_id, sender_name, raw_prompt, status, created_at,
          jsonb_array_length(image_file_ids) as photo_count
   FROM telegram_tasks
-  WHERE status NOT IN ('COMPLETED', 'CANCELLED')
-    AND raw_prompt NOT ILIKE '/force%'
+  WHERE task_id IS NOT NULL
+    AND status NOT IN ('COMPLETED', 'CANCELLED')
     AND raw_prompt NOT ILIKE '/help%'
     AND raw_prompt NOT ILIKE '/start%'
     AND raw_prompt NOT ILIKE '/cancel%'
-    AND raw_prompt NOT ILIKE '/todo%'
-  ORDER BY id ASC
+  ORDER BY task_id ASC
 `;
 
 const res = await client.query(query);
@@ -62,7 +61,7 @@ console.log(`📋 DANH SÁCH TASK CHƯA HOÀN THÀNH THỰC TẾ (${res.rows.len
 console.log(`========================================`);
 
 for (const t of res.rows) {
-  console.log(`\n🔹 Task #${t.id} [${t.status}] - Người gửi: ${t.sender_name} | Ảnh: ${t.photo_count}`);
+  console.log(`\n🔹 Task #${t.task_id || t.id} [${t.status}] - Người gửi: ${t.sender_name} | Ảnh: ${t.photo_count}`);
   console.log(`   ⏰ Ghi nhận: ${t.created_at}`);
   console.log(`   📝 Nội dung: ${t.raw_prompt}`);
 }

@@ -14,6 +14,8 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 14/10/2026 | `feedbacks/feedback_14_10_task_81` | Feedback 14/10 (Task #81) — Cơ Chế Mở Lại Chuyến Xe ... | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_81/RESOLUTION.md) |
+| 14/10/2026 18:30:00 | `feedbacks/feedback_14_10_extra` | Feedback 14/10 (Extra) — Xây Dựng Công Cụ Chuyển Đổi... | 16/16 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_extra/RESOLUTION.md) |
 | 14/10/2026 17:15:00 | `feedbacks/feedback_14_10_task_78` | Feedback 14/10 (Task #78) — Tự Động Hiển Thị Modal P... | 24/24 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_78/RESOLUTION.md) |
 | 14/10/2026 16:55:00 | `feedbacks/feedback_14_10_task_77` | Feedback 14/10 (Task #77) — Khảo Sát & Chuẩn Hóa Cơ ... | 24/24 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_77/RESOLUTION.md) |
 | 14/10/2026 15:10:00 | `feedbacks/feedback_14_10_task_76` | Feedback 14/10 (Task #76) — Bổ Sung & Chuẩn Hóa Thôn... | 29/29 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_76/RESOLUTION.md) |
@@ -62,6 +64,28 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_14_10_TASK_81] — Feedback 14/10 (Task #81) — Cơ Chế Mở Lại Chuyến Xe & Hoàn Tác (Rollback) Tồn Kho Đơn Hàng Dành Cho Quản Trị Viên (Admin Reopen Trip & Inventory Rollback Invariant) (14/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (12/12 việc)
+- **Báo cáo bởi**: @Mai Công Đức / @Thai / @User (Quản lý nghiệp vụ / Vận hành TMS) & Antigravity Lead Engine
+- **Phạm vi**: Quản lý Nhập kho (`/warehouse/inbound`) ➔ Bảng điều phối chuyến xe nhập kho, Modal Chi tiết Phiếu nhập kho & Tiếp nhận ([`WarehouseTripDetailModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) • Quản lý Xuất kho (`/warehouse/outbound`) ➔ Bảng điều phối chuyến xe xuất kho, Modal Chi tiết Chuyến xe xuất & Bước 2 Xuất hàng ([`WarehouseTripDetailModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)), Chi tiết Phiếu xuất kho ([`WarehouseWaybillDetailModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-waybill-detail-modal.tsx)) • Quản lý Đơn hàng kho (`/warehouse/orders`) ➔ Bảng kê hàng hóa tồn kho, trạng thái đơn hàng (`INBOUND`, `OUT_FOR_DELIVERY`, `TRANSFERRING`) • Backend Service Quản lý Kho bãi & Sổ cái vận hành ([`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts), [`warehouse.controller.ts`](file:///backend/src/orders/warehouse.controller.ts), [`operational-ledger.service.ts`](file:///backend/src/orders/operational-ledger.service.ts))
+- **Năng lực & Tính năng mới**:
+  * **Backend**: 1. Bổ sung Endpoint Rollback Chuyến xe trong [`warehouse.controller.ts`](file:///backend/src/orders/warehouse.controller.ts); 2. Cài đặt Hàm Nghiệp vụ `rollbackTrip` trong [`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts); 3. Cập nhật Sổ cái Vận hành [`operational-ledger.service.ts`](file:///backend/src/orders/operational-ledger.service.ts)**....
+  * **Frontend**: 1. Bổ sung API Client Method trong `frontend/src/features/warehouse/api/trip-manifest.ts`; 2. Tinh chỉnh Logic `effectiveReadOnly` trong [`WarehouseTripDetailModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx); 3. Thiết kế Nút Bấm & Modal Xác Nhận Hoàn Tác (Rollback Confirmation Modal)...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_14_10_task_81/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_14_10_task_81/TODO.md)
+
+### 🚀 [FEEDBACK_14_10_EXTRA] — Feedback 14/10 (Extra) — Xây Dựng Công Cụ Chuyển Đổi & Chuẩn Hóa File Excel Nhập Kho Từ Điều Hành Sang Mẫu Chuẩn Hệ Thống (Excel Inbound Converter Tool) (14/10/2026 18:30:00)
+- **Trạng thái**: ✅ Hoàn thành 100% (16/16 việc)
+- **Báo cáo bởi**: @User / Thủ kho Spider Express (@Thai & Đội ngũ vận hành)
+- **Phạm vi**: **Công cụ Tiện ích Kho Vận (Warehouse Operational Utilities & Tools)**: • Trang công cụ chuyên dụng: [`/dashboard/warehouse/excel-converter`](file:///d:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/excel-converter/page.tsx) • Tích hợp trực tiếp tại Màn hình Nhập kho: Nút mở bộ chuyển đổi nhanh trên thanh công cụ [`page.tsx`](file:///d:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/inbound/page.tsx) • Cải tiến bộ phân tích tự động trong Modal Nhập Excel: [`warehouse-excel-import-modal.tsx`](file:///d:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-excel-import-modal.tsx) • Khả năng tương thích cơ chế Dán thông minh (Smart TSV Clipboard Paste): [`warehouse-editable-grid.tsx`](file:///d:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-editable-grid.tsx) • **Phân quyền truy cập RBAC (Role-Based Access Control)**: • Cập nhật điều kiện lọc thanh điều hướng [`use-nav.ts`](file:///d:/Projects/logistics-website/frontend/src/hooks/use-nav.ts) cho vai trò `WAREHOUSE_MANAGER` và `DISPATCHER`
+- **Năng lực & Tính năng mới**:
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: image.png, screenshot_converter_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_14_10_extra/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_14_10_extra/TODO.md)
 
 ### 🚀 [FEEDBACK_14_10_TASK_78] — Feedback 14/10 (Task #78) — Tự Động Hiển Thị Modal Phiếu Nhập Kho Khi Bấm Xác Nhận Nhập Kho (Đồng Bộ Trải Nghiệm In Ấn Với Luồng Xuất Kho) (14/10/2026 17:15:00)
 - **Trạng thái**: ✅ Hoàn thành 100% (24/24 việc)

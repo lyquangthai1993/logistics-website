@@ -48,19 +48,19 @@ if (inProgressRes.rows.length === 0) {
   console.log('Không có task nào đang IN_PROGRESS trong DB.');
 } else {
   for (const row of inProgressRes.rows) {
-    console.log(`🔹 Task #${row.id} - Người gửi: ${row.sender_name} | Bắt đầu lúc: ${row.started_at}`);
+    console.log(`🔹 Task #${row.task_id || row.id} - Người gửi: ${row.sender_name} | Bắt đầu lúc: ${row.started_at}`);
     console.log(`   Nội dung: ${row.prompt_preview}`);
   }
 }
 
 const pendingRes = await client.query(`
-  SELECT id, sender_name, substring(raw_prompt from 1 for 100) as prompt_preview, status, created_at
+  SELECT id, task_id, sender_name, substring(raw_prompt from 1 for 100) as prompt_preview, status, created_at
   FROM telegram_tasks
-  WHERE status = 'PENDING'
-    AND raw_prompt NOT ILIKE '/force%'
+  WHERE task_id IS NOT NULL
+    AND status = 'PENDING'
     AND raw_prompt NOT ILIKE '/help%'
     AND raw_prompt NOT ILIKE '/cancel%'
-  ORDER BY id ASC
+  ORDER BY task_id ASC
 `);
 
 console.log('\n=== [DATABASE] TASKS ĐANG PENDING ===');
@@ -68,7 +68,7 @@ if (pendingRes.rows.length === 0) {
   console.log('Không còn task nào PENDING.');
 } else {
   for (const row of pendingRes.rows) {
-    console.log(`⏳ Task #${row.id} - Người gửi: ${row.sender_name} | Tạo lúc: ${row.created_at}`);
+    console.log(`⏳ Task #${row.task_id || row.id} - Người gửi: ${row.sender_name} | Tạo lúc: ${row.created_at}`);
     console.log(`   Nội dung: ${row.prompt_preview}`);
   }
 }

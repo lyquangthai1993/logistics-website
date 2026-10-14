@@ -1035,7 +1035,7 @@ let activeProcess = null;
 
 // Thực thi tác vụ thông qua Antigravity CLI (agy)
 async function executeAgyTask(task) {
-  const taskId = task.id;
+  const taskId = task.task_id || task.id;
   const chatId = task.chat_id || ALLOWED_CHAT_ID;
   const rawPrompt = task.raw_prompt;
   const senderName = task.sender_name || 'User';
@@ -1760,6 +1760,7 @@ async function initDatabase() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS telegram_tasks (
       id SERIAL PRIMARY KEY,
+      task_id INTEGER,
       chat_id VARCHAR(50),
       sender_name VARCHAR(100),
       raw_prompt TEXT NOT NULL,
@@ -1773,7 +1774,9 @@ async function initDatabase() {
       started_at TIMESTAMP WITH TIME ZONE,
       completed_at TIMESTAMP WITH TIME ZONE
     );
+    ALTER TABLE telegram_tasks ADD COLUMN IF NOT EXISTS task_id INTEGER;
     CREATE INDEX IF NOT EXISTS idx_telegram_tasks_status ON telegram_tasks(status, id ASC);
+    CREATE INDEX IF NOT EXISTS idx_telegram_tasks_task_id ON telegram_tasks(task_id);
   `);
 }
 

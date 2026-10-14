@@ -86,6 +86,10 @@ All operations performed by the `todo-agent` MUST strictly adhere to the project
      - *Model đề xuất*: **Gemini 2.5 Flash / Gemini 3.8 Flash (hoặc Pro)**.
      - *Nhiệm vụ*: Tốc độ cao, độ trễ thấp; giám sát chạy Playwright E2E, chạy AST static analysis với `scripts/e2e-auditor.mjs`, thu thập screenshot evidence, sinh `RESOLUTION.md` và đồng bộ `docs/SYSTEM_TIMELINE.md`, phát thông báo Telegram mobile-first.
 
+10. **Database Task ID Filtering Invariant (Loại trừ task_id NULL)**:
+    - Khi truy vấn các task cần làm hoặc quét hàng đợi từ database `telegram_tasks` (thông qua lệnh `npm run task:pending` hoặc script `scripts/query-incomplete-tasks.mjs`), `todo-agent` BẮT BUỘC chỉ lọc các dòng có `task_id IS NOT NULL` (`WHERE task_id IS NOT NULL AND status NOT IN ('COMPLETED', 'CANCELLED')`).
+    - Các dòng có `task_id IS NULL` (như các lệnh điều khiển bot `/force`, `/force@please_choose_auto_bot`) là trigger thực thi hệ thống, KHÔNG ĐƯỢC tính là task nghiệp vụ và KHÔNG ĐƯỢC sinh thư mục feedback hay checklist `TODO.md` mới.
+
 ---
 
 ## 3. Feedback Directory Structure & Scanner Engine
@@ -131,6 +135,10 @@ npm run todo:record feedback_07_10_task_12
 # 6. View the Chronological Evolutionary Timeline of all system milestones
 npm run todo:timeline
 # or: node scripts/todo-agent.mjs timeline
+
+# 7. Scan pending incomplete operational tasks from queue (strictly excludes task_id IS NULL / /force commands)
+npm run task:pending
+# or: node scripts/query-incomplete-tasks.mjs
 ```
 
 ---
