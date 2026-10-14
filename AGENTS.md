@@ -91,7 +91,10 @@ Whenever the user refers to, asks for, or mentions **"domain pro"** (hoặc "dom
 
 ## Model Selection Strategy & Guidelines (3-Phase Hybrid Pipeline)
 - 🧠 **Pha 1: Phân tích Feedback, Multimodal OCR & Lập Plan (`/plan`, Discovery)**: Ưu tiên **Gemini Pro (Gemini 2.5 Pro / 3.8 Pro)** nhờ cửa sổ ngữ cảnh khổng lồ (1M–2M tokens), khả năng native multimodal đọc hiểu ảnh chụp màn hình lỗi giao diện trong folder feedback (`feedback_DD_MM*`), bóc tách RCA và sinh checklist nguyên tử `TODO.md` kèm kịch bản E2E & Edge Cases.
-- 💻 **Pha 2: Thực thi, Triển khai Code & Refactoring (`/fix`, `/task`, Coding)**: Ưu tiên **Claude Sonnet (Claude 3.5 Sonnet / 3.7 Sonnet)** cho Backend NestJS và Frontend Next.js/Tailwind. Đảm bảo tỷ lệ code chạy đúng ngay lần đầu (First-pass rate) cao nhất, tuân thủ strict TypeScript, cấm triệt để class cấm (`p-4`, `gap-4`) và không gây lỗi hồi quy logic.
+- 💻 **Pha 2: Thực thi, Triển khai Code & Refactoring (`/fix`, `/task`, Coding)**:
+  - *Primary*: **Claude Sonnet (Claude 3.5 Sonnet / 3.7 Sonnet)** cho Backend NestJS và Frontend Next.js/Tailwind. Đảm bảo tỷ lệ code chạy đúng ngay lần đầu (First-pass rate) cao nhất, tuân thủ strict TypeScript, cấm triệt để class cấm (`p-4`, `gap-4`) và không gây lỗi hồi quy logic.
+  - *Fallback / Token-Saving Backup (Dự phòng khi Claude hết quota/token)*: Tự động chuyển sang **Gemini 2.5 Pro / 3.8 Pro** (kết hợp bắt buộc chạy `ui-spacing-guard` và `npx tsc --noEmit` để rà soát code). Với các hotfix nhỏ, sửa hàm đơn lẻ hoặc thêm field entity có thể dùng **Gemini 2.5 Flash / 3.8 Flash (Thinking)** để tiết kiệm tối đa quota.
+  - *Token Preservation Protocol*: Không nạp log thô hoặc context dài vào Claude; Gemini ở Pha 1 chịu trách nhiệm cô đọng thành `TODO.md` và file diff tối giản để Claude chỉ nhận chỉ dẫn ngắn và sửa đúng file đích.
 - ⚡ **Pha 3: Kiểm thử, Cross-Audit, Biên Niên Sử & Báo cáo (Verification & Delivery)**: Ưu tiên **Gemini Flash (Gemini 2.5 Flash / 3.8 Flash)** nhờ tốc độ cực nhanh và độ trễ thấp; điều phối Playwright E2E runner, audit tĩnh qua `scripts/e2e-auditor.mjs`, đồng bộ [`docs/SYSTEM_TIMELINE.md`](file:///d:/Projects/logistics-website/docs/SYSTEM_TIMELINE.md) và xuất báo cáo Telegram theo chuẩn mobile-first.
 
 ## Registered Skills & Agents

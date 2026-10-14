@@ -79,8 +79,9 @@ All operations performed by the `todo-agent` MUST strictly adhere to the project
      - *Model đề xuất*: **Gemini 2.5 Pro / Gemini 3.8 Pro**.
      - *Nhiệm vụ*: Cửa sổ ngữ cảnh khổng lồ (1M–2M tokens) nuốt trọn context dự án và tài liệu specs; khả năng native multimodal đọc ảnh chụp màn hình lỗi giao diện trong folder feedback; bóc tách RCA và sinh `TODO.md` chi tiết kèm kịch bản E2E & ma trận Edge Cases.
    - **Phase 2: Triển khai Code & Refactoring (Execution & Coding)**:
-     - *Model đề xuất*: **Claude 3.5 Sonnet / Claude 3.7 Sonnet**.
-     - *Nhiệm vụ*: First-pass rate cao nhất cho TypeScript, NestJS 11 và Next.js 15 App Router; tuân thủ nghiêm ngặt quy chuẩn Compact Density (`p-1`, `p-2`, cấm tuyệt đối `p-4`), bảo đảm typing chặt chẽ, sửa code chuẩn xác từng chunk và không gây lỗi hồi quy logic phụ cận.
+     - *Model chính (Primary)*: **Claude 3.5 Sonnet / Claude 3.7 Sonnet** — Đạt first-pass rate cao nhất cho TypeScript, NestJS 11 và Next.js 15 App Router; tuân thủ nghiêm ngặt Compact Density (`p-1`, `p-2`, cấm `p-4`), sửa code chuẩn xác từng chunk và không gây lỗi hồi quy logic.
+     - *Dự phòng hết token (Fallback / Quota Exhaustion)*: Chuyển sang **Gemini 2.5 Pro / Gemini 3.8 Pro** (bắt buộc chạy `ui-spacing-guard` kiểm tra regex class cấm và `npx tsc --noEmit` trước khi merge). Với các hotfix nhỏ, thêm field entity hoặc sửa 1-2 hàm đơn giản, có thể dùng **Gemini 2.5 Flash / 3.8 Flash (Thinking)** để tiết kiệm quota.
+     - *Giao thức tiết kiệm token cho Claude*: Claude không bao giờ nhận context thô hay log dài; Gemini ở Pha 1 chịu trách nhiệm tóm tắt RCA và blueprint vào `TODO.md`, Claude chỉ nhận chỉ dẫn ngắn và thao tác trực tiếp trên các file đích.
    - **Phase 3: Chạy Test, Cross-Audit & Biên Niên Sử (Verification & Timeline Recording)**:
      - *Model đề xuất*: **Gemini 2.5 Flash / Gemini 3.8 Flash (hoặc Pro)**.
      - *Nhiệm vụ*: Tốc độ cao, độ trễ thấp; giám sát chạy Playwright E2E, chạy AST static analysis với `scripts/e2e-auditor.mjs`, thu thập screenshot evidence, sinh `RESOLUTION.md` và đồng bộ `docs/SYSTEM_TIMELINE.md`, phát thông báo Telegram mobile-first.
