@@ -14,7 +14,8 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
-| 14/10/2026 | `feedbacks/feedback_14_10_task_54` | Feedback 14/10 (Task #54) — Thiết Kế Đồng Bộ 2 Nút "... | 17/17 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_54/RESOLUTION.md) |
+| 14/10/2026 | `feedbacks/feedback_14_10_task_53` | Feedback 14/10 (Task #53) — Thay Thế Cột "ĐIỂM BỐC H... | 15/15 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_53/RESOLUTION.md) |
+| 14/10/2026 | `feedbacks/feedback_14_10_task_54` | Feedback 14/10 (Task #54) — Thiết Kế Đồng Bộ 2 Nút "... | 21/21 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_54/RESOLUTION.md) |
 | 14/10/2026 | `feedbacks/feedback_14_10_task_52` | Feedback 14/10 (Task #52) — Loại Bỏ Tiêu Đề "Kiểm Đế... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_52/RESOLUTION.md) |
 | 14/10/2026 | `feedbacks/feedback_14_10_task_51` | Feedback 14/10 (Task #51) — Cho Phép Chọn Đơn Hàng N... | 14/14 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_51/RESOLUTION.md) |
 | 13/10/2026 | `feedbacks/feedback_13_10_task_46` | Feedback 13/10 (Task #46) — Chuẩn hóa Nút "Tiếp tục"... | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_46/RESOLUTION.md) |
@@ -56,18 +57,29 @@
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
 
-### 🚀 [FEEDBACK_14_10_TASK_54] — Feedback 14/10 (Task #54) — Thiết Kế Đồng Bộ 2 Nút "Tiếp tục" & "Hủy nháp" Trên Màn Hình Nhập Kho Tương Tự Màn Hình Xuất Kho (14/10/2026)
-- **Trạng thái**: ✅ Hoàn thành 100% (17/17 việc)
+### 🚀 [FEEDBACK_14_10_TASK_53] — Feedback 14/10 (Task #53) — Thay Thế Cột "ĐIỂM BỐC HÀNG" Bằng "BIỂN SỐ XE NHẬP DỰ KIẾN" Trong Màn Hình Xem Đơn Hàng Trip Xuất Kho (14/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (15/15 việc)
 - **Báo cáo bởi**: @【M】【C】【D】 / @Thai (Quản lý nghiệp vụ / Vận hành TMS)
-- **Phạm vi**: Frontend ([`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx)) ➔ Bổ sung nút "Hủy nháp" (variant outline đỏ, icon `IconTrash`, kích thước `h-7`, `text-[11px]`) đứng cạnh nút "Tiếp tục" cho các chuyến xe trạng thái `Chờ xử lý` (`isPending`). • Backend Controller ([`warehouse.controller.ts`](file:///backend/src/orders/warehouse.controller.ts)) ➔ Thêm endpoint `DELETE /api/v1/warehouse/inbound/drafts/:tripCode` cho phép thủ kho / Super Admin hủy chuyến xe nhập nháp chưa xử lý. • Backend Service ([`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts)) ➔ Cài đặt phương thức `cancelInboundDraft` xử lý transaction soft-delete `trip_stop`, `order` nháp và `trip` nháp an toàn. • N8N Task Router & GitHub Actions CI/CD ([`update-n8n-router.mjs`](file:///tools/telegram-task-runner/update-n8n-router.mjs), [`.github/workflows/telegram-agy-worker.yml`](file:///.github/workflows/telegram-agy-worker.yml)) ➔ Sửa lỗi đường dẫn tuyệt đối Windows và siết chặt Quality Gate ngăn báo cáo hoàn thành khống khi 0 file bị sửa.
+- **Phạm vi**: Backend Service ([`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts)) ➔ Bổ sung trường `expectedInboundLicensePlate` vào DTO đơn hàng kho trong `enrichWarehouseRows` & `getOutboundTrips`. • Bảng dữ liệu Kho ([`warehouse-editable-grid.tsx`](file:///frontend/src/features/warehouse/components/warehouse-editable-grid.tsx)) ➔ Mở rộng interface `WarehouseRowItem` với trường `expectedInboundLicensePlate`. • Modal Chi tiết Chuyến xe ([`warehouse-trip-detail-modal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) ➔ Thay thế header cột "ĐIỂM BỐC HÀNG" thành "BIỂN SỐ XE NHẬP DỰ KIẾN", hiển thị icon xe tải + biển số cho đơn nháp chờ nhập, hiển thị gạch ngang `—` cho đơn đã lưu kho. • Kiểm thử tự động E2E ([`53-feedback-14-10-task-53-expected-inbound-plate.spec.ts`](file:///frontend/e2e/53-feedback-14-10-task-53-expected-inbound-plate.spec.ts)).
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Mở rộng hàm `enrichWarehouseRows` tính toán trường `expectedInboundLicensePlate`.; Logic: Nếu đơn `isStored = true` ➔ trả về `null`.; Logic: Nếu đơn `isStored = false` ➔ quét `item.trips` tìm chuyến xe nhập hàng (`type === 'INBOUND'` hoặc không phải `OUTBOUND`/`TRANSFER`) ở trạng thái chờ xử lý (`status === 'PENDING'` hoặc `'WAITING'`), trích xuất `licensePlate`....
+  * **Frontend**: Cập nhật interface `WarehouseRowItem` trong [`warehouse-editable-grid.tsx`](file:///frontend/src/features/warehouse/components/warehouse-editable-grid.tsx) bổ sung `expectedInboundLicensePlate?: string | null`.; Cập nhật [`warehouse-trip-detail-modal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx); Khi map dữ liệu sang `mappedRows`, gán `expectedInboundLicensePlate`....
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_14_10_task_53/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_14_10_task_53/TODO.md)
+
+### 🚀 [FEEDBACK_14_10_TASK_54] — Feedback 14/10 (Task #54) — Thiết Kế Đồng Bộ 2 Nút "Tiếp tục" & "Hủy nháp" Trên Màn Hình Nhập Kho Tương Tự Màn Hình Xuất Kho (14/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (21/21 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 / @Thai (Quản lý nghiệp vụ / Vận hành TMS)
+- **Phạm vi**: Frontend ([`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx)) ➔ Bổ sung nút "Hủy nháp" (variant outline đỏ, icon `IconTrash`, kích thước `h-7`, `text-[11px]`) đứng cạnh nút "Tiếp tục" cho các chuyến xe trạng thái `Chờ xử lý` (`isPending`). • Backend Controller ([`warehouse.controller.ts`](file:///backend/src/orders/warehouse.controller.ts)) ➔ Thêm endpoint `DELETE /api/v1/warehouse/inbound/drafts/:tripCode` cho phép thủ kho / Super Admin hủy chuyến xe nhập nháp chưa xử lý. • Backend Service ([`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts)) ➔ Cài đặt phương thức `cancelInboundDraft` xử lý transaction soft-delete `trip_stop`, `order` nháp và `trip` nháp an toàn. • Kiểm thử tự động E2E ([`54-feedback-14-10-task-54-inbound-draft-cancel-buttons.spec.ts`](file:///frontend/e2e/54-feedback-14-10-task-54-inbound-draft-cancel-buttons.spec.ts)) ➔ Xác nhận API 404 cho mã giả định, cấu trúc hiển thị 2 nút bấm trên bảng Nhập kho, chụp ảnh bằng chứng nghiệm thu. • N8N Task Router & GitHub Actions CI/CD ([`update-n8n-router.mjs`](file:///tools/telegram-task-runner/update-n8n-router.mjs), [`.github/workflows/telegram-agy-worker.yml`](file:///.github/workflows/telegram-agy-worker.yml)) ➔ Sửa lỗi đường dẫn tương đối và siết chặt Quality Gate ngăn báo cáo hoàn thành khống khi 0 file bị sửa.
 - **Năng lực & Tính năng mới**:
   * **Backend**: Tạo endpoint `DELETE /api/v1/warehouse/inbound/drafts/:tripCode` trong [`warehouse.controller.ts`](file:///backend/src/orders/warehouse.controller.ts) với quyền `SUPER_ADMIN, WAREHOUSE_MANAGER`.; Triển khai hàm `cancelInboundDraft` trong [`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts) với transaction an toàn; Soft-delete bản ghi trạm dừng `trip_stop` tương ứng trạng thái `PENDING` tại Hub....
   * **Frontend**: Bổ sung import `IconTrash` trong [`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx).; Thêm state `cancellingDraftCode` quản lý trạng thái loading khi đang xóa chuyến nháp.; Cài đặt hàm `handleCancelDraft(tripCode: string)`...
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
-  * Minh chứng hình ảnh: screenshot_01.jpg
+  * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_01_verified.png, screenshot_inbound_board_verified.png
 - **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_14_10_task_54/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_14_10_task_54/TODO.md)
-
 ### 🚀 [FEEDBACK_14_10_TASK_52] — Feedback 14/10 (Task #52) — Loại Bỏ Tiêu Đề "Kiểm Đếm Dỡ Hàng & Nhập Kho" Và Nút "Bốc Thêm Đơn Dọc Đường" Ở Màn Hình Xem Đơn Hàng Trong Trip Xuất, Nhập Tạo Mới Từ Hub Của Account (14/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (9/9 việc)
 - **Báo cáo bởi**: @【M】【C】【D】 / @Thai (Quản lý nghiệp vụ / Vận hành TMS)

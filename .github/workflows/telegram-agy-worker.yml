@@ -703,7 +703,7 @@ jobs:
               ]
             };
 
-            // Nếu có ảnh bằng chứng nghiệm thu -> Dùng sendPhoto kèm caption
+            let photoSent = false;
             if (evidencePath && fs.existsSync(evidencePath)) {
               console.log(`📸 Phát hiện ảnh bằng chứng nghiệm thu: ${evidencePath}. Đang gửi qua Telegram sendPhoto...`);
               try {
@@ -712,7 +712,17 @@ jobs:
                 const formData = new FormData();
                 formData.append("chat_id", String(chatId));
                 formData.append("photo", blob, path.basename(evidencePath));
-                formData.append("caption", text.slice(0, 1020));
+
+                const photoCaption = `${statusBadge}: <b>Task #${escapeHtml(taskId)}</b>\n\n` +
+                  `▫️ <b>Runner:</b> GitHub Actions (Ubuntu)\n` +
+                  `▫️ <b>Commit:</b> <code>${escapeHtml(commitHash)}</code> (Branch dev)\n` +
+                  `▫️ <b>Bằng chứng:</b> <code>${escapeHtml(path.basename(evidencePath))}</code>\n` +
+                  (executeStatus !== "success" && detailedError
+                    ? `⚠️ <b>Lỗi:</b> ${escapeHtml(detailedError.slice(0, 300))}\n`
+                    : `✅ <i>Nghiệm thu thành công và đối soát bằng chứng giao diện.</i>\n`) +
+                  `▫️ <b>Workflow:</b> <a href="${runUrl}">Run #${escapeHtml(runId)}</a>`;
+
+                formData.append("caption", photoCaption);
                 formData.append("parse_mode", "HTML");
                 formData.append("reply_markup", JSON.stringify(keyboard));
 
@@ -723,21 +733,22 @@ jobs:
                 const photoData = await photoRes.json();
                 if (photoData.ok) {
                   console.log("✅ Đã gửi ảnh bằng chứng nghiệm thu thành công lên Telegram!");
-                  return;
+                  photoSent = true;
+                } else {
+                  console.warn("sendPhoto non-ok:", photoData.description);
                 }
-                console.warn("sendPhoto non-ok, falling back to sendMessage:", photoData.description);
               } catch (pErr) {
                 console.warn("Lỗi khi gửi sendPhoto:", pErr.message);
               }
             }
 
-            // Fallback gửi qua sendMessage thông thường
+            // Gửi báo cáo chi tiết qua sendMessage
             const url = `https://api.telegram.org/bot${token}/sendMessage`;
             const payload = {
               chat_id: chatId,
               text,
               parse_mode: "HTML",
-              reply_markup: keyboard
+              reply_markup: photoSent ? undefined : keyboard
             };
             try {
               const res = await fetch(url, {
