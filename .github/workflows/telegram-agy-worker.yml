@@ -681,6 +681,7 @@ jobs:
           GH_PAT_TOKEN: ${{ secrets.GH_PAT_TOKEN || secrets.GITHUB_TOKEN }}
           TASK_ID: ${{ needs.intake-task.outputs.task_id || github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}
           SENDER: ${{ needs.intake-task.outputs.sender_name || github.event.inputs.sender_name || github.event.client_payload.sender_name || 'User' }}
+          RAW_PROMPT: ${{ needs.intake-task.outputs.prompt || github.event.inputs.prompt || github.event.client_payload.prompt || '' }}
           MODE: ${{ needs.intake-task.outputs.mode || 'leader' }}
           EXECUTE_STATUS: ${{ needs.execute-task.result }}
           GITHUB_RUN_ID: ${{ github.run_id }}
@@ -855,6 +856,30 @@ jobs:
             const isLeaderMode = mode === "leader";
             const isDone = executeStatus === "success";
 
+            let rawPrompt = (process.env.RAW_PROMPT || "").trim();
+            const dbUrl = process.env.DATABASE_URL;
+
+            // Nếu chưa có rawPrompt từ output, đọc trực tiếp từ DB
+            if (!rawPrompt && dbUrl && taskId && taskId !== "manual" && !isNaN(Number(taskId))) {
+              try {
+                const { Client } = require("pg");
+                const cl = new Client({
+                  connectionString: dbUrl,
+                  ssl: dbUrl.includes("neon.tech") ? { rejectUnauthorized: false } : false
+                });
+                await cl.connect();
+                const r = await cl.query("SELECT raw_prompt FROM telegram_tasks WHERE id = $1", [parseInt(taskId, 10)]);
+                if (r.rows.length > 0 && r.rows[0].raw_prompt) {
+                  rawPrompt = r.rows[0].raw_prompt.trim();
+                }
+                await cl.end();
+              } catch (_) {}
+            }
+
+            const promptLine = rawPrompt
+              ? `📝 <b>Yêu cầu:</b> <i>"${escapeHtml(rawPrompt.length > 250 ? rawPrompt.slice(0, 247) + '...' : rawPrompt)}"</i>\n`
+              : "";
+
             let titleHeader = "";
             let statusSubtext = "";
             let finalTaskStatus = "FAILED";
@@ -898,6 +923,7 @@ jobs:
 
                 const photoCaption = `${titleHeader}\n\n` +
                   `👤 <b>Người yêu cầu:</b> @${escapeHtml(sender)}\n` +
+                  promptLine +
                   `▫️ <b>Commit:</b> <code>${escapeHtml(commitHash)}</code> (Branch dev)\n` +
                   `▫️ <b>Bằng chứng:</b> <code>${escapeHtml(path.basename(evidencePath))}</code>\n` +
                   (isLeaderMode ? `📋 <i>Đã tổng hợp kế hoạch TODO.md.</i>\n\n` : `✅ <i>Nghiệm thu thành công và đối soát bằng chứng giao diện.</i>\n\n`) +
@@ -927,6 +953,7 @@ jobs:
             if (!photoSent) {
               const summaryCard = `${titleHeader}\n\n` +
                 `👤 <b>Người yêu cầu:</b> @${escapeHtml(sender)}\n` +
+                promptLine +
                 `▫️ <b>Commit:</b> <code>${escapeHtml(commitHash)}</code> (Branch dev)\n` +
                 statusSubtext +
                 `🔗 <a href="${runUrl}">Xem chi tiết Live Log Run #${escapeHtml(runId)}</a>`;
