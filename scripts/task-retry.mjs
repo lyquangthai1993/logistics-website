@@ -110,12 +110,18 @@ try {
       }
     }
 
+    let promptWithImage = task.raw_prompt;
+    if (imageRel) {
+      promptWithImage = `Ảnh đính kèm feedback: ${imageRel}\n\n` + task.raw_prompt;
+    }
+
     const payload = {
       ref: 'master',
       inputs: {
         task_id: String(taskId),
-        raw_prompt: task.raw_prompt,
-        image_path: imageRel
+        prompt: promptWithImage,
+        sender_name: task.sender_name || 'User',
+        mode: 'leader'
       }
     };
 
