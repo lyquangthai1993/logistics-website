@@ -1077,6 +1077,7 @@ async function executeAgyTask(task) {
     feedbackDir = WORKSPACE_DIR;
   } else if (isTodoAgentMode) {
     if (!feedbackDir) {
+      // 1. Kiểm tra nếu có tên thư mục trực tiếp: feedback_14_10...
       const match = rawPrompt.match(/(?:feedbacks[\\/])?feedback_\d{1,2}_\d{1,2}[a-zA-Z0-9_]*/i);
       if (match) {
         const folderName = path.basename(match[0]);
@@ -1090,8 +1091,26 @@ async function executeAgyTask(task) {
       }
     }
     if (!feedbackDir) {
+      // 2. Kiểm tra nếu người dùng truyền mã số task: ví dụ /force 53 hoặc /force task_53
+      const numMatch = rawPrompt.match(/(?:(?:task[_\s]*)|\/force(?:@\w+)?\s+|#)(\d+)/i);
+      if (numMatch) {
+        const targetId = numMatch[1];
+        const feedbacksRoot = path.join(WORKSPACE_DIR, 'feedbacks');
+        if (fs.existsSync(feedbacksRoot)) {
+          const matched = fs.readdirSync(feedbacksRoot).find(f => f.includes(`task_${targetId}`));
+          if (matched) {
+            feedbackDir = path.join(feedbacksRoot, matched);
+          }
+        }
+      }
+    }
+    if (!feedbackDir) {
+      // 3. Fallback: Lấy thư mục hôm nay ĐANG CHƯA HOÀN TẤT (bỏ qua các thư mục đã có RESOLUTION.md)
       const todaySummary = getTodayTasksSummary(WORKSPACE_DIR);
-      if (todaySummary.pendingFolders.length > 0) {
+      const uncompletedFolders = todaySummary.folders.filter(f => !fs.existsSync(path.join(f.folderPath, 'RESOLUTION.md')) || f.tasks.pending > 0);
+      if (uncompletedFolders.length > 0) {
+        feedbackDir = uncompletedFolders[0].folderPath;
+      } else if (todaySummary.pendingFolders.length > 0) {
         feedbackDir = todaySummary.pendingFolders[0].folderPath;
       } else if (todaySummary.folders.length > 0) {
         feedbackDir = todaySummary.folders[0].folderPath;

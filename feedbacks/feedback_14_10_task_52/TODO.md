@@ -103,7 +103,7 @@ flowchart TD
 
 ### 1. Frontend (`frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx`)
 
-- [ ] **Bổ sung computed helper nhận diện Chuyến xe tạo mới từ Hub hiện tại (`isTripOriginHere`)**:
+- [x] **Bổ sung computed helper nhận diện Chuyến xe tạo mới từ Hub hiện tại (`isTripOriginHere`)**:
   ```typescript
   const currentHubId = manifest?.currentHubId ?? user?.hubId ?? (user?.hub as any)?.id;
 
@@ -141,14 +141,14 @@ flowchart TD
   }, [mode, isTransferTrip, manifest, currentHubId, tripGroup]);
   ```
 
-- [ ] **Loại bỏ khối tiêu đề phụ `Kiểm đếm dỡ hàng & Nhập kho` (Phần khoanh đỏ 1)**:
+- [x] **Loại bỏ khối tiêu đề phụ `Kiểm đếm dỡ hàng & Nhập kho` (Phần khoanh đỏ 1)**:
   - Vị trí: Dưới thanh Header Bar (`L906-L915`).
   - Điều kiện ẩn: Khi `readOnly === true`, HOẶC `effectiveReadOnly === true`, HOẶC `mode === 'OUTBOUND'`, HOẶC `isTripOriginHere === true`:
     * Không render thẻ `<h2>` chứa icon `<IconBuildingWarehouse />` và chữ *"Kiểm đếm dỡ hàng & Nhập kho"*.
     * Chỉ giữ lại khi người dùng đang thực hiện tác nghiệp dỡ hàng thực tế (`!effectiveReadOnly && mode === 'INBOUND' && isTransferTrip && !isTripOriginHere`).
   - Kết quả: Thanh Header trở nên gọn gàng, tinh tế, loại bỏ hoàn toàn tình trạng sai lệch thuật ngữ khi xem đơn hàng trên chuyến xe.
 
-- [ ] **Loại bỏ triệt để nút `+ Bốc thêm đơn dọc đường về Hub` (Phần khoanh đỏ 2)**:
+- [x] **Loại bỏ triệt để nút `+ Bốc thêm đơn dọc đường về Hub` (Phần khoanh đỏ 2)**:
   - Vị trí: Thanh công cụ tiêu đề bảng dòng hàng (`L1184-L1206`).
   - Thay thế điều kiện hiển thị cũ:
     ```tsx
@@ -185,21 +185,21 @@ flowchart TD
     ```
   - Kết quả: Nút này biến mất 100% trên màn hình xem đơn hàng (`readOnly = true`), trên màn hình xuất kho (`mode = 'OUTBOUND'`), và trên các chuyến xe tạo mới từ Hub của tài khoản.
 
-- [ ] **Rà soát thông báo trạng thái chốt sổ cái tồn kho**:
+- [x] **Rà soát thông báo trạng thái chốt sổ cái tồn kho**:
   - Tại dòng `L1035-L1051`: Câu thông báo *"Chuyến xe đã chốt sổ cái tồn kho nhập tại kho này"* chỉ hiển thị khi thực sự có tác nghiệp nhập kho trước đó; đối với chuyến xuất kho hoặc chuyến tạo mới tại quầy, đảm bảo nội dung thông báo phản ánh đúng bản chất chuyến xe hoặc ẩn đi nếu không áp dụng.
 
 ---
 
 ### 2. Frontend Outbound & Inbound Pages Integration Verification
 
-- [ ] **Kiểm tra màn hình Xuất kho ([`outbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/outbound/page.tsx))**:
+- [x] **Kiểm tra màn hình Xuất kho ([`outbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/outbound/page.tsx))**:
   - Khi click vào mã chuyến xe `tripCode` trên bảng danh sách Xuất kho:
     * Modal `WarehouseTripDetailModal` mở lên ở chế độ `readOnly={true}`, `mode='OUTBOUND'`.
     * Xác nhận **KHÔNG CÒN** dòng chữ *"Kiểm đếm dỡ hàng & Nhập kho"*.
     * Xác nhận **KHÔNG CÒN** nút `[+ Bốc thêm đơn dọc đường về Hub]`.
     * Bảng danh sách hiển thị đầy đủ các đơn hàng trên chuyến xe kèm số kiện, kg, m³ và nút in tem.
 
-- [ ] **Kiểm tra màn hình Nhập kho ([`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx))**:
+- [x] **Kiểm tra màn hình Nhập kho ([`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx))**:
   - Khi click vào mã chuyến xe `tripCode` của một chuyến xe tạo mới tại Hub (như `SD49` - Khách gửi trực tiếp):
     * Modal mở lên ở chế độ xem (`isTripViewModalOpen`, `readOnly={true}`).
     * Xác nhận **KHÔNG CÒN** dòng chữ *"Kiểm đếm dỡ hàng & Nhập kho"*.
@@ -212,11 +212,11 @@ flowchart TD
 
 ### 3. Kiểm thử & Đảm bảo chất lượng (Verification & Quality Gate)
 
-- [ ] **Kiểm tra Type Safety & Spacing Guard**:
+- [x] **Kiểm tra Type Safety & Spacing Guard**:
   - Chạy `npx tsc --noEmit` trong thư mục `frontend/` đảm bảo không có bất kỳ lỗi biên dịch TypeScript nào.
   - Tuân thủ nghiêm ngặt quy chuẩn `ui-compact-density`: không sinh các class cấm (`p-4`, `gap-4`, `space-y-3`), giữ khoảng cách hẹp và tối ưu hóa diện tích hiển thị.
 
-- [ ] **Xây dựng bộ kiểm thử tự động Playwright E2E ([`52-trip-detail-view-clean-header-and-no-roadside.spec.ts`](file:///frontend/e2e/52-trip-detail-view-clean-header-and-no-roadside.spec.ts))**:
+- [x] **Xây dựng bộ kiểm thử tự động Playwright E2E ([`52-trip-detail-view-clean-header-and-no-roadside.spec.ts`](file:///frontend/e2e/52-trip-detail-view-clean-header-and-no-roadside.spec.ts))**:
   - **Kịch bản 1 (Inbound View Modal Cleanliness)**:
     1. Đăng nhập tài khoản Thủ kho (`WAREHOUSE_MANAGER`).
     2. Truy cập `/dashboard/warehouse/inbound`.
@@ -236,7 +236,7 @@ flowchart TD
     1. Kiểm tra chuyến xe luân chuyển liên Hub đến từ Hub khác ở chế độ tác nghiệp (`handleResumeInboundTrip`).
     2. Xác nhận quy trình dỡ hàng liên Hub không bị lỗi.
 
-- [ ] **Lưu bằng chứng nghiệm thu & Cập nhật Biên niên sử**:
+- [x] **Lưu bằng chứng nghiệm thu & Cập nhật Biên niên sử**:
   - Lưu ảnh chụp màn hình kiểm thử vào `feedbacks/feedback_14_10_task_52/`.
   - Cập nhật kết quả vào `feedbacks/feedback_14_10_task_52/RESOLUTION.md` và `docs/SYSTEM_TIMELINE.md`.
 
