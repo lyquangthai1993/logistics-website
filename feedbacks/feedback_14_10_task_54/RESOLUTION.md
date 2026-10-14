@@ -2,9 +2,9 @@
 ## [FEEDBACK_14_10_TASK_54] — Feedback 14/10 (Task #54) — Thiết Kế Đồng Bộ 2 Nút "Tiếp tục" & "Hủy nháp" Trên Màn Hình Nhập Kho Tương Tự Màn Hình Xuất Kho
 
 > **Thời gian nghiệm thu**: 14/10/2026  
-> **Trạng thái thực thi**: ✅ ĐÃ HOÀN THÀNH 100% (17/17 tasks)  
+> **Trạng thái thực thi**: ✅ ĐÃ HOÀN THÀNH 100% (21/21 tasks)  
 > **Người báo cáo / Nghiệp vụ**: @【M】【C】【D】 / @Thai (Quản lý nghiệp vụ / Vận hành TMS)  
-> **Phạm vi tác động**: Frontend ([`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx)) ➔ Bổ sung nút "Hủy nháp" (variant outline đỏ, icon `IconTrash`, kích thước `h-7`, `text-[11px]`) đứng cạnh nút "Tiếp tục" cho các chuyến xe trạng thái `Chờ xử lý` (`isPending`). • Backend Controller ([`warehouse.controller.ts`](file:///backend/src/orders/warehouse.controller.ts)) ➔ Thêm endpoint `DELETE /api/v1/warehouse/inbound/drafts/:tripCode` cho phép thủ kho / Super Admin hủy chuyến xe nhập nháp chưa xử lý. • Backend Service ([`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts)) ➔ Cài đặt phương thức `cancelInboundDraft` xử lý transaction soft-delete `trip_stop`, `order` nháp và `trip` nháp an toàn. • N8N Task Router & GitHub Actions CI/CD ([`update-n8n-router.mjs`](file:///tools/telegram-task-runner/update-n8n-router.mjs), [`.github/workflows/telegram-agy-worker.yml`](file:///.github/workflows/telegram-agy-worker.yml)) ➔ Sửa lỗi đường dẫn tuyệt đối Windows và siết chặt Quality Gate ngăn báo cáo hoàn thành khống khi 0 file bị sửa.  
+> **Phạm vi tác động**: Frontend ([`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx)) ➔ Bổ sung nút "Hủy nháp" (variant outline đỏ, icon `IconTrash`, kích thước `h-7`, `text-[11px]`) đứng cạnh nút "Tiếp tục" cho các chuyến xe trạng thái `Chờ xử lý` (`isPending`). • Backend Controller ([`warehouse.controller.ts`](file:///backend/src/orders/warehouse.controller.ts)) ➔ Thêm endpoint `DELETE /api/v1/warehouse/inbound/drafts/:tripCode` cho phép thủ kho / Super Admin hủy chuyến xe nhập nháp chưa xử lý. • Backend Service ([`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts)) ➔ Cài đặt phương thức `cancelInboundDraft` xử lý transaction soft-delete `trip_stop`, `order` nháp và `trip` nháp an toàn. • Kiểm thử tự động E2E ([`54-feedback-14-10-task-54-inbound-draft-cancel-buttons.spec.ts`](file:///frontend/e2e/54-feedback-14-10-task-54-inbound-draft-cancel-buttons.spec.ts)) ➔ Xác nhận API 404 cho mã giả định, cấu trúc hiển thị 2 nút bấm trên bảng Nhập kho, chụp ảnh bằng chứng nghiệm thu. • N8N Task Router & GitHub Actions CI/CD ([`update-n8n-router.mjs`](file:///tools/telegram-task-runner/update-n8n-router.mjs), [`.github/workflows/telegram-agy-worker.yml`](file:///.github/workflows/telegram-agy-worker.yml)) ➔ Sửa lỗi đường dẫn tương đối và siết chặt Quality Gate ngăn báo cáo hoàn thành khống khi 0 file bị sửa.  
 > **Môi trường kiểm chứng**: Development (Live) & Staging / Production  
 
 ---
@@ -53,6 +53,12 @@ Kèm ảnh chụp màn hình thực tế: `feedbacks/feedback_14_10_task_54/scre
 - ✅ **Cập nhật ô THAO TÁC cho hàng `isPending`: Render đồng bộ 2 nút `Tiếp tục` và `Hủy nháp`.**
 - ✅ **Kiểm tra biên dịch frontend: `npm --prefix frontend run build` đạt `Exit code 0`.**
 
+### 🧪 Kiểm thử Tự động & Nghiệm thu
+- ✅ **Tạo file E2E: `frontend/e2e/54-feedback-14-10-task-54-inbound-draft-cancel-buttons.spec.ts`.**
+- ✅ **Kiểm thử API `DELETE /warehouse/inbound/drafts/:tripCode` (xác thực 404 cho mã giả định, RBAC guard).**
+- ✅ **Kiểm thử giao diện: Tìm các chuyến xe `isPending`, xác nhận sự hiện diện đồng thời của 2 nút "Tiếp tục" và "Hủy nháp" theo đúng styling chuẩn `h-7`, `text-[11px]`, viền đỏ cho nút hủy.**
+- ✅ **Chụp ảnh màn hình nghiệm thu: `feedbacks/feedback_14_10_task_54/screenshot_01_verified.png`.**
+
 ---
 
 ## 3. 🛡️ Quy Tắc Nghiệp Vụ Bất Biến Mới Được Xác Lập (Core System Invariants)
@@ -72,7 +78,7 @@ Kèm ảnh chụp màn hình thực tế: `feedbacks/feedback_14_10_task_54/scre
 - **Kiểm tra sức khỏe Backend (Anti-Hang Health Check)**: `curl.exe -m 15 -i https://logistics-website-backend-1jho.onrender.com/api/v1/health` -> HTTP 200 OK.
 
 ### Hình ảnh minh chứng đã lưu trữ (1 tệp):
-- 📸 **screenshot_01.jpg**: [Xem hình ảnh](file:///D:/Projects/logistics-website/feedbacks/feedback_14_10_task_54/screenshot_01.jpg)
+- 📸 **screenshot_01.jpg**: [Xem hình ảnh](file:////home/runner/work/logistics-website/logistics-website/feedbacks/feedback_14_10_task_54/screenshot_01.jpg)
 
 ---
 
@@ -83,12 +89,14 @@ Kèm ảnh chụp màn hình thực tế: `feedbacks/feedback_14_10_task_54/scre
 | 1 | `backend/src/orders/warehouse.controller.ts` | Backend (NestJS) |
 | 2 | `backend/src/orders/warehouse.service.ts` | Backend (NestJS) |
 | 3 | `frontend/src/app/dashboard/warehouse/inbound/page.tsx` | Frontend (Next.js) |
-| 4 | `tools/telegram-task-runner/update-n8n-router.mjs` | Source |
-| 5 | `.github/workflows/telegram-agy-worker.yml` | Source |
+| 4 | `frontend/e2e/54-feedback-14-10-task-54-inbound-draft-cancel-buttons.spec.ts` | Frontend (Next.js) |
+| 5 | `tools/telegram-task-runner/update-n8n-router.mjs` | Source |
+| 6 | `.github/workflows/telegram-agy-worker.yml` | Source |
+| 7 | `docs/SYSTEM_TIMELINE.md` | Documentation |
 
 ---
 
 ## 6. 🔗 Cơ Sở Dữ Liệu Kỹ Thuật Cho Các AI Agent Session Tiếp Theo
 
 > ⚠️ **LƯU Ý DÀNH CHO CÁC AI AGENT SESSION MỚI**:  
-> Tài liệu này cùng với [`TODO.md`](file:///D:/Projects/logistics-website/feedbacks/feedback_14_10_task_54/TODO.md) và [`docs/SYSTEM_TIMELINE.md`](file:///docs/SYSTEM_TIMELINE.md) là **CƠ SỞ KỸ THUẬT VÀ BẰNG CHỨNG BẤT BIẾN** đã được nghiệm thu. Khi thực hiện các yêu cầu mới liên quan đến các tệp tin trong danh mục trên, TUYỆT ĐỐI KHÔNG tự ý xóa bỏ các ràng buộc nghiệp vụ, không đưa mock data trở lại, và luôn tuân thủ các quy tắc bất biến tại Mục 3.
+> Tài liệu này cùng với [`TODO.md`](file:////home/runner/work/logistics-website/logistics-website/feedbacks/feedback_14_10_task_54/TODO.md) và [`docs/SYSTEM_TIMELINE.md`](file:///docs/SYSTEM_TIMELINE.md) là **CƠ SỞ KỸ THUẬT VÀ BẰNG CHỨNG BẤT BIẾN** đã được nghiệm thu. Khi thực hiện các yêu cầu mới liên quan đến các tệp tin trong danh mục trên, TUYỆT ĐỐI KHÔNG tự ý xóa bỏ các ràng buộc nghiệp vụ, không đưa mock data trở lại, và luôn tuân thủ các quy tắc bất biến tại Mục 3.
