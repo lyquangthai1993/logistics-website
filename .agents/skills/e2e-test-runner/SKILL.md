@@ -249,3 +249,6 @@ Default password: `secret` (configured in `.env.local`).
    - When verifying remote backend readiness on **Domain Dev** (`https://logistics-website-backend-1jho.onrender.com`), NEVER ping or check health using bare `curl -s` without timeout.
    - Always use `curl.exe -m 15 -i <url>` or pass `{ signal: AbortSignal.timeout(15000) }` in Node/Playwright.
    - Account for Render cold starts (up to 45–60s) with max 5 bounded attempts (15s timeout per attempt). NEVER loop indefinitely.
+6. **Model Role Allocation in Test Execution & Autonomous Self-Healing**:
+   - ⚡ **Orchestration, Execution & Log Tracing**: Sử dụng **Gemini 2.5 Flash / Gemini 3.8 Flash** để điều phối lệnh test, theo dõi console log, kiểm tra server readiness (`npm run e2e:check`) và trích xuất trace lỗi với tốc độ phản hồi nhanh nhất.
+   - 🛠️ **Autonomous Self-Healing Loop (AI Auto-Fix)**: Khi test thất bại và kích hoạt vòng lặp tự sửa lỗi (`runAgyAutoFixSession`), bàn giao việc sửa code ứng dụng trong `frontend/` hoặc `backend/` cho **Claude 3.5 Sonnet / Claude 3.7 Sonnet** để đảm bảo sửa đúng nguyên nhân gốc rễ (RCA), chuẩn TypeScript và không gây lỗi hồi quy trước khi retry test.
