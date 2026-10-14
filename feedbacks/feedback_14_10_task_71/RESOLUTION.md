@@ -119,11 +119,18 @@ flowchart TD
 
 ## 4. 🧪 Bằng Chứng Kiểm Thử & Nghiệm Thu (Evidence & Verification)
 
-- **Trạng thái E2E Test**: PASS 100% (Không phát hiện hồi quy lỗi).
-- **Môi trường Dev Live**:
-  * Frontend: `https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app`
-  * Backend: `https://logistics-website-backend-1jho.onrender.com`
-- **Kiểm tra sức khỏe Backend (Anti-Hang Health Check)**: `curl.exe -m 15 -i https://logistics-website-backend-1jho.onrender.com/api/v1/health` -> HTTP 200 OK.
+- **Ảnh minh chứng gốc người dùng tải lên**:
+  * [`screenshot_01.png`](file:///feedbacks/feedback_14_10_task_71/screenshot_01.png): Giao diện Nhập kho Mobile (375px) — Chuyến xe `SD42`, 4 đơn hàng, 123 kiện, 22.063 kg.
+  * [`screenshot_02.png`](file:///feedbacks/feedback_14_10_task_71/screenshot_02.png): Giao diện Xuất kho Mobile (375px) — Chuyến xe `SD43`, 3 đơn hàng, 98 kiện, 19.619 kg.
+- **Ảnh nghiệm thu thực tế sau khi xử lý (Playwright E2E Verified)**:
+  * [`screenshot_01_mobile_sticky_readonly_verified.png`](file:///feedbacks/feedback_14_10_task_71/screenshot_01_mobile_sticky_readonly_verified.png): Modal Nhập kho — Cột STT & Mã vận đơn sticky cố định bên trái khi cuộn ngang, khóa chỉ xem, đủ nút In tem nhận diện.
+  * [`screenshot_02_mobile_outbound_modal_verified.png`](file:///feedbacks/feedback_14_10_task_71/screenshot_02_mobile_outbound_modal_verified.png): Modal Xuất kho — Cột STT & Mã vận đơn sticky cố định bên trái, khóa chỉ xem, ẩn nút bốc/xuất thêm.
+- **Trạng thái E2E Test**: PASS 100% (2/2 tests passed on Railway Dev).
+  * Suite: `frontend/e2e/71-feedback-14-10-task-71-mobile-trip-sticky-and-readonly.spec.ts`
+- **Môi trường Dev Live (Primary - Railway Cloud)**:
+  * Frontend Dev: `https://frontend-tms-core-dev.up.railway.app`
+  * Backend Dev: `https://backend-tms-core-dev.up.railway.app`
+- **Kiểm tra sức khỏe Backend (Anti-Hang Health Check)**: `curl.exe -m 15 -i https://backend-tms-core-dev.up.railway.app/api/v1/health` -> HTTP 200 OK.
 
 ---
 

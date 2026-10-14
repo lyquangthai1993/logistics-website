@@ -67,8 +67,8 @@
   * **Backend**: Xác Nhận API Manifest Chuyến Xe; Xác Nhận Dữ Liệu In Tem Pallet A4; Kiểm Tra Build Backend
   * **Frontend**: Bảng Đơn Hàng Bước 1 (Nhập kho) trong [`WarehouseTripDetailModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx); Bảng Đơn Hàng Bước 2 (Xuất kho) trong [`WarehouseTripDetailModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx); Bảng Kiểm Đếm Nhập Kho trong [`WarehouseTripTallyTable.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-tally-table.tsx)...
 - **Bằng chứng nghiệm thu**:
-  * Playwright E2E: PASS 100%
-  * Minh chứng hình ảnh: Có lưu trữ trong thư mục
+  * Playwright E2E: PASS 100% (2/2 mobile suites verified)
+  * Minh chứng hình ảnh gốc & nghiệm thu: `screenshot_01.png` (Nhập kho SD42), `screenshot_02.png` (Xuất kho SD43), `screenshot_01_mobile_sticky_readonly_verified.png`, `screenshot_02_mobile_outbound_modal_verified.png`
 - **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_14_10_task_71/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_14_10_task_71/TODO.md)
 
 ### 🚀 [FEEDBACK_14_10_TASK_70] — Feedback 14/10 (Task #70) — Loại Bỏ Nút Mũi Tên Mở Rộng Dòng (Accordion Chevron `>`) và Tinh Gọn Bảng Kê Chuyến Xe Xuất Kho / Nhập Kho Chuẩn Hóa Chế Độ Xem Chi Tiết Qua Modal (14/10/2026)

@@ -13,9 +13,9 @@
 > - Quy chuẩn giao diện hẹp [`.agents/rules/ui-compact-density.md`](file:///.agents/rules/ui-compact-density.md) & [`ui-spacing-guard`](file:///.agents/skills/ui-spacing-guard/SKILL.md)  
 > - Task #46 ([`feedbacks/feedback_13_10_task_46/TODO.md`](file:///feedbacks/feedback_13_10_task_46/TODO.md)) về chuẩn hóa hành vi xem chi tiết chuyến xe và in tem nhận diện hàng hóa.  
 > - Task #70 ([`feedbacks/feedback_14_10_task_70/TODO.md`](file:///feedbacks/feedback_14_10_task_70/TODO.md)) về tinh gọn bảng kê chuyến xe, loại bỏ nút chevron mở rộng và lấy Modal làm trung tâm tra cứu.  
-> **Ảnh minh chứng đính kèm trong thư mục**:  
-> - [`screenshot_01.jpg`](file:///feedbacks/feedback_14_10_task_70/screenshot_01.jpg): Bảng kê chuyến xe xuất kho và chi tiết đơn hàng trong trip.  
-> - [`docs/ui-audit-evidence/dashboard_warehouse_inbound_375_light.png`](file:///docs/ui-audit-evidence/dashboard_warehouse_inbound_375_light.png): Giao diện vận hành kho trên thiết bị di động (viewport 375px).  
+> **Ảnh minh chứng gốc người dùng đính kèm**:  
+> - [`screenshot_01.png`](file:///feedbacks/feedback_14_10_task_71/screenshot_01.png): Giao diện **Nhập kho trên Mobile (375px)** — Chuyến xe `SD42` (`Andromeda Hub - HCM`), biển số `36C-412.09`, 4 dòng hàng (`NDA2610-959`, `EXP2610-743`, `BAT2610-814`, `BAT2610-366`), tổng 123 kiện, 22.063 kg. Cột Mã vận đơn trượt mất khi cuộn ngang sang phải để xem số kiện/khối lượng.  
+> - [`screenshot_02.png`](file:///feedbacks/feedback_14_10_task_71/screenshot_02.png): Giao diện **Xuất kho trên Mobile (375px)** — Chuyến xe `SD43` (`Andromeda Hub - HCM`), biển số `75H01212`, 3 dòng hàng (`NDA2610-959`, `EXP2610-743`, `BAT2610-814`), tổng 98 kiện, 19.619 kg. Cột Mã vận đơn trượt mất khi cuộn ngang và cần đảm bảo chế độ chỉ xem + in tem nhận diện.  
 
 ---
 
