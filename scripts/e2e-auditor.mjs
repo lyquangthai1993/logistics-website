@@ -88,6 +88,13 @@ export function auditE2eFile(filePath) {
     findings.push({ dim: 'D4', severity: 'FAIL', msg: 'Phát hiện mock backend qua page.route(). Dự án quy định 100% test trên database thực tế.' });
   }
 
+  // D1 Hub Scoping Check: Nếu file test module kho nhưng không dùng tài khoản kho chuyên trách
+  if (/(?:inbound|outbound|warehouse|inventory)/i.test(relPath) &&
+      !/(?:USER_WAREHOUSE|warehouse_hyn|warehouse_dad|warehouse_hcm|TEST_USER_HCM|TEST_USERS\[[345]\])/.test(content)) {
+    d1Score -= 2;
+    findings.push({ dim: 'D1', severity: 'WARN', msg: 'File test kiểm thử màn hình Kho bãi (Warehouse/Inbound/Outbound) nhưng không sử dụng tài khoản Hub chuyên trách (USER_WAREHOUSE_HCM/HYN/DAD). Cần đối soát đúng Hub từ ảnh feedback để tránh lỗi bảng trống.' });
+  }
+
   // D5: Visual Evidence & Assertion Rigor (10 pts)
   let d5Score = 10;
   const hasBrowserTest = /page\.goto\s*\(/.test(content);
@@ -96,6 +103,15 @@ export function auditE2eFile(filePath) {
   if (hasBrowserTest && !hasScreenshot) {
     d5Score -= 4;
     findings.push({ dim: 'D5', severity: 'WARN', msg: 'Test giao diện trình duyệt nhưng không chụp ảnh minh chứng (screenshot).' });
+  }
+
+  // Fake Evidence Check: if (count > 0) ... else { screenshot of empty table } mà không assert count > 0!
+  if (/if\s*\(\s*\w*count\w*\s*>\s*0\s*\)/i.test(content) &&
+      /else\s*\{[\s\S]*?screenshot/i.test(content) &&
+      !/expect\s*\(\s*\w*count\w*\s*\)\s*\.toBeGreaterThan\s*\(\s*0\s*\)/i.test(content)) {
+    d5Score -= 6;
+    autoFail = true;
+    findings.push({ dim: 'D5', severity: 'FAIL', msg: 'Phát hiện cấu trúc rẽ nhánh fallback chụp bảng trống khi count === 0 mà không assert số lượng item. Đây là Fake Evidence che giấu sai lệch tài khoản/dữ liệu.' });
   }
 
   if (/data-radix-/.test(content)) {

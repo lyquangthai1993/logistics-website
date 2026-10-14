@@ -152,8 +152,16 @@ flowchart TD
 - Identify the operator persona: `Thủ kho (Warehouse Manager)`, `Điều phối viên (Dispatcher)`, `Quản lý đội xe (Fleet Manager)`, or `QA / Verification`.
 - Distinguish between core operational concepts (e.g., Inbound receiving vs Outbound dispatching, direct customer delivery vs hub-to-hub transfer, roadside intake vs hub loading).
 
-### Step 4.2: Inspect Visual Evidence & Specs
-- Examine any attached images (`.png`, `.jpg`, `.webp`) in the feedback folder.
+### Step 4.2: Inspect Visual Evidence & Specs (Multimodal OCR & Hub Extraction Protocol)
+- **Deep Multimodal OCR Scanning**: Examine all attached screenshots (`.png`, `.jpg`, `.webp`) in the feedback folder:
+  - **1. Trích xuất Hub / Kho bãi thực tế**: Đọc kỹ phần tiêu đề trang, breadcrumb, hoặc dropdown bộ lọc Hub (ví dụ: `Nhập kho • Andromeda Hub - HCM`, `Xuất kho • Polaris Hub - Hưng Yên`, `Kho • Magellan Hub - Đà Nẵng`).
+  - **2. Khớp trực tiếp tài khoản kiểm thử tương ứng từ [`frontend/e2e/helpers/auth.ts`](file:///frontend/e2e/helpers/auth.ts)**:
+    * `Andromeda Hub - HCM` ➔ Bắt buộc dùng `USER_WAREHOUSE_HCM` (username: `warehouse_hcm`).
+    * `Polaris Hub - Hưng Yên` ➔ Dùng `USER_WAREHOUSE_HYN` (username: `warehouse_hyn`) hoặc `USER_DISPATCHER` (`dispatcher`).
+    * `Magellan Hub - Đà Nẵng` ➔ Dùng `USER_WAREHOUSE_DAD` (username: `warehouse_dad`) hoặc `USER_FLEET` (`fleet`).
+    * System-wide / Super Admin ➔ Dùng `USER_ADMIN` (`admin`).
+    * ⚠️ **NGHIÊM CẤM TUYỆT ĐỐI**: Không bao giờ được dùng `admin` hoặc `TEST_USERS[0]` một cách mặc định cho các màn hình có phân quyền Hub Scoping, vì sẽ dẫn tới lỗi hiển thị bảng trống (0 dòng).
+  - **3. Trích xuất đối tượng kiểm chứng mẫu**: Đọc mã chuyến xe (`SD49`, `SD45`), biển số xe (`51D-482.91`), mã đơn hàng hoặc vùng khoanh đỏ trong ảnh để làm anchor cho assertion trong Playwright.
 - Read auxiliary spec files (`FIX_SPEC_*.md`, `LOGIC_*.md`) to understand mathematical formulas (e.g., CBM/Weight summation, stock ratios, multi-truck Master-Detail grouping).
 
 ### Step 4.3: Trace Affected Files & Architecture
@@ -210,16 +218,18 @@ Mọi `TODO.md` và Execution Plan bắt buộc phải có mục:
 Bao gồm đầy đủ 3 cấu phần cốt lõi:
 
 #### Cấu phần 1: Luồng Thao Tác Tuần Tự Từng Bước (Step-by-Step E2E Action Sequence)
-- **Tài khoản & Phân quyền**: Ghi rõ email/password và role (`WAREHOUSE_MANAGER` kho nào, `DISPATCHER`, hay `SUPER_ADMIN`).
+- **Tài khoản & Phân quyền**: Bắt buộc chỉ định rõ `username` cụ thể từ [`frontend/e2e/helpers/auth.ts`](file:///frontend/e2e/helpers/auth.ts) tương ứng với Hub bóc tách từ ảnh chụp màn hình (ví dụ: `USER_WAREHOUSE_HCM` / `warehouse_hcm` cho Andromeda Hub - HCM, `USER_WAREHOUSE_HYN` / `warehouse_hyn` cho Polaris Hub - Hưng Yên, `USER_WAREHOUSE_DAD` / `warehouse_dad` cho Magellan Hub - Đà Nẵng, `USER_DISPATCHER` cho Điều phối, `USER_FLEET` cho Quản lý đội xe, `USER_ADMIN` cho Super Admin).
 - **Tiền điều kiện dữ liệu (Pre-conditions)**: Dữ liệu DB cần có sẵn trước khi test (Mã chuyến xe nào, đang đỗ tại Hub nào, có bao nhiêu đơn hàng lưu kho khả dụng, mã đơn mẫu là gì).
+- **Quy tắc ảnh nghiệm thu không được chụp bảng trống (Non-Empty Visual Evidence Gate)**: Khi kiểm thử tính năng cấp dòng (nút thao tác, badge, trạng thái hàng), test case BẮT BUỘC assert có ít nhất 1 dòng dữ liệu (`expect(targetCount).toBeGreaterThan(0)`). TUYỆT ĐỐI KHÔNG dùng cấu trúc fallback `if (count > 0) ... else { chụp bảng trống }` vì đây là hành vi che giấu sai lệch tài khoản và sinh bằng chứng giả (Fake Evidence).
 - **Các bước tương tác UI & Assertion chi tiết**:
-  - Bước 1: Đăng nhập và mở đúng URL màn hình.
+  - Bước 1: Đăng nhập bằng tài khoản Hub cụ thể (`loginAs(page, USER_WAREHOUSE_HCM)`) và mở đúng URL màn hình.
   - Bước 2: Thao tác click mở modal / dialog tương ứng.
   - Bước 3: Intercept API call (kiểm tra status `200/201`, query params, request payload, response data).
   - Bước 4: Kiểm tra trực quan UI (độ rộng Modal theo 5-Level Taxonomy, số lượng đếm $X/Y$, dropdown filters, cột bảng kê).
   - Bước 5: Thao tác form / chọn dòng bảng và kiểm tra reactive metric counters (0ms).
   - Bước 6: Submit hành động, assert toast thông báo tiếng Việt, assert modal tự đóng.
   - Bước 7: Hậu kiểm (Post-conditions): Bảng kê cập nhật, DB đổi status, sổ cái phát sinh giao dịch, mở lại modal thấy dữ liệu đã được loại trừ (Idempotency).
+  - Bước 8: Chụp ảnh bằng chứng nghiệm thu thực tế với đầy đủ các phần tử đích được highlight (lưu vào `feedbacks/feedback_DD_MM*/screenshot_*_verified.png`).
 
 #### Cấu phần 2: Bảng Ma Trận Edge Cases Toàn Diện (Edge Cases Matrix)
 Tối thiểu từ **5 đến 10 tình huống biên**, lập bảng chuẩn 5 cột:
