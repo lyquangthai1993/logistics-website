@@ -115,6 +115,7 @@
 | `/v1/warehouse/outbound/confirm` | POST | ✅ | ❌ | ❌ | ✅ *(Ghi phiếu PXK / PGH; `draftTripCode` = xác nhận chuyến nháp)* |
 | `/v1/warehouse/outbound/draft` | POST | ✅ | ❌ | ❌ | ✅ *(Lưu nháp chuyến xuất — cấp mã SD, chưa trừ tồn)* |
 | `/v1/warehouse/outbound/drafts/:tripCode` | DELETE | ✅ | ❌ | ❌ | ✅ *(Hủy nháp — chỉ nháp của kho được gán)* |
+| `/v1/warehouse/inbound/drafts/:tripCode` | DELETE | ✅ | ❌ | ❌ | ✅ *(Hủy nháp nhập — chỉ nháp của kho được gán)* |
 
 ---
 
