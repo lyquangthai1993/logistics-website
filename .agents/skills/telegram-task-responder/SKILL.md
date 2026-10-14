@@ -79,6 +79,17 @@ Every response must open with a direct status badge and a 1-sentence verdict on 
 - **`/continue` (Session Iteration)**:
   - Resumes the previous context to adjust, refine, or add incremental details.
 
+### Rule 7: Model Selection & Task Routing Strategy (Chiến lược phân bổ Model AI tối ưu)
+- 🧠 **Phân tích Feedback, Multimodal OCR & Lập Kế hoạch (`/plan`)**:
+  - *Model tối ưu*: **Gemini 2.5 Pro / Gemini 3.8 Pro**.
+  - *Đặc tính*: Cửa sổ ngữ cảnh 1M–2M tokens, phân tích ảnh chụp màn hình lỗi giao diện, bóc tách RCA và sinh checklist nguyên tử `TODO.md` kèm kịch bản E2E & Edge Cases.
+- 💻 **Triển khai Code, Hotfix (`/fix`), Tính năng mới (`/task`)**:
+  - *Model tối ưu*: **Claude 3.5 Sonnet / Claude 3.7 Sonnet**.
+  - *Đặc tính*: First-pass pass rate cao nhất cho TypeScript, NestJS 11 và Next.js 15; tuân thủ nghiêm ngặt Compact Density (`p-1`, `p-2`, cấm `p-4`), sửa code chính xác từng chunk, tránh hallucination.
+- ⚡ **Chạy Test, Cross-Audit, Giám sát Health Check & Báo cáo Telegram**:
+  - *Model tối ưu*: **Gemini 2.5 Flash / Gemini 3.8 Flash**.
+  - *Đặc tính*: Tốc độ siêu tốc, độ trễ thấp, định dạng mobile-first ngắn gọn không thừa thãi, tổng hợp kết quả test và đồng bộ timeline tức thì.
+
 ---
 
 ## 3. Recommended Output Template for Telegram

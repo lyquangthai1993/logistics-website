@@ -74,6 +74,16 @@ All operations performed by the `todo-agent` MUST strictly adhere to the project
    - Every completed feedback folder MUST have an in-depth technical resolution document generated via `npm run todo:record <folder>`.
    - The central development timeline at [`docs/SYSTEM_TIMELINE.md`](file:///d:/Projects/logistics-website/docs/SYSTEM_TIMELINE.md) MUST be updated to record newly introduced backend APIs, frontend components, domain invariants, and verification evidence.
    - Future AI agent sessions starting work on related modules MUST read `docs/SYSTEM_TIMELINE.md` and the relevant `RESOLUTION.md` files before modifying business logic to prevent regressions and preserve established invariants.
+9. **Hybrid Model Allocation Strategy (Chiến lược phân bổ Model AI tối ưu theo vòng đời feedback)**:
+   - **Phase 1: Phân tích Feedback, Multimodal OCR & Lập Kế hoạch (Planning & Discovery)**:
+     - *Model đề xuất*: **Gemini 2.5 Pro / Gemini 3.8 Pro**.
+     - *Nhiệm vụ*: Cửa sổ ngữ cảnh khổng lồ (1M–2M tokens) nuốt trọn context dự án và tài liệu specs; khả năng native multimodal đọc ảnh chụp màn hình lỗi giao diện trong folder feedback; bóc tách RCA và sinh `TODO.md` chi tiết kèm kịch bản E2E & ma trận Edge Cases.
+   - **Phase 2: Triển khai Code & Refactoring (Execution & Coding)**:
+     - *Model đề xuất*: **Claude 3.5 Sonnet / Claude 3.7 Sonnet**.
+     - *Nhiệm vụ*: First-pass rate cao nhất cho TypeScript, NestJS 11 và Next.js 15 App Router; tuân thủ nghiêm ngặt quy chuẩn Compact Density (`p-1`, `p-2`, cấm tuyệt đối `p-4`), bảo đảm typing chặt chẽ, sửa code chuẩn xác từng chunk và không gây lỗi hồi quy logic phụ cận.
+   - **Phase 3: Chạy Test, Cross-Audit & Biên Niên Sử (Verification & Timeline Recording)**:
+     - *Model đề xuất*: **Gemini 2.5 Flash / Gemini 3.8 Flash (hoặc Pro)**.
+     - *Nhiệm vụ*: Tốc độ cao, độ trễ thấp; giám sát chạy Playwright E2E, chạy AST static analysis với `scripts/e2e-auditor.mjs`, thu thập screenshot evidence, sinh `RESOLUTION.md` và đồng bộ `docs/SYSTEM_TIMELINE.md`, phát thông báo Telegram mobile-first.
 
 ---
 
@@ -124,7 +134,7 @@ npm run todo:timeline
 
 ---
 
-## 4. Operational Comprehension Protocol ("Hiểu")
+## 4. Operational Comprehension Protocol ("Hiểu") — *Tối ưu với Gemini Pro (Multimodal & Long-Context)*
 
 When given a feedback directory, the `todo-agent` executes a 4-step comprehension audit before touching any code:
 
@@ -232,7 +242,7 @@ Tối thiểu từ **5 đến 10 tình huống biên**, lập bảng chuẩn 5 c
 
 ---
 
-## 6. Execution & Implementation Protocol ("Thực thi")
+## 6. Execution & Implementation Protocol ("Thực thi") — *Triển khai code: Claude Sonnet | Kiểm thử & Ghi nhận: Gemini Flash*
 
 When instructed to execute or implement a feedback plan, the `todo-agent` MUST strictly follow this 9-step pipeline (featuring an Autonomous Self-Healing Retry Loop):
 

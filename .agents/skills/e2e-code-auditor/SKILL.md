@@ -200,3 +200,13 @@ When delivering an audit evaluation (in chat or via Telegram Bot), format the re
    - `WARN`. Review recommendations. Flaky waits or missing screenshots should be addressed before merging to `master`.
 3. **Score < 35 or ANY Auto-FAIL**:
    - 🔴 **BLOCK PROMOTION**. The author must remediate the flagged code snippets (e.g. removing `networkidle`, adding real data assertions) before tests are accepted as valid evidence.
+
+---
+
+## 6. Model Allocation Strategy for E2E Audit & Remediation
+- 🔍 **Pha Đánh giá & Soi xét Mã nguồn Kiểm thử (Audit & Cross-Evaluation)**:
+  - *Model tối ưu*: **Gemini 2.5 Flash / Gemini 3.8 Flash (hoặc Pro)**.
+  - *Lý do*: Tốc độ phân tích AST cực nhanh, quét đồng thời nhiều file spec, đối chiếu nhanh với checklist `TODO.md` và sinh báo cáo 50 điểm súc tích với chi phí tối thiểu.
+- 🛠️ **Pha Khắc phục & Sửa đổi Test Spec (Test Remediation & Refactoring)**:
+  - *Model tối ưu*: **Claude 3.5 Sonnet / Claude 3.7 Sonnet**.
+  - *Lý do*: Khi audit phát hiện Auto-FAIL hoặc điểm < 40/50 cần tái cấu trúc kịch bản test Playwright (loại bỏ mock `page.route()`, sửa race conditions, bổ sung assertions trường dữ liệu sâu), Claude Sonnet viết code Playwright chuẩn xác, hạn chế tối đa lỗi cú pháp hoặc sinh locator ảo.

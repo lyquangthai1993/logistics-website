@@ -89,9 +89,10 @@ Whenever the user refers to, asks for, or mentions **"domain pro"** (hoặc "dom
   - Whenever completing any feedback, bug fix, or major architectural feature, operating agents MUST record technical documentation via `npm run todo:record <folder>` to generate [`RESOLUTION.md`](file:///d:/Projects/logistics-website/docs/SYSTEM_TIMELINE.md) and update [`docs/SYSTEM_TIMELINE.md`](file:///d:/Projects/logistics-website/docs/SYSTEM_TIMELINE.md).
   - When starting a new session or onboarding to unfamiliar modules, all AI agents MUST read `docs/SYSTEM_TIMELINE.md` and `CODEBASE_AUDIT.md` to establish context on existing capabilities, design decisions, and proven operational invariants.
 
-## Model Selection Strategy & Guidelines
-- 💻 **Code Development & Bug Fixing**: Prefer **Claude** (Claude Sonnet) for feature coding, refactoring, and complex logic tasks on both Backend and Frontend.
-- 📝 **Testing, Docs & Audit**: Prefer **Gemini** (Gemini 2.5 Pro / Flash) for E2E / Unit tests, documentation/README, codebase audits, and log summarization.
+## Model Selection Strategy & Guidelines (3-Phase Hybrid Pipeline)
+- 🧠 **Pha 1: Phân tích Feedback, Multimodal OCR & Lập Plan (`/plan`, Discovery)**: Ưu tiên **Gemini Pro (Gemini 2.5 Pro / 3.8 Pro)** nhờ cửa sổ ngữ cảnh khổng lồ (1M–2M tokens), khả năng native multimodal đọc hiểu ảnh chụp màn hình lỗi giao diện trong folder feedback (`feedback_DD_MM*`), bóc tách RCA và sinh checklist nguyên tử `TODO.md` kèm kịch bản E2E & Edge Cases.
+- 💻 **Pha 2: Thực thi, Triển khai Code & Refactoring (`/fix`, `/task`, Coding)**: Ưu tiên **Claude Sonnet (Claude 3.5 Sonnet / 3.7 Sonnet)** cho Backend NestJS và Frontend Next.js/Tailwind. Đảm bảo tỷ lệ code chạy đúng ngay lần đầu (First-pass rate) cao nhất, tuân thủ strict TypeScript, cấm triệt để class cấm (`p-4`, `gap-4`) và không gây lỗi hồi quy logic.
+- ⚡ **Pha 3: Kiểm thử, Cross-Audit, Biên Niên Sử & Báo cáo (Verification & Delivery)**: Ưu tiên **Gemini Flash (Gemini 2.5 Flash / 3.8 Flash)** nhờ tốc độ cực nhanh và độ trễ thấp; điều phối Playwright E2E runner, audit tĩnh qua `scripts/e2e-auditor.mjs`, đồng bộ [`docs/SYSTEM_TIMELINE.md`](file:///d:/Projects/logistics-website/docs/SYSTEM_TIMELINE.md) và xuất báo cáo Telegram theo chuẩn mobile-first.
 
 ## Registered Skills & Agents
 
