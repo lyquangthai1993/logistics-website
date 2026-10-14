@@ -47,7 +47,7 @@ jobs:
       - name: "Cài đặt Node.js môi trường tiếp nhận"
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: "Cài đặt pg driver"
         run: |
@@ -513,7 +513,7 @@ jobs:
       - name: "Cài đặt Node.js môi trường báo cáo"
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: "Cài đặt pg driver"
         run: |
