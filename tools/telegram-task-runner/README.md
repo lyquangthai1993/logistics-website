@@ -23,7 +23,7 @@ Local Worker Daemon (neon-worker.mjs trên laptop)
 Antigravity AI Engine
    │
    ▼ (Báo cáo trực tiếp tiến độ 25s, Git diff & Kết quả cuối cùng)
-Telegram Group + Cập nhật trạng thái COMPLETED trong Neon DB
+Telegram Group + Cập nhật trạng thái TODO_CREATED (Lập kế hoạch) hoặc COMPLETED (Thực thi) trong Neon DB
 ```
 
 ### Phương án 2 (Direct Local Long-Polling)
@@ -58,7 +58,7 @@ Khi khởi động, worker sẽ:
 - Tự động nhận diện `agy.exe` trên hệ thống.
 - Lắng nghe các tác vụ `PENDING`, tự động chuyển sang `IN_PROGRESS`.
 - Kích hoạt role `/leader` (TMS Domain Architecture Lead) để khảo sát codebase `D:\Projects\logistics-website`.
-- Báo cáo kết quả trực tiếp và cập nhật `COMPLETED` trong Neon DB.
+- Báo cáo kết quả trực tiếp và cập nhật `TODO_CREATED` (khi lập TODO.md) hoặc `COMPLETED` (khi thực thi & E2E dev verified) trong Neon DB.
 
 ---
 

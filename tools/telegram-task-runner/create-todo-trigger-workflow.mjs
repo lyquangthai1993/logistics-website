@@ -88,7 +88,7 @@ SELECT
   t.created_at, 
   t.completed_at
 FROM telegram_tasks t
-WHERE t.status = 'COMPLETED'
+WHERE (t.status = 'TODO_CREATED' OR (t.status = 'COMPLETED' AND t.raw_prompt NOT ILIKE '%/todo%' AND t.raw_prompt NOT ILIKE '%todo-agent%'))
   AND t.feedback_dir IS NOT NULL
   AND t.raw_prompt NOT ILIKE '%/todo%'
   AND t.raw_prompt NOT ILIKE '%todo-agent%'

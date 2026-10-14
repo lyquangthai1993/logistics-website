@@ -452,7 +452,8 @@ Cấu trúc file ${targetTodoPath} BẮT BUỘC có các phần:
 - BƯỚC 2: Khảo sát mã nguồn thực tế tại D:\\Projects\\logistics-website (kiểm tra các component, modal, service liên quan đến màn hình được phản hồi).
 - BƯỚC 3: Dùng write_to_file để tạo file ${targetTodoPath} với đầy đủ nội dung nghiệp vụ sâu sắc, chuẩn mực.
 - BƯỚC 4: Báo cáo kết quả trực tiếp về Telegram:
-  * Dòng đầu tiên BẮT BUỘC là: "🟢 HOÀN THÀNH (TỔNG HỢP TODO.MD): [Tiêu đề feedback]"
+  * Dòng đầu tiên BẮT BUỘC là: "📋 KẾ HOẠCH (TODO.MD SẴN SÀNG): [Tiêu đề feedback]"
+  * TUYỆT ĐỐI KHÔNG dùng "🟢 HOÀN THÀNH" hay "COMPLETED" vì code chưa được chỉnh sửa hay kiểm thử.
   * Trích dẫn đường link file vừa tạo: [TODO.md](file:///${targetTodoPath.replace(/\\/g, '/')})
   * Tóm tắt ngắn gọn các lỗi phát hiện và Action Checklist các đầu việc cần làm.
   * TUYỆT ĐỐI KHÔNG viết các câu kết bài thừa thãi (như "Bạn muốn làm gì tiếp theo...", "Hệ thống đã sẵn sàng...").
@@ -1688,9 +1689,9 @@ async function executeAgyTask(task) {
               (hasTodoCreated ? `📄 <b>Checklist:</b> <code>${path.relative(WORKSPACE_DIR, todoFile)}</code>\n` : '') +
               (conversationId ? `🆔 <b>Session:</b> <code>${conversationId}</code>\n\n` : '\n') +
               formattedHtml
-            : `🎯 <b>[KẾT QUẢ TASK #${taskId}] - TỔNG HỢP TODO.MD HOÀN TẤT</b> <code>(⏱️ ${timeStr})</code>\n\n` +
+            : `📋 <b>[KẾ HOẠCH TASK #${taskId}] - ĐÃ LẬP TODO.MD (SẴN SÀNG TRIỂN KHAI)</b> <code>(⏱️ ${timeStr})</code>\n\n` +
               `📁 <b>Thư mục Feedback:</b> <code>${path.relative(WORKSPACE_DIR, feedbackDir)}</code>\n` +
-              (hasTodoCreated ? `📄 <b>File TODO:</b> <code>${path.relative(WORKSPACE_DIR, todoFile)}</code> (✅ Đã tạo thành công)\n` : '') +
+              (hasTodoCreated ? `📄 <b>Checklist TODO:</b> <code>${path.relative(WORKSPACE_DIR, todoFile)}</code> (📋 Đã sẵn sàng)\n` : '') +
               (savedImagePaths.length > 0 ? `📸 <b>Hình ảnh:</b> <code>${savedImagePaths.length} ảnh đã lưu trữ kèm TODO</code>\n` : '') +
               (conversationId ? `🆔 <b>Session:</b> <code>${conversationId}</code>\n\n` : '\n') +
               formattedHtml);
@@ -1699,6 +1700,11 @@ async function executeAgyTask(task) {
           finalReport += `\n\n🚀 <b>Git Cloud Sync:</b> Đã tự động commit & push <code>${escapeHtml(todoPushResult.relFeedbackDir)}</code> lên nhánh <code>origin/dev</code>. Sẵn sàng thực thi trên cả Local và Cloud!`;
         } else if (todoPushResult && !todoPushResult.success) {
           finalReport += `\n\n⚠️ <b>Git Cloud Sync:</b> Lưu ý chưa thể tự động push lên origin/dev (${escapeHtml(todoPushResult.error)}).`;
+        }
+
+        if (!isSyncMode && !isTodoAgentMode) {
+          const folderName = path.basename(feedbackDir);
+          finalReport += `\n\n💡 <b>Hành động tiếp theo:</b> Sử dụng lệnh <code>/force ${escapeHtml(folderName)}</code> hoặc chờ lịch trình tự động 12:00 PM để bắt đầu triển khai code!`;
         }
 
         if (gitDiff) {
@@ -1710,17 +1716,19 @@ async function executeAgyTask(task) {
             ? `Đã hoàn thành đồng bộ dev lên master`
             : (isTodoAgentMode
               ? `Đã hoàn thành thực thi & E2E Pass 100% trên Dev`
-              : `Đã hoàn thành tổng hợp TODO.md`);
-          await editTelegramMessage(chatId, progressMsgId, `✅ <b>[Task #${taskId}] ${completionTitle} trong ${timeStr}!</b>`, 'HTML');
+              : `Đã tổng hợp xong TODO.md (Sẵn sàng triển khai)`);
+          const badgeIcon = (isSyncMode || isTodoAgentMode) ? '✅' : '📋';
+          await editTelegramMessage(chatId, progressMsgId, `${badgeIcon} <b>[Task #${taskId}] ${completionTitle} trong ${timeStr}!</b>`, 'HTML');
         }
 
         await sendTelegramMessage(chatId, finalReport, 'HTML', TASK_ACTIONS_KEYBOARD);
 
+        const taskStatus = (isSyncMode || isTodoAgentMode) ? 'COMPLETED' : 'TODO_CREATED';
         await pool.query(`
           UPDATE telegram_tasks 
-          SET status = 'COMPLETED', feedback_dir = $1, result = $2, completed_at = NOW() 
-          WHERE id = $3;
-        `, [feedbackDir, cleanOutput, taskId]);
+          SET status = $1, feedback_dir = $2, result = $3, completed_at = NOW() 
+          WHERE id = $4;
+        `, [taskStatus, feedbackDir, cleanOutput, taskId]);
 
         resolve({ success: true, taskId });
       } else {

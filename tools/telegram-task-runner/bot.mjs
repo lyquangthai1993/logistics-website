@@ -1315,7 +1315,7 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
         exitCode: code,
         duration: timeStr,
         completedAt: new Date().toISOString(),
-        status: wasCancelled ? 'cancelled' : (code === 0 ? 'completed' : 'failed'),
+        status: wasCancelled ? 'cancelled' : (code === 0 ? (taskMode === 'feedback' ? 'todo_created' : 'completed') : 'failed'),
       });
     }
     currentTask = null;
@@ -1327,7 +1327,9 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
       const finishBadge = wasCancelled
         ? `🛑 <b>[${taskBadge}] Đã bị hủy bởi người dùng</b> <code>(⏱️ ${timeStr})</code>`
         : (code === 0
-            ? `✅ <b>[${taskBadge}] Đã hoàn thành!</b> <code>(⏱️ ${timeStr})</code>`
+            ? (taskMode === 'feedback'
+                ? `📋 <b>[${taskBadge}] Đã lập TODO.md (Sẵn sàng triển khai)!</b> <code>(⏱️ ${timeStr})</code>`
+                : `✅ <b>[${taskBadge}] Đã hoàn thành!</b> <code>(⏱️ ${timeStr})</code>`)
             : `❌ <b>[${taskBadge}] Kết thúc với lỗi (Mã: ${code})</b> <code>(⏱️ ${timeStr})</code>`);
       await editTelegramMessage(chatId, targetMsgId, finishBadge, 'HTML');
     }
@@ -1404,7 +1406,9 @@ async function runAgyTask(chatId, rawPrompt, imagePaths = [], taskMode = 'task',
       // Chuyển đổi Markdown sang định dạng Telegram HTML chuẩn
       const formattedHtml = markdownToTelegramHtml(cleanOutput);
 
-      let messageText = `🎯 <b>KẾT QUẢ THỰC HIỆN</b> <i>(⏱️ ${timeStr})</i>\n`;
+      let messageText = (taskMode === 'feedback')
+        ? `📋 <b>KẾ HOẠCH TASK (TODO.MD SẴN SÀNG)</b> <i>(⏱️ ${timeStr})</i>\n`
+        : `🎯 <b>KẾT QUẢ THỰC HIỆN</b> <i>(⏱️ ${timeStr})</i>\n`;
       if (finalConvId) {
         messageText += `🆔 <b>Session ID:</b> <code>${finalConvId}</code>\n\n`;
       } else {
