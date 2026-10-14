@@ -54,20 +54,26 @@ jobs:
           git config --global user.name "Antigravity AI Worker"
           git config --global user.email "antigravity-bot@users.noreply.github.com"
 
-          echo "🔄 Đang chuyển tất cả submodule và root sang nhánh dev..."
+          echo "🔄 Đang cất tạm thay đổi (stash) và chuyển tất cả sang nhánh dev..."
+          git stash push -u -m "worker-init-stash" 2>/dev/null || true
           git checkout dev 2>/dev/null || git checkout -B dev origin/dev
-          git pull origin dev || true
+          git pull --rebase origin dev || true
+          git stash pop 2>/dev/null || true
 
           if [ -d "backend" ]; then
             cd backend
+            git stash push -u -m "worker-init-stash" 2>/dev/null || true
             git checkout dev 2>/dev/null || git checkout -B dev origin/dev
-            git pull origin dev || true
+            git pull --rebase origin dev || true
+            git stash pop 2>/dev/null || true
             cd ..
           fi
           if [ -d "frontend" ]; then
             cd frontend
+            git stash push -u -m "worker-init-stash" 2>/dev/null || true
             git checkout dev 2>/dev/null || git checkout -B dev origin/dev
-            git pull origin dev || true
+            git pull --rebase origin dev || true
+            git stash pop 2>/dev/null || true
             cd ..
           fi
 
@@ -270,7 +276,7 @@ jobs:
             return 1
           }
 
-          # Hàm push an toàn chống race condition / non-fast-forward rejection với auto rebase và retry
+          # Hàm push an toàn chống race condition / non-fast-forward rejection với auto stash, rebase và retry
           push_with_retry() {
             local dir=$1
             local max_retries=3
@@ -278,14 +284,31 @@ jobs:
 
             while [ $attempt -le $max_retries ]; do
               echo "🚀 [Lần push $attempt/$max_retries] Đang đồng bộ và push tại $dir..."
+              local has_stash=0
               if [ "$dir" = "." ]; then
+                if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
+                  echo "📦 Cất tạm thay đổi vào stash trước khi pull..."
+                  git stash push -u -m "push-retry-stash" 2>/dev/null && has_stash=1
+                fi
                 git pull --rebase origin dev || true
+                if [ $has_stash -eq 1 ]; then
+                  echo "📦 Khôi phục thay đổi từ stash..."
+                  git stash pop 2>/dev/null || true
+                fi
                 if HUSKY=0 git push --no-verify origin dev; then
                   echo "✅ Push thành công tại root repo!"
                   return 0
                 fi
               else
+                if [ -n "$(git -C "$dir" status --porcelain 2>/dev/null)" ]; then
+                  echo "📦 Cất tạm thay đổi vào stash tại $dir trước khi pull..."
+                  git -C "$dir" stash push -u -m "push-retry-stash" 2>/dev/null && has_stash=1
+                fi
                 git -C "$dir" pull --rebase origin dev || true
+                if [ $has_stash -eq 1 ]; then
+                  echo "📦 Khôi phục thay đổi từ stash tại $dir..."
+                  git -C "$dir" stash pop 2>/dev/null || true
+                fi
                 if HUSKY=0 git -C "$dir" push --no-verify origin dev; then
                   echo "✅ Push thành công tại $dir!"
                   return 0
