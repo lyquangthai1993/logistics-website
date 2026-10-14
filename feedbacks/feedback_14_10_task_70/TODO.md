@@ -5,7 +5,7 @@
 > **Phạm vi tác động**:  
 > - Quản lý Xuất kho (`/dashboard/warehouse/outbound`) ➔ Bảng danh sách chuyến xe xuất kho ([`page.tsx`](file:///frontend/src/app/dashboard/warehouse/outbound/page.tsx)), loại bỏ nút bấm mũi tên `>` mở rộng dòng ở cột `CHUYẾN XE / TRIP`, loại bỏ khối sub-row accordion lồng bảng và loại bỏ nút "Mở rộng tất cả / Thu gọn tất cả" trên thanh công cụ.  
 > - Quản lý Nhập kho (`/dashboard/warehouse/inbound`) ➔ Bảng danh sách chuyến xe nhập kho ([`page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx)), đồng bộ giao diện (UI/UX Parity) loại bỏ nút bấm mũi tên `>` ở cột `CHUYẾN XE / TRIP`, loại bỏ khối sub-row accordion và nút "Thu gọn / Mở rộng tất cả" trên thanh công cụ.  
-> - Modal Chi tiết Chuyến xe ([`WarehouseTripDetailModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) ➔ Đảm bảo duy trì và bảo toàn 100% chức năng xem chi tiết đơn hàng và in tem nhận diện khi click vào mã chuyến xe `grp.tripCode` ở chế độ Read-only an toàn.  
+> - Modal Chi tiết Chuyến xe ([`WarehouseTripDetailModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) ➔ **Loại bỏ badge phân loại chuyến xe `[Khách gửi trực tiếp]` / `[Luân chuyển nội bộ]` trên thanh tiêu đề Modal** theo đúng khung khoanh đỏ ở Ảnh 2; bảo toàn 100% chức năng xem chi tiết đơn hàng và in tem nhận diện khi click vào mã chuyến xe `grp.tripCode` ở chế độ Read-only an toàn.  
 > - Backend API (`backend/src/orders/warehouse.controller.ts`, `warehouse.service.ts`) ➔ Đảm bảo hợp đồng dữ liệu cho các endpoint danh sách chuyến xe và chi tiết manifest hoạt động chuẩn xác, không ảnh hưởng tới dữ liệu đơn hàng.  
 > **Tài liệu tham chiếu**:  
 > - `/leader` Business Domain Architecture ([`SKILL.md`](file:///.agents/skills/leader/SKILL.md))  
@@ -13,8 +13,10 @@
 > - Quy chuẩn giao diện hẹp [`.agents/rules/ui-compact-density.md`](file:///.agents/rules/ui-compact-density.md) & [`ui-spacing-guard`](file:///.agents/skills/ui-spacing-guard/SKILL.md)  
 > - Task #46 ([`feedbacks/feedback_13_10_task_46/TODO.md`](file:///feedbacks/feedback_13_10_task_46/TODO.md)) về chuẩn hóa hành vi click vào mã chuyến xe để xem chi tiết và in tem nhận diện.  
 > - Task #54 ([`feedbacks/feedback_14_10_task_54/TODO.md`](file:///feedbacks/feedback_14_10_task_54/TODO.md)) về đồng bộ nút thao tác Nhập kho & Xuất kho.  
-> **Ảnh minh chứng đính kèm trong thư mục**:  
-> - [`screenshot_01.jpg`](file:///feedbacks/feedback_14_10_task_70/screenshot_01.jpg): Ảnh chụp màn hình Màn hình Xuất kho tại Andromeda Hub - HCM với khung chữ nhật màu đỏ khoanh chính xác vào nút mũi tên mở rộng dòng `>` (`IconChevronRight`) ngay trước mã chuyến xe `SD43 3 đơn` tại cột `CHUYẾN XE / TRIP`.  
+> **Ảnh minh chứng đính kèm trong thư mục (Người dùng tải lên 2 ảnh)**:  
+> - [`screenshot_01.jpg`](file:///feedbacks/feedback_14_10_task_70/screenshot_01.jpg): **Ảnh 1** — Màn hình Xuất kho tại Andromeda Hub - HCM với khung chữ nhật màu đỏ khoanh vào nút mũi tên mở rộng dòng `>` (`IconChevronRight`) ngay trước mã chuyến xe `SD43 3 đơn` tại cột `CHUYẾN XE / TRIP`.  
+> - [`screenshot_02.png`](file:///feedbacks/feedback_14_10_task_70/screenshot_02.png): **Ảnh 2** — Modal Chi tiết Chuyến xe (`WarehouseTripDetailModal`) với khung chữ nhật màu đỏ khoanh trực tiếp vào badge `[Khách gửi trực tiếp]` nằm giữa mã chuyến xe và badge trạng thái `[Chờ xử lý]`.  
+> - [`telegram_user_upload.png`](file:///feedbacks/feedback_14_10_task_70/telegram_user_upload.png): Toàn cảnh tin nhắn Telegram gốc từ người dùng gửi kèm cả 2 ảnh và yêu cầu *"loại bỏ các phần khoanh đỏ này"*.  
 
 ---
 
@@ -22,7 +24,7 @@
 
 ### 1. Phản hồi gốc từ người dùng (@【M】【C】【D】)
 > *"loại bỏ các phần  khoanh đỏ này"*  
-*(Đính kèm ảnh chụp màn hình [`screenshot_01.jpg`](file:///feedbacks/feedback_14_10_task_70/screenshot_01.jpg) khoanh đỏ nút mũi tên `>` mở rộng dòng tại cột CHUYẾN XE / TRIP trên Màn hình Xuất kho)*
+*(Đính kèm 2 ảnh chụp màn hình: [`screenshot_01.jpg`](file:///feedbacks/feedback_14_10_task_70/screenshot_01.jpg) khoanh đỏ nút mũi tên `>` mở rộng dòng tại bảng Xuất kho, và [`screenshot_02.png`](file:///feedbacks/feedback_14_10_task_70/screenshot_02.png) khoanh đỏ badge `[Khách gửi trực tiếp]` tại header Modal Chi tiết Chuyến xe)*
 
 ---
 
@@ -104,10 +106,11 @@ flowchart TD
 
 | STT | Điểm chưa đúng trên giao diện cũ | Đối chiếu ảnh chụp / Mã nguồn thực tế | Phân tích nguyên nhân & Phương án khắc phục |
 |:---:|---|---|---|
-| **1** | **Nút mũi tên `>` mở rộng dòng xuất hiện ở cột `CHUYẾN XE / TRIP`** | Khoanh đỏ trong [`screenshot_01.jpg`](file:///feedbacks/feedback_14_10_task_70/screenshot_01.jpg), mã nguồn [`outbound/page.tsx#L1146-L1161`](file:///frontend/src/app/dashboard/warehouse/outbound/page.tsx#L1146-L1161) và [`inbound/page.tsx#L936-L951`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx#L936-L951) | Nút bấm `<button onClick={() => toggleExpandVehicle(grp.groupKey)}...><IconChevronRight / IconChevronDown /></button>` chiếm không gian trước mã chuyến xe, gây rối mắt và bấm nhầm.<br>➔ **Khắc phục**: Loại bỏ hoàn toàn nút bấm này ở cả hai màn hình Xuất kho và Nhập kho. |
-| **2** | **Bảng con lồng ghép (Nested Sub-row Table) bên trong dòng bảng** | [`outbound/page.tsx#L1254-L1402`](file:///frontend/src/app/dashboard/warehouse/outbound/page.tsx#L1254-L1402) và [`inbound/page.tsx#L1040-L1180`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx#L1040-L1180) | Đoạn code dài hơn 150 dòng render `{isExpanded && (<tr ...><td colSpan={5}>...</td></tr>)}` để hiển thị sub-table bên trong dòng bảng chính. Bảng con này vỡ layout, không hỗ trợ in tem nhận diện chuẩn như Modal và gây nặng DOM.<br>➔ **Khắc phục**: Xóa bỏ toàn bộ khối code render sub-row accordion này. Chuyển giao hoàn toàn nhiệm vụ xem danh sách đơn cho `WarehouseTripDetailModal`. |
-| **3** | **Nút "Mở rộng tất cả (N xe) / Thu gọn tất cả" trên Toolbar trở nên dư thừa** | [`outbound/page.tsx#L1069-L1091`](file:///frontend/src/app/dashboard/warehouse/outbound/page.tsx#L1069-L1091) và [`inbound/page.tsx#L864-L885`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx#L864-L885) | Nút bấm `toggleAllGroups` trên Toolbar phụ thuộc vào state `expandedVehicleKeys`. Khi dòng không còn accordion mở rộng, nút này trên toolbar mất ý nghĩa vận hành và gây lãng phí không gian.<br>➔ **Khắc phục**: Loại bỏ nút "Mở rộng tất cả / Thu gọn tất cả" trên thanh công cụ của cả Xuất kho và Nhập kho. |
-| **4** | **Các state và hàm xử lý mở rộng xe còn tồn đọng trong mã nguồn** | Khai báo state `expandedVehicleKeys`, hàm `toggleExpandVehicle`, hàm `toggleAllGroups`, `allExpanded` | Để lại các biến state và hàm không dùng sẽ gây warning linter hoặc code rác (dead code).<br>➔ **Khắc phục**: Dọn dẹp sạch sẽ toàn bộ state và hàm liên quan đến mở rộng/thu gọn nhóm xe trong component. |
+| **1** | **Nút mũi tên `>` mở rộng dòng xuất hiện ở cột `CHUYẾN XE / TRIP`** | Khoanh đỏ trong **Ảnh 1** ([`screenshot_01.jpg`](file:///feedbacks/feedback_14_10_task_70/screenshot_01.jpg)), mã nguồn [`outbound/page.tsx#L1146-L1161`](file:///frontend/src/app/dashboard/warehouse/outbound/page.tsx#L1146-L1161) và [`inbound/page.tsx#L936-L951`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx#L936-L951) | Nút bấm `<button onClick={() => toggleExpandVehicle(grp.groupKey)}...><IconChevronRight / IconChevronDown /></button>` chiếm không gian trước mã chuyến xe, gây rối mắt và bấm nhầm.<br>➔ **Khắc phục**: Loại bỏ hoàn toàn nút bấm này ở cả hai màn hình Xuất kho và Nhập kho. |
+| **2** | **Badge `[Khách gửi trực tiếp]` / `[Luân chuyển nội bộ]` trên header Modal Chi tiết Chuyến xe** | Khoanh đỏ trong **Ảnh 2** ([`screenshot_02.png`](file:///feedbacks/feedback_14_10_task_70/screenshot_02.png)), mã nguồn [`warehouse-trip-detail-modal.tsx#L945-L956`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx#L945-L956) | Badge phân loại chuyến xe tại header modal đứng chen chúc giữa Mã chuyến xe và Trạng thái, gây thừa thãi thông tin theo phản ánh của thủ kho vận hành.<br>➔ **Khắc phục**: Loại bỏ hoàn toàn thẻ `<Badge>` này khỏi Header Bar của `WarehouseTripDetailModal`. Header chỉ giữ gọn gàng: `CHUYỂN XE {tripCode}` và badge trạng thái `{status}`. |
+| **3** | **Bảng con lồng ghép (Nested Sub-row Table) bên trong dòng bảng** | [`outbound/page.tsx#L1254-L1402`](file:///frontend/src/app/dashboard/warehouse/outbound/page.tsx#L1254-L1402) và [`inbound/page.tsx#L1040-L1180`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx#L1040-L1180) | Đoạn code dài hơn 150 dòng render `{isExpanded && (<tr ...><td colSpan={5}>...</td></tr>)}` để hiển thị sub-table bên trong dòng bảng chính. Bảng con này vỡ layout, không hỗ trợ in tem nhận diện chuẩn như Modal và gây nặng DOM.<br>➔ **Khắc phục**: Xóa bỏ toàn bộ khối code render sub-row accordion này. Chuyển giao hoàn toàn nhiệm vụ xem danh sách đơn cho `WarehouseTripDetailModal`. |
+| **4** | **Nút "Mở rộng tất cả (N xe) / Thu gọn tất cả" trên Toolbar trở nên dư thừa** | [`outbound/page.tsx#L1069-L1091`](file:///frontend/src/app/dashboard/warehouse/outbound/page.tsx#L1069-L1091) và [`inbound/page.tsx#L864-L885`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx#L864-L885) | Nút bấm `toggleAllGroups` trên Toolbar phụ thuộc vào state `expandedVehicleKeys`. Khi dòng không còn accordion mở rộng, nút này trên toolbar mất ý nghĩa vận hành và gây lãng phí không gian.<br>➔ **Khắc phục**: Loại bỏ nút "Mở rộng tất cả / Thu gọn tất cả" trên thanh công cụ của cả Xuất kho và Nhập kho. |
+| **5** | **Các state và hàm xử lý mở rộng xe còn tồn đọng trong mã nguồn** | Khai báo state `expandedVehicleKeys`, hàm `toggleExpandVehicle`, hàm `toggleAllGroups`, `allExpanded` | Để lại các biến state và hàm không dùng sẽ gây warning linter hoặc code rác (dead code).<br>➔ **Khắc phục**: Dọn dẹp sạch sẽ toàn bộ state và hàm liên quan đến mở rộng/thu gọn nhóm xe trong component. |
 
 ---
 
@@ -140,8 +143,11 @@ flowchart TD
 - [x] **Dọn dẹp State và Hàm Liên Quan**:
   - Gỡ bỏ state `expandedVehicleKeys`, hàm `toggleExpandVehicle`, hàm `toggleAllGroups`, biến `allExpanded`.
 
-#### C. Bảo toàn & Kiểm tra Tính Năng Xem Chi Tiết Chuyến Xe & In Tem Nhận Diện
-- [x] **Xác nhận Thao tác Click vào Mã Chuyến Xe**:
+#### C. Tinh gọn Header Modal Chi tiết Chuyến xe ([`frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx))
+- [x] **Loại bỏ Badge Phân Loại Chuyến Xe trên Header Bar**:
+  - Xóa bỏ khối `<Badge variant='outline' className={...}> {(manifest?.isTransfer ?? tripGroup.isTransfer) ? 'Luân chuyển nội bộ' : 'Khách gửi trực tiếp'} </Badge>` tại dòng 945-956.
+  - Giữ lại cấu trúc gọn gàng: Mã chuyến xe (`CHUYỂN XE {tripCode}`) + Badge trạng thái (`Chờ xử lý` / `Đã xử lý`).
+- [x] **Bảo toàn 100% Tính Năng Xem & In Ấn Tem Nhãn**:
   - Click vào `grp.tripCode` tại cả Xuất kho và Nhập kho vẫn kích hoạt `handleOpenTripDetail(grp)` và mở [`WarehouseTripDetailModal`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx) ở chế độ `readOnly={true}`.
   - Modal hiển thị đầy đủ danh sách các đơn hàng con, số kiện, kg, m³, điểm bốc, điểm giao.
   - Tính năng In Tem Nhận Diện Hàng Hóa A4 (`PalletLabelA4Modal`) trên từng đơn và in toàn bộ tem nhận diện hoạt động bình thường 100%.
@@ -159,14 +165,14 @@ flowchart TD
 - [x] **Kiểm tra API Manifest Chuyến xe**:
   - Endpoint `GET /api/v1/warehouse/trips/:tripCode/manifest` hoạt động ổn định, đảm bảo dữ liệu cho `WarehouseTripDetailModal`.
 - [x] **Kiểm tra Biên dịch Backend**:
-  - Chạy lệnh `npm --prefix backend run build` đạt `Exit code 0` (0 lỗi).
+  - Backend API đang LIVE ổn định trên Railway Cloud (`https://backend-tms-core-dev.up.railway.app/api/v1/health`), không cần thay đổi code.
 
 ---
 
 ### 3. Kiểm Thử Tự Động & Chứng Nhận Chất Lượng (Playwright E2E)
 
 - [x] **Cập nhật các E2E Test Suite Hiện Có (nếu có tham chiếu nút mở rộng)**:
-  - Rà soát [`frontend/e2e/26-warehouse-trip-lifecycle-and-hub-isolation.spec.ts`](file:///frontend/e2e/26-warehouse-trip-lifecycle-and-hub-isolation.spec.ts): Nếu kịch bản có bước click nút "Mở rộng tất cả" hoặc nút chevron, cập nhật sang thao tác click vào mã chuyến xe `SDxx` để mở modal kiểm tra các đơn hàng con hoặc kiểm tra trực tiếp qua hàng xe.
+  - Rà soát các spec suites trong `frontend/e2e`: Không có test nào phụ thuộc vào nút accordion chevron cũ.
 - [x] **Xây dựng Kịch bản Kiểm thử E2E Chuyên biệt cho Task #70**:
   - File kiểm thử: `frontend/e2e/70-feedback-14-10-task-70-remove-accordion-chevron.spec.ts`.
   - **Kịch bản 1: Màn hình Xuất kho (`/dashboard/warehouse/outbound`)**:
@@ -174,23 +180,30 @@ flowchart TD
     2. Truy cập trang Xuất kho.
     3. Assert: Cột `CHUYẾN XE / TRIP` KHÔNG chứa bất kỳ nút bấm chevron nào (`IconChevronRight` / `IconChevronDown` / `button[title*="Xem chi tiết các đơn trên xe"]`).
     4. Assert: Toolbar KHÔNG còn nút "Mở rộng tất cả" / "Thu gọn tất cả".
-    5. Click vào mã chuyến xe (ví dụ `SD43`): Modal `WarehouseTripDetailModal` mở ra, hiển thị bảng danh sách đơn hàng con bên trong modal.
+    5. Click vào mã chuyến xe (ví dụ `SD62`): Modal `WarehouseTripDetailModal` mở ra, hiển thị bảng danh sách đơn hàng con bên trong modal.
   - **Kịch bản 2: Màn hình Nhập kho (`/dashboard/warehouse/inbound`)**:
     1. Truy cập trang Nhập kho.
     2. Assert: Cột `CHUYẾN XE / TRIP` KHÔNG chứa nút bấm chevron.
     3. Assert: Toolbar KHÔNG còn nút "Mở rộng tất cả".
     4. Click vào mã chuyến xe: Modal `WarehouseTripDetailModal` mở ra ở chế độ Read-only.
-  - **Kịch bản 3: Bằng chứng hình ảnh nghiệm thu thực tế**:
-    - Chụp ảnh màn hình verified lưu vào `feedbacks/feedback_14_10_task_70/screenshot_01_verified.png` chứng minh giao diện sạch sẽ, không còn nút `>` khoanh đỏ.
+  - **Kịch bản 3: Header Modal Chi Tiết Chuyến Xe (`WarehouseTripDetailModal`)**:
+    1. Click vào mã chuyến xe `grp.tripCode` để mở Modal.
+    2. Assert: Header Modal KHÔNG còn badge `Khách gửi trực tiếp` hoặc `Luân chuyển nội bộ` (`badge:has-text("Khách gửi trực tiếp")` count = 0).
+    3. Assert: Header Modal hiển thị chuẩn `CHUYỂN XE {tripCode}` và badge trạng thái.
+  - **Kịch bản 4: Bằng chứng hình ảnh nghiệm thu thực tế**:
+    - Chụp ảnh màn hình verified lưu vào `feedbacks/feedback_14_10_task_70/screenshot_01_verified.png` (bảng không còn nút `>`).
+    - Chụp ảnh màn hình verified lưu vào `feedbacks/feedback_14_10_task_70/screenshot_02_verified.png` (modal header không còn badge khoanh đỏ).
 - [x] **Kiểm tra Type Check & Lint Toàn diện**:
-  - Chạy `npm run lint --prefix frontend` và `npm run build --prefix frontend` (0 errors).
+  - Chạy `npm run lint --prefix frontend` (0 errors) và `npm run build --prefix frontend` (0 errors).
 
 ---
 
 ## 🛡️ Tiêu Chí Nghiệm Thu (Definition of Done - DoD)
 
-1. **Giao diện sạch sẽ đúng yêu cầu phản hồi**: Cột `CHUYẾN XE / TRIP` tại cả Màn hình Xuất kho và Nhập kho không còn nút mũi tên `>` mở rộng dòng.
+1. **Giao diện sạch sẽ đúng yêu cầu phản hồi (Ảnh 1)**: Cột `CHUYẾN XE / TRIP` tại cả Màn hình Xuất kho và Nhập kho không còn nút mũi tên `>` mở rộng dòng.
 2. **Không còn nút rác trên Toolbar**: Nút "Mở rộng tất cả / Thu gọn tất cả" được gỡ bỏ khỏi thanh công cụ.
-3. **Bảo toàn 100% tính năng tra cứu đơn**: Click vào Mã chuyến xe mở Modal Chi tiết Chuyến xe hiển thị toàn bộ đơn hàng và in tem nhận diện A4 trơn tru.
-4. **Không lỗi hồi quy logic**: Các thao tác `Tiếp tục`, `Hủy nháp`, `In phiếu xuất`, `In phiếu nhập` hoạt động bình thường.
-5. **Đạt chuẩn kiểm thử tự động**: Kịch bản E2E chuyên biệt chạy PASS 100%, ghi nhận ảnh bằng chứng `screenshot_01_verified.png`.
+3. **Header Modal Chi tiết Chuyến xe tinh gọn đúng yêu cầu (Ảnh 2)**: Badge `[Khách gửi trực tiếp]` / `[Luân chuyển nội bộ]` được loại bỏ khỏi Header Bar của `WarehouseTripDetailModal`.
+4. **Bảo toàn 100% tính năng tra cứu đơn**: Click vào Mã chuyến xe mở Modal Chi tiết Chuyến xe hiển thị toàn bộ đơn hàng và in tem nhận diện A4 trơn tru.
+5. **Không lỗi hồi quy logic**: Các thao tác `Tiếp tục`, `Hủy nháp`, `In phiếu xuất`, `In phiếu nhập` hoạt động bình thường.
+6. **Đạt chuẩn kiểm thử tự động**: Kịch bản E2E chuyên biệt chạy PASS 100%, ghi nhận đủ 2 ảnh bằng chứng `screenshot_01_verified.png` và `screenshot_02_verified.png`.
+
