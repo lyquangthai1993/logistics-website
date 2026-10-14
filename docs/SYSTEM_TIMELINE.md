@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 14/10/2026 | `feedbacks/feedback_14_10_task_54` | Feedback 14/10 (Task #54) — Thiết Kế Đồng Bộ 2 Nút "... | 17/17 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_54/RESOLUTION.md) |
 | 14/10/2026 | `feedbacks/feedback_14_10_task_52` | Feedback 14/10 (Task #52) — Loại Bỏ Tiêu Đề "Kiểm Đế... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_52/RESOLUTION.md) |
 | 14/10/2026 | `feedbacks/feedback_14_10_task_51` | Feedback 14/10 (Task #51) — Cho Phép Chọn Đơn Hàng N... | 14/14 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_51/RESOLUTION.md) |
 | 13/10/2026 | `feedbacks/feedback_13_10_task_46` | Feedback 13/10 (Task #46) — Chuẩn hóa Nút "Tiếp tục"... | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_13_10_task_46/RESOLUTION.md) |
@@ -54,6 +55,18 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_14_10_TASK_54] — Feedback 14/10 (Task #54) — Thiết Kế Đồng Bộ 2 Nút "Tiếp tục" & "Hủy nháp" Trên Màn Hình Nhập Kho Tương Tự Màn Hình Xuất Kho (14/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (17/17 việc)
+- **Báo cáo bởi**: @【M】【C】【D】 / @Thai (Quản lý nghiệp vụ / Vận hành TMS)
+- **Phạm vi**: Frontend ([`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx)) ➔ Bổ sung nút "Hủy nháp" (variant outline đỏ, icon `IconTrash`, kích thước `h-7`, `text-[11px]`) đứng cạnh nút "Tiếp tục" cho các chuyến xe trạng thái `Chờ xử lý` (`isPending`). • Backend Controller ([`warehouse.controller.ts`](file:///backend/src/orders/warehouse.controller.ts)) ➔ Thêm endpoint `DELETE /api/v1/warehouse/inbound/drafts/:tripCode` cho phép thủ kho / Super Admin hủy chuyến xe nhập nháp chưa xử lý. • Backend Service ([`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts)) ➔ Cài đặt phương thức `cancelInboundDraft` xử lý transaction soft-delete `trip_stop`, `order` nháp và `trip` nháp an toàn. • N8N Task Router & GitHub Actions CI/CD ([`update-n8n-router.mjs`](file:///tools/telegram-task-runner/update-n8n-router.mjs), [`.github/workflows/telegram-agy-worker.yml`](file:///.github/workflows/telegram-agy-worker.yml)) ➔ Sửa lỗi đường dẫn tuyệt đối Windows và siết chặt Quality Gate ngăn báo cáo hoàn thành khống khi 0 file bị sửa.
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Tạo endpoint `DELETE /api/v1/warehouse/inbound/drafts/:tripCode` trong [`warehouse.controller.ts`](file:///backend/src/orders/warehouse.controller.ts) với quyền `SUPER_ADMIN, WAREHOUSE_MANAGER`.; Triển khai hàm `cancelInboundDraft` trong [`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts) với transaction an toàn; Soft-delete bản ghi trạm dừng `trip_stop` tương ứng trạng thái `PENDING` tại Hub....
+  * **Frontend**: Bổ sung import `IconTrash` trong [`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx).; Thêm state `cancellingDraftCode` quản lý trạng thái loading khi đang xóa chuyến nháp.; Cài đặt hàm `handleCancelDraft(tripCode: string)`...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_14_10_task_54/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_14_10_task_54/TODO.md)
 
 ### 🚀 [FEEDBACK_14_10_TASK_52] — Feedback 14/10 (Task #52) — Loại Bỏ Tiêu Đề "Kiểm Đếm Dỡ Hàng & Nhập Kho" Và Nút "Bốc Thêm Đơn Dọc Đường" Ở Màn Hình Xem Đơn Hàng Trong Trip Xuất, Nhập Tạo Mới Từ Hub Của Account (14/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (9/9 việc)

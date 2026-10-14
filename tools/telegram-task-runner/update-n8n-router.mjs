@@ -114,8 +114,8 @@ if (isForce) {
     'Bạn vừa tiếp nhận feedback / yêu cầu mới từ người dùng' + (photoFileId ? ' kèm theo ảnh chụp màn hình' : '') + ':\\n\\\"' + cleanText + '\\\"\\n\\n' +
     'NHIỆM VỤ ĐẦU RA BẮT BUỘC:\\n' +
     '1. Đọc và phân tích kỹ phản hồi và các hình ảnh chụp màn hình đính kèm (sử dụng view_file).\\n' +
-    '2. Khảo sát cấu trúc nghiệp vụ và mã nguồn trong D:\\\\Projects\\\\logistics-website.\\n' +
-    '3. Tổng hợp thành 1 file TODO.md chuẩn mực đặt tại thư mục feedback riêng biệt cho task theo mẫu: D:\\\\Projects\\\\logistics-website\\\\feedbacks\\\\feedback_DD_MM_task_<id>\\\\TODO.md theo đúng cấu trúc chuẩn như trong D:\\\\Projects\\\\logistics-website\\\\feedback_06_10\\\\TODO.md:\\n' +
+    '2. Khảo sát cấu trúc nghiệp vụ và mã nguồn trong dự án (backend/ NestJS và frontend/ Next.js App Router).\\n' +
+    '3. BẮT BUỘC sử dụng công cụ write_to_file để tạo ngay file TODO.md chuẩn mực đặt tại thư mục feedback tương ứng: feedbacks/feedback_DD_MM_task_<id>/TODO.md (với DD_MM là ngày hôm nay và <id> là ID của task) theo đúng cấu trúc chuẩn như trong feedbacks/feedback_06_10/TODO.md:\\n' +
     '   - Header: Tiêu đề Feedback + Thời gian ghi nhận + Người báo cáo + Màn hình liên quan + Tài liệu tham chiếu\\n' +
     '   - 📌 Bối cảnh nghiệp vụ thực tế (Chốt theo phản hồi người dùng)\\n' +
     '   - 🔍 Tổng hợp các điểm chưa đúng trên giao diện cũ (đối chiếu ảnh chụp màn hình)\\n' +
@@ -298,7 +298,7 @@ return [{
         },
         sendBody: true,
         specifyBody: 'json',
-        jsonBody: '={{ JSON.stringify({\n  event_type: "telegram-task",\n  client_payload: {\n    task_id: $("Enqueue Task to Neon DB").item.json.id?.toString() || "manual",\n    prompt: $("Format Leader Prompt").item.json.analysis || $("Format Leader Prompt").item.json.raw_prompt,\n    sender_name: $("Format Leader Prompt").item.json.sender_name,\n    mode: $("Format Leader Prompt").item.json.mode_badge?.includes("todo-agent") ? "todo" : "leader"\n  }\n}) }}',
+        jsonBody: '={{ JSON.stringify({\n  event_type: "telegram-task",\n  client_payload: {\n    task_id: $("Enqueue Task to Neon DB").item.json.id?.toString() || "manual",\n    prompt: (($("Format Leader Prompt").item.json.analysis || $("Format Leader Prompt").item.json.raw_prompt) || "").replace(/<id>/g, $("Enqueue Task to Neon DB").item.json.id?.toString() || ""),\n    sender_name: $("Format Leader Prompt").item.json.sender_name,\n    mode: $("Format Leader Prompt").item.json.mode_badge?.includes("todo-agent") ? "todo" : "leader"\n  }\n}) }}',
         options: {}
       },
       id: 'trigger-github-actions-node',
