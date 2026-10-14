@@ -12,25 +12,25 @@ async function run() {
   await client.connect();
   console.log('Connected to Neon DB.');
 
-  const wf = await client.query('SELECT nodes, connections FROM workflow_entity WHERE id = $1', ['IL2EeeayDVec4jHl']);
-  const nodes = wf.rows[0].nodes;
-  const connections = wf.rows[0].connections;
-  console.log('Nodes in workflow_entity:', nodes.map(n => n.name));
+  const wfIds = ['IL2EeeayDVec4jHl', 'npbnCeqRGuBWPNjI'];
+  for (const wfId of wfIds) {
+    const wf = await client.query('SELECT nodes, connections FROM workflow_entity WHERE id = $1', [wfId]);
+    if (wf.rows.length === 0) continue;
+    const nodes = wf.rows[0].nodes;
+    const connections = wf.rows[0].connections;
+    console.log(`[${wfId}] Nodes:`, nodes.map(n => n.name));
 
-  const pub = await client.query('SELECT "publishedVersionId" FROM workflow_published_version WHERE "workflowId" = $1', ['IL2EeeayDVec4jHl']);
-  const versionId = pub.rows[0].publishedVersionId;
-  console.log('Current publishedVersionId:', versionId);
+    const pub = await client.query('SELECT "publishedVersionId" FROM workflow_published_version WHERE "workflowId" = $1', [wfId]);
+    if (pub.rows.length === 0) continue;
+    const versionId = pub.rows[0].publishedVersionId;
+    console.log(`[${wfId}] PublishedVersionId:`, versionId);
 
-  // Cập nhật version đang chạy (published version) trong workflow_history
-  const res = await client.query(
-    'UPDATE workflow_history SET nodes = $1, connections = $2 WHERE "versionId" = $3',
-    [JSON.stringify(nodes), JSON.stringify(connections), versionId]
-  );
-  console.log('Updated workflow_history rows:', res.rowCount);
-
-  // Xóa task 33 thử nghiệm vừa sinh ra nếu có
-  const delRes = await client.query("DELETE FROM telegram_tasks WHERE id = 33 OR raw_prompt LIKE 'Tin nhắn thử nghiệm%';");
-  console.log('Cleaned test tasks:', delRes.rowCount);
+    const res = await client.query(
+      'UPDATE workflow_history SET nodes = $1, connections = $2 WHERE "versionId" = $3',
+      [JSON.stringify(nodes), JSON.stringify(connections), versionId]
+    );
+    console.log(`[${wfId}] Updated workflow_history rows:`, res.rowCount);
+  }
 
   await client.end();
   console.log('Done!');
