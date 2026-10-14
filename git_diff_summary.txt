@@ -1,9 +1,20 @@
 === Root ===
- frontend             |   2 +-
- git_diff_summary.txt |  17 ------
- package-lock.json    | 149 +++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 150 insertions(+), 18 deletions(-)
- M frontend
+ backend              | 0
+ frontend             | 0
+ git_diff_summary.txt | 8 --------
+ 3 files changed, 8 deletions(-)
+ m backend
+ m frontend
  M git_diff_summary.txt
- M package-lock.json
-?? feedbacks/feedback_14_10_task_52/TODO.md
+?? feedbacks/feedback_14_10_task_53/RESOLUTION.md
+=== Backend ===
+ src/orders/warehouse.service.ts | 38 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
+ M src/orders/warehouse.service.ts
+=== Frontend ===
+ .../components/warehouse-editable-grid.tsx         |  1 +
+ .../components/warehouse-trip-detail-modal.tsx     | 63 ++++++++++++++++++----
+ 2 files changed, 53 insertions(+), 11 deletions(-)
+ M src/features/warehouse/components/warehouse-editable-grid.tsx
+ M src/features/warehouse/components/warehouse-trip-detail-modal.tsx
+?? e2e/53-feedback-14-10-task-53-expected-inbound-plate.spec.ts
