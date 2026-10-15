@@ -14,7 +14,7 @@
 > - Biên niên sử hệ thống [`docs/SYSTEM_TIMELINE.md`](file:///home/runner/work/logistics-website/logistics-website/docs/SYSTEM_TIMELINE.md)  
 > - Kế hoạch chuẩn mẫu [`feedbacks/feedback_06_10/TODO.md`](file:///home/runner/work/logistics-website/logistics-website/feedbacks/feedback_06_10/TODO.md)  
 > **Ảnh minh chứng đính kèm trong thư mục**:  
-> - [`screenshot_01.jpg`](file:///home/runner/work/logistics-website/logistics-website/feedbacks/feedback_15_10_task_83/screenshot_01.jpg): Modal Chi tiết chuyến xe & Kiểm đếm hàng hóa của chuyến xe `SD49` ở trạng thái `Chờ xử lý`, trong đó nút `🖨️ In phiếu nhập` xuất hiện trên thanh Header góc trên bên phải cạnh nút đóng `✕`.
+> - [`screenshot_01.jpg`](file:///home/runner/work/logistics-website/logistics-website/feedbacks/feedback_15_10_task_83/screenshot_01.jpg): Modal Chi tiết chuyến xe của chuyến xe `SD68` ở trạng thái `Chờ xử lý` tại `Andromeda Hub - HCM` (Xe tạo mới tại trạm này, BKS: `61C12199`, Tài xế: `nguyễn văn phong`, đơn hàng `NTC10-060`). Nút `🖨️ In phiếu nhập` xuất hiện trên thanh Header góc trên bên phải (được khoanh viền đỏ), khi ấn vào hệ thống báo thông báo toast: *"Không có đơn hàng nào cần dỡ nhập kho tại trạm này để in."*.
 
 ---
 
@@ -23,7 +23,7 @@
 ### 1. Phản hồi gốc từ người dùng (@Thai)
 > *"khi chuyến xe đang trạng thái là 'Chờ xử lý', nút khoanh đỏ 'In phiếu nhập' sẽ bị ẩn, vì lúc này người dùng ấn vào cũng không in gì được đâu"*
 
-Kèm ảnh chụp màn hình thực tế: [`screenshot_01.jpg`](file:///home/runner/work/logistics-website/logistics-website/feedbacks/feedback_15_10_task_83/screenshot_01.jpg) ghi nhận chuyến xe `SD49` đang dừng tại trạm kiểm đếm với huy hiệu trạng thái màu vàng **`Chờ xử lý`** (`PENDING`). Tại góc trên bên phải của Modal Header, nút **`🖨️ In phiếu nhập`** vẫn đang hiển thị, cho phép người dùng click vào.
+Kèm ảnh chụp màn hình thực tế: [`screenshot_01.jpg`](file:///home/runner/work/logistics-website/logistics-website/feedbacks/feedback_15_10_task_83/screenshot_01.jpg) ghi nhận chuyến xe `SD68` đang dừng tại trạm kiểm đếm `Andromeda Hub - HCM` với huy hiệu trạng thái màu vàng **`Chờ xử lý`** (`PENDING`). Tại góc trên bên phải của Modal Header, nút **`🖨️ In phiếu nhập`** vẫn đang hiển thị (khoanh đỏ). Khi người dùng ấn vào nút này, hệ thống hiển thị toast cảnh báo: *"Không có đơn hàng nào cần dỡ nhập kho tại trạm này để in."* vì hàng chưa được dỡ và xác nhận nhập kho thực tế.
 
 ---
 
