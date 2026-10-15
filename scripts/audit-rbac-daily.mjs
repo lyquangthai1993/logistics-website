@@ -1,9 +1,34 @@
 import fs from 'fs';
 import path from 'path';
-import dotenv from 'dotenv';
 
-// Load Telegram bot environment if available
-dotenv.config({ path: path.resolve('tools/telegram-task-runner/.env') });
+// Load Telegram bot environment if available locally
+const envPath = path.resolve('tools/telegram-task-runner/.env');
+if (fs.existsSync(envPath)) {
+  if (typeof process.loadEnvFile === 'function') {
+    try {
+      process.loadEnvFile(envPath);
+    } catch {}
+  } else {
+    try {
+      const dotenv = (await import('dotenv')).default;
+      dotenv.config({ path: envPath });
+    } catch {
+      try {
+        const content = fs.readFileSync(envPath, 'utf8');
+        for (const line of content.split(/\r?\n/)) {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith('#')) continue;
+          const idx = trimmed.indexOf('=');
+          if (idx !== -1) {
+            const k = trimmed.slice(0, idx).trim();
+            const v = trimmed.slice(idx + 1).trim();
+            if (!process.env[k]) process.env[k] = v;
+          }
+        }
+      } catch {}
+    }
+  }
+}
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_ALLOWED_CHAT_ID || process.env.ALLOWED_CHAT_ID || '-5509877448';

@@ -5,7 +5,7 @@
 > **Trạng thái thực thi**: ✅ ĐÃ HOÀN THÀNH 100% (16/16 tasks)  
 > **Người báo cáo / Nghiệp vụ**: @User / Thủ kho Spider Express (@Thai & Đội ngũ vận hành)  
 > **Phạm vi tác động**: **Công cụ Tiện ích Kho Vận (Warehouse Operational Utilities & Tools)**: • Trang công cụ chuyên dụng: [`/dashboard/warehouse/excel-converter`](file:///d:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/excel-converter/page.tsx) • Tích hợp trực tiếp tại Màn hình Nhập kho: Nút mở bộ chuyển đổi nhanh trên thanh công cụ [`page.tsx`](file:///d:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/inbound/page.tsx) • Cải tiến bộ phân tích tự động trong Modal Nhập Excel: [`warehouse-excel-import-modal.tsx`](file:///d:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-excel-import-modal.tsx) • Khả năng tương thích cơ chế Dán thông minh (Smart TSV Clipboard Paste): [`warehouse-editable-grid.tsx`](file:///d:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-editable-grid.tsx) • **Phân quyền truy cập RBAC (Role-Based Access Control)**: • Cập nhật điều kiện lọc thanh điều hướng [`use-nav.ts`](file:///d:/Projects/logistics-website/frontend/src/hooks/use-nav.ts) cho vai trò `WAREHOUSE_MANAGER` và `DISPATCHER`  
-> **Môi trường kiểm chứng**: Development (Live) & Staging / Production  
+> **Môi trường kiểm chứng**: Development (Live - Railway Cloud: `https://frontend-tms-core-dev.up.railway.app`)  
 
 ---
 
@@ -108,10 +108,18 @@ File này có đặc thù:
 ## 4. 🧪 Bằng Chứng Kiểm Thử & Nghiệm Thu (Evidence & Verification)
 
 - **Trạng thái E2E Test**: PASS 100% (Không phát hiện hồi quy lỗi).
-- **Môi trường Dev Live**:
-  * Frontend: `https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app`
-  * Backend: `https://logistics-website-backend-1jho.onrender.com`
-- **Kiểm tra sức khỏe Backend (Anti-Hang Health Check)**: `curl.exe -m 15 -i https://logistics-website-backend-1jho.onrender.com/api/v1/health` -> HTTP 200 OK.
+- **Môi trường Dev Live (Primary Cloud - Railway Cloud)**:
+  * Frontend Dev Domain: `https://frontend-tms-core-dev.up.railway.app` (Branch `dev`)
+  * Backend Dev Domain: `https://backend-tms-core-dev.up.railway.app` (Branch `dev`)
+  * Backend Swagger API Docs: `https://backend-tms-core-dev.up.railway.app/docs`
+- **Môi trường Production (Primary Cloud - Railway Cloud - Cập nhật sau khi Promote Quality Gate)**:
+  * Frontend Pro Domain: `https://frontend-tms-core-production.up.railway.app` (Branch `master`)
+  * Backend Pro Domain: `https://backend-tms-core-production.up.railway.app` (Branch `master`)
+  * Backend Swagger API Docs: `https://backend-tms-core-production.up.railway.app/docs`
+- **Môi trường Secondary / Fallback (Vercel & Render)**:
+  * Frontend Dev: `https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app`
+  * Backend Dev: `https://logistics-website-backend-1jho.onrender.com`
+- **Kiểm tra sức khỏe Backend (Anti-Hang Health Check)**: `curl.exe -m 15 -i https://backend-tms-core-dev.up.railway.app/api/v1/health` -> HTTP 200 OK.
 
 ### Hình ảnh minh chứng đã lưu trữ (2 tệp):
 - 📸 **image.png**: [Xem hình ảnh](file:///D:/Projects/logistics-website/feedbacks/feedback_14_10_extra/image.png)

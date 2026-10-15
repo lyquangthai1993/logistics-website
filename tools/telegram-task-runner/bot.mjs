@@ -359,6 +359,7 @@ function splitTextIntoChunks(text, maxChunkLength = 3800) {
 const TASK_ACTIONS_KEYBOARD = {
   inline_keyboard: [
     [
+      { text: '📊 Báo cáo hôm nay', callback_data: '/report-today' },
       { text: '⚡ Tiến độ (Log)', callback_data: '/log' },
       { text: '📋 Hàng đợi', callback_data: '/queue' },
     ],
@@ -378,7 +379,7 @@ const TASK_ACTIONS_KEYBOARD = {
 async function registerBotCommands() {
   try {
     const commands = [
-      { command: 'report', description: '📊 Báo cáo tổng hợp tiến độ task hôm nay' },
+      { command: 'report', description: '📊 Báo cáo task theo ngày (vd: /report 14_10 hoặc /report 14_10_26)' },
       { command: 'report_today', description: '📊 Báo cáo chi tiết các task hôm nay' },
       { command: 'today', description: '📅 Báo cáo nhanh tiến độ công việc trong ngày' },
       { command: 'feedback', description: '📝 Ghi nhận phản hồi nghiệp vụ & lập TODO.md' },
@@ -1698,6 +1699,8 @@ async function handleMessage(msg) {
       `<i>Xem tiến độ trực tiếp, bước công cụ AI đang chạy và log stdout mới nhất.</i>\n\n` +
       `📋 <code>/queue</code>\n` +
       `<i>Xem danh sách task đang chạy và các task đang chờ trong hàng đợi.</i>\n\n` +
+      `📊 <code>/report</code> (hoặc <code>/report-today</code>, <code>/today</code>)\n` +
+      `<i>Báo cáo tiến độ task hôm nay. Tra cứu ngày khác: <code>/report 14_10</code> hoặc <code>/report 14_10_26</code></i>\n\n` +
       `🗑️ <code>/clearqueue</code>\n` +
       `<i>Xóa toàn bộ các task đang chờ trong hàng đợi.</i>\n\n` +
       `📊 <code>/status</code>\n` +
@@ -1875,13 +1878,19 @@ async function handleMessage(msg) {
     return;
   }
 
-  if (text.startsWith('/report-today') || text.startsWith('/report_today') || text.startsWith('/today') || text.startsWith('/report')) {
+  const reportMatch = text.match(/^\s*(?:\/report[-_]?today|\/today|\/report)(?:[@\w]+)?(?:\s+([0-9\/\-_\.]+)|_([0-9\/\-_\.]+))?/i);
+  if (reportMatch) {
     try {
+      const rawDate = (reportMatch[1] || reportMatch[2] || '').trim();
+      const dateArg = rawDate ? `"${rawDate}"` : '';
       const { execSync } = await import('node:child_process');
-      const out = execSync('node scripts/report-today.mjs', { cwd: WORKSPACE_DIR, encoding: 'utf-8' });
-      await sendTelegramMessage(chatId, `<pre>${escapeHtml(out)}</pre>`, 'HTML', TASK_ACTIONS_KEYBOARD);
+      const out = execSync(`node scripts/report-today.mjs --raw-html ${dateArg}`.trim(), {
+        cwd: WORKSPACE_DIR,
+        encoding: 'utf-8',
+      });
+      await sendTelegramMessage(chatId, out.trim(), 'HTML', TASK_ACTIONS_KEYBOARD);
     } catch (err) {
-      await sendTelegramMessage(chatId, `⚠️ <b>Lỗi khi tải báo cáo hôm nay:</b> ${escapeHtml(err.message)}`, 'HTML');
+      await sendTelegramMessage(chatId, `⚠️ <b>Lỗi khi tải báo cáo tiến độ:</b> ${escapeHtml(err.message)}`, 'HTML');
     }
     return;
   }

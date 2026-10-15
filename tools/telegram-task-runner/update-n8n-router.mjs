@@ -54,21 +54,60 @@ const mId = (callbackQuery ? callbackQuery.message?.message_id : msg?.message_id
 const mediaGroupId = msg?.media_group_id ? msg.media_group_id.toString() : '';
 
 // 1. Phân loại lệnh Báo cáo nhanh hôm nay (REPORT_TODAY)
-const isReportToday = /^\\s*(\\/report[-_]?today|\\/today|\\/report)(@\\w+)?/i.test(rawText);
-if (isReportToday) {
+const reportMatch = rawText.match(/^\\s*(?:\\/report[-_]?today|\\/today|\\/report)(?:[@\\w]+)?(?:\\s+([0-9\\/\\-_\\.]+)|_([0-9\\/\\-_\\.]+))?/i);
+if (reportMatch) {
+  const rawDate = (reportMatch[1] || reportMatch[2] || '').trim();
+  let targetSqlDate = '(CURRENT_TIMESTAMP AT TIME ZONE \\'Asia/Ho_Chi_Minh\\')::date';
+  let targetDisplayDate = 'hôm nay';
+  let isCustomDate = false;
+
+  if (rawDate && rawDate.toLowerCase() !== 'today') {
+    const cleaned = rawDate.replace(/[\\/\\-\\.]/g, '_');
+    const parts = cleaned.split('_').filter(Boolean);
+    const currentYear = 2026;
+
+    let d, m, y;
+    if (parts.length === 2) {
+      d = parseInt(parts[0], 10);
+      m = parseInt(parts[1], 10);
+      y = currentYear;
+    } else if (parts.length === 3) {
+      if (parts[0].length === 4) {
+        y = parseInt(parts[0], 10);
+        m = parseInt(parts[1], 10);
+        d = parseInt(parts[2], 10);
+      } else {
+        d = parseInt(parts[0], 10);
+        m = parseInt(parts[1], 10);
+        let rawY = parseInt(parts[2], 10);
+        y = rawY < 100 ? 2000 + rawY : rawY;
+      }
+    }
+
+    if (d && m && y && d >= 1 && d <= 31 && m >= 1 && m <= 12) {
+      const pad = (n) => String(n).padStart(2, '0');
+      targetSqlDate = "'" + y + "-" + pad(m) + "-" + pad(d) + "'::date";
+      targetDisplayDate = pad(d) + "/" + pad(m) + "/" + y;
+      isCustomDate = true;
+    }
+  }
+
   return [{
     json: {
       route: 'REPORT_TODAY',
       chat_id: cId,
       message_id: mId,
       sender_name: sender,
+      is_custom_date: isCustomDate,
+      target_display_date: targetDisplayDate,
+      raw_date: rawDate,
       sql: "SELECT id, task_id, sender_name, substring(raw_prompt from 1 for 70) as task_name, status, " +
            "to_char(created_at AT TIME ZONE 'Asia/Ho_Chi_Minh', 'HH24:MI') as created_time, " +
            "to_char(completed_at AT TIME ZONE 'Asia/Ho_Chi_Minh', 'HH24:MI') as completed_time, " +
            "substring(error from 1 for 100) as error_msg " +
            "FROM telegram_tasks " +
-           "WHERE task_id IS NOT NULL AND ((created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh')::date " +
-           "   OR (completed_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Ho_Chi_Minh')::date) " +
+           "WHERE task_id IS NOT NULL AND ((created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date = " + targetSqlDate + " " +
+           "   OR (completed_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date = " + targetSqlDate + ") " +
            "ORDER BY task_id ASC;"
     }
   }];
@@ -184,7 +223,15 @@ const now = new Date();
 const dateStr = now.toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', year: 'numeric' });
 const timeStr = now.toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit' });
 
-let text = '📊 <b>BÁO CÁO TIẾN ĐỘ TASK HÔM NAY (' + dateStr + ' ' + timeStr + ')</b>\\n';
+const isCustom = promptNode?.is_custom_date;
+const targetDisplay = promptNode?.target_display_date;
+
+let text = '';
+if (isCustom) {
+  text += '📊 <b>BÁO CÁO TIẾN ĐỘ TASK NGÀY ' + targetDisplay + ' (Xuất lúc ' + timeStr + ')</b>\\n';
+} else {
+  text += '📊 <b>BÁO CÁO TIẾN ĐỘ TASK HÔM NAY (' + dateStr + ' ' + timeStr + ')</b>\\n';
+}
 text += '━━━━━━━━━━━━━━━━━━━━\\n';
 text += '🎯 <b>Tổng số task:</b> <b>' + rows.length + '</b>\\n';
 text += '✅ <b>Hoàn thành (DONE):</b> <b>' + doneTasks.length + '</b>\\n';
@@ -198,7 +245,11 @@ if (cancelTasks.length > 0) {
 text += '━━━━━━━━━━━━━━━━━━━━\\n\\n';
 
 if (rows.length === 0) {
-  text += '<i>Hôm nay chưa có task nào được ghi nhận trên hệ thống.</i>\\n';
+  if (isCustom) {
+    text += '<i>Không có task nào được ghi nhận trên hệ thống trong ngày ' + targetDisplay + '.</i>\\n';
+  } else {
+    text += '<i>Hôm nay chưa có task nào được ghi nhận trên hệ thống.</i>\\n';
+  }
 } else {
   text += '<b>📋 DANH SÁCH CHI TIẾT CÁC TASK:</b>\\n';
   for (const t of rows) {
