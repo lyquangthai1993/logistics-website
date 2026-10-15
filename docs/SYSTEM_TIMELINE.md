@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 15/10/2026 | `feedbacks/feedback_15_10_task_86` | Feedback 15/10 (Task #86) — Tạm Thời Ẩn Nút Kính Lúp... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_10_task_86/RESOLUTION.md) |
 | 15/10/2026 | `feedbacks/feedback_15_10_task_83` | Feedback 15/10 (Task #83) — Ẩn Nút "In Phiếu Nhập" K... | 26/26 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_10_task_83/RESOLUTION.md) |
 | 15/10/2026 | `feedbacks/feedback_15_10_task_85` | Feedback 15/10 (Task #85) — Quét & Kiểm Định Toàn Di... | 19/19 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_10_task_85/RESOLUTION.md) |
 | 14/10/2026 | `feedbacks/feedback_14_10_task_65` | Feedback 14/10 (Task #65) — Khảo Sát Nghiệp Vụ TMS T... | 27/27 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_65/RESOLUTION.md) |
@@ -69,6 +70,17 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_15_10_TASK_86] — Feedback 15/10 (Task #86) — Tạm Thời Ẩn Nút Kính Lúp Tra Cứu Đơn Hàng Trong Bảng Kê Xuất Kho (15/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (9/9 việc)
+- **Báo cáo bởi**: @Thai / Quản trị Vận hành TMS
+- **Phạm vi**: Quản lý Xuất kho ([`outbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/outbound/page.tsx)) ➔ Tạo Phiếu Xuất Kho (`MODE1_CUSTOMER`) • Bảng Kê Soạn Hàng Editable Grid ([`warehouse-editable-grid.tsx`](file:///frontend/src/features/warehouse/components/warehouse-editable-grid.tsx)) ➔ Cột `MÃ VẬN ĐƠN *` (`OrderCodeCell`)
+- **Năng lực & Tính năng mới**:
+  * **Frontend**: Cập nhật [`warehouse-editable-grid.tsx`](file:///frontend/src/features/warehouse/components/warehouse-editable-grid.tsx) trong component `OrderCodeCell`
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.png, screenshot_01_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_15_10_task_86/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_15_10_task_86/TODO.md)
 
 ### 🚀 [FEEDBACK_15_10_TASK_83] — Feedback 15/10 (Task #83) — Ẩn Nút "In Phiếu Nhập" Khi Chuyến Xe Ở Trạng Thái "Chờ Xử Lý" (15/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (26/26 việc)
