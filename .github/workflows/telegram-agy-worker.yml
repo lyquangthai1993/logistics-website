@@ -994,12 +994,13 @@ jobs:
               // TỰ ĐỘNG QUÉT & GIẢI PHÓNG HÀNG ĐỢI (AUTO-DRAIN QUEUE)
               // Chỉ tự động kích hoạt task PENDING đã tồn tại trên 30 giây để tránh xung đột với webhook tức thời từ N8N
               const remaining = await client.query(
-                "SELECT id, sender_name, raw_prompt FROM telegram_tasks WHERE status = $1 AND created_at < NOW() - make_interval(secs => 30) ORDER BY id ASC LIMIT 1",
+                "SELECT id, task_id, sender_name, raw_prompt FROM telegram_tasks WHERE status = $1 AND created_at < NOW() - make_interval(secs => 30) ORDER BY id ASC LIMIT 1",
                 ["PENDING"]
               );
               if (remaining.rows.length > 0) {
                 const nextTask = remaining.rows[0];
-                console.log(`🔁 Phát hiện còn Task #${nextTask.id} ("${nextTask.raw_prompt}") đang PENDING trong Database! Đang tự động kích hoạt lượt chạy kế tiếp...`);
+                const nextTaskId = String(nextTask.task_id != null ? nextTask.task_id : nextTask.id);
+                console.log(`🔁 Phát hiện còn Task #${nextTaskId} ("${nextTask.raw_prompt}") đang PENDING trong Database! Đang tự động kích hoạt lượt chạy kế tiếp...`);
                 const ghPat = process.env.GH_PAT_TOKEN;
                 if (ghPat) {
                   const dispatchRes = await fetch("https://api.github.com/repos/lyquangthai1993/logistics-website/dispatches", {
@@ -1012,14 +1013,14 @@ jobs:
                     body: JSON.stringify({
                       event_type: "telegram-task",
                       client_payload: {
-                        task_id: String(nextTask.id)
+                        task_id: nextTaskId
                       }
                     })
                   });
                   if (dispatchRes.status === 204) {
-                    console.log(`🚀 Đã tự động kích hoạt GitHub Actions cho Task #${nextTask.id} thành công!`);
+                    console.log(`🚀 Đã tự động kích hoạt GitHub Actions cho Task #${nextTaskId} thành công!`);
                   } else {
-                    console.warn(`⚠️ Kích hoạt Task #${nextTask.id} trả về status: ${dispatchRes.status}`);
+                    console.warn(`⚠️ Kích hoạt Task #${nextTaskId} trả về status: ${dispatchRes.status}`);
                   }
                 }
               }
