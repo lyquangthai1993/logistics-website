@@ -35,6 +35,11 @@ Trước khi tổng hợp `TODO.md` hoặc xuất báo cáo Telegram, `/leader` 
      - Đánh dấu cảnh báo `IMAGE_CONTEXT_MISMATCH`.
      - Không tự động sửa code dựa trên ảnh sai.
 
+### Invariant 4: Tuyệt Đối Không Dựng Mock HTML Giả Lập Bằng Chứng (Zero Fake Mock HTML Evidence)
+- **NGHIÊM CẤM TUYỆT ĐỐI**: Dùng `page.setContent(...)` trong các file kiểm thử Playwright để tự vẽ giao diện HTML/CSS giả lập, các banner so sánh, hay các badge mô tả kiểu `✓ Nút "..." ĐÃ BỊ ẨN` để đối phó với bước chụp ảnh nghiệm thu `screenshot_*_verified.png`.
+- **Bằng chứng phải là Web App thật**: Ảnh nghiệm thu `screenshot_*_verified.png` BẮT BUỘC phải được chụp trực tiếp từ ứng dụng Web đang chạy thật (`page.goto(...)`), thao tác đăng nhập thật và mở modal/trang thật.
+- **Nguyên tắc "Đã ẩn là ẩn triệt để" (Zero Replacement Clutter)**: Khi yêu cầu là ẩn một nút hoặc phần tử, phần tử đó phải hoàn toàn không render trong DOM (0px, biến mất). TUYỆT ĐỐI KHÔNG chèn bất kỳ badge, text hay ô thông báo nào thế chỗ (như `✓ Nút đã ẩn`) vào giao diện người dùng. Việc hiển thị text giả mạo như vậy sẽ làm giao diện rối rắm và bị coi là kiểm chứng gian lận.
+
 ---
 
 ## 2. Quy Trình Kỹ Thuật Tự Động Hóa (Technical Enforcement Pipeline)
