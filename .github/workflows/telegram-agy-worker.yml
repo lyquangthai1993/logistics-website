@@ -128,11 +128,11 @@ jobs:
                     ["IN_PROGRESS", targetId]
                   );
                   task = updateRes.rows[0];
-                  console.log(`🎯 [FIFO Queue] Đã claim Task #${task.id} (Tạo lúc: ${task.created_at}) sang IN_PROGRESS.`);
+                  console.log(`🎯 [FIFO Queue] Đã claim Task #${task.task_id || task.id} (Tạo lúc: ${task.created_at}) sang IN_PROGRESS.`);
                 } else if (requestedId && requestedId !== "manual" && !isNaN(Number(requestedId))) {
-                  // Nếu không còn task PENDING nào, kiểm tra task theo requestedId
+                  // Nếu không còn task PENDING nào, kiểm tra task theo requestedId (task_id)
                   const reqRes = await client.query(
-                    "SELECT * FROM telegram_tasks WHERE id = $1",
+                    "SELECT * FROM telegram_tasks WHERE task_id = $1 OR (task_id IS NULL AND id = $1)",
                     [parseInt(requestedId, 10)]
                   );
                   if (reqRes.rows.length > 0) {
@@ -141,14 +141,14 @@ jobs:
                     const isExplicitForce = promptToCheck.includes("/force") || promptToCheck.includes("/retry");
 
                     if (!isExplicitForce && ["IN_PROGRESS", "COMPLETED", "TODO_CREATED"].includes(existingTask.status)) {
-                      console.log(`⏭️ [Deduplication] Task #${existingTask.id} đã ở trạng thái "${existingTask.status}". Bỏ qua lượt kích hoạt trùng lặp.`);
+                      console.log(`⏭️ [Deduplication] Task #${existingTask.task_id || existingTask.id} đã ở trạng thái "${existingTask.status}". Bỏ qua lượt kích hoạt trùng lặp.`);
                       task = null;
                       taskId = "manual";
                       rawPrompt = "";
                     } else {
                       await client.query("UPDATE telegram_tasks SET status = $1, started_at = NOW() WHERE id = $2", ["IN_PROGRESS", existingTask.id]);
                       task = existingTask;
-                      console.log(`🎯 [Direct Task] Đã kích hoạt lại Task #${task.id} sang IN_PROGRESS.`);
+                      console.log(`🎯 [Direct Task] Đã kích hoạt lại Task #${task.task_id || task.id} sang IN_PROGRESS.`);
                     }
                   }
                 }
@@ -160,7 +160,7 @@ jobs:
             }
 
             if (task) {
-              taskId = String(task.id);
+              taskId = String(task.task_id != null ? task.task_id : task.id);
               sender = task.sender_name || sender;
               rawPrompt = (task.analysis || task.raw_prompt || rawPrompt).replace(/<id>/g, taskId);
               if (task.raw_prompt && (task.raw_prompt.includes("/force") || task.raw_prompt.includes("todo-agent") || task.raw_prompt.includes("/todo"))) {
@@ -870,7 +870,7 @@ jobs:
                   ssl: dbUrl.includes("neon.tech") ? { rejectUnauthorized: false } : false
                 });
                 await cl.connect();
-                const r = await cl.query("SELECT raw_prompt FROM telegram_tasks WHERE id = $1", [parseInt(taskId, 10)]);
+                const r = await cl.query("SELECT raw_prompt FROM telegram_tasks WHERE task_id = $1 OR (task_id IS NULL AND id = $1)", [parseInt(taskId, 10)]);
                 if (r.rows.length > 0 && r.rows[0].raw_prompt) {
                   rawPrompt = r.rows[0].raw_prompt.trim();
                 }
@@ -986,7 +986,7 @@ jobs:
                 : `${errorBase.slice(0, 1800)}\n\n🔗 Workflow: ${runUrl}`;
               const finalResult = `${agyRes}\n\n🔗 Workflow: ${runUrl}`;
               await client.query(
-                "UPDATE telegram_tasks SET status = $1, completed_at = NOW(), result = $2, error = $3 WHERE id = $4",
+                "UPDATE telegram_tasks SET status = $1, completed_at = NOW(), result = $2, error = $3 WHERE task_id = $4 OR (task_id IS NULL AND id = $4)",
                 [newStatus, finalResult, errorVal, parseInt(taskId, 10)]
               );
               console.log(`✅ Đã cập nhật task #${taskId} sang trạng thái ${newStatus} trong Database.`);
