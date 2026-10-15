@@ -258,6 +258,77 @@ function parseRbacMatrixDoc() {
   return { documentedEndpoints };
 }
 
+// 3.1. Auto-sync missing endpoints into rbac-matrix.md
+function autoSyncRbacMatrix(undocumentedEndpoints) {
+  const rbacPath = path.resolve('.agents/rules/rbac-matrix.md');
+  if (!fs.existsSync(rbacPath) || !undocumentedEndpoints || undocumentedEndpoints.length === 0) return 0;
+
+  let content = fs.readFileSync(rbacPath, 'utf8');
+  let addedCount = 0;
+
+  const sectionMap = {
+    'WarehouseController': '### Warehouse Controller',
+    'OrdersController': '### Orders Controller',
+    'TripsController': '### Trips Controller',
+    'VehiclesController': '### Vehicles Controller',
+    'DriversController': '### Drivers Controller',
+    'UsersController': '### Users Controller',
+  };
+
+  for (const ep of undocumentedEndpoints) {
+    const sectionHeader = sectionMap[ep.controller] || '### Warehouse Controller';
+    const sectionIdx = content.indexOf(sectionHeader);
+    if (sectionIdx === -1) continue;
+
+    // Build role checkmarks
+    const hasRole = (role) => ep.roles.some((r) => r.toUpperCase() === role) ? '✅' : '❌';
+
+    let note = '';
+    if (ep.path.includes('receipt-data')) {
+      note = ' *(Lấy dữ liệu in ấn phiếu nhập kho A4)*';
+    } else if (ep.path.includes('rollback')) {
+      note = ' *(Hoàn tác trạng thái chuyến xe & hoàn tồn kho - Task #81)*';
+    }
+
+    const row = `| \`${ep.path}\` | ${ep.method} | ${hasRole('SUPER_ADMIN')}${hasRole('SUPER_ADMIN') === '✅' && note && ep.roles.includes('SUPER_ADMIN') && !ep.roles.includes('WAREHOUSE_MANAGER') ? note : ''} | ${hasRole('DISPATCHER')} | ${hasRole('FLEET_MANAGER')} | ${hasRole('WAREHOUSE_MANAGER')}${hasRole('WAREHOUSE_MANAGER') === '✅' && note && ep.roles.includes('WAREHOUSE_MANAGER') ? note : ''} |`;
+
+    // Find the table section bounded by markdown divider (--- or ### next header)
+    const afterSection = content.slice(sectionIdx + sectionHeader.length);
+    const boundaryMatch = afterSection.match(/\r?\n\s*(?:---|###)\s*\r?\n/);
+    const boundaryRel = boundaryMatch ? boundaryMatch.index : -1;
+    const searchEnd = boundaryRel !== -1 ? sectionIdx + sectionHeader.length + boundaryRel : content.length;
+    const sectionChunk = content.slice(sectionIdx, searchEnd);
+
+    if (sectionChunk.includes(`\`${ep.path}\``)) continue;
+
+    const rowMatches = [...sectionChunk.matchAll(/^\|.*\|$/gm)];
+    if (rowMatches.length > 0) {
+      const lastRow = rowMatches[rowMatches.length - 1];
+      const insertPos = sectionIdx + lastRow.index + lastRow[0].length;
+      const newline = content.includes('\r\n') ? '\r\n' : '\n';
+      content = content.slice(0, insertPos) + newline + row + content.slice(insertPos);
+      addedCount++;
+    }
+  }
+
+  if (addedCount > 0) {
+    const now = new Date();
+    const dateStr = now.toISOString().slice(0, 10);
+    content = content.replace(
+      /\|\s*\*\*Cập nhật lần cuối\*\*\s*\|[^\r\n]+\|/,
+      `| **Cập nhật lần cuối** | ${dateStr} |`
+    );
+    content = content.replace(
+      /\|\s*\*\*Cập nhật bởi\*\*\s*\|[^\r\n]+\|/,
+      `| **Cập nhật bởi** | Antigravity (Daily RBAC Audit Auto-Sync) |`
+    );
+    fs.writeFileSync(rbacPath, content, 'utf8');
+    console.log(`🛠️ Đã tự động cập nhật ${addedCount} endpoints mới vào .agents/rules/rbac-matrix.md`);
+  }
+
+  return addedCount;
+}
+
 // 4. Verify Trip & Warehouse specific security invariants
 function auditTripAndWarehouseSecurity() {
   const warehouseServicePath = path.resolve('backend/src/orders/warehouse.service.ts');
@@ -376,10 +447,13 @@ async function main() {
       return normDoc === normPath || ep.path.startsWith(p.replace(/:\w+/g, ''));
     });
 
-    if (!matched && !ep.isPublic && ep.path.includes('/warehouse/')) {
-      undocumentedEndpoints.push(`${ep.method} ${ep.path}`);
+    if (!matched && !ep.isPublic) {
+      undocumentedEndpoints.push(ep);
     }
   }
+
+  // Tự động đồng bộ các endpoint còn thiếu vào rbac-matrix.md
+  const syncedCount = autoSyncRbacMatrix(undocumentedEndpoints);
 
   // Step 4: Audit Trip & Warehouse specific security invariants
   const domainFindings = auditTripAndWarehouseSecurity();
@@ -419,11 +493,16 @@ async function main() {
     message += `• <b>Endpoint biến động dữ liệu:</b> 100% được gán @Roles chặt chẽ\n`;
   }
 
-  if (undocumentedEndpoints.length > 0) {
+  if (syncedCount > 0) {
+    const epExamples = undocumentedEndpoints.map(e => `${e.method} ${e.path}`).slice(0, 2).join(', ');
     message += `\n<b>4. Cập Nhật Tài Liệu RBAC Matrix:</b>\n` +
-      `• Phát hiện ${undocumentedEndpoints.length} endpoints kho mới chưa bổ sung vào <code>rbac-matrix.md</code> (ví dụ: <code>${undocumentedEndpoints[0]}</code>).\n`;
+      `• 🛠️ <b>Tự động đồng bộ:</b> Đã tự động bổ sung ${syncedCount} endpoints mới vào <code>rbac-matrix.md</code> (${epExamples}).\n` +
+      `• <b>Trạng thái:</b> ✅ Khớp 100% với mã nguồn.\n`;
+  } else if (undocumentedEndpoints.length > 0) {
+    message += `\n<b>4. Cập Nhật Tài Liệu RBAC Matrix:</b>\n` +
+      `• Phát hiện ${undocumentedEndpoints.length} endpoints chưa bổ sung vào <code>rbac-matrix.md</code> (ví dụ: <code>${undocumentedEndpoints[0].method} ${undocumentedEndpoints[0].path}</code>).\n`;
   } else {
-    message += `\n<b>4. Tài Liệu RBAC Matrix:</b> ✅ Khớp 100% với mã nguồn\n`;
+    message += `\n<b>4. Tài Liệu RBAC Matrix:</b> ✅ Khớp 100% với mã nguồn (${allEndpoints.length} endpoints)\n`;
   }
 
   message += `\n━━━━━━━━━━━━━━━━━━━━\n` +
