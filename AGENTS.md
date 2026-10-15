@@ -8,12 +8,14 @@
   - Run status check: `npm run repo:status` (or `git status -sb; git -C backend status -sb; git -C frontend status -sb`)
   - Run branch tracking check: `npm run repo:tracking` (or `git branch -vv; git -C backend branch -vv; git -C frontend branch -vv`)
   This guarantees: (1) Active branch alignment across root and submodules (prevents committing to `main`/`dev` or detached HEAD), (2) Upstream tracking synchronization (`[ahead N, behind M]`), and (3) Immediate detection of uncommitted/dirty working trees before changes occur.
-- **Feature Branch Base Branch & Quality Gate Promotion Mandate (Base from `dev` Rule)**:
-  - **Mandatory Base Branch**: All feature branches (`feature/<scope>-<name>`) and bugfix branches (`fix/<scope>-<name>`) MUST ALWAYS branch off from `dev` (after running `git checkout dev && git pull origin dev` inside target submodules and root). NEVER branch off directly from `master` (except for emergency production `hotfix/<name>` branches).
-  - **Strict 3-Stage Promotion Pipeline**:
-    1. **Develop on Feature Branch**: Implement, commit directly inside target submodule (`backend/` and/or `frontend/`), and push feature branch to remote.
-    2. **Merge to `dev` & E2E Automated Verification**: Merge feature branch into `dev`, push to `origin/dev`, and wait for deployment `READY` on **Domain Dev**. Execute automated Playwright E2E suites against Dev environment.
-    3. **Promote to `master` (Production-Ready Gate)**: ONLY after 100% of E2E verification tests PASS on `dev`, checkout `master`, pull `origin/master`, merge `dev` into `master`, and push to `origin/master` (strictly submodule-first: `backend/`, `frontend/`, then `root`).
+- **Feature Branch Base Branch & Standard GitHub PR Lifecycle Mandate (Base from `dev` Rule)**:
+  - **Mandatory Base Branch**: All feature branches (`feature/task-<id>-<name>`) and bugfix branches (`fix/task-<id>-<name>`) MUST ALWAYS branch off from `dev` (after running `git checkout dev && git pull origin dev` inside target submodules and root). NEVER branch off directly from `master` (except for emergency production `hotfix/<name>` branches).
+  - **Authoritative Rule Reference**: Full lifecycle, checklist, and automation commands are defined in [`.agents/rules/github-task-workflow.md`](file:///d:/Projects/logistics-website/.agents/rules/github-task-workflow.md).
+  - **Strict Standard 4-Stage GitHub Pipeline**:
+    1. **Task Intake & Feature Branch**: Pull latest `dev`, create `feature/task-<id>-<name>` directly inside target submodule (`backend/` and/or `frontend/`).
+    2. **Local E2E Verification (Gate 1)**: Build, typecheck, and execute Playwright E2E suite locally (`http://localhost:4000` & `4001`) with autonomous self-healing (up to 3 retries) until 100% PASS.
+    3. **GitHub PR Audit Evidence & Auto-Merge**: Push branch, create PR into `dev` (`gh pr create`) containing task checklist & test pass proof as immutable audit evidence, then auto-merge PR into `dev` (`gh pr merge --merge`).
+    4. **Cloud Dev E2E Verification (Gate 2)**: Wait for Railway Cloud Dev deployment READY (Health Check HTTP 200), execute Playwright E2E suite against Cloud Dev domain, run `scripts/e2e-auditor.mjs`, capture visual evidence screenshot, record `RESOLUTION.md`, and report via Telegram.
 
 ## Canonical Environments & Deployment Domains ("domain dev" & "domain pro" Mandate)
 **Hạ Tầng Ưu Tiên Hàng Đầu (Primary Cloud: Railway Cloud)**:
