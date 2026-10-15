@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 15/10/2026 | `feedbacks/feedback_15_10_task_88` | Feedback 15/10 (Task #88) — Chặn Tuyệt Đối '/dashboa... | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_10_task_88/RESOLUTION.md) |
 | 15/10/2026 | `feedbacks/feedback_15_10_task_87` | Feedback 15/10 (Task #87) — Chuyển Hướng Đăng Nhập T... | 15/15 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_10_task_87/RESOLUTION.md) |
 | 15/10/2026 | `feedbacks/feedback_15_10_task_86` | Feedback 15/10 (Task #86) — Tạm Thời Ẩn Nút Kính Lúp... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_10_task_86/RESOLUTION.md) |
 | 15/10/2026 | `feedbacks/feedback_15_10_task_83` | Feedback 15/10 (Task #83) — Ẩn Nút "In Phiếu Nhập" K... | 26/26 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_10_task_83/RESOLUTION.md) |
@@ -71,6 +72,17 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_15_10_TASK_88] — Feedback 15/10 (Task #88) — Chặn Tuyệt Đối '/dashboard/overview' & Tự Động Chuyển Hướng Đến Màn Hình Nhập Kho (15/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (13/13 việc)
+- **Báo cáo bởi**: @Thai / Quản trị Vận hành TMS
+- **Phạm vi**: Chuyển hướng Dashboard Tổng quan ([`overview/page.tsx`](file:///frontend/src/app/dashboard/overview/page.tsx)) ➔ Chuyển hướng ngay đến Nhập kho (`/dashboard/warehouse/inbound`) • Middleware Proxy ([`proxy.ts`](file:///frontend/src/proxy.ts)) • Cấu hình Next.js Redirects ([`next.config.ts`](file:///frontend/next.config.ts)) • Chi tiết đơn hàng quay lại ([`orders/[id]/page.tsx`](file:///frontend/src/app/dashboard/orders/[id]/page.tsx))
+- **Năng lực & Tính năng mới**:
+  * **Frontend**: Cập nhật [`overview/page.tsx`](file:///frontend/src/app/dashboard/overview/page.tsx): Thiết lập `redirect('/dashboard/warehouse/inbound')`.; Cập nhật [`proxy.ts`](file:///frontend/src/proxy.ts): Chặn đường dẫn `/dashboard/overview` và chuyển ngay tức thì về `/dashboard/warehouse/inbound`.; Cập nhật [`next.config.ts`](file:///frontend/next.config.ts): Bổ sung `async redirects()` chuyển hướng `/dashboard/overview` về `/dashboard/warehouse/inbound`....
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_15_10_task_88/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_15_10_task_88/TODO.md)
 
 ### 🚀 [FEEDBACK_15_10_TASK_87] — Feedback 15/10 (Task #87) — Chuyển Hướng Đăng Nhập Thẳng Vào Màn Hình Đơn Hàng Kho & Loại Bỏ Màn Hình Dashboard Tổng Quan (15/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (15/15 việc)
