@@ -1,24 +1,20 @@
 === Root ===
- docs/SYSTEM_TIMELINE.md                            |   9 +++
- feedbacks/feedback_14_10_task_67/RESOLUTION.md     |  80 ++++++++++++---------
- .../screenshot_01_verified.png                     | Bin 29386 -> 37768 bytes
- frontend                                           |   0
- git_diff_summary.txt                               |   4 --
- 5 files changed, 55 insertions(+), 38 deletions(-)
+ backend                                  |  2 +-
+ docs/SYSTEM_TIMELINE.md                  | 12 ++++++++
+ feedbacks/feedback_15_10_task_83/TODO.md | 52 ++++++++++++++++----------------
+ frontend                                 |  2 +-
+ git_diff_summary.txt                     |  5 ---
+ 5 files changed, 40 insertions(+), 33 deletions(-)
+ M backend
  M docs/SYSTEM_TIMELINE.md
- M feedbacks/feedback_14_10_task_67/RESOLUTION.md
- M feedbacks/feedback_14_10_task_73/screenshot_01_verified.png
- m frontend
+ M feedbacks/feedback_15_10_task_83/TODO.md
+ M frontend
  M git_diff_summary.txt
+?? feedbacks/feedback_15_10_task_83/RESOLUTION.md
+?? feedbacks/feedback_15_10_task_83/screenshot_01_verified.png
+=== Backend ===
+e263abd feat: merge feature/task-83-hide-inbound-receipt-when-pending into dev (Task #87)
+9749562 feat: complete uncommitted work on feature/task-83-hide-inbound-receipt-when-pending
 === Frontend ===
- src/app/dashboard/warehouse/inbound/page.tsx       |  2 +-
- .../warehouse/components/pallet-label-a4-modal.tsx | 44 ++++++++++++----------
- .../components/warehouse-editable-grid.tsx         |  4 +-
- .../components/warehouse-lookup-modal.tsx          |  4 +-
- .../warehouse-outbound-transfer-flow.tsx           |  4 +-
- 5 files changed, 31 insertions(+), 27 deletions(-)
- M src/app/dashboard/warehouse/inbound/page.tsx
- M src/features/warehouse/components/pallet-label-a4-modal.tsx
- M src/features/warehouse/components/warehouse-editable-grid.tsx
- M src/features/warehouse/components/warehouse-lookup-modal.tsx
- M src/features/warehouse/components/warehouse-outbound-transfer-flow.tsx
+c2d808a feat: merge feature/task-83-hide-inbound-receipt-when-pending into dev (Task #87)
+f897789 feat: complete uncommitted work on feature/task-83-hide-inbound-receipt-when-pending

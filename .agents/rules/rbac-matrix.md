@@ -11,8 +11,8 @@
 | Trường | Giá trị |
 |---|---|
 | **Phiên bản** | v1.8 |
-| **Cập nhật lần cuối** | 2026-10-14 |
-| **Cập nhật bởi** | Antigravity (Daily RBAC Audit & Task #37, #38, #41, #45, #46 Trip Ops) |
+| **Cập nhật lần cuối** | 2026-10-15 |
+| **Cập nhật bởi** | Antigravity (Daily RBAC Audit Auto-Sync) |
 
 ---
 
@@ -116,6 +116,8 @@
 | `/v1/warehouse/outbound/draft` | POST | ✅ | ❌ | ❌ | ✅ *(Lưu nháp chuyến xuất — cấp mã SD, chưa trừ tồn)* |
 | `/v1/warehouse/outbound/drafts/:tripCode` | DELETE | ✅ | ❌ | ❌ | ✅ *(Hủy nháp — chỉ nháp của kho được gán)* |
 | `/v1/warehouse/inbound/drafts/:tripCode` | DELETE | ✅ | ❌ | ❌ | ✅ *(Hủy nháp nhập — chỉ nháp của kho được gán)* |
+| `/v1/warehouse/inbound/receipt-data` | GET | ✅ | ❌ | ❌ | ✅ *(Lấy dữ liệu in ấn phiếu nhập kho A4)* |
+| `/v1/warehouse/trips/:tripCode/rollback` | POST | ✅ *(Hoàn tác trạng thái chuyến xe & hoàn tồn kho - Task #81)* | ❌ | ❌ | ❌ |
 
 ---
 

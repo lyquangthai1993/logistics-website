@@ -34,6 +34,12 @@ description: >-
 >    - **Stage 1 (Phát triển)**: Code trên branch tính năng, commit trực tiếp trong submodule (`backend/` và/hoặc `frontend/`), và push feature branch lên remote.
 >    - **Stage 2 (Merge dev & Kiểm thử E2E)**: Merge feature branch vào `dev`, push lên `origin/dev`, đợi Vercel & Render dev đạt trạng thái `READY`. Bắt buộc chạy kiểm thử tự động Playwright E2E trên Domain Dev.
 >    - **Stage 3 (Promote lên master)**: CHỈ KHI 100% test E2E trên dev đạt PASS, mới checkout `master`, pull `origin/master`, merge `dev` vào `master`, và push lên `origin/master` (tuân thủ thứ tự submodule-first: `backend/`, `frontend/`, rồi mới đến `root`).
+> 
+> [!IMPORTANT]
+> **ZERO CROSS-TASK IMAGE BORROWING & STRICT IMAGE PROVENANCE MANDATE (CẤM MƯỢN ẢNH VÀ ĐỐI SOÁT NGUỒN GỐC):**
+> 1. **No Image Borrowing**: /leader và các agents TUYỆT ĐỐI KHÔNG sao chép, copy hoặc mượn file ảnh từ thư mục task khác (`feedback_*`) sang thư mục task hiện tại.
+> 2. **Strict Provenance**: Mọi ảnh minh chứng đầu vào phải có nguồn gốc từ Telegram API theo đúng `image_file_ids` của task trong DB `telegram_tasks`. Nếu task không có ảnh, thư mục task không được chứa ảnh giả lập.
+> 3. **OCR & Context Parity**: /leader bắt buộc OCR giải mã đúng Mã chuyến xe, Tên Hub và đối chiếu vùng khoanh đỏ với câu lệnh người dùng. Nghiêm cấm phỏng đoán ngữ cảnh từ các task cũ. Chi tiết: [`.agents/rules/image-provenance-guard.md`](file:///d:/Projects/logistics-website/.agents/rules/image-provenance-guard.md).
 
 ---
 

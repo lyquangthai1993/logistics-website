@@ -17,7 +17,7 @@ on:
 
 concurrency:
   group: rbac-audit-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   rbac-audit:
@@ -52,7 +52,22 @@ jobs:
           echo "🚀 Khởi chạy kiểm toán bảo mật RBAC & rà soát SYSTEM_TIMELINE.md..."
           node scripts/audit-rbac-daily.mjs
 
-      - name: "5. Báo Cáo Trạng Thái Audit"
+      - name: "5. Tự Động Commit & Push Cập Nhật RBAC Matrix (Nếu Có Biến Động)"
+        if: success()
+        run: |
+          if [ -n "$(git status --porcelain .agents/rules/rbac-matrix.md)" ]; then
+            echo "🛠️ Phát hiện thay đổi trong .agents/rules/rbac-matrix.md. Đang commit & push lên dev..."
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add .agents/rules/rbac-matrix.md
+            git commit -m "docs(rbac): tự động đồng bộ endpoint mới vào rbac-matrix.md [skip ci]"
+            git push origin dev
+            echo "✅ Đã đồng bộ tài liệu rbac-matrix.md lên nhánh dev thành công."
+          else
+            echo "✅ Tài liệu rbac-matrix.md đã khớp 100%, không cần commit."
+          fi
+
+      - name: "6. Báo Cáo Trạng Thái Audit"
         if: always()
         run: |
           echo "✅ Quá trình rà soát bảo mật RBAC hoàn tất lúc $(date)."

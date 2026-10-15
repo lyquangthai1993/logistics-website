@@ -11,58 +11,10 @@
 
 ## 1. 📌 Bối Cảnh Nghiệp Vụ & Phân Tích Nguyên Nhân Gốc Rễ (RCA)
 
-### 1. Phản hồi gốc từ người dùng (@Thai / Vận hành TMS)
+### Phản hồi thực tế từ người dùng:
 > *"1 đơn hàng nhưng đang nằm ở 2 trip xuất hàng(chờ xử lý), logic đúng: đơn hàng đã được thêm vào 1 trip xuất hàng và chọn số kiện bằng số kiện tồn kho thì không thể thêm vào trip xuất hàng khác."*
 
----
-
-### 2. Tình huống vận hành thực tế tại Hub & Bài toán Xếp xe chờ xuất
-
-Trong quy trình vận hành kho bãi hàng ngày tại các Hub trung chuyển (ví dụ *Andromeda Hub - HCM*, *Magellan Hub - Đà Nẵng*, *Polaris Hub - Hưng Yên*):
-1. **Lập kế hoạch chuyến xe xuất kho (Draft / Pending Trips)**:
-   - Điều vận / Thủ kho thường chuẩn bị trước các chuyến xe tải hoặc xe bo để xếp hàng xuất đi.
-   - Khi tạo chuyến xe xuất kho Mode 1 (Giao khách lẻ) hoặc Mode 2 (Trung chuyển liên Hub), người dùng chọn tính năng **"Lưu nháp (Chờ xử lý)"**.
-   - Chuyến xe được hệ thống cấp mã `tripCode` (ví dụ `SD2610-001`, `SD2610-002`) và duy trì ở trạng thái **Chờ xử lý (`PENDING`)**.
-   - Hàng hóa lúc này đang trong quá trình bốc xếp lên thùng xe hoặc đang chờ tài xế đến nhận hàng.
-2. **Nguyên lý giữ chỗ kiện hàng (Inventory Allocation / Reservation Invariant)**:
-   - Khi một đơn hàng (hoặc một phần số kiện của đơn hàng) đã được gán vào Chuyến xe A (trạng thái `PENDING`):
-     * Về mặt vật lý, số kiện này đã được "khóa" (hold/allocated) cho Chuyến xe A.
-     * Tồn kho khả dụng thực tế của đơn hàng tại Hub phải giảm đi tương ứng với số kiện đã gán vào Chuyến xe A.
-   - **Trường hợp A: Gán toàn bộ số kiện tồn kho (`quantityAllocated == stock`)**:
-     * Đơn hàng đã hết sạch tồn khả dụng để xuất đi các chuyến khác.
-     * Khi điều vận mở Chuyến xe B (hoặc tạo một chuyến xe mới), hệ thống **TUYỆT ĐỐI KHÔNG ĐƯỢC PHÉP CHO CHỌN** đơn hàng này nữa!
-     * Trên modal tra cứu, đơn hàng phải hiển thị trạng thái `Hết tồn khả dụng` hoặc `Đã xếp vào chuyến xe [Mã Trip A] (Chờ xử lý)`. Nút bấm `[Chọn đơn này]` phải bị vô hiệu hóa (disabled).
-   - **Trường hợp B: Xuất một phần số kiện (Partial Allocation / Split Dispatch)**:
-     * Ví dụ: Đơn hàng có tồn kho 50 kiện. Đã gán vào Chuyến xe A 20 kiện (đang ở trạng thái `PENDING`).
-     * Tồn kho khả dụng còn lại để xếp vào các chuyến khác là: $50 - 20 = 30$ kiện.
-     * Khi chọn đơn hàng này vào Chuyến xe B, hệ thống chỉ cho phép gán tối đa 30 kiện. Nếu người dùng nhập số lượng $> 30$, hệ thống phải chặn lại ngay lập tức và cảnh báo rõ ràng.
-   - **Trường hợp C: Chỉnh sửa lại chính Chuyến xe đang nháp**:
-     * Khi mở lại chính Chuyến xe A để sửa thông tin (`handleResumeDraft`), hệ thống không được tính số kiện của chính Chuyến xe A vào lượng trừ hao (loại trừ `currentDraftTripCode`), đảm bảo người dùng có thể giữ nguyên hoặc điều chỉnh lại số lượng xuất của chuyến đó một cách tự nhiên.
-   - **Trường hợp D: Hủy chuyến xe nháp (`handleCancelDraft`)**:
-     * Khi chuyến xe nháp A bị hủy, toàn bộ số kiện đã giữ chỗ của đơn hàng được hoàn trả lại 100% vào tồn kho khả dụng để các chuyến xe khác có thể chọn bốc hàng.
-
-```mermaid
-flowchart TD
-    A["Đơn hàng tại Hub: Tồn kho thực tế (Sổ cái) = 50 kiện"] --> B["Thủ kho tạo Chuyến xe SD01 (Mode 1 hoặc Mode 2)"]
-    B --> C["Gán Đơn hàng vào SD01: Xuất 50 kiện"]
-    C --> D["Bấm 'Lưu nháp (Chờ xử lý)' -> SD01 trạng thái PENDING"]
-    
-    D --> E["Hệ thống ghi nhận: SD01 đang giữ chỗ 50 kiện"]
-    E --> F{"Tồn khả dụng còn lại = 50 - 50 = 0 kiện"}
-    
-    F --> G["Thủ kho mở tạo Chuyến xe mới SD02"]
-    G --> H["Tra cứu / Tìm kiếm Đơn hàng trên giao diện SD02"]
-    
-    H --> I{"Kiểm tra Tồn khả dụng còn lại"}
-    I -- "Tồn khả dụng = 0" --> J["KHÓA CHỌN ĐƠN HÀNG"]
-    J --> J1["Modal Tra cứu: Badge 'Đã xếp vào chuyến xe SD01 (Chờ xử lý)'"]
-    J --> J2["Vô hiệu hóa nút 'Chọn đơn này'"]
-    J --> J3["Nhập mã trên Grid: Cảnh báo Toast và chặn thêm dòng"]
-    
-    I -- "Nếu chỉ xuất 20 kiện (còn lại 30)" --> K["Cho phép thêm vào SD02 tối đa 30 kiện"]
-```
-
----
+Nhiệm vụ này giải quyết phản hồi thực tế từ vận hành hiện trường tại các Hub và trung tâm điều phối của Spider Express, đảm bảo tính toàn vẹn dữ liệu, giao diện compact density và luồng vận hành chính xác.
 
 ### Phân tích nguyên nhân gốc rễ (Root Cause Analysis):
 1. **Backend tính toán tồn kho thiếu nhận thức về các chuyến xe xuất kho đang chờ xử lý (`PENDING`)**:

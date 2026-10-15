@@ -48,6 +48,8 @@ jobs:
       sender_name: ${{ steps.claim.outputs.sender_name }}
       mode: ${{ steps.claim.outputs.mode }}
       has_task: ${{ steps.claim.outputs.has_task }}
+      image_file_ids: ${{ steps.claim.outputs.image_file_ids }}
+      feedback_dir: ${{ steps.claim.outputs.feedback_dir }}
 
     steps:
       - name: "Cài đặt Node.js môi trường tiếp nhận"
@@ -183,6 +185,8 @@ jobs:
             setOutput("sender_name", sender);
             setOutput("mode", mode);
             setOutput("has_task", (task && taskId && taskId !== "manual") ? "true" : "false");
+            setOutput("image_file_ids", JSON.stringify(task && Array.isArray(task.image_file_ids) ? task.image_file_ids : []));
+            setOutput("feedback_dir", (task && task.feedback_dir) || "");
 
             // Tác vụ được nhận diện và claim thành công trong im lặng (Zero spam khi bắt đầu)
             console.log(`✅ [Intake] Task #${taskId} sẵn sàng chuyển sang Job 2 thực thi.`);
@@ -245,6 +249,78 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+
+      - name: "3.0. Tải ảnh thực tế đính kèm từ Telegram vào Feedback Dir (Chống mượn ảnh cũ & Hallucination)"
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TASK_ID: ${{ needs.intake-task.outputs.task_id }}
+          IMAGE_FILE_IDS: ${{ needs.intake-task.outputs.image_file_ids }}
+          FEEDBACK_DIR: ${{ needs.intake-task.outputs.feedback_dir }}
+        run: |
+          node -e '
+          const fs = require("fs");
+          const path = require("path");
+
+          async function main() {
+            const botToken = process.env.TELEGRAM_BOT_TOKEN;
+            const taskId = process.env.TASK_ID;
+            let imageIds = [];
+            try {
+              imageIds = JSON.parse(process.env.IMAGE_FILE_IDS || "[]");
+            } catch {
+              imageIds = [];
+            }
+
+            if (!imageIds || imageIds.length === 0) {
+              console.log("ℹ️ Task #" + taskId + " không có ảnh đính kèm từ Telegram.");
+              return;
+            }
+
+            if (!botToken) {
+              console.warn("⚠️ Thiếu TELEGRAM_BOT_TOKEN, không thể tải ảnh từ Telegram.");
+              return;
+            }
+
+            const now = new Date();
+            const dd = String(now.getDate()).padStart(2, "0");
+            const mm = String(now.getMonth() + 1).padStart(2, "0");
+            const feedbackDir = process.env.FEEDBACK_DIR || `feedbacks/feedback_${dd}_${mm}_task_${taskId}`;
+
+            if (!fs.existsSync(feedbackDir)) {
+              fs.mkdirSync(feedbackDir, { recursive: true });
+            }
+
+            console.log(`📸 Bắt đầu tải ${imageIds.length} ảnh đính kèm từ Telegram vào ${feedbackDir}...`);
+            for (let i = 0; i < imageIds.length; i++) {
+              const fid = imageIds[i];
+              try {
+                const getFileRes = await fetch(`https://api.telegram.org/bot${botToken}/getFile?file_id=${fid}`);
+                const getFileData = await getFileRes.json();
+                if (!getFileData.ok || !getFileData.result || !getFileData.result.file_path) {
+                  console.error(`❌ getFile thất bại cho ID ${fid}:`, getFileData);
+                  continue;
+                }
+                const remotePath = getFileData.result.file_path;
+                const ext = path.extname(remotePath) || ".jpg";
+                const localName = `screenshot_${String(i + 1).padStart(2, "0")}${ext}`;
+                const localPath = path.join(feedbackDir, localName);
+
+                const dlRes = await fetch(`https://api.telegram.org/file/bot${botToken}/${remotePath}`);
+                if (!dlRes.ok) {
+                  console.error(`❌ Tải ảnh thất bại (${dlRes.statusText})`);
+                  continue;
+                }
+                const buf = Buffer.from(await dlRes.arrayBuffer());
+                fs.writeFileSync(localPath, buf);
+                console.log(`✅ Đã tải ảnh thực tế Telegram: ${localPath} (${buf.length} bytes)`);
+              } catch (err) {
+                console.error(`❌ Lỗi khi tải ảnh ${fid}:`, err.message);
+              }
+            }
+          }
+
+          main().catch(err => console.error("Lỗi bước tải ảnh:", err));
+          '
 
       - name: "3.1. Khôi phục Cache Dependencies (Root, Backend, Frontend)"
         id: deps-cache
@@ -364,18 +440,71 @@ jobs:
           API_URL: "https://backend-tms-core-dev.up.railway.app"
           CI: "true"
         run: |
+          # 1. Tự động nhận diện và merge feature branch nếu AI tạo branch mới theo quy chuẩn AGENTS.md
+          merge_feature_branch_if_any() {
+            local dir=$1
+            local cur_branch
+            if [ "$dir" = "." ]; then
+              cur_branch=$(git branch --show-current 2>/dev/null || true)
+            else
+              cur_branch=$(git -C "$dir" branch --show-current 2>/dev/null || true)
+            fi
+
+            if [ -n "$cur_branch" ] && [ "$cur_branch" != "dev" ]; then
+              echo "🔀 Phát hiện branch làm việc '$cur_branch' tại $dir. Đang merge tự động vào nhánh dev..."
+              if [ "$dir" = "." ]; then
+                git add -A
+                if ! git diff --cached --quiet; then
+                  git commit -m "feat: complete uncommitted work on $cur_branch" 2>/dev/null || true
+                fi
+                git checkout dev 2>/dev/null || git switch dev 2>/dev/null || true
+                git merge --no-ff "$cur_branch" -m "feat: merge $cur_branch into dev (Task #${TASK_ID})" || git merge -X theirs "$cur_branch" -m "feat: merge $cur_branch into dev (Task #${TASK_ID})" || true
+              else
+                git -C "$dir" add -A
+                if ! git -C "$dir" diff --cached --quiet; then
+                  git -C "$dir" commit -m "feat: complete uncommitted work on $cur_branch" 2>/dev/null || true
+                fi
+                git -C "$dir" checkout dev 2>/dev/null || git -C "$dir" switch dev 2>/dev/null || true
+                git -C "$dir" merge --no-ff "$cur_branch" -m "feat: merge $cur_branch into dev (Task #${TASK_ID})" || git -C "$dir" merge -X theirs "$cur_branch" -m "feat: merge $cur_branch into dev (Task #${TASK_ID})" || true
+              fi
+            fi
+          }
+
+          if [ -d "backend" ]; then merge_feature_branch_if_any "backend"; fi
+          if [ -d "frontend" ]; then merge_feature_branch_if_any "frontend"; fi
+          merge_feature_branch_if_any "."
+
           echo "🔍 Kiểm tra thay đổi mã nguồn sau khi AI thực thi..."
           HAS_ROOT=$(git status --porcelain || true)
           HAS_BE=$(git -C backend status --porcelain 2>/dev/null || true)
           HAS_FE=$(git -C frontend status --porcelain 2>/dev/null || true)
 
+          AHEAD_ROOT=$(git rev-list --count origin/dev..HEAD 2>/dev/null || echo 0)
+          AHEAD_BE=$(git -C backend rev-list --count origin/dev..HEAD 2>/dev/null || echo 0)
+          AHEAD_FE=$(git -C frontend rev-list --count origin/dev..HEAD 2>/dev/null || echo 0)
+
           {
-            if [ -n "$HAS_ROOT" ]; then echo "=== Root ==="; git diff --stat; git status -s; fi
-            if [ -n "$HAS_BE" ]; then echo "=== Backend ==="; git -C backend diff --stat; git -C backend status -s; fi
-            if [ -n "$HAS_FE" ]; then echo "=== Frontend ==="; git -C frontend diff --stat; git -C frontend status -s; fi
+            if [ -n "$HAS_ROOT" ] || [ "$AHEAD_ROOT" -gt 0 ]; then
+              echo "=== Root ==="
+              git log -n 3 --oneline origin/dev..HEAD 2>/dev/null || true
+              git diff --stat
+              git status -s
+            fi
+            if [ -n "$HAS_BE" ] || [ "$AHEAD_BE" -gt 0 ]; then
+              echo "=== Backend ==="
+              git -C backend log -n 3 --oneline origin/dev..HEAD 2>/dev/null || true
+              git -C backend diff --stat
+              git -C backend status -s
+            fi
+            if [ -n "$HAS_FE" ] || [ "$AHEAD_FE" -gt 0 ]; then
+              echo "=== Frontend ==="
+              git -C frontend log -n 3 --oneline origin/dev..HEAD 2>/dev/null || true
+              git -C frontend diff --stat
+              git -C frontend status -s
+            fi
           } > git_diff_summary.txt 2>&1
 
-          if [ -z "$HAS_ROOT" ] && [ -z "$HAS_BE" ] && [ -z "$HAS_FE" ]; then
+          if [ -z "$HAS_ROOT" ] && [ -z "$HAS_BE" ] && [ -z "$HAS_FE" ] && [ "$AHEAD_ROOT" -eq 0 ] && [ "$AHEAD_BE" -eq 0 ] && [ "$AHEAD_FE" -eq 0 ]; then
             if [ "$MODE" = "audit" ] || [[ "$TASK_ID" == *"audit"* ]] || [[ "$SENDER" == *"Schedule Trigger"* ]] || [[ "$RAW_PROMPT" == *"/todo-agent quét"* ]]; then
               echo "ℹ️ Tác vụ quét/kiểm tra định kỳ (Không có file thay đổi do toàn bộ task đã hoàn thành). Hoàn tất tác vụ an toàn."
               exit 0
@@ -522,7 +651,7 @@ jobs:
           }
 
 
-          if [ -d "backend" ] && [ -n "$HAS_BE" ]; then
+          if [ -d "backend" ] && { [ -n "$HAS_BE" ] || [ "$AHEAD_BE" -gt 0 ]; }; then
             echo "📦 Đang xử lý commit & push trong backend/..."
             git -C backend checkout dev 2>/dev/null || git -C backend switch dev 2>/dev/null || true
             if commit_with_self_healing "backend" "feat(backend): task #${TASK_ID} auto-implemented by Antigravity worker"; then
@@ -536,7 +665,7 @@ jobs:
             fi
           fi
 
-          if [ -d "frontend" ] && [ -n "$HAS_FE" ]; then
+          if [ -d "frontend" ] && { [ -n "$HAS_FE" ] || [ "$AHEAD_FE" -gt 0 ]; }; then
             echo "📦 Đang xử lý commit & push trong frontend/..."
             git -C frontend checkout dev 2>/dev/null || git -C frontend switch dev 2>/dev/null || true
             if commit_with_self_healing "frontend" "feat(frontend): task #${TASK_ID} auto-implemented by Antigravity worker"; then

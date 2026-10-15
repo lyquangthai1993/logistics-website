@@ -107,6 +107,12 @@ Every response must open with a direct status badge and a 1-sentence verdict on 
   - In Telegram reports, progress summaries, and folder names, always reference tasks via `task_id` (`#<task_id>`, `feedbacks/feedback_DD_MM_task_<task_id>`), NEVER the internal database auto-increment `id`.
   - All `/report-today`, queue metrics, and summary cards filter `WHERE task_id IS NOT NULL`, preventing `/force` triggers from polluting task lists or inflating task counters.
 
+### Rule 9: Strict Image Provenance & OCR Context Citation (Trích dẫn Đúng Ảnh Thật & Ngữ Cảnh OCR)
+- Khi phát thông báo Telegram cho các task có ảnh đính kèm:
+  - **Trích dẫn ảnh thực tế**: Bắt buộc nêu rõ file ảnh được tải về từ Telegram Bot API (`screenshot_01.jpg`).
+  - **Trích dẫn ngữ cảnh OCR thật**: Đọc và ghi rõ mã chuyến xe thật (ví dụ `Chuyến xe SD68`, không được nhầm lẫn sang chuyến của task cũ), Hub thực tế và chi tiết vùng khoanh đỏ từ ảnh thật của người dùng.
+  - **Tuyệt đối cấm mượn ảnh**: Không bao giờ trích dẫn hoặc sử dụng ảnh của các task trước đó. Nếu task không có ảnh, báo cáo phải nêu rõ `Không có ảnh đính kèm`. Tham chiếu [`.agents/rules/image-provenance-guard.md`](file:///d:/Projects/logistics-website/.agents/rules/image-provenance-guard.md).
+
 ---
 
 ## 3. Recommended Output Templates for Telegram

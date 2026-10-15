@@ -90,6 +90,11 @@ All operations performed by the `todo-agent` MUST strictly adhere to the project
     - Khi truy vấn các task cần làm hoặc quét hàng đợi từ database `telegram_tasks` (thông qua lệnh `npm run task:pending` hoặc script `scripts/query-incomplete-tasks.mjs`), `todo-agent` BẮT BUỘC chỉ lọc các dòng có `task_id IS NOT NULL` (`WHERE task_id IS NOT NULL AND status NOT IN ('COMPLETED', 'CANCELLED')`).
     - Các dòng có `task_id IS NULL` (như các lệnh điều khiển bot `/force`, `/force@please_choose_auto_bot`) là trigger thực thi hệ thống, KHÔNG ĐƯỢC tính là task nghiệp vụ và KHÔNG ĐƯỢC sinh thư mục feedback hay checklist `TODO.md` mới.
 
+11. **Zero Cross-Task Image Borrowing & Strict Image Provenance Invariant (Quy chuẩn Tuyệt đối Không Mượn Ảnh và Bắt buộc Đối soát Nguồn gốc Hình ảnh)**:
+    - **Cấm mượn ảnh**: Tuyệt đối không sao chép hoặc liên kết bất kỳ file ảnh nào (`screenshot_*.jpg`, `screenshot_*.png`) từ các thư mục feedback khác (`feedbacks/feedback_*`). Việc mượn ảnh cũ sẽ làm sai lệch mã chuyến xe, Hub và nghiệp vụ thực tế, dẫn tới nghiệm thu rác và bị coi là Critical Failure.
+    - **Nguồn gốc duy nhất**: Mọi ảnh trong thư mục feedback phải được tải trực tiếp từ Telegram API theo đúng `image_file_ids` của chính task đó. Nếu task không có ảnh đính kèm, thư mục task tuyệt đối không được có file ảnh giao diện trước khi code.
+    - **Cổng đối soát OCR (OCR & Context Parity Gate)**: Khi đọc ảnh, agent bắt buộc đối chiếu mã chuyến xe, Hub và khu vực khoanh đỏ với nội dung yêu cầu của user trong prompt. Nếu phát hiện mâu thuẫn hoặc ảnh không liên quan, dừng lại và báo lỗi `IMAGE_CONTEXT_MISMATCH`. Tham chiếu [`.agents/rules/image-provenance-guard.md`](file:///d:/Projects/logistics-website/.agents/rules/image-provenance-guard.md).
+
 ---
 
 ## 3. Feedback Directory Structure & Scanner Engine

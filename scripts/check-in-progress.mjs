@@ -37,7 +37,7 @@ const client = new Client({
 await client.connect();
 
 const inProgressRes = await client.query(`
-  SELECT id, sender_name, substring(raw_prompt from 1 for 100) as prompt_preview, status, started_at
+  SELECT id, task_id, sender_name, substring(raw_prompt from 1 for 100) as prompt_preview, status, started_at
   FROM telegram_tasks
   WHERE status = 'IN_PROGRESS'
   ORDER BY id ASC
