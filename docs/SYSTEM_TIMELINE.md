@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 15/10/2026 | `feedbacks/feedback_15_10_task_87` | Feedback 15/10 (Task #87) — Chuyển Hướng Đăng Nhập T... | 15/15 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_10_task_87/RESOLUTION.md) |
 | 15/10/2026 | `feedbacks/feedback_15_10_task_86` | Feedback 15/10 (Task #86) — Tạm Thời Ẩn Nút Kính Lúp... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_10_task_86/RESOLUTION.md) |
 | 15/10/2026 | `feedbacks/feedback_15_10_task_83` | Feedback 15/10 (Task #83) — Ẩn Nút "In Phiếu Nhập" K... | 26/26 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_10_task_83/RESOLUTION.md) |
 | 15/10/2026 | `feedbacks/feedback_15_10_task_85` | Feedback 15/10 (Task #85) — Quét & Kiểm Định Toàn Di... | 19/19 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_10_task_85/RESOLUTION.md) |
@@ -70,6 +71,17 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_15_10_TASK_87] — Feedback 15/10 (Task #87) — Chuyển Hướng Đăng Nhập Thẳng Vào Màn Hình Đơn Hàng Kho & Loại Bỏ Màn Hình Dashboard Tổng Quan (15/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (15/15 việc)
+- **Báo cáo bởi**: @Thai / Quản trị Vận hành TMS
+- **Phạm vi**: Đăng nhập ([`login-form.tsx`](file:///frontend/src/features/auth/components/login-form.tsx), [`sign-in/page.tsx`](file:///frontend/src/app/auth/sign-in/page.tsx)) • Màn hình Tổng quan Dashboard ([`overview/page.tsx`](file:///frontend/src/app/dashboard/overview/page.tsx)) ➔ Chuyển hướng triệt để sang Đơn hàng kho • Trang Điều hướng Gốc ([`page.tsx`](file:///frontend/src/app/page.tsx), [`dashboard/page.tsx`](file:///frontend/src/app/dashboard/page.tsx)) • Quản lý Đơn hàng kho ([`warehouse/orders/page.tsx`](file:///frontend/src/app/dashboard/warehouse/orders/page.tsx)) • Cấu hình Thanh điều hướng Navigation ([`nav-config.ts`](file:///frontend/src/config/nav-config.ts)) • Middleware Proxy ([`proxy.ts`](file:///frontend/src/proxy.ts))
+- **Năng lực & Tính năng mới**:
+  * **Frontend**: Cập nhật [`login-form.tsx`](file:///frontend/src/features/auth/components/login-form.tsx): Đổi đích chuyển hướng mặc định sau đăng nhập thành `/dashboard/warehouse/orders`.; Cập nhật [`overview/page.tsx`](file:///frontend/src/app/dashboard/overview/page.tsx): Thiết lập `redirect('/dashboard/warehouse/orders')` khi truy cập `/dashboard/overview`.; Cập nhật [`page.tsx`](file:///frontend/src/app/page.tsx) & [`dashboard/page.tsx`](file:///frontend/src/app/dashboard/page.tsx): Chuyển hướng người dùng đã xác thực thẳng vào `/dashboard/warehouse/orders`....
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.png, screenshot_01_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_15_10_task_87/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_15_10_task_87/TODO.md)
 
 ### 🚀 [FEEDBACK_15_10_TASK_86] — Feedback 15/10 (Task #86) — Tạm Thời Ẩn Nút Kính Lúp Tra Cứu Đơn Hàng Trong Bảng Kê Xuất Kho (15/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (9/9 việc)
