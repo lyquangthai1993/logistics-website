@@ -53,14 +53,24 @@ export function getCurrentBranches() {
   };
 }
 
-export function startTask(taskId, rawSlug = 'task-work', scope = 'fullstack') {
+export function buildBranchName(taskId, slugOrModule = 'work', action = '', type = 'feat') {
+  const cleanType = ['fix', 'feat', 'feature', 'refactor', 'perf'].includes(type) ? type : 'feat';
+  const rawParts = [slugOrModule, action].filter(Boolean).join('-');
+  const cleanSlug = rawParts
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]/g, '-')
+    .replace(/--+/g, '-')
+    .replace(/^-|-$/g, '');
+  return `${cleanType}/task-${taskId}-${cleanSlug}`;
+}
+
+export function startTask(taskId, slugOrModule = 'work', action = '', type = 'feat', scope = 'fullstack') {
   if (!taskId) {
-    console.error('❌ Missing task ID. Usage: node scripts/git-task-workflow.mjs start <task_id> [slug]');
+    console.error('❌ Missing task ID. Usage: node scripts/git-task-workflow.mjs start <task_id> [slug/module] [action] [type] [scope]');
     process.exit(1);
   }
 
-  const slug = rawSlug.toLowerCase().replace(/[^a-z0-9_-]/g, '-').replace(/--+/g, '-').replace(/^-|-$/g, '');
-  const branchName = `feature/task-${taskId}-${slug}`;
+  const branchName = buildBranchName(taskId, slugOrModule, action, type);
 
   console.log(`\n======================================================`);
   console.log(`🚀 KHỞI TẠO FEATURE BRANCH CHO TASK #${taskId}`);
@@ -95,14 +105,13 @@ export function startTask(taskId, rawSlug = 'task-work', scope = 'fullstack') {
   console.log(`\n💡 Tiếp theo: Thực hiện code, build local và chạy Playwright E2E test local.`);
 }
 
-export function createAndMergePr(taskId, rawSlug = 'task-work', scope = 'fullstack') {
+export function createAndMergePr(taskId, slugOrModule = 'work', action = '', type = 'feat', scope = 'fullstack') {
   if (!taskId) {
-    console.error('❌ Missing task ID. Usage: node scripts/git-task-workflow.mjs pr <task_id> [slug]');
+    console.error('❌ Missing task ID. Usage: node scripts/git-task-workflow.mjs pr <task_id> [slug/module] [action] [type] [scope]');
     process.exit(1);
   }
 
-  const slug = rawSlug.toLowerCase().replace(/[^a-z0-9_-]/g, '-').replace(/--+/g, '-').replace(/^-|-$/g, '');
-  const branchName = `feature/task-${taskId}-${slug}`;
+  const branchName = buildBranchName(taskId, slugOrModule, action, type);
 
   console.log(`\n======================================================`);
   console.log(`📦 TẠO PR & TỰ ĐỘNG MERGE VÀO DEV (TASK #${taskId})`);
@@ -130,7 +139,7 @@ export function createAndMergePr(taskId, rawSlug = 'task-work', scope = 'fullsta
     if (isGhAuthed) {
       console.log(`[${repo.name}] Đang tạo PR vào dev...`);
       try {
-        const title = `feat(task-${taskId}): ${slug}`;
+        const title = `${type}(task-${taskId}): ${slugOrModule}${action ? '-' + action : ''}`;
         const body = `## Task #${taskId}\\n\\n- Branch: ${branchName}\\n- Local E2E Gate: PASS 100%\\n- Target: dev`;
         run(`gh pr create --repo ${repo.ghRepo} --base dev --head ${branchName} --title "${title}" --body "${body}"`, repo.dir);
         
@@ -169,16 +178,20 @@ const command = args[0];
 switch (command) {
   case 'start': {
     const taskId = args[1];
-    const slug = args[2] || 'work';
-    const scope = args[3] || 'fullstack';
-    startTask(taskId, slug, scope);
+    const moduleOrSlug = args[2] || 'work';
+    const action = args[3] || '';
+    const type = args[4] || 'feat';
+    const scope = args[5] || 'fullstack';
+    startTask(taskId, moduleOrSlug, action, type, scope);
     break;
   }
   case 'pr': {
     const taskId = args[1];
-    const slug = args[2] || 'work';
-    const scope = args[3] || 'fullstack';
-    createAndMergePr(taskId, slug, scope);
+    const moduleOrSlug = args[2] || 'work';
+    const action = args[3] || '';
+    const type = args[4] || 'feat';
+    const scope = args[5] || 'fullstack';
+    createAndMergePr(taskId, moduleOrSlug, action, type, scope);
     break;
   }
   case 'status': {
@@ -191,19 +204,25 @@ switch (command) {
   }
   default: {
     console.log(`
-Quy Trình Chuẩn GitHub Task Workflow CLI
-========================================
-Sử dụng:
-  node scripts/git-task-workflow.mjs start <task_id> [slug] [scope]
-    -> Kéo dev mới nhất & tạo nhánh feature/task-<id>-<slug> trong submodule
+Quy Trình Chuẩn GitHub Task Workflow CLI (RULE-GIT-TASK-WORKFLOW-01)
+===================================================================
+Quy chuẩn tên nhánh: <type>/task-<id>-<module>-<action>
+Ví dụ: feat/task-81-warehouse-outbound-pallet
 
-  node scripts/git-task-workflow.mjs pr <task_id> [slug] [scope]
+Sử dụng:
+  node scripts/git-task-workflow.mjs start <task_id> [module/slug] [action] [type] [scope]
+    -> Kéo dev mới nhất & tạo nhánh <type>/task-<id>-<module>-<action> trong submodule
+
+  node scripts/git-task-workflow.mjs pr <task_id> [module/slug] [action] [type] [scope]
     -> Push nhánh, tạo PR vào dev làm bằng chứng, và tự động merge PR vào dev
 
   node scripts/git-task-workflow.mjs status
     -> Kiểm tra nhánh hiện tại trên cả 3 repos
 
-Tham số [scope]: fullstack (mặc định), backend, frontend
+Tham số:
+  - type  : feat (mặc định), fix, refactor, perf
+  - module: warehouse, trip, order, fleet, hub, auth, report, core
+  - scope : fullstack (mặc định), backend, frontend
 `);
     break;
   }

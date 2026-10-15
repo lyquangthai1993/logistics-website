@@ -32,26 +32,105 @@ Hệ thống Logistics TMS gồm **3 Git repository độc lập**:
 
 ---
 
-## 3. Quy Ước Đặt Tên Nhánh (Branch Naming Convention)
+## 3. Quy Chuẩn Đặt Tên Nhánh & Suy Luận Thiết Kế (Branch Naming Taxonomy)
 
-Mọi nhánh tính năng bắt buộc phải gắn liền với `task_id` nghiệp vụ:
+### 3.1. Phân Tích & Suy Luận Thiết Kế (Design Rationale)
 
-```bash
-# Định dạng chuẩn:
-<loại-nhánh>/task-<task_id>-<mô-tả-ngắn-kebab-case>
+Khi vận hành hệ thống Logistics TMS với nhiều phân hệ song song (Kho bãi, Điều phối, Đội xe, Đơn hàng) và hàng trăm tác vụ feedback được giao qua Telegram Bot, tên branch cần giải quyết đồng thời **4 bài toán cốt lõi**:
 
-# 1. Tính năng mới / triển khai checklist chung:
-feature/task-81-warehouse-outbound-pallet
+1. **Khả năng truy vết tức thì (Instant Traceability)**: Tên branch phải liên kết 1:1 với `task_id` trong cơ sở dữ liệu `telegram_tasks`, thư mục `feedbacks/feedback_DD_MM_task_<id>`, và biên bản `RESOLUTION.md`.
+2. **Khớp nối chuẩn Conventional Commits**: Tiền tố của branch phải đồng bộ với chuẩn commit (`feat(...)`, `fix(...)`, `refactor(...)`), giúp tự động hóa tạo PR title và changelog.
+3. **Phân vùng nghiệp vụ rõ ràng (Domain Scoping)**: Nhìn vào danh sách branch trên GitHub hoặc Git CLI là nhận biết ngay phân hệ bị tác động mà không cần mở code.
+4. **An toàn Git Ref (Zero Ref Conflict)**: Tránh sử dụng quá nhiều cấp phân tầng thư mục `/` (như `feat/warehouse/task-81/...`) vì Git có cơ chế ref lock dạng file hệ thống, sẽ báo lỗi `cannot lock ref` nếu có nhánh trùng tên thư mục cha.
 
-# 2. Sửa lỗi / hotfix cho task cụ thể:
-fix/task-80-driver-assignment-crash
+---
 
-# 3. Tái cấu trúc / nâng cấp kỹ thuật:
-refactor/task-79-rbac-guard-optimization
+### 3.2. Cấu Trúc Đặt Tên Chuẩn 4 Thành Phần
+
+Mọi branch tạo mới BẮT BUỘC tuân thủ công thức sau:
+
+```
+<type>/task-<id>-<module>-<action>
 ```
 
-- **Quy tắc**: Kebab-case, chữ thường, không dấu tiếng Việt, tối đa 4-5 từ mô tả bản chất kỹ thuật/nghiệp vụ.
-- **Base Branch**: Bắt buộc là `dev` (sau khi đã `git checkout dev && git pull origin dev`).
+```
+           ┌── 1. Type: Loại công việc (feat, fix, refactor, perf)
+           │
+           │      ┌── 2. Task ID: Khóa liên kết nghiệp vụ duy nhất (task-81)
+           │      │
+           │      │          ┌── 3. Module: Phân hệ nghiệp vụ TMS (warehouse, trip, order...)
+           │      │          │
+           ▼      ▼          ▼      ▼── 4. Action: Hành động kỹ thuật (2-4 từ kebab-case)
+         feat/task-81-warehouse-outbound-pallet
+```
+
+#### Giải thích 4 thành phần:
+
+| Thành phần | Ý nghĩa | Giá trị chuẩn | Ví dụ |
+|---|---|---|---|
+| **`<type>`** | Phân loại mục đích thay đổi | `feat` (hoặc `feature`), `fix`, `refactor`, `perf` | `feat`, `fix` |
+| **`task-<id>`** | Mã số định danh của task | Bắt buộc có tiền tố `task-` kèm số ID | `task-81`, `task-80` |
+| **`<module>`** | Phân hệ nghiệp vụ bị tác động | Thuộc danh mục phân hệ TMS (bảng bên dưới) | `warehouse`, `trip`, `order` |
+| **`<action>`** | Tóm tắt hành động kỹ thuật | 2–4 từ tiếng Anh, viết thường, ngăn cách bằng dấu gạch ngang (`-`) | `outbound-pallet`, `driver-assign` |
+
+---
+
+### 3.3. Bảng Danh Mục Phân Hệ Nghiệp Vụ (`<module>`)
+
+| Mã Module | Phân hệ tương ứng | Nghiệp vụ tiêu biểu |
+|---|---|---|
+| `warehouse` | Quản lý kho bãi | Nhập kho, xuất kho, tồn kho, pallet, in tem A4, kiểm đếm |
+| `trip` | Quản lý chuyến xe | Tạo chuyến, gán chuyến, xếp xe, bốc dỡ, lộ trình trạm |
+| `order` | Quản lý đơn hàng | Tạo đơn, gom đơn, cập nhật trọng lượng, thể tích CBM |
+| `fleet` | Đội xe & Tài xế | Quản lý phương tiện, hồ sơ tài xế, bảo dưỡng, định vị |
+| `hub` | Trạm & Trung chuyển | Điều phối liên Hub, luân chuyển nội bộ, trạm nhận/dỡ |
+| `auth` | Xác thực & Phân quyền | Đăng nhập, JWT token, Guard, RBAC matrix |
+| `report` | Báo cáo & Thống kê | KPI, đối soát, sổ cái vận hành, xuất file Excel |
+| `core` | Hạ tầng & Nền tảng | Scripts, CI/CD, Railway, N8n, cấu hình hệ thống |
+
+---
+
+### 3.4. So Sánh Các Phương Án Đặt Tên (Comparative Analysis)
+
+| Phương án | Mẫu ví dụ | Ưu điểm | Nhược điểm | Đánh giá |
+|---|---|---|---|:---:|
+| **Phương án 1 (Chuẩn áp dụng)** | `feat/task-81-warehouse-outbound-pallet` | Truy vết tức thì theo ID; có phân hệ; phân loại rõ ràng; không xung đột Git ref. | Cần tuân thủ quy tắc 4 phần. | **CHỌN (CHUẨN)** |
+| **Phương án 2 (Đa cấp thư mục)** | `feat/warehouse/task-81-pallet` | Gom nhóm thư mục trực quan trên UI Git. | Dễ lỗi `cannot lock ref` khi xóa/nhập branch; gõ lệnh dài. | ❌ Loại |
+| **Phương án 3 (Chỉ có Task ID)** | `task/81` | Ngắn gọn. | Mù thông tin: không biết sửa gì, phân hệ nào, tính năng hay bug. | ❌ Loại |
+| **Phương án 4 (Chỉ có mô tả)** | `feature/warehouse-pallet` | Dễ đọc tiếng Anh. | Mất liên kết với `task_id` Telegram, không đối chiếu được với `TODO.md`. | ❌ Loại |
+
+---
+
+### 3.5. Ví Dụ Đặt Tên Thực Tế Theo Từng Tình Huống
+
+```bash
+# 1. Tính năng mới / hoàn thiện màn hình theo spec:
+feat/task-81-warehouse-outbound-pallet      # Hoàn thiện xuất kho pallet cho thủ kho
+feat/task-82-trip-multi-stop-route         # Bổ sung lộ trình đa điểm cho chuyến xe
+feat/task-83-order-cbm-auto-calc           # Tự động tính CBM theo kích thước kiện hàng
+
+# 2. Sửa lỗi logic / crash / giao diện sai:
+fix/task-80-trip-driver-assignment         # Sửa lỗi crash khi gán tài xế vào chuyến
+fix/task-78-warehouse-stock-deduction      # Sửa lỗi không trừ tồn kho khi xuất hàng
+fix/task-77-auth-token-refresh-loop        # Sửa vòng lặp refresh token trên Safari
+
+# 3. Tối ưu hóa UI Compact Density & tái cấu trúc:
+refactor/task-79-order-table-density       # Thu gọn bảng đơn hàng đạt chuẩn Compact Density
+refactor/task-75-rbac-guard-cleanup        # Dọn dẹp logic kiểm tra quyền tại route guard
+
+# 4. Tối ưu hiệu năng / truy vấn database:
+perf/task-74-warehouse-stock-query         # Tối ưu N+1 query tại trang tồn kho
+```
+
+---
+
+### 3.6. Các Điều Cấm Kỵ Tuyệt Đối (Anti-Patterns)
+
+- 🚫 **CẤM tiếng Việt có dấu hoặc khoảng trắng**: `feat/task-81-xuat-kho-pallet` (phải dùng tiếng Anh không dấu).
+- 🚫 **CẤM bỏ quên `task-<id>`**: `feat/warehouse-outbound` (mất dấu vết nghiệm thu).
+- 🚫 **CẤM đặt tên quá dài vượt quá 50 ký tự**: Không viết cả câu văn vào tên branch.
+- 🚫 **CẤM dùng ký tự đặc biệt**: `@`, `#`, `$`, `%`, `&`, `*`, `(`, `)`.
+- 🚫 **CẤM code trực tiếp trên `dev` hoặc `master` mà không tạo branch**.
 
 ---
 
