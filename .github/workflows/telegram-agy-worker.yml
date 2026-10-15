@@ -440,18 +440,71 @@ jobs:
           API_URL: "https://backend-tms-core-dev.up.railway.app"
           CI: "true"
         run: |
+          # 1. Tự động nhận diện và merge feature branch nếu AI tạo branch mới theo quy chuẩn AGENTS.md
+          merge_feature_branch_if_any() {
+            local dir=$1
+            local cur_branch
+            if [ "$dir" = "." ]; then
+              cur_branch=$(git branch --show-current 2>/dev/null || true)
+            else
+              cur_branch=$(git -C "$dir" branch --show-current 2>/dev/null || true)
+            fi
+
+            if [ -n "$cur_branch" ] && [ "$cur_branch" != "dev" ]; then
+              echo "🔀 Phát hiện branch làm việc '$cur_branch' tại $dir. Đang merge tự động vào nhánh dev..."
+              if [ "$dir" = "." ]; then
+                git add -A
+                if ! git diff --cached --quiet; then
+                  git commit -m "feat: complete uncommitted work on $cur_branch" 2>/dev/null || true
+                fi
+                git checkout dev 2>/dev/null || git switch dev 2>/dev/null || true
+                git merge --no-ff "$cur_branch" -m "feat: merge $cur_branch into dev (Task #${TASK_ID})" || git merge -X theirs "$cur_branch" -m "feat: merge $cur_branch into dev (Task #${TASK_ID})" || true
+              else
+                git -C "$dir" add -A
+                if ! git -C "$dir" diff --cached --quiet; then
+                  git -C "$dir" commit -m "feat: complete uncommitted work on $cur_branch" 2>/dev/null || true
+                fi
+                git -C "$dir" checkout dev 2>/dev/null || git -C "$dir" switch dev 2>/dev/null || true
+                git -C "$dir" merge --no-ff "$cur_branch" -m "feat: merge $cur_branch into dev (Task #${TASK_ID})" || git -C "$dir" merge -X theirs "$cur_branch" -m "feat: merge $cur_branch into dev (Task #${TASK_ID})" || true
+              fi
+            fi
+          }
+
+          if [ -d "backend" ]; then merge_feature_branch_if_any "backend"; fi
+          if [ -d "frontend" ]; then merge_feature_branch_if_any "frontend"; fi
+          merge_feature_branch_if_any "."
+
           echo "🔍 Kiểm tra thay đổi mã nguồn sau khi AI thực thi..."
           HAS_ROOT=$(git status --porcelain || true)
           HAS_BE=$(git -C backend status --porcelain 2>/dev/null || true)
           HAS_FE=$(git -C frontend status --porcelain 2>/dev/null || true)
 
+          AHEAD_ROOT=$(git rev-list --count origin/dev..HEAD 2>/dev/null || echo 0)
+          AHEAD_BE=$(git -C backend rev-list --count origin/dev..HEAD 2>/dev/null || echo 0)
+          AHEAD_FE=$(git -C frontend rev-list --count origin/dev..HEAD 2>/dev/null || echo 0)
+
           {
-            if [ -n "$HAS_ROOT" ]; then echo "=== Root ==="; git diff --stat; git status -s; fi
-            if [ -n "$HAS_BE" ]; then echo "=== Backend ==="; git -C backend diff --stat; git -C backend status -s; fi
-            if [ -n "$HAS_FE" ]; then echo "=== Frontend ==="; git -C frontend diff --stat; git -C frontend status -s; fi
+            if [ -n "$HAS_ROOT" ] || [ "$AHEAD_ROOT" -gt 0 ]; then
+              echo "=== Root ==="
+              git log -n 3 --oneline origin/dev..HEAD 2>/dev/null || true
+              git diff --stat
+              git status -s
+            fi
+            if [ -n "$HAS_BE" ] || [ "$AHEAD_BE" -gt 0 ]; then
+              echo "=== Backend ==="
+              git -C backend log -n 3 --oneline origin/dev..HEAD 2>/dev/null || true
+              git -C backend diff --stat
+              git -C backend status -s
+            fi
+            if [ -n "$HAS_FE" ] || [ "$AHEAD_FE" -gt 0 ]; then
+              echo "=== Frontend ==="
+              git -C frontend log -n 3 --oneline origin/dev..HEAD 2>/dev/null || true
+              git -C frontend diff --stat
+              git -C frontend status -s
+            fi
           } > git_diff_summary.txt 2>&1
 
-          if [ -z "$HAS_ROOT" ] && [ -z "$HAS_BE" ] && [ -z "$HAS_FE" ]; then
+          if [ -z "$HAS_ROOT" ] && [ -z "$HAS_BE" ] && [ -z "$HAS_FE" ] && [ "$AHEAD_ROOT" -eq 0 ] && [ "$AHEAD_BE" -eq 0 ] && [ "$AHEAD_FE" -eq 0 ]; then
             if [ "$MODE" = "audit" ] || [[ "$TASK_ID" == *"audit"* ]] || [[ "$SENDER" == *"Schedule Trigger"* ]] || [[ "$RAW_PROMPT" == *"/todo-agent quét"* ]]; then
               echo "ℹ️ Tác vụ quét/kiểm tra định kỳ (Không có file thay đổi do toàn bộ task đã hoàn thành). Hoàn tất tác vụ an toàn."
               exit 0
@@ -598,7 +651,7 @@ jobs:
           }
 
 
-          if [ -d "backend" ] && [ -n "$HAS_BE" ]; then
+          if [ -d "backend" ] && { [ -n "$HAS_BE" ] || [ "$AHEAD_BE" -gt 0 ]; }; then
             echo "📦 Đang xử lý commit & push trong backend/..."
             git -C backend checkout dev 2>/dev/null || git -C backend switch dev 2>/dev/null || true
             if commit_with_self_healing "backend" "feat(backend): task #${TASK_ID} auto-implemented by Antigravity worker"; then
@@ -612,7 +665,7 @@ jobs:
             fi
           fi
 
-          if [ -d "frontend" ] && [ -n "$HAS_FE" ]; then
+          if [ -d "frontend" ] && { [ -n "$HAS_FE" ] || [ "$AHEAD_FE" -gt 0 ]; }; then
             echo "📦 Đang xử lý commit & push trong frontend/..."
             git -C frontend checkout dev 2>/dev/null || git -C frontend switch dev 2>/dev/null || true
             if commit_with_self_healing "frontend" "feat(frontend): task #${TASK_ID} auto-implemented by Antigravity worker"; then
