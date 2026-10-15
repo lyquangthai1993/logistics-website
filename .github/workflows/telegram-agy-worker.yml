@@ -559,6 +559,8 @@ jobs:
 
       - name: "8. Xuất Dữ liệu Tổng hợp Sang Artifact"
         if: always()
+        env:
+          TARGET_TASK_ID: ${{ needs.intake-task.outputs.task_id || github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}
         run: |
           node -e '
           const fs = require("fs");
@@ -592,7 +594,7 @@ jobs:
           fs.mkdirSync("/tmp/task_summary", { recursive: true });
 
           // Tìm ảnh bằng chứng nghiệm thu trong thư mục feedback của task
-          const taskId = "${{ needs.intake-task.outputs.task_id || github.event.inputs.task_id || github.event.client_payload.task_id || "manual" }}";
+          const taskId = process.env.TARGET_TASK_ID || "manual";
           let evidenceFileName = null;
           const feedbacksDir = "feedbacks";
           if (fs.existsSync(feedbacksDir)) {
