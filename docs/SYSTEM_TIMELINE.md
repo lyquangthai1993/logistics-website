@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 15/10/2026 | `feedbacks/feedback_15_10_task_83` | Feedback 15/10 (Task #83) — Ẩn Nút "In Phiếu Nhập" K... | 26/26 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_10_task_83/RESOLUTION.md) |
 | 15/10/2026 | `feedbacks/feedback_15_10_task_85` | Feedback 15/10 (Task #85) — Quét & Kiểm Định Toàn Di... | 19/19 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_10_task_85/RESOLUTION.md) |
 | 14/10/2026 | `feedbacks/feedback_14_10_task_65` | Feedback 14/10 (Task #65) — Khảo Sát Nghiệp Vụ TMS T... | 27/27 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_65/RESOLUTION.md) |
 | 14/10/2026 | `feedbacks/feedback_14_10_task_80` | Feedback 14/10 (Task #80) — Khóa Chặt & Cách Ly Đơn ... | 15/15 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_80/RESOLUTION.md) |
@@ -69,6 +70,17 @@
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
 
+### 🚀 [FEEDBACK_15_10_TASK_83] — Feedback 15/10 (Task #83) — Ẩn Nút "In Phiếu Nhập" Khi Chuyến Xe Ở Trạng Thái "Chờ Xử Lý" (15/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (26/26 việc)
+- **Báo cáo bởi**: @User / @Thai (Quản lý nghiệp vụ / Vận hành TMS)
+- **Phạm vi**: Quản lý Nhập kho (`/dashboard/warehouse/inbound`) • Modal Chi tiết chuyến xe & Kiểm đếm dỡ hàng ([`WarehouseTripDetailModal`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx))
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Rà soát API trả về trạng thái Manifest trạm dừng ([`warehouse.service.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts)); Kiểm tra endpoint `GET /api/v1/warehouse/trips/:tripCode/manifest` đảm bảo trường `currentHubStatus` phản ánh đúng `TripStopEntity.status` (`PENDING` khi xe mới đến hoặc chuyến nháp; `COMPLETED` sau khi đã hoàn tất dỡ hàng).; Bảo vệ an toàn dữ liệu Endpoint In phiếu ([`warehouse.controller.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.controller.ts))...
+  * **Frontend**: Kiểm soát hiển thị nút `In phiếu nhập` trên thanh Header của `WarehouseTripDetailModal` ([`warehouse-trip-detail-modal.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)); Khai báo biến suy luận trạng thái chuẩn hóa; Bổ sung điều kiện ẩn/hiện nút `In phiếu nhập` tại Header (Line ~1090)...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_01_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_15_10_task_83/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_15_10_task_83/TODO.md)
 ### 🚀 [FEEDBACK_15_10_TASK_85] — Feedback 15/10 (Task #85) — Quét & Kiểm Định Toàn Diện Hệ Thống Logistics TMS (Spider Express) Theo Quy Chuẩn Todo-Agent (15/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (19/19 việc)
 - **Báo cáo bởi**: @User / @Thai (Quản lý nghiệp vụ / Vận hành TMS)

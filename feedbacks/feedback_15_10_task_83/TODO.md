@@ -79,15 +79,15 @@ flowchart TD
 ## 📋 Danh sách công việc triển khai (Action Checklist)
 
 ### 1. Phân hệ Frontend (Next.js 15 App Router - `frontend/`)
-- [ ] **Kiểm soát hiển thị nút `In phiếu nhập` trên thanh Header của `WarehouseTripDetailModal` ([`warehouse-trip-detail-modal.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx))**:
-  - [ ] Khai báo biến suy luận trạng thái chuẩn hóa:
+- [x] **Kiểm soát hiển thị nút `In phiếu nhập` trên thanh Header của `WarehouseTripDetailModal` ([`warehouse-trip-detail-modal.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx))**:
+  - [x] Khai báo biến suy luận trạng thái chuẩn hóa:
     ```tsx
     const isCurrentHubPending = useMemo(() => {
       const rawStatus = manifest?.currentHubStatus || tripGroup?.status;
       return toTripStopStatus(rawStatus) === 'PENDING';
     }, [manifest?.currentHubStatus, tripGroup?.status]);
     ```
-  - [ ] Bổ sung điều kiện ẩn/hiện nút `In phiếu nhập` tại Header (Line ~1090):
+  - [x] Bổ sung điều kiện ẩn/hiện nút `In phiếu nhập` tại Header (Line ~1090):
     ```tsx
     {onOpenReceipt && !isCurrentHubPending && (
       <Button
@@ -102,37 +102,37 @@ flowchart TD
       </Button>
     )}
     ```
-  - [ ] Bảo đảm khi `currentStep === 1` và `isCurrentHubPending === true`, nút `In phiếu nhập` bị ẩn hoàn toàn (0px, không chiếm khoảng trống).
-- [ ] **Đảm bảo tính phản ứng tức thì (Reactive Update) khi Xác nhận nhập kho thành công**:
-  - [ ] Trong hàm `handleConfirmTally` và `handleConfirmInbound`:
+  - [x] Bảo đảm khi `currentStep === 1` và `isCurrentHubPending === true`, nút `In phiếu nhập` bị ẩn hoàn toàn (0px, không chiếm khoảng trống).
+- [x] **Đảm bảo tính phản ứng tức thì (Reactive Update) khi Xác nhận nhập kho thành công**:
+  - [x] Trong hàm `handleConfirmTally` và `handleConfirmInbound`:
     - Sau khi gọi API thành công và trigger `onSuccess?.()`, cập nhật ngay `manifest.currentHubStatus = 'COMPLETED'` và `tripGroup.status = 'COMPLETED'`.
     - Invalidate cache TanStack Query `tripManifestKeys.all` để đồng bộ lại dữ liệu.
     - Lúc này `isCurrentHubPending` tự động chuyển thành `false`, nút `In phiếu nhập` ngay lập tức xuất hiện trên Header cho phép in lại chứng từ nếu cần.
-- [ ] **Kiểm tra tính đồng bộ với Footer Modal**:
-  - [ ] Rà soát nút `In phiếu xe` ở chân modal (Line ~1886) đảm bảo cũng chỉ xuất hiện khi `!isCurrentHubPending`.
-- [ ] **Kiểm tra giao diện & quy chuẩn Compact Density**:
-  - [ ] Không sinh class cấm (`p-4`, `space-y-3`, `gap-4`).
-  - [ ] Nút in giữ nguyên kích thước chuẩn `h-7`, `text-xs`, font bán đậm `font-semibold`.
-  - [ ] Không có icon trùng lặp.
-- [ ] **Kiểm tra biên dịch Frontend**:
-  - [ ] Chạy `npm run build --prefix frontend` đảm bảo 0 lỗi TypeScript, 0 lỗi linting.
+- [x] **Kiểm tra tính đồng bộ với Footer Modal**:
+  - [x] Rà soát nút `In phiếu xe` ở chân modal (Line ~1886) đảm bảo cũng chỉ xuất hiện khi `!isCurrentHubPending`.
+- [x] **Kiểm tra giao diện & quy chuẩn Compact Density**:
+  - [x] Không sinh class cấm (`p-4`, `space-y-3`, `gap-4`).
+  - [x] Nút in giữ nguyên kích thước chuẩn `h-7`, `text-xs`, font bán đậm `font-semibold`.
+  - [x] Không có icon trùng lặp.
+- [x] **Kiểm tra biên dịch Frontend**:
+  - [x] Chạy `npm run build --prefix frontend` đảm bảo 0 lỗi TypeScript, 0 lỗi linting.
 
 ---
 
 ### 2. Phân hệ Backend (NestJS 11 - `backend/`)
-- [ ] **Rà soát API trả về trạng thái Manifest trạm dừng ([`warehouse.service.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts))**:
-  - [ ] Kiểm tra endpoint `GET /api/v1/warehouse/trips/:tripCode/manifest` đảm bảo trường `currentHubStatus` phản ánh đúng `TripStopEntity.status` (`PENDING` khi xe mới đến hoặc chuyến nháp; `COMPLETED` sau khi đã hoàn tất dỡ hàng).
-- [ ] **Bảo vệ an toàn dữ liệu Endpoint In phiếu ([`warehouse.controller.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.controller.ts))**:
-  - [ ] Kiểm tra các endpoint tạo hoặc truy vấn phiếu nhập kho: Nếu chuyến xe chưa có bất kỳ đơn hàng nào ở trạng thái `IN_WAREHOUSE` hoặc `TripStop` chưa `COMPLETED`, trả về mã lỗi nghiệp vụ rõ ràng thay vì trả về dữ liệu rỗng.
-- [ ] **Kiểm tra biên dịch Backend**:
-  - [ ] Chạy `npm run build --prefix backend` đạt `Exit code 0`.
+- [x] **Rà soát API trả về trạng thái Manifest trạm dừng ([`warehouse.service.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts))**:
+  - [x] Kiểm tra endpoint `GET /api/v1/warehouse/trips/:tripCode/manifest` đảm bảo trường `currentHubStatus` phản ánh đúng `TripStopEntity.status` (`PENDING` khi xe mới đến hoặc chuyến nháp; `COMPLETED` sau khi đã hoàn tất dỡ hàng).
+- [x] **Bảo vệ an toàn dữ liệu Endpoint In phiếu ([`warehouse.controller.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.controller.ts))**:
+  - [x] Kiểm tra các endpoint tạo hoặc truy vấn phiếu nhập kho: Nếu chuyến xe chưa có bất kỳ đơn hàng nào ở trạng thái `IN_WAREHOUSE` hoặc `TripStop` chưa `COMPLETED`, trả về mã lỗi nghiệp vụ rõ ràng thay vì trả về dữ liệu rỗng.
+- [x] **Kiểm tra biên dịch Backend**:
+  - [x] Chạy `npm run build --prefix backend` đạt `Exit code 0`.
 
 ---
 
 ### 3. Kiểm thử Tự động E2E & Bằng chứng Nghiệm thu (Playwright E2E)
-- [ ] **Xây dựng kịch bản kiểm thử Playwright chuyên biệt**:
+- [x] **Xây dựng kịch bản kiểm thử Playwright chuyên biệt**:
   - File kiểm thử: [`frontend/e2e/83-feedback-15-10-task-83-hide-inbound-receipt-when-pending.spec.ts`](file:///home/runner/work/logistics-website/logistics-website/frontend/e2e/83-feedback-15-10-task-83-hide-inbound-receipt-when-pending.spec.ts).
-- [ ] **Nội dung kiểm thử chi tiết**:
+- [x] **Nội dung kiểm thử chi tiết**:
   - **Case 1: Chuyến xe ở trạng thái `Chờ xử lý` (Pending)**:
     - Đăng nhập tài khoản thủ kho HCM (`warehouse_hcm`).
     - Truy cập trang Quản lý Nhập kho (`/dashboard/warehouse/inbound`).
@@ -146,15 +146,15 @@ flowchart TD
     - Mở chuyến xe `Chờ xử lý` ➔ Xác nhận nút `In phiếu nhập` đang ẩn.
     - Tiến hành kiểm đếm và bấm `Xác nhận nhập kho`.
     - Sau khi xác nhận thành công ➔ Nút `In phiếu nhập` tự động xuất hiện trên Header mà không cần F5/tải lại trang.
-- [ ] **Kết xuất bằng chứng hình ảnh nghiệm thu thực tế**:
+- [x] **Kết xuất bằng chứng hình ảnh nghiệm thu thực tế**:
   - Lưu ảnh chụp màn hình xác minh tại: [`feedbacks/feedback_15_10_task_83/screenshot_01_verified.png`](file:///home/runner/work/logistics-website/logistics-website/feedbacks/feedback_15_10_task_83/screenshot_01_verified.png).
 
 ---
 
 ### 4. Biên niên sử & Cập nhật Hệ thống
-- [ ] Khởi tạo tài liệu tổng kết kỹ thuật [`RESOLUTION.md`](file:///home/runner/work/logistics-website/logistics-website/feedbacks/feedback_15_10_task_83/RESOLUTION.md) thông qua lệnh `npm run todo:record feedbacks/feedback_15_10_task_83`.
-- [ ] Đồng bộ mốc nâng cấp ngày 15/10/2026 vào [`docs/SYSTEM_TIMELINE.md`](file:///home/runner/work/logistics-website/logistics-website/docs/SYSTEM_TIMELINE.md).
-- [ ] Kiểm tra tiến độ hoàn thành đạt 100% qua lệnh `npm run todo:today`.
+- [x] Khởi tạo tài liệu tổng kết kỹ thuật [`RESOLUTION.md`](file:///home/runner/work/logistics-website/logistics-website/feedbacks/feedback_15_10_task_83/RESOLUTION.md) thông qua lệnh `npm run todo:record feedbacks/feedback_15_10_task_83`.
+- [x] Đồng bộ mốc nâng cấp ngày 15/10/2026 vào [`docs/SYSTEM_TIMELINE.md`](file:///home/runner/work/logistics-website/logistics-website/docs/SYSTEM_TIMELINE.md).
+- [x] Kiểm tra tiến độ hoàn thành đạt 100% qua lệnh `npm run todo:today`.
 
 ---
 

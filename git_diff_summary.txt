@@ -1,6 +1,20 @@
 === Root ===
- feedbacks/feedback_15_10_task_83/TODO.md | 47 ++++++++++++++++----------------
- git_diff_summary.txt                     |  4 ---
- 2 files changed, 23 insertions(+), 28 deletions(-)
+ backend                                  |  2 +-
+ docs/SYSTEM_TIMELINE.md                  | 12 ++++++++
+ feedbacks/feedback_15_10_task_83/TODO.md | 52 ++++++++++++++++----------------
+ frontend                                 |  2 +-
+ git_diff_summary.txt                     |  5 ---
+ 5 files changed, 40 insertions(+), 33 deletions(-)
+ M backend
+ M docs/SYSTEM_TIMELINE.md
  M feedbacks/feedback_15_10_task_83/TODO.md
+ M frontend
  M git_diff_summary.txt
+?? feedbacks/feedback_15_10_task_83/RESOLUTION.md
+?? feedbacks/feedback_15_10_task_83/screenshot_01_verified.png
+=== Backend ===
+e263abd feat: merge feature/task-83-hide-inbound-receipt-when-pending into dev (Task #87)
+9749562 feat: complete uncommitted work on feature/task-83-hide-inbound-receipt-when-pending
+=== Frontend ===
+c2d808a feat: merge feature/task-83-hide-inbound-receipt-when-pending into dev (Task #87)
+f897789 feat: complete uncommitted work on feature/task-83-hide-inbound-receipt-when-pending
