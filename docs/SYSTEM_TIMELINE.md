@@ -104,8 +104,6 @@
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: screenshot_01_verified.png
 - **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_14_10_task_80/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_14_10_task_80/TODO.md)
-
-<<<<<<< HEAD
 ### 🚀 [FEEDBACK_14_10_TASK_67] — Feedback 14/10 - Task #67: Cải Thiện Cơ Chế Reply Telegram (Chia Nhỏ / Tinh Gọn) & Quét Hàng Đợi Task DB (14/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (7/7 việc)
 - **Năng lực & Tính năng mới**:

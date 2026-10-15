@@ -21,10 +21,29 @@
 
 ---
 
-## 📌 Bối cảnh nghiệp vụ thực tế (Chốt theo phản hồi người dùng)
-
 ### 1. Phản hồi gốc từ người dùng (@Thai / Vận hành TMS)
 > *"1 đơn hàng nhưng đang nằm ở 2 trip xuất hàng(chờ xử lý), logic đúng: đơn hàng đã được thêm vào 1 trip xuất hàng và chọn số kiện bằng số kiện tồn kho thì không thể thêm vào trip xuất hàng khác."*
+
+### 1.1. Phản hồi bổ sung làm rõ cốt lõi lỗi (Task #80 Re-evaluation & Clarification)
+> *"user feedback cho tôi, ở task 80 bạn hiểu nhầm. Các tin nhắn của user đây:*
+> *- chọn đơn vẫn còn số lượng tồn, sau đó lưu nháp*
+> *- rồi mở lại thì nó lại báo vượt tồn*
+> *- đơn hàng nằm trong trip khác nó tính luôn cả trip nhập kho"*
+
+**Nguyên nhân gốc rễ đã xác định qua truy vấn DB thực tế và Live API:**
+1. **Lỗi báo "Vượt tồn!" khi tiếp tục chuyến nháp**:
+   - Khi lưu nháp chuyến xe xuất kho, bản ghi `trip` được ghi với `status = 'PENDING'`, `quantityAllocated = qty`.
+   - Khi người dùng bấm **"Tiếp tục"** để mở lại chuyến xe nháp, hệ thống đọc `effectiveHubStock` hoặc tính `availableOutboundStock`: số lượng kiện của chính chuyến xe nháp đó đã bị trừ vào tồn kho khả dụng ($28 - 28 = 0$).
+   - Tại lưới nhập liệu `WarehouseEditableGrid`, giá trị nhập là `28`, nhưng `availStock` là `0`, dẫn đến `value > availStock` ($28 > 0$) ➔ Bật cờ cảnh báo đỏ sai lệch: **`Vượt tồn!`**.
+   - **Giải pháp**:
+     - Backend trong `getOutboundTrips` tự động hoàn trả số kiện của chính chuyến nháp đó (`thisTripQty`) khi tính `effectiveHubStock` và loại bỏ mã chuyến đó khỏi `pendingOutboundTripCodes`.
+     - Frontend trong `handleResumeDraft` bảo đảm `effectiveAvailable = liveStock >= draftQty ? liveStock : liveStock + draftQty`.
+2. **Lỗi tính luôn cả trip nhập kho vào pending trip khác**:
+   - Trong `OperationalLedgerService.getPendingOutboundAllocation` và `getBatchPendingOutboundAllocations`, câu truy vấn chưa loại trừ `AND "type" != 'INBOUND'`, khiến các chuyến xe nhập kho (`type = 'INBOUND'`) cũng bị tính vào `pendingOutboundQuantity`.
+   - Trong `WarehouseService.getWarehouseOrders` với `flow = 'OUTBOUND_LOOKUP'`, danh sách đơn nháp `DRAFT_LIKE_STATUSES` chưa loại trừ các đơn đang nằm trên xe nhập kho chưa hoàn tất nhập kho.
+   - **Giải pháp**:
+     - Thêm ràng buộc cứng `AND "type" != 'INBOUND'` và `FILTER (WHERE "tripCode" IS NOT NULL AND COALESCE("quantityAllocated", 0) > 0)` trong SQL query.
+     - Lọc bỏ các đơn đang gắn với chuyến xe `INBOUND` khỏi `OUTBOUND_LOOKUP`.
 
 ---
 
