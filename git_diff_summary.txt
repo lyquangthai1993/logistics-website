@@ -1,5 +1,6 @@
 === Root ===
- git_diff_summary.txt | 10 ----------
- 1 file changed, 10 deletions(-)
+ feedbacks/feedback_15_10_task_83/TODO.md | 47 ++++++++++++++++----------------
+ git_diff_summary.txt                     |  4 ---
+ 2 files changed, 23 insertions(+), 28 deletions(-)
+ M feedbacks/feedback_15_10_task_83/TODO.md
  M git_diff_summary.txt
-?? feedbacks/feedback_15_10_task_83/
