@@ -48,6 +48,8 @@ jobs:
       sender_name: ${{ steps.claim.outputs.sender_name }}
       mode: ${{ steps.claim.outputs.mode }}
       has_task: ${{ steps.claim.outputs.has_task }}
+      image_file_ids: ${{ steps.claim.outputs.image_file_ids }}
+      feedback_dir: ${{ steps.claim.outputs.feedback_dir }}
 
     steps:
       - name: "Cài đặt Node.js môi trường tiếp nhận"
@@ -183,6 +185,8 @@ jobs:
             setOutput("sender_name", sender);
             setOutput("mode", mode);
             setOutput("has_task", (task && taskId && taskId !== "manual") ? "true" : "false");
+            setOutput("image_file_ids", JSON.stringify(task && Array.isArray(task.image_file_ids) ? task.image_file_ids : []));
+            setOutput("feedback_dir", (task && task.feedback_dir) || "");
 
             // Tác vụ được nhận diện và claim thành công trong im lặng (Zero spam khi bắt đầu)
             console.log(`✅ [Intake] Task #${taskId} sẵn sàng chuyển sang Job 2 thực thi.`);
@@ -245,6 +249,78 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+
+      - name: "3.0. Tải ảnh thực tế đính kèm từ Telegram vào Feedback Dir (Chống mượn ảnh cũ & Hallucination)"
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TASK_ID: ${{ needs.intake-task.outputs.task_id }}
+          IMAGE_FILE_IDS: ${{ needs.intake-task.outputs.image_file_ids }}
+          FEEDBACK_DIR: ${{ needs.intake-task.outputs.feedback_dir }}
+        run: |
+          node -e '
+          const fs = require("fs");
+          const path = require("path");
+
+          async function main() {
+            const botToken = process.env.TELEGRAM_BOT_TOKEN;
+            const taskId = process.env.TASK_ID;
+            let imageIds = [];
+            try {
+              imageIds = JSON.parse(process.env.IMAGE_FILE_IDS || "[]");
+            } catch {
+              imageIds = [];
+            }
+
+            if (!imageIds || imageIds.length === 0) {
+              console.log("ℹ️ Task #" + taskId + " không có ảnh đính kèm từ Telegram.");
+              return;
+            }
+
+            if (!botToken) {
+              console.warn("⚠️ Thiếu TELEGRAM_BOT_TOKEN, không thể tải ảnh từ Telegram.");
+              return;
+            }
+
+            const now = new Date();
+            const dd = String(now.getDate()).padStart(2, "0");
+            const mm = String(now.getMonth() + 1).padStart(2, "0");
+            const feedbackDir = process.env.FEEDBACK_DIR || `feedbacks/feedback_${dd}_${mm}_task_${taskId}`;
+
+            if (!fs.existsSync(feedbackDir)) {
+              fs.mkdirSync(feedbackDir, { recursive: true });
+            }
+
+            console.log(`📸 Bắt đầu tải ${imageIds.length} ảnh đính kèm từ Telegram vào ${feedbackDir}...`);
+            for (let i = 0; i < imageIds.length; i++) {
+              const fid = imageIds[i];
+              try {
+                const getFileRes = await fetch(`https://api.telegram.org/bot${botToken}/getFile?file_id=${fid}`);
+                const getFileData = await getFileRes.json();
+                if (!getFileData.ok || !getFileData.result || !getFileData.result.file_path) {
+                  console.error(`❌ getFile thất bại cho ID ${fid}:`, getFileData);
+                  continue;
+                }
+                const remotePath = getFileData.result.file_path;
+                const ext = path.extname(remotePath) || ".jpg";
+                const localName = `screenshot_${String(i + 1).padStart(2, "0")}${ext}`;
+                const localPath = path.join(feedbackDir, localName);
+
+                const dlRes = await fetch(`https://api.telegram.org/file/bot${botToken}/${remotePath}`);
+                if (!dlRes.ok) {
+                  console.error(`❌ Tải ảnh thất bại (${dlRes.statusText})`);
+                  continue;
+                }
+                const buf = Buffer.from(await dlRes.arrayBuffer());
+                fs.writeFileSync(localPath, buf);
+                console.log(`✅ Đã tải ảnh thực tế Telegram: ${localPath} (${buf.length} bytes)`);
+              } catch (err) {
+                console.error(`❌ Lỗi khi tải ảnh ${fid}:`, err.message);
+              }
+            }
+          }
+
+          main().catch(err => console.error("Lỗi bước tải ảnh:", err));
+          '
 
       - name: "3.1. Khôi phục Cache Dependencies (Root, Backend, Frontend)"
         id: deps-cache

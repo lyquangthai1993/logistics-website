@@ -418,6 +418,14 @@ ${imagePaths.map((p, idx) => `  - Ảnh ${idx + 1}: ${p}`).join('\n')}
 HƯỚNG DẪN BẮT BUỘC:
 - Dùng công cụ view_file để đọc và quan sát chi tiết từng hình ảnh trên.
 - Phân tích chi tiết lỗi hiển thị, điểm chưa đúng trên giao diện cũ, và đối chiếu với mã nguồn thực tế.
+- TUYỆT ĐỐI KHÔNG copy, sao chép hoặc mượn file ảnh từ các thư mục feedback khác.
+- Bắt buộc giải mã đúng Mã chuyến xe, Tên Hub và chi tiết từ chính các ảnh chụp này, không phỏng đoán từ task cũ.
+`;
+  } else {
+    imagesSection = `
+[LƯU Ý MINH CHỨNG HÌNH ẢNH]:
+Task này người dùng gửi yêu cầu thuần văn bản (không đính kèm ảnh trên Telegram).
+TUYỆT ĐỐI KHÔNG copy, mượn hoặc tự tạo file ảnh từ bất kỳ thư mục feedback nào khác!
 `;
   }
 

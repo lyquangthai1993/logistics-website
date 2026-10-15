@@ -107,6 +107,13 @@ Whenever the user refers to, asks for, or mentions **"domain pro"** (hoặc "dom
     2. **Không bố trí nút/lệnh hủy trên UI/Bot**: Loại bỏ toàn bộ các nút bấm hủy (`/cancel`, `🛑 Hủy task`, `🛑 Hủy yêu cầu này`) trên Telegram Bot, giao diện điều khiển và workflow. Tác vụ một khi đã kích hoạt sẽ không bị can thiệp hủy ngang để bảo đảm tính toàn vẹn của dữ liệu và hàng đợi trong PostgreSQL (`telegram_tasks`).
     3. **Bảo toàn hàng đợi tuần tự (Strict FIFO Queue Execution)**: Không bao giờ được hủy bỏ tác vụ đang xếp hàng hoặc đang chạy chỉ vì có tác vụ mới tới. Mọi tác vụ phải được xếp hàng và xử lý tuần tự từng task một một cách triệt để (`cancel-in-progress: false`).
   - Quy chuẩn chi tiết xem tại [`.agents/rules/zero-cancellation.md`](file:///d:/Projects/logistics-website/.agents/rules/zero-cancellation.md).
+- **Zero Cross-Task Image Borrowing & Strict Image Provenance Invariant (Quy chuẩn Tuyệt đối Không Mượn Ảnh và Bắt buộc Đối soát Nguồn gốc Hình ảnh)**:
+  - Mọi thư mục feedback (`feedbacks/feedback_DD_MM_task_<id>/`) CHỈ ĐƯỢC PHÉP chứa ảnh chụp tải trực tiếp từ Telegram Bot API tương ứng với đúng `image_file_ids` của chính task đó trong cơ sở dữ liệu `telegram_tasks`.
+  - **NGHIÊM CẤM TUYỆT ĐỐI**:
+    1. **Không mượn ảnh từ task khác**: Tuyệt đối không sao chép, tái sử dụng hoặc liên kết file ảnh (`screenshot_*.jpg`, `screenshot_*.png`) từ các thư mục feedback cũ. Hành vi này làm sai lệch toàn bộ ngữ cảnh thực tế (sai mã chuyến, sai Hub, sai đơn hàng) và bị coi là CRITICAL QUALITY FAIL.
+    2. **Không tạo ảnh giả lập**: Nếu yêu cầu từ Telegram thuần túy là văn bản không kèm ảnh, thư mục task TUYỆT ĐỐI KHÔNG chứa file ảnh chụp giao diện trước khi code.
+    3. **Cổng đối soát ngữ cảnh ảnh & OCR (OCR & Context Parity Gate)**: `/leader` và `/todo-agent` khi đọc ảnh bắt buộc đối soát 3 chiều (Mã chuyến, Tên Hub, Vùng khoanh đỏ) với câu lệnh của người dùng trong prompt. Nếu phát hiện mâu thuẫn hoặc ảnh không khớp yêu cầu, BẮT BUỘC dừng và báo lỗi `IMAGE_CONTEXT_MISMATCH` thay vì phỏng đoán hay tự ý gán ảnh khác.
+  - Quy chuẩn chi tiết xem tại [`.agents/rules/image-provenance-guard.md`](file:///d:/Projects/logistics-website/.agents/rules/image-provenance-guard.md).
 
 ## Model Selection Strategy & Guidelines (3-Phase Hybrid Pipeline)
 - 🧠 **Pha 1: Phân tích Feedback, Multimodal OCR & Lập Plan (`/plan`, Discovery)**: Ưu tiên **Gemini Pro (Gemini 2.5 Pro / 3.8 Pro)** nhờ cửa sổ ngữ cảnh khổng lồ (1M–2M tokens), khả năng native multimodal đọc hiểu ảnh chụp màn hình lỗi giao diện trong folder feedback (`feedback_DD_MM*`), bóc tách RCA và sinh checklist nguyên tử `TODO.md` kèm kịch bản E2E & Edge Cases.
