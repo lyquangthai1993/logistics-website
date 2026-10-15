@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 14/10/2026 | `feedbacks/feedback_14_10_task_80` | Feedback 14/10 (Task #80) — Khóa Chặt & Cách Ly Đơn ... | 15/15 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_80/RESOLUTION.md) |
 | 14/10/2026 | `feedbacks/feedback_14_10_task_81` | Feedback 14/10 (Task #81) — Cơ Chế Mở Lại Chuyến Xe & Hoàn Tồn Kho Admin | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_81/RESOLUTION.md) |
 | 14/10/2026 18:30:00 | `feedbacks/feedback_14_10_extra` | Feedback 14/10 (Extra) — Xây Dựng Công Cụ Chuyển Đổi Excel Điều Hành Sang File Chuẩn Nhập Kho | 16/16 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_extra/RESOLUTION.md) |
 | 14/10/2026 | `feedbacks/feedback_14_10_task_67` | Feedback 14/10 - Task #67: Cải Thiện Cơ Chế Reply Telegram Cho Task Cần Hỏi Ý Kiến | 7/7 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_14_10_task_67/RESOLUTION.md) |
@@ -65,6 +66,18 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_14_10_TASK_80] — Feedback 14/10 (Task #80) — Khóa Chặt & Cách Ly Đơn Hàng Đã Xếp Vào Chuyến Xe Xuất Kho Chờ Xử Lý (Pending Trip Outbound Order Allocation & Isolation) (14/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (15/15 việc)
+- **Báo cáo bởi**: @Thai / @User (Quản lý nghiệp vụ / Vận hành TMS) & Antigravity Lead Engine
+- **Phạm vi**: Quản lý Xuất kho (`/warehouse/outbound`) ➔ Tạo phiếu xuất kho Mode 1 (Giao khách hàng) & Mode 2 (Trung chuyển liên Hub), Bảng điều phối chuyến xe xuất kho ([`page.tsx`](file:///frontend/src/app/dashboard/warehouse/outbound/page.tsx)) • Modal Tra cứu & Chọn đơn hàng trong kho ([`WarehouseLookupModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-lookup-modal.tsx)) • Lưới nhập & Chỉnh sửa đơn hàng xuất kho ([`WarehouseEditableGrid.tsx`](file:///frontend/src/features/warehouse/components/warehouse-editable-grid.tsx)) • Modal Chọn đơn lưu kho bốc lên chuyến xe ([`WarehouseSelectStoredOrdersModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-select-stored-orders-modal.tsx)) • Luồng xuất kho luân chuyển ([`WarehouseOutboundTransferFlow.tsx`](file:///frontend/src/features/warehouse/components/warehouse-outbound-transfer-flow.tsx)) • Modal Chi tiết Chuyến xe & Bước 2 Xuất hàng lên xe ([`WarehouseTripDetailModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) • Backend Service Quản lý Kho bãi & Sổ cái vận hành ([`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts), [`operational-ledger.service.ts`](file:///backend/src/orders/operational-ledger.service.ts))
+- **Năng lực & Tính năng mới**:
+  * **Backend**: 1. Mở rộng tính toán Tồn kho khả dụng trong `OperationalLedgerService` ([`operational-ledger.service.ts`](file:///backend/src/orders/operational-ledger.service.ts)); 2. Cập nhật `enrichWarehouseRows` trong `WarehouseService` ([`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts)); 3. Siết chặt Chốt chặn Nghiệp vụ trong `saveOutboundDraft` ([`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts))...
+  * **Frontend**: 1. Nâng cấp Helper `availableOutboundStock` trong [`outbound-stock.ts`](file:///frontend/src/features/warehouse/lib/outbound-stock.ts); 2. Cập nhật Modal Tra cứu Đơn hàng [`WarehouseLookupModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-lookup-modal.tsx); 3. Cập nhật Lưới nhập liệu xuất kho [`WarehouseEditableGrid.tsx`](file:///frontend/src/features/warehouse/components/warehouse-editable-grid.tsx)...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_14_10_task_80/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_14_10_task_80/TODO.md)
 
 <<<<<<< HEAD
 ### 🚀 [FEEDBACK_14_10_TASK_67] — Feedback 14/10 - Task #67: Cải Thiện Cơ Chế Reply Telegram (Chia Nhỏ / Tinh Gọn) & Quét Hàng Đợi Task DB (14/10/2026)

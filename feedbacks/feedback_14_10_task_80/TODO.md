@@ -102,52 +102,52 @@ flowchart TD
 
 ### 🎯 PHẦN I: BACKEND (backend/)
 
-- [ ] **1. Mở rộng tính toán Tồn kho khả dụng trong `OperationalLedgerService` ([`operational-ledger.service.ts`](file:///backend/src/orders/operational-ledger.service.ts))**:
+- [x] **1. Mở rộng tính toán Tồn kho khả dụng trong `OperationalLedgerService` ([`operational-ledger.service.ts`](file:///backend/src/orders/operational-ledger.service.ts))**:
   - Bổ sung phương thức `getPendingOutboundAllocation(orderId: number, hubId: number, excludeTripCode?: string, manager?: EntityManager)`:
     * Query bảng `trips`: `SELECT COALESCE(SUM("quantityAllocated"), 0)::int AS "pendingQty", array_agg(DISTINCT "tripCode") FILTER (WHERE "tripCode" IS NOT NULL) AS "tripCodes" FROM "trips" WHERE "orderId" = $1 AND "originHubId" = $2 AND "status" = 'PENDING' AND "type" IN ('OUTBOUND', 'TRANSFER') AND "deletedAt" IS NULL AND ("tripCode" != $3 OR $3 IS NULL)`.
   - Cập nhật hàm tính toán tồn khả dụng thực xuất: `effectiveAvailableStock = Math.max(0, hubStock - pendingQty)`.
-- [ ] **2. Cập nhật `enrichWarehouseRows` trong `WarehouseService` ([`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts))**:
+- [x] **2. Cập nhật `enrichWarehouseRows` trong `WarehouseService` ([`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts))**:
   - Khi enrich dữ liệu đơn hàng cho flow kho (đặc biệt `flow = 'OUTBOUND_LOOKUP'` hoặc màn hình xuất kho):
     * Gom nhóm và tính toán tổng số kiện đang chờ xuất `pendingOutboundQuantity` và mảng mã chuyến xe `pendingOutboundTripCodes`.
     * Tính toán lại `effectiveHubStock = Math.max(0, hubStock - pendingOutboundQuantity)`.
     * Trả về thêm các trường: `pendingOutboundQuantity`, `pendingOutboundTripCodes`, `effectiveHubStock` trong payload của từng đơn hàng.
-- [ ] **3. Siết chặt Chốt chặn Nghiệp vụ trong `saveOutboundDraft` ([`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts))**:
+- [x] **3. Siết chặt Chốt chặn Nghiệp vụ trong `saveOutboundDraft` ([`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts))**:
   - Khi người dùng bấm lưu nháp chuyến xe xuất kho:
     * Kiểm tra từng đơn hàng: tính `pendingQty` từ các chuyến xe `PENDING` khác (`tripCode != draftCode`).
     * Tính `effectiveAvailable = Math.max(0, availableQty - pendingQty)`.
     * Nếu `qtyToExport > effectiveAvailable`:
       Throw `UnprocessableEntityException`:  
       `"Mã đơn ${order.orderCode}: Không thể thêm vào chuyến xe này. Đơn hàng đã được xếp ${pendingQty}/${availableQty} kiện vào các chuyến xe chờ xuất (${pendingTripCodes.join(', ')}). Số kiện khả dụng còn lại: ${effectiveAvailable} kiện."`
-- [ ] **4. Siết chặt Chốt chặn Nghiệp vụ trong `confirmOutbound` ([`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts))**:
+- [x] **4. Siết chặt Chốt chặn Nghiệp vụ trong `confirmOutbound` ([`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts))**:
   - Tương tự `saveOutboundDraft`, đảm bảo khi xác nhận xuất kho chính thức (`COMPLETED`), nếu đơn hàng đã bị các chuyến xe nháp khác chiếm dụng vượt mức cho phép, hệ thống phải phát hiện và chặn lại an toàn.
-- [ ] **5. Cập nhật API `getAvailableOutboundOrders` ([`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts))**:
+- [x] **5. Cập nhật API `getAvailableOutboundOrders` ([`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts))**:
   - Bổ sung điều kiện loại trừ hoặc đánh dấu các đơn hàng đã có tổng số kiện trong các chuyến xe `PENDING` $\ge$ số kiện tồn kho của đơn hàng.
-- [ ] **6. Cập nhật DTO & Kiểm tra Biên dịch Backend**:
+- [x] **6. Cập nhật DTO & Kiểm tra Biên dịch Backend**:
   - Kiểm tra `npm run build --prefix backend` đảm bảo 100% không phát sinh lỗi TypeScript.
 
 ---
 
 ### 🎨 PHẦN II: FRONTEND (frontend/)
 
-- [ ] **1. Nâng cấp Helper `availableOutboundStock` trong [`outbound-stock.ts`](file:///frontend/src/features/warehouse/lib/outbound-stock.ts)**:
+- [x] **1. Nâng cấp Helper `availableOutboundStock` trong [`outbound-stock.ts`](file:///frontend/src/features/warehouse/lib/outbound-stock.ts)**:
   - Mở rộng interface `StockSource` bổ sung các trường: `pendingOutboundQuantity?: number | null`, `effectiveHubStock?: number | null`.
   - Logic tính toán: Nếu có `effectiveHubStock` trả về từ backend thì ưu tiên sử dụng; hoặc tự động trừ `pendingOutboundQuantity`:
     `const liveStock = order.effectiveHubStock ?? Math.max(0, (order.hubStock ?? order.remainingQuantity ?? order.totalQuantity ?? 0) - (order.pendingOutboundQuantity ?? 0));`
-- [ ] **2. Cập nhật Modal Tra cứu Đơn hàng [`WarehouseLookupModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-lookup-modal.tsx)**:
+- [x] **2. Cập nhật Modal Tra cứu Đơn hàng [`WarehouseLookupModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-lookup-modal.tsx)**:
   - Hiển thị thông tin minh bạch tại cột TỒN KHẢ DỤNG:
     * Nếu `stock <= 0` do đã được xếp hết vào trip chờ xuất:
       Render badge cảnh báo màu cam/đỏ: `Đã xếp chuyến ${row.pendingOutboundTripCodes?.join(', ') || 'khác'} (Chờ xuất)`.
       Hiển thị số kiện: `0 / ${row.totalQuantity} kiện (Đang giữ ${row.pendingOutboundQuantity})`.
     * Vô hiệu hóa nút `[Chọn đơn này]` với tooltip / label giải thích: `Hết tồn khả dụng (Đang chờ xuất)`.
-- [ ] **3. Cập nhật Lưới nhập liệu xuất kho [`WarehouseEditableGrid.tsx`](file:///frontend/src/features/warehouse/components/warehouse-editable-grid.tsx)**:
+- [x] **3. Cập nhật Lưới nhập liệu xuất kho [`WarehouseEditableGrid.tsx`](file:///frontend/src/features/warehouse/components/warehouse-editable-grid.tsx)**:
   - Khi người dùng nhập mã vận đơn hoặc tra cứu đơn hàng:
     * Nếu đơn hàng có `effectiveStock <= 0` do đã bị giữ ở chuyến xe khác: Hiển thị toast lỗi rõ ràng: `Đơn hàng ${foundOrder.orderCode} đã được xếp hết số kiện vào chuyến xe chờ xuất (${foundOrder.pendingOutboundTripCodes?.join(', ')}). Không thể thêm vào chuyến xe này!` và không gán đơn vào lưới.
     * Nếu đơn hàng chỉ còn lại một phần tồn khả dụng: Tự động gán `totalQuantity`, `quantityToExport`, `remainingQuantity` theo đúng số lượng khả dụng còn lại (`effectiveStock`).
-- [ ] **4. Cập nhật Modal Chọn đơn lưu kho [`WarehouseSelectStoredOrdersModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-select-stored-orders-modal.tsx)**:
+- [x] **4. Cập nhật Modal Chọn đơn lưu kho [`WarehouseSelectStoredOrdersModal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-select-stored-orders-modal.tsx)**:
   - Lọc bỏ hoặc vô hiệu hóa checkbox đối với các đơn hàng đã bị các chuyến xe xuất kho nháp khác giữ trọn 100% số kiện.
-- [ ] **5. Cập nhật Luồng Luân chuyển Mode 2 [`WarehouseOutboundTransferFlow.tsx`](file:///frontend/src/features/warehouse/components/warehouse-outbound-transfer-flow.tsx)**:
+- [x] **5. Cập nhật Luồng Luân chuyển Mode 2 [`WarehouseOutboundTransferFlow.tsx`](file:///frontend/src/features/warehouse/components/warehouse-outbound-transfer-flow.tsx)**:
   - Đồng bộ logic trừ hao tồn kho giữ chỗ trong bước chọn đơn điều chuyển liên Hub.
-- [ ] **6. Tuân thủ Quy chuẩn Giao diện Hẹp & Kiểm tra Biên dịch Frontend**:
+- [x] **6. Tuân thủ Quy chuẩn Giao diện Hẹp & Kiểm tra Biên dịch Frontend**:
   - Đảm bảo tuân thủ nghiêm ngặt [`.agents/rules/ui-compact-density.md`](file:///home/runner/work/logistics-website/logistics-website/.agents/rules/ui-compact-density.md) (Card padding `p-1`, Modal `p-2`, Typography `text-[10px]`, Zero Redundant Icons).
   - Chạy kiểm tra biên dịch: `npx --prefix frontend tsc --noEmit` & `npm run build --prefix frontend` PASS 100%.
 
@@ -155,7 +155,7 @@ flowchart TD
 
 ### 🧪 PHẦN III: KIỂM THỬ TỰ ĐỘNG & NGHIỆM THU (E2E PLAYWRIGHT SPEC & QUALITY GATE)
 
-- [ ] **1. Xây dựng Kịch bản Playwright E2E Spec Chuyên biệt**:
+- [x] **1. Xây dựng Kịch bản Playwright E2E Spec Chuyên biệt**:
   - Đường dẫn file test: [`frontend/e2e/80-feedback-14-10-task-80-pending-trip-order-isolation.spec.ts`](file:///frontend/e2e/80-feedback-14-10-task-80-pending-trip-order-isolation.spec.ts).
   - **Tài khoản kiểm thử**: Bắt buộc đăng nhập đúng tài khoản Hub quản lý kho (ví dụ `USER_WAREHOUSE_HCM` hoặc `USER_WAREHOUSE_DAD`).
   - **Kịch bản kiểm thử chi tiết**:
@@ -173,8 +173,8 @@ flowchart TD
     3. **Bước 3 (Xác thực giải phóng tồn kho khi Hủy nháp chuyến SD-A)**:
        - Quay lại Bảng điều độ, bấm nút `Hủy nháp` chuyến `SD-A`.
        - Quay lại tạo phiếu xuất kho ➔ Mở modal Tra cứu ➔ **Khẳng định (Assertion 3)**: Đơn hàng được giải phóng, hiển thị lại tồn khả dụng đầy đủ (10 kiện) và nút `Chọn đơn này` sáng trở lại bình thường.
-- [ ] **2. Chụp Ảnh Bằng Chứng Nghiệm Thu Thực Tế (Non-Empty Visual Evidence Gate)**:
+- [x] **2. Chụp Ảnh Bằng Chứng Nghiệm Thu Thực Tế (Non-Empty Visual Evidence Gate)**:
   - Lưu ảnh chụp màn hình bằng chứng vào thư mục feedback:
     * `feedbacks/feedback_14_10_task_80/screenshot_01_verified.png`: Minh chứng modal tra cứu hiển thị badge chặn chọn đơn hàng đã nằm trong chuyến xe chờ xử lý.
-- [ ] **3. Biên Niên Sử Hệ Thống & Báo Cáo**:
+- [x] **3. Biên Niên Sử Hệ Thống & Báo Cáo**:
   - Chạy `npm run todo:record feedback_14_10_task_80` để tự động cập nhật [`docs/SYSTEM_TIMELINE.md`](file:///docs/SYSTEM_TIMELINE.md) và sinh [`RESOLUTION.md`](file:///feedbacks/feedback_14_10_task_80/RESOLUTION.md).
