@@ -141,7 +141,7 @@ jobs:
                     const isExplicitForce = promptToCheck.includes("/force") || promptToCheck.includes("/retry");
 
                     if (!isExplicitForce && ["IN_PROGRESS", "COMPLETED", "TODO_CREATED"].includes(existingTask.status)) {
-                      console.log(`⏭️ [Deduplication] Task #${existingTask.id} đã ở trạng thái '${existingTask.status}'. Bỏ qua lượt kích hoạt trùng lặp.`);
+                      console.log(`⏭️ [Deduplication] Task #${existingTask.id} đã ở trạng thái "${existingTask.status}". Bỏ qua lượt kích hoạt trùng lặp.`);
                       task = null;
                       taskId = "manual";
                       rawPrompt = "";
@@ -592,7 +592,7 @@ jobs:
           fs.mkdirSync("/tmp/task_summary", { recursive: true });
 
           // Tìm ảnh bằng chứng nghiệm thu trong thư mục feedback của task
-          const taskId = "${{ needs.intake-task.outputs.task_id || github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}";
+          const taskId = "${{ needs.intake-task.outputs.task_id || github.event.inputs.task_id || github.event.client_payload.task_id || "manual" }}";
           let evidenceFileName = null;
           const feedbacksDir = "feedbacks";
           if (fs.existsSync(feedbacksDir)) {
@@ -877,7 +877,7 @@ jobs:
             }
 
             const promptLine = rawPrompt
-              ? `📝 <b>Yêu cầu:</b> <i>"${escapeHtml(rawPrompt.length > 250 ? rawPrompt.slice(0, 247) + '...' : rawPrompt)}"</i>\n`
+              ? `📝 <b>Yêu cầu:</b> <i>"${escapeHtml(rawPrompt.length > 250 ? rawPrompt.slice(0, 247) + "..." : rawPrompt)}"</i>\n`
               : "";
 
             let titleHeader = "";
@@ -992,7 +992,7 @@ jobs:
               // TỰ ĐỘNG QUÉT & GIẢI PHÓNG HÀNG ĐỢI (AUTO-DRAIN QUEUE)
               // Chỉ tự động kích hoạt task PENDING đã tồn tại trên 30 giây để tránh xung đột với webhook tức thời từ N8N
               const remaining = await client.query(
-                "SELECT id, sender_name, raw_prompt FROM telegram_tasks WHERE status = $1 AND created_at < NOW() - INTERVAL '30 seconds' ORDER BY id ASC LIMIT 1",
+                "SELECT id, sender_name, raw_prompt FROM telegram_tasks WHERE status = $1 AND created_at < NOW() - make_interval(secs => 30) ORDER BY id ASC LIMIT 1",
                 ["PENDING"]
               );
               if (remaining.rows.length > 0) {
