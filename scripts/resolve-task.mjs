@@ -44,7 +44,7 @@ const client = new Client({
 
 await client.connect();
 await client.query(
-  'UPDATE telegram_tasks SET status = $1, completed_at = NOW(), error = NULL WHERE id = $2',
+  'UPDATE telegram_tasks SET status = $1, completed_at = NOW(), error = NULL WHERE task_id = $2 OR (task_id IS NULL AND id = $2)',
   [newStatus, parseInt(taskId, 10)]
 );
 console.log(`✅ Đã cập nhật Task #${taskId} sang trạng thái ${newStatus}`);

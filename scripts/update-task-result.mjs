@@ -40,10 +40,10 @@ const taskId = parseInt(process.argv[2] || '58', 10);
 const newResult = process.argv[3] || 
   `🟢 HOÀN THÀNH: Thực thi tự động feedback_14_10_task_52.\n• 9/9 hạng mục đạt chuẩn (Loại bỏ header thừa & nút bốc đơn dọc đường trên modal xem trip nhập/xuất; E2E Test 50/50 PASS).\n• Checklist TODO.md và RESOLUTION.md đã nghiệm thu.\n\n🔗 Workflow: https://github.com/lyquangthai1993/logistics-website/actions/runs/38506905443`;
 
-await client.query('UPDATE telegram_tasks SET result = $1, error = NULL WHERE id = $2', [newResult, taskId]);
+await client.query('UPDATE telegram_tasks SET result = $1, error = NULL WHERE task_id = $2 OR (task_id IS NULL AND id = $2)', [newResult, taskId]);
 
 console.log(`✅ Đã cập nhật gói gọn kết quả cho Task #${taskId}!`);
-const res = await client.query('SELECT id, status, result, error FROM telegram_tasks WHERE id = $1', [taskId]);
+const res = await client.query('SELECT id, task_id, status, result, error FROM telegram_tasks WHERE task_id = $1 OR (task_id IS NULL AND id = $1)', [taskId]);
 console.log(res.rows[0]);
 
 await client.end();

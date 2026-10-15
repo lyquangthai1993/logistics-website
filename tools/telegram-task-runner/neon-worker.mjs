@@ -1035,7 +1035,8 @@ let activeProcess = null;
 
 // Thực thi tác vụ thông qua Antigravity CLI (agy)
 async function executeAgyTask(task) {
-  const taskId = task.task_id || task.id;
+  const dbRowId = task.id;
+  const taskId = task.task_id != null ? task.task_id : task.id;
   const chatId = task.chat_id || ALLOWED_CHAT_ID;
   const rawPrompt = task.raw_prompt;
   const senderName = task.sender_name || 'User';
@@ -1328,7 +1329,7 @@ async function executeAgyTask(task) {
 
           if (specFile && localServers.isRunning) {
             console.log(`[Task #${taskId}] 🚀 [TẦNG 1] Phát hiện Local Servers (localhost:4000 & 4001). Bắt đầu kiểm thử Local First...`);
-            await pool.query(`UPDATE telegram_tasks SET status = 'VERIFYING_LOCAL' WHERE id = $1;`, [taskId]);
+            await pool.query(`UPDATE telegram_tasks SET status = 'VERIFYING_LOCAL' WHERE id = $1;`, [dbRowId]);
 
             if (progressMsgId) {
               await editTelegramMessage(
@@ -1428,7 +1429,7 @@ async function executeAgyTask(task) {
                 `\n⚠️ <b>Lỗi chi tiết:</b>\n<pre>${escapeHtml(failDetails || 'Exit code non-zero')}</pre>\n\n` +
                 `🛑 <i>Dừng pipeline, KHÔNG push code lỗi lên nhánh dev Cloud.</i>`;
               await sendTelegramMessage(chatId, failMsg, 'HTML', TASK_ACTIONS_KEYBOARD);
-              await pool.query(`UPDATE telegram_tasks SET status = 'DEV_E2E_FAILED', error = $1 WHERE id = $2;`, [failDetails.slice(0, 500), taskId]);
+              await pool.query(`UPDATE telegram_tasks SET status = 'DEV_E2E_FAILED', error = $1 WHERE id = $2;`, [failDetails.slice(0, 500), dbRowId]);
               resolve({ success: false, taskId, reason: 'LOCAL_E2E_FAILED', error: failDetails });
               return;
             }
@@ -1451,7 +1452,7 @@ async function executeAgyTask(task) {
             console.warn('[Git Auto-Sync] Warning:', gitErr.message);
           }
 
-          await pool.query(`UPDATE telegram_tasks SET status = 'VERIFYING_DEV' WHERE id = $1;`, [taskId]);
+          await pool.query(`UPDATE telegram_tasks SET status = 'VERIFYING_DEV' WHERE id = $1;`, [dbRowId]);
           if (progressMsgId) {
             await editTelegramMessage(
               chatId,
@@ -1486,7 +1487,7 @@ async function executeAgyTask(task) {
               `Mã nguồn đã được push lên nhánh <code>dev</code>, nhưng server Dev (Railway Cloud) chưa phản hồi trạng thái sẵn sàng trong thời gian quy định.\n` +
               `Lỗi: <code>${escapeHtml(deployRes.error)}</code>`;
             await sendTelegramMessage(chatId, deployFailMsg, 'HTML', TASK_ACTIONS_KEYBOARD);
-            await pool.query(`UPDATE telegram_tasks SET status = 'DEV_DEPLOY_TIMEOUT', error = $1 WHERE id = $2;`, [deployRes.error, taskId]);
+            await pool.query(`UPDATE telegram_tasks SET status = 'DEV_DEPLOY_TIMEOUT', error = $1 WHERE id = $2;`, [deployRes.error, dbRowId]);
             resolve({ success: false, taskId, reason: 'DEPLOY_TIMEOUT' });
             return;
           }
@@ -1624,7 +1625,7 @@ async function executeAgyTask(task) {
                 UPDATE telegram_tasks 
                 SET status = 'DEV_E2E_FAILED', feedback_dir = $1, error = $2, completed_at = NOW() 
                 WHERE id = $3;
-              `, [feedbackDir, failDetails, taskId]);
+              `, [feedbackDir, failDetails, dbRowId]);
 
               resolve({ success: false, taskId, exitCode: e2eResult.exitCode });
               return;
@@ -1728,7 +1729,7 @@ async function executeAgyTask(task) {
           UPDATE telegram_tasks 
           SET status = $1, feedback_dir = $2, result = $3, completed_at = NOW() 
           WHERE id = $4;
-        `, [taskStatus, feedbackDir, cleanOutput, taskId]);
+        `, [taskStatus, feedbackDir, cleanOutput, dbRowId]);
 
         resolve({ success: true, taskId });
       } else {
@@ -1747,7 +1748,7 @@ async function executeAgyTask(task) {
           UPDATE telegram_tasks 
           SET status = 'FAILED', feedback_dir = $1, error = $2, completed_at = NOW() 
           WHERE id = $3;
-        `, [feedbackDir, errorText, taskId]);
+        `, [feedbackDir, errorText, dbRowId]);
 
         resolve({ success: false, taskId, exitCode });
       }

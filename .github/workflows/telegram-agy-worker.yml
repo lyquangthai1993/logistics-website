@@ -114,23 +114,8 @@ jobs:
                 });
                 await client.connect();
 
-                // 1. Quét tìm task cần thực thi (FIFO Queue Claiming)
-                // Ưu tiên claim task PENDING cũ nhất trong DB
-                const pendingRes = await client.query(
-                  "SELECT * FROM telegram_tasks WHERE status = $1 ORDER BY id ASC LIMIT 1",
-                  ["PENDING"]
-                );
-
-                if (pendingRes.rows.length > 0) {
-                  const targetId = pendingRes.rows[0].id;
-                  const updateRes = await client.query(
-                    "UPDATE telegram_tasks SET status = $1, started_at = NOW() WHERE id = $2 RETURNING *",
-                    ["IN_PROGRESS", targetId]
-                  );
-                  task = updateRes.rows[0];
-                  console.log(`🎯 [FIFO Queue] Đã claim Task #${task.task_id || task.id} (Tạo lúc: ${task.created_at}) sang IN_PROGRESS.`);
-                } else if (requestedId && requestedId !== "manual" && !isNaN(Number(requestedId))) {
-                  // Nếu không còn task PENDING nào, kiểm tra task theo requestedId (task_id)
+                // 1. Nếu có requestedId (task_id cụ thể được chỉ định từ webhook/dispatch) -> Ưu tiên xử lý chính xác task này
+                if (requestedId && requestedId !== "manual" && !isNaN(Number(requestedId))) {
                   const reqRes = await client.query(
                     "SELECT * FROM telegram_tasks WHERE task_id = $1 OR (task_id IS NULL AND id = $1)",
                     [parseInt(requestedId, 10)]
@@ -140,7 +125,11 @@ jobs:
                     const promptToCheck = (existingTask.raw_prompt || "") + " " + (rawPrompt || "");
                     const isExplicitForce = promptToCheck.includes("/force") || promptToCheck.includes("/retry");
 
-                    if (!isExplicitForce && ["IN_PROGRESS", "COMPLETED", "TODO_CREATED"].includes(existingTask.status)) {
+                    if (existingTask.status === "PENDING" || isExplicitForce) {
+                      await client.query("UPDATE telegram_tasks SET status = $1, started_at = NOW() WHERE id = $2", ["IN_PROGRESS", existingTask.id]);
+                      task = existingTask;
+                      console.log(`🎯 [Direct Task] Đã claim Task #${task.task_id || task.id} sang IN_PROGRESS.`);
+                    } else if (["IN_PROGRESS", "COMPLETED", "TODO_CREATED"].includes(existingTask.status)) {
                       console.log(`⏭️ [Deduplication] Task #${existingTask.task_id || existingTask.id} đã ở trạng thái "${existingTask.status}". Bỏ qua lượt kích hoạt trùng lặp.`);
                       task = null;
                       taskId = "manual";
@@ -148,8 +137,26 @@ jobs:
                     } else {
                       await client.query("UPDATE telegram_tasks SET status = $1, started_at = NOW() WHERE id = $2", ["IN_PROGRESS", existingTask.id]);
                       task = existingTask;
-                      console.log(`🎯 [Direct Task] Đã kích hoạt lại Task #${task.task_id || task.id} sang IN_PROGRESS.`);
+                      console.log(`🎯 [Direct Task] Đã kích hoạt Task #${task.task_id || task.id} sang IN_PROGRESS.`);
                     }
+                  }
+                }
+
+                // 2. Nếu chưa có task và không chỉ định requestedId -> Quét tìm task PENDING cũ nhất (FIFO Queue Claiming)
+                if (!task) {
+                  const pendingRes = await client.query(
+                    "SELECT * FROM telegram_tasks WHERE status = $1 AND task_id IS NOT NULL ORDER BY id ASC LIMIT 1",
+                    ["PENDING"]
+                  );
+
+                  if (pendingRes.rows.length > 0) {
+                    const targetId = pendingRes.rows[0].id;
+                    const updateRes = await client.query(
+                      "UPDATE telegram_tasks SET status = $1, started_at = NOW() WHERE id = $2 RETURNING *",
+                      ["IN_PROGRESS", targetId]
+                    );
+                    task = updateRes.rows[0];
+                    console.log(`🎯 [FIFO Queue] Đã claim Task #${task.task_id || task.id} (Tạo lúc: ${task.created_at}) sang IN_PROGRESS.`);
                   }
                 }
 
@@ -707,6 +714,16 @@ jobs:
           const sender = process.env.SENDER || "User";
           const token = process.env.TELEGRAM_BOT_TOKEN;
           const chatId = process.env.TELEGRAM_ALLOWED_CHAT_ID;
+          const mode = process.env.MODE || "leader";
+          const isLeaderMode = mode === "leader";
+          const isDone = executeStatus === "success";
+
+          let finalTaskStatus = "FAILED";
+          if (isDone) {
+            finalTaskStatus = isLeaderMode ? "TODO_CREATED" : "COMPLETED";
+          } else {
+            finalTaskStatus = "FAILED";
+          }
 
           let diffSummary = "Không có thay đổi file";
           let detailedError = "";
@@ -821,7 +838,8 @@ jobs:
               const res = await fetch(url, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
+                signal: AbortSignal.timeout(15000)
               });
               const data = await res.json();
               if (!data.ok && payload.parse_mode) {
@@ -831,7 +849,8 @@ jobs:
                 const retryRes = await fetch(url, {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(payload)
+                  body: JSON.stringify(payload),
+                  signal: AbortSignal.timeout(15000)
                 });
                 return await retryRes.json();
               }
@@ -854,18 +873,15 @@ jobs:
               ]
             };
 
-            const mode = process.env.MODE || "leader";
-            const isLeaderMode = mode === "leader";
-            const isDone = executeStatus === "success";
-
             let rawPrompt = (process.env.RAW_PROMPT || "").trim();
             const dbUrl = process.env.DATABASE_URL;
 
             // Nếu chưa có rawPrompt từ output, đọc trực tiếp từ DB
             if (!rawPrompt && dbUrl && taskId && taskId !== "manual" && !isNaN(Number(taskId))) {
+              let cl = null;
               try {
                 const { Client } = require("pg");
-                const cl = new Client({
+                cl = new Client({
                   connectionString: dbUrl,
                   ssl: dbUrl.includes("neon.tech") ? { rejectUnauthorized: false } : false
                 });
@@ -874,8 +890,14 @@ jobs:
                 if (r.rows.length > 0 && r.rows[0].raw_prompt) {
                   rawPrompt = r.rows[0].raw_prompt.trim();
                 }
-                await cl.end();
-              } catch (_) {}
+              } catch (_) {
+              } finally {
+                if (cl) {
+                  try {
+                    await cl.end();
+                  } catch (_) {}
+                }
+              }
             }
 
             const promptLine = rawPrompt
@@ -884,22 +906,18 @@ jobs:
 
             let titleHeader = "";
             let statusSubtext = "";
-            let finalTaskStatus = "FAILED";
 
             if (isDone) {
               if (isLeaderMode) {
                 titleHeader = `📋 <b>[TASK #${escapeHtml(taskId)}] ĐÃ LẬP KẾ HOẠCH (TODO_CREATED)</b>`;
                 statusSubtext = `📋 <i>Đã phân tích yêu cầu & lập checklist TODO.md sẵn sàng triển khai.</i>\n\n`;
-                finalTaskStatus = "TODO_CREATED";
               } else {
                 titleHeader = `✅ <b>[TASK #${escapeHtml(taskId)}] HOÀN THÀNH (DONE)</b>`;
                 statusSubtext = `✅ <i>Hoàn tất kiểm định & nghiệm thu kỹ thuật.</i>\n\n`;
-                finalTaskStatus = "COMPLETED";
               }
             } else {
               titleHeader = `❌ <b>[TASK #${escapeHtml(taskId)}] THẤT BẠI (FAIL)</b>`;
               statusSubtext = `⚠️ <b>Lỗi chính:</b> <code>${escapeHtml(detailedError.slice(0, 300))}</code>\n\n`;
-              finalTaskStatus = "FAILED";
             }
 
             // 1. Kiểm tra ảnh bằng chứng nghiệm thu trong artifact
@@ -937,7 +955,8 @@ jobs:
 
                 const photoRes = await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
                   method: "POST",
-                  body: formData
+                  body: formData,
+                  signal: AbortSignal.timeout(20000)
                 });
                 const photoData = await photoRes.json();
                 if (photoData.ok) {
@@ -972,9 +991,10 @@ jobs:
           async function updateDatabase() {
             const dbUrl = process.env.DATABASE_URL;
             if (!dbUrl || !taskId || taskId === "manual" || isNaN(Number(taskId))) return;
+            let client = null;
             try {
               const { Client } = require("pg");
-              const client = new Client({
+              client = new Client({
                 connectionString: dbUrl,
                 ssl: dbUrl.includes("neon.tech") ? { rejectUnauthorized: false } : false
               });
@@ -994,7 +1014,7 @@ jobs:
               // TỰ ĐỘNG QUÉT & GIẢI PHÓNG HÀNG ĐỢI (AUTO-DRAIN QUEUE)
               // Chỉ tự động kích hoạt task PENDING đã tồn tại trên 30 giây để tránh xung đột với webhook tức thời từ N8N
               const remaining = await client.query(
-                "SELECT id, task_id, sender_name, raw_prompt FROM telegram_tasks WHERE status = $1 AND created_at < NOW() - make_interval(secs => 30) ORDER BY id ASC LIMIT 1",
+                "SELECT id, task_id, sender_name, raw_prompt FROM telegram_tasks WHERE status = $1 AND task_id IS NOT NULL AND created_at < NOW() - make_interval(secs => 30) ORDER BY id ASC LIMIT 1",
                 ["PENDING"]
               );
               if (remaining.rows.length > 0) {
@@ -1015,7 +1035,8 @@ jobs:
                       client_payload: {
                         task_id: nextTaskId
                       }
-                    })
+                    }),
+                    signal: AbortSignal.timeout(10000)
                   });
                   if (dispatchRes.status === 204) {
                     console.log(`🚀 Đã tự động kích hoạt GitHub Actions cho Task #${nextTaskId} thành công!`);
@@ -1024,12 +1045,28 @@ jobs:
                   }
                 }
               }
-
-              await client.end();
             } catch (dbErr) {
               console.warn("⚠️ Không thể cập nhật Database telegram_tasks:", dbErr.message);
+            } finally {
+              if (client) {
+                try {
+                  await client.end();
+                } catch (_) {}
+              }
             }
           }
 
-          Promise.allSettled([send(), updateDatabase()]);
+          (async () => {
+            try {
+              await send();
+            } catch (err) {
+              console.error("Lỗi khi gửi báo cáo Telegram:", err.message);
+            }
+            try {
+              await updateDatabase();
+            } catch (err) {
+              console.error("Lỗi khi cập nhật database:", err.message);
+            }
+            process.exit(0);
+          })();
           '

@@ -53,7 +53,7 @@ const client = new Client({
 
 try {
   await client.connect();
-  const res = await client.query('SELECT * FROM telegram_tasks WHERE id = $1', [taskId]);
+  const res = await client.query('SELECT * FROM telegram_tasks WHERE task_id = $1 OR (task_id IS NULL AND id = $1)', [taskId]);
 
   if (!res.rows || res.rows.length === 0) {
     console.error(`❌ Không tìm thấy Task #${taskId} trong bảng telegram_tasks!`);
@@ -62,8 +62,9 @@ try {
   }
 
   const task = res.rows[0];
+  const actualTaskId = task.task_id != null ? task.task_id : task.id;
   console.log(`\n========================================`);
-  console.log(`📋 THÔNG TIN TASK #${task.id}`);
+  console.log(`📋 THÔNG TIN TASK #${actualTaskId}`);
   console.log(`========================================`);
   console.log(`👤 Người gửi: ${task.sender_name || 'N/A'}`);
   console.log(`📊 Trạng thái hiện tại: ${task.status}`);
@@ -79,9 +80,9 @@ try {
     UPDATE telegram_tasks 
     SET status = 'PENDING', error = NULL, result = NULL, started_at = NULL, completed_at = NULL 
     WHERE id = $1;
-  `, [taskId]);
+  `, [task.id]);
 
-  console.log(`✅ Đã reset Task #${taskId} về trạng thái PENDING sẵn sàng retry!`);
+  console.log(`✅ Đã reset Task #${actualTaskId} về trạng thái PENDING sẵn sàng retry!`);
 
   // Tìm token GitHub PAT để dispatch workflow nếu có
   let ghPat = process.env.GH_PAT_TOKEN;
@@ -99,14 +100,18 @@ try {
   }
 
   if (ghPat) {
-    console.log(`🚀 Đang kích hoạt GitHub Actions Worker chạy lại Task #${taskId}...`);
+    console.log(`🚀 Đang kích hoạt GitHub Actions Worker chạy lại Task #${actualTaskId}...`);
     // Kiểm tra xem task có ảnh trong folder feedback không
     let imageRel = '';
-    const fbDir = path.resolve(`feedbacks/feedback_14_10_task_${taskId}`);
-    if (fs.existsSync(fbDir)) {
-      const files = fs.readdirSync(fbDir).filter(f => /\.(png|jpe?g|webp)$/i.test(f));
-      if (files.length > 0) {
-        imageRel = `feedbacks/feedback_14_10_task_${taskId}/${files[0]}`;
+    const feedbacksRoot = path.resolve('feedbacks');
+    if (fs.existsSync(feedbacksRoot)) {
+      const matchDir = fs.readdirSync(feedbacksRoot).find(d => d.includes(`task_${actualTaskId}`));
+      if (matchDir) {
+        const fullDir = path.join(feedbacksRoot, matchDir);
+        const files = fs.readdirSync(fullDir).filter(f => /\.(png|jpe?g|webp)$/i.test(f));
+        if (files.length > 0) {
+          imageRel = `feedbacks/${matchDir}/${files[0]}`;
+        }
       }
     }
 
@@ -116,9 +121,9 @@ try {
     }
 
     const payload = {
-      ref: 'master',
+      ref: 'dev',
       inputs: {
-        task_id: String(taskId),
+        task_id: String(actualTaskId),
         prompt: promptWithImage,
         sender_name: task.sender_name || 'User',
         mode: 'leader'
