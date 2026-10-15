@@ -261,73 +261,66 @@ Tối thiểu từ **5 đến 10 tình huống biên**, lập bảng chuẩn 5 c
 
 ---
 
-## 6. Execution & Implementation Protocol ("Thực thi") — *Triển khai code: Claude Sonnet | Kiểm thử & Ghi nhận: Gemini Flash*
+## 6. Execution & Implementation Protocol ("Thực thi") — *Quy trình Chuẩn GitHub PR & Kiểm định 2 Tầng*
 
-When instructed to execute or implement a feedback plan, the `todo-agent` MUST strictly follow this 9-step pipeline (featuring an Autonomous Self-Healing Retry Loop):
+When instructed to execute or implement a feedback plan, the `todo-agent` MUST strictly follow this standard pipeline conforming to [`.agents/rules/github-task-workflow.md`](file:///d:/Projects/logistics-website/.agents/rules/github-task-workflow.md):
 
 ```mermaid
 flowchart TD
-    S1["1. Sửa Code Submodules<br>(backend/ & frontend/)"] --> S2["2. Local Build & TypeCheck<br>(npm run build, tsc --noEmit)"]
-    S2 --> S3["3. Deploy lên Dev<br>(Push submodules to origin/dev)"]
-    S3 --> S4["4. Dev Readiness Health Check<br>(curl.exe -m 15 -i https://<backend>/api/v1/health)"]
-    S4 --> S5["5. Playwright E2E Test trên DEV<br>(Target Dev Vercel & Render)"]
-    S5 -- "Test FAIL (Attempt < 3)" --> S5R["Tự động Phân tích RCA & Sửa code<br>(AI Auto-Fix + Push Dev + Redeploy)"]
-    S5R --> S5
-    S5 -- "Test PASS (100%)" --> S6["6. Đánh giá chéo E2E Audit<br>(node scripts/e2e-auditor.mjs)"]
-    S5 -- "Test FAIL (> 3 Retries)" --> S_FAIL["Báo lỗi Telegram DEV_E2E_FAILED<br>(Kèm trace lỗi & lịch sử 3 lần)"]
-    S6 --> S7["7. Đồng bộ Checklist TODO.md<br>(Tất cả mục chuyển thành [x])"]
-    S7 --> S8["8. Ghi nhận Biên bản Kỹ thuật & Timeline<br>(npm run todo:record <folder>)"]
-    S8 --> S9["9. Nghiệm thu & Báo Telegram<br>('ĐÃ TEST DEV XONG' + links RESOLUTION.md & SYSTEM_TIMELINE.md)"]
+    S1["1. Tạo Nhánh từ Dev<br>(feature/task-ID-* trong Submodule)"] --> S2["2. Code & Local Build<br>(tsc --noEmit, npm run build)"]
+    S2 --> S3["3. Nghiệm thu Tầng 1: Local E2E<br>(Localhost Playwright Test)"]
+    S3 -- "Fail" --> S3R["Local Self-Healing Auto-Fix<br>(Tối đa 3 lần retry tại chỗ)"]
+    S3R --> S3
+    S3 -- "Pass 100%" --> S4["4. Push & Tạo PR vào Dev<br>(Bằng chứng Audit Evidence trên GitHub)"]
+    S4 --> S5["5. Tự động Merge PR vào Dev<br>(gh pr merge --merge)"]
+    S5 --> S6["6. Chờ Cloud Dev Deploy<br>(Railway Health Check HTTP 200)"]
+    S6 --> S7["7. Nghiệm thu Tầng 2: Cloud Dev E2E<br>(Playwright Live trên Domain Dev)"]
+    S7 --> S8["8. Đánh giá chéo E2E Audit<br>(node scripts/e2e-auditor.mjs)"]
+    S8 --> S9["9. Ghi nhận Biên bản & Timeline<br>(npm run todo:record <folder>)"]
+    S9 --> S10["10. Báo cáo Telegram Mobile-First<br>(Kèm link PR GitHub & ảnh nghiệm thu)"]
 ```
 
-1. **Workspace Health & Branch Setup**:
-   - Check repo status: `npm run repo:status`.
-   - Ensure submodules are on `dev` and up to date (`git pull origin dev`).
+1. **Workspace Health & Feature Branch Creation (Bắt buộc từ `dev`)**:
+   - Chạy lệnh kiểm tra: `npm run repo:status` và `npm run repo:tracking`.
+   - Chuyển về `dev` và pull code mới nhất trong submodule tương ứng:
+     `git -C backend checkout dev && git -C backend pull origin dev`
+     `git -C frontend checkout dev && git -C frontend pull origin dev`
+   - Tạo nhánh tính năng/sửa lỗi gắn với `task_id`:
+     `git -C backend checkout -b feature/task-<id>-<name>`
+     `git -C frontend checkout -b feature/task-<id>-<name>`
 2. **Submodule-First Code Modifications**:
-   - Apply backend changes in `backend/` and verify compile immediately: `npm run build --prefix backend`.
-   - Apply frontend changes in `frontend/` and verify TypeScript compile: `npx --prefix frontend tsc --noEmit`.
-   - Enforce UI Compact Density (`p-1` card padding, `p-2` modal body, `text-[10px]` table font, zero redundant icons).
-3. **Deployment to Dev Environment**:
-   - Commit changes inside the respective submodules with Conventional Commits (`feat(...)`, `fix(...)`).
-   - Push submodules to `origin/dev`: `git -C backend push origin dev && git -C frontend push origin dev`.
-   - Wait for Vercel and Render auto-deploy (usually 1-2 minutes).
-   - Verify Dev Backend readiness using anti-hang protocol:
-     `curl.exe -m 15 -i https://logistics-website-backend-1jho.onrender.com/api/v1/health`
-5. **Automated E2E Verification & Autonomous Self-Healing Retry Loop on DEV Domain**:
-   - Execute Playwright E2E tests directly against the Dev environment:
+   - Triển khai code theo checklist `TODO.md` (tuân thủ Compact Density `p-1`, `p-2`, cấm `p-4`, 0 mock data, 0 jargon kỹ thuật).
+   - Kiểm tra biên dịch tĩnh: `npm run build --prefix backend` và `npx --prefix frontend tsc --noEmit`.
+3. **Nghiệm Thu Tầng 1: Kiểm Thử Local E2E Gate (Chốt Chặn Máy Trạm)**:
+   - Kích hoạt Playwright E2E suite trên Local (`http://localhost:4000` & `4001`).
+   - Tự động sửa lỗi cục bộ (Autonomous Local Self-Healing, tối đa 3 lần).
+   - **ĐIỀU KIỆN TIÊN QUYẾT**: 100% test local phải PASS. Tuyệt đối không đẩy code lỗi lên remote.
+4. **Đẩy Nhánh, Tạo PR vào `dev` Làm Bằng Chứng & Tự Động Merge**:
+   - Commit code trong submodule (`git -C <submodule> commit -am "feat(task-<id>): ..."`).
+   - Push nhánh lên remote: `git -C <submodule> push -u origin feature/task-<id>-<name>`.
+   - Tạo PR vào `dev` trên GitHub làm bằng chứng kiểm toán (Audit Evidence):
+     `gh pr create --repo <submodule_repo> --base dev --head feature/task-<id>-<name> --title "feat(task-<id>): ..." --body "..."`
+   - Tự động merge PR vào `dev`:
+     `gh pr merge --repo <submodule_repo> feature/task-<id>-<name> --merge --delete-branch`
+     *(Hoặc thực hiện merge git an toàn và đẩy lên origin/dev nếu CLI chưa login)*.
+5. **Chờ Deploy Lên Môi Trường Dev (Railway Cloud)**:
+   - Chờ Railway Cloud hoàn tất build & deploy trên nhánh `dev`.
+   - Kiểm tra Dev Backend readiness (anti-hang timeout):
+     `curl.exe -m 15 -i https://backend-tms-core-dev.up.railway.app/api/v1/health`
+6. **Nghiệm Thu Tầng 2: Kiểm Thử Cloud Dev E2E Gate (Lần Thứ Hai)**:
+   - Chạy Playwright E2E trực tiếp trên Domain Dev:
      ```bash
-     PLAYWRIGHT_BASE_URL=https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app API_URL=https://logistics-website-backend-1jho.onrender.com/api/v1 npx playwright test e2e/<spec_file>.spec.ts
+     PLAYWRIGHT_BASE_URL=https://frontend-tms-core-dev.up.railway.app API_URL=https://backend-tms-core-dev.up.railway.app/api/v1 npx playwright test e2e/<spec_file>.spec.ts
      ```
-   - **Autonomous Self-Healing Retry Loop (Max 3 iterations)**:
-     * If the Dev E2E test fails (`exitCode !== 0`), the runner/worker does NOT immediately notify failure to Telegram.
-     * The runner extracts the error stack trace, recent `error-context.md`, and launches an autonomous AI fix session (`runAgyAutoFixSession`).
-     * The AI inspects the RCA, fixes code in `frontend/` or `backend/` or adjusts the test spec, runs local typechecks/builds, commits and pushes to `origin dev`.
-     * The system waits for Vercel/Render redeployment (`waitForDevDeployment`) and automatically re-runs the Playwright E2E suite.
-     * **Iteration limit**: Up to **3 retry attempts** (`MAX_E2E_RETRIES = 3`).
-     * **Success Gate**: If the test PASSES on any retry (1, 2, or 3), proceed to cross-audit and successful Telegram delivery.
-     * **Terminal Failure**: If the test fails after exceeding 3 retries, only then is a failure alert dispatched to Telegram with detailed error logs and retry history.
-6. **Cross-Evaluation Audit (Đánh giá chéo E2E)**:
-   - Run the automated E2E Code Auditor against the test suite:
-     ```bash
-     node scripts/e2e-auditor.mjs frontend/e2e/<spec_file>.spec.ts
-     ```
-   - Validate 50-point rubric compliance (≥ 40/50, 0 FAIL).
-7. **Continuous Checklist Synchronization**:
-   - Update `feedback_DD_MM*/TODO.md` items from `- [ ]` to `- [x]`.
-   - Use `node scripts/todo-agent.mjs toggle <folder> <lineNumber> done`.
-8. **Post-Execution Technical Documentation & Timeline Ledger Recording**:
-   - **MANDATORY MILESTONE**: Execute technical recording to generate `RESOLUTION.md` and synchronize `docs/SYSTEM_TIMELINE.md`:
-     ```bash
-     npm run todo:record <folder_name>
-     # or: node scripts/todo-agent.mjs record <folder_name>
-     ```
-   - Verify that `<folder_name>/RESOLUTION.md` contains all 6 technical sections and that [`docs/SYSTEM_TIMELINE.md`](file:///d:/Projects/logistics-website/docs/SYSTEM_TIMELINE.md) reflects the newly completed milestone at the top.
-9. **Zero Premature Telegram Reporting & Verified Photo Upload**:
-   - Operating agents and worker daemons (`neon-worker.mjs`) MUST NEVER report completion or claim "ĐÃ TEST DEV XONG" prematurely upon push.
-   - Only after Dev health check passes, Playwright E2E executes on Dev with 100% PASS (either directly or via self-healing retries ≤ 3), audit score ≥ 40/50, and `screenshot_*_verified.png` is generated:
-     - Worker daemon uploads the verified screenshot via Telegram `sendPhoto` API.
-     - Sends final green notification: `🟢 THÔNG BÁO: ĐÃ TEST DEV XONG (E2E & ĐÁNH GIÁ CHÉO PASS 100%)`.
-     - Includes direct links to `RESOLUTION.md` and `docs/SYSTEM_TIMELINE.md`.
+   - Chụp ảnh màn hình bằng chứng thực tế (`screenshot_*_verified.png`) với bảng dữ liệu thật (không chụp bảng rỗng).
+7. **Cross-Evaluation Audit (Đánh giá chéo E2E)**:
+   - Chạy automated auditor: `node scripts/e2e-auditor.mjs frontend/e2e/<spec_file>.spec.ts` (điểm $\ge$ 40/50).
+8. **Checklist & Ghi Nhận Biên Niên Sử Kỹ Thuật**:
+   - Đồng bộ checklist `TODO.md` thành `- [x]`.
+   - Chạy `npm run todo:record <folder_name>` để sinh `RESOLUTION.md` và đồng bộ `docs/SYSTEM_TIMELINE.md`.
+9. **Báo Cáo Nghiệm Thu Mobile-First Qua Telegram**:
+   - Gửi ảnh bằng chứng qua Telegram `sendPhoto`.
+   - Gửi báo cáo hoàn thành chứa link PR GitHub, kết quả 2 tầng E2E test, link `RESOLUTION.md` và `docs/SYSTEM_TIMELINE.md`.
 
 ---
 

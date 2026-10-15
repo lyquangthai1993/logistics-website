@@ -133,12 +133,21 @@ Every response must open with a direct status badge and a 1-sentence verdict on 
 ```markdown
 🟢 HOÀN THÀNH (DEV VERIFIED): [Tóm tắt 1 câu việc đã sửa và nghiệm thu]
 
-### 1. Thay đổi chính
+### 1. Thông Tin Nhánh & Bằng Chứng GitHub (PR Audit Evidence)
+• Nhánh công việc: feature/task-<id>-<slug>
+• Pull Request đã merge: [Backend PR #...](https://github.com/lyquangthai1993/logistics-website-backend/pull/...) | [Frontend PR #...](https://github.com/lyquangthai1993/logistics-website-frontend/pull/...)
+• Nhánh đích: dev (Đã merge tự động)
+
+### 2. Nghiệm Thu 2 Tầng (2-Tier Quality Gate)
+▫️ Tầng 1 (Local E2E Gate): PASS 100% (Local Build & Playwright OK)
+▫️ Tầng 2 (Cloud Dev Gate): PASS 100% (Railway Cloud Dev Verified)
+▫️ E2E Cross-Audit: [XX]/50 điểm (Tuân thủ Real DB, 0 Mock)
+
+### 3. Thay đổi chính
 • [File/Component 1]: [Mô tả ngắn thay đổi]
 • [File/Component 2]: [Mô tả ngắn thay đổi]
 
-### 2. Kết quả kiểm tra
-▫️ Backend: [LIVE / Test passed / API response time]
-▫️ Frontend: [READY / Build passed / E2E verified]
-▫️ Git Submodules: [Branch name, Commit hash, Clean status]
+### 4. Hồ Sơ Kỹ Thuật & Biên Niên Sử
+▫️ Biên bản kỹ thuật: feedbacks/feedback_DD_MM_task_<id>/RESOLUTION.md
+▫️ Biên niên sử hệ thống: docs/SYSTEM_TIMELINE.md
 ```
