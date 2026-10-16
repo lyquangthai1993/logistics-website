@@ -49,7 +49,9 @@ Every task received (from Telegram Bot, user prompts, or feature requests) MUST 
 flowchart TD
     A["Stage 1: Intake & Feature Branch<br>Branch from dev in submodules"] --> B["Stage 2: Tier-1 Quality Gate<br>Local E2E Playwright (:4000 & :4001)"]
     B -->|Autonomous Self-Healing up to 3x| C{"Tier-1 PASS?"}
-    C -->|Yes| D["Stage 3: GitHub PR & Auto-Merge<br>gh pr create -> Audit Evidence -> gh pr merge"]
+    C -->|Yes| AUD["Mandatory /e2e-code-auditor Gate<br>node scripts/e2e-auditor.mjs<br>(Score >= 40/50, 0 Auto-FAILs)"]
+    AUD -->|Auditor PASS| D["Stage 3: GitHub PR & Auto-Merge<br>gh pr create -> Audit Evidence -> gh pr merge"]
+    AUD -->|Auditor FAIL / Shallow Test| B
     C -->|No| B
     D --> E["Cloud Deployment (Railway)<br>Wait for HTTP 200 Health"]
     E --> F["Stage 4: Tier-2 Quality Gate<br>Cloud Dev E2E Playwright against Railway"]
@@ -88,15 +90,21 @@ node scripts/git-task-workflow.mjs start 89 warehouse outbound-tally feat
 
 ---
 
-### Stage 2: Tier-1 Quality Gate (Local E2E Verification)
-- Run tests on workstation (`http://localhost:4000` & `http://localhost:4001/api/v1`).
-- Autonomous self-healing loop: Analyze failure, fix code locally, re-verify (up to 3 retries).
-- **Never push failing code to GitHub**. Code must achieve 100% PASS before leaving the local workstation.
+### Stage 2: Tier-1 Quality Gate (Local E2E Verification & Mandatory /e2e-code-auditor)
+1. **Local Playwright E2E Suite**:
+   - Run tests on workstation (`http://localhost:4000` & `http://localhost:4001/api/v1`).
+   - Autonomous self-healing loop: Analyze failure, fix code locally, re-verify (up to 3 retries).
+   - **Never push failing code to GitHub**. Code must achieve 100% PASS before leaving the local workstation.
+2. **Mandatory E2E Code Auditor Evaluation (`/e2e-code-auditor`)**:
+   - Run static & structural audit: `node scripts/e2e-auditor.mjs frontend/e2e/<spec_file>.spec.ts`.
+   - The test code MUST clear the 50-point rubric with **Score >= 40/50 and 0 Auto-FAILs**.
+   - **Zero Shallow Tests Mandate**: Tests that only check static code (`fs.readFileSync`), "look-only" tests with zero user click/fill actions, or soft fallback `if (isVisible) ... else { screenshot }` branches will be **STRICTLY REJECTED**.
+   - If auditor reports `FAIL` or `WARN` (< 40/50), PR creation is blocked until the test is remediated.
 
 ---
 
 ### Stage 3: GitHub PR Creation, Audit Evidence & Auto-Merge
-Once local tests pass, publish the branch and create an immutable audit trail on GitHub:
+Once local tests and `/e2e-code-auditor` pass, publish the branch and create an immutable audit trail on GitHub:
 
 ```bash
 # Using helper CLI:
@@ -112,10 +120,11 @@ node scripts/git-task-workflow.mjs pr 89 warehouse outbound-tally
 - **Module**: `warehouse`
 - **Description**: Add outbound tally sheet confirmation
 
-## 🛡️ Pre-Merge Verification (Tier-1 Local Gate)
+## 🛡️ Pre-Merge Verification (Tier-1 Local Gate & E2E Auditor)
 - [x] Compilation: `npm run build` PASS
 - [x] Typecheck: `tsc --noEmit` PASS
 - [x] Local Playwright E2E: 100% PASS (0 failures)
+- [x] E2E Code Auditor Review: Score >= 40/50 (0 Auto-FAILs, zero shallow tests)
 - [x] Submodule-first push sequence verified
 
 ## 🚀 Target Branch
@@ -141,7 +150,7 @@ gh pr merge --merge --auto --delete-branch=false
    API_URL=https://backend-tms-core-dev.up.railway.app/api/v1 \
    npm run test:e2e
    ```
-3. Run cross-evaluation auditor: `node scripts/e2e-auditor.mjs` (Score >= 40/50, 0 Auto-FAILs).
+3. Run cross-evaluation auditor: `node scripts/e2e-auditor.mjs frontend/e2e/<spec_file>.spec.ts` (Score >= 40/50, 0 Auto-FAILs).
 4. Capture visual screenshot evidence (`screenshot_*_verified.png`).
 5. Update technical documentation: `npm run todo:record <folder>` to generate `RESOLUTION.md` and append to `docs/SYSTEM_TIMELINE.md`.
 6. Dispatch mobile-first completion report to Telegram channel.

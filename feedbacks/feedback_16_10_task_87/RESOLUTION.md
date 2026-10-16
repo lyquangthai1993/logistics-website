@@ -162,15 +162,31 @@ sequenceDiagram
 
 ## 4. 🧪 Bằng Chứng Kiểm Thử & Nghiệm Thu (Evidence & Verification)
 
-- **Trạng thái E2E Test**: PASS 100% (Không phát hiện hồi quy lỗi).
+- **Trạng thái E2E Test**: PASS 100% (3/3 test scenarios).
+- **Thẩm định chất lượng /e2e-code-auditor**: **50/50 điểm — 🟢 PASS (Tuyệt đối, 0 Auto-FAIL)**.
+  ```text
+  Dimension Scores:
+    1. Business Spec & Completeness:   10/10 (3 kịch bản vận hành thực tế)
+    2. Anti-Pattern & Flakiness Guard: 10/10 (Zero networkidle, Zero fragile tr click)
+    3. Network & Anti-Hang Protocol:   10/10 (domcontentloaded + timeout giới hạn)
+    4. Real DB & Zero-Mock Integrity:  10/10 (Tài khoản USER_WAREHOUSE_HCM, Real REST API)
+    5. Visual Evidence & Assertions:   10/10 (21 assertions, đa ảnh chụp minh chứng)
+  ```
+- **File E2E Test Chuẩn mực**: [`frontend/e2e/90-feedback-16-10-task-87-partial-inbound-single-order.spec.ts`](file:///frontend/e2e/90-feedback-16-10-task-87-partial-inbound-single-order.spec.ts)
+  * `CASE-01`: Nhập lẻ 1 đơn trong chuyến xe chờ xử lý -> Toast thành công, dòng đơn làm mờ (`opacity-50`), nút đổi checkmark xanh, nút xóa bị khóa, không popup in phiếu lẻ.
+  * `CASE-02`: Đơn hàng vừa nhập lẻ lập tức khả dụng để xuất kho ngay tại `/dashboard/warehouse/outbound`.
+  * `CASE-03`: Xác nhận nhập kho toàn bộ chuyến xe ở Footer -> Bật modal Phiếu Nhập Kho A4 tổng hợp.
 - **Môi trường Dev Live**:
-  * Frontend: `https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app`
-  * Backend: `https://logistics-website-backend-1jho.onrender.com`
-- **Kiểm tra sức khỏe Backend (Anti-Hang Health Check)**: `curl.exe -m 15 -i https://logistics-website-backend-1jho.onrender.com/api/v1/health` -> HTTP 200 OK.
+  * Frontend: `https://frontend-tms-core-dev.up.railway.app`
+  * Backend: `https://backend-tms-core-dev.up.railway.app`
+- **Kiểm tra sức khỏe Backend (Anti-Hang Health Check)**: `curl.exe -m 15 -i https://backend-tms-core-dev.up.railway.app/api/v1/health` -> HTTP 200 OK.
 
-### Hình ảnh minh chứng đã lưu trữ (2 tệp):
-- 📸 **screenshot_01.jpg**: [Xem hình ảnh](file:////home/runner/work/logistics-website/logistics-website/feedbacks/feedback_16_10_task_87/screenshot_01.jpg)
-- 📸 **screenshot_01_verified.png**: [Xem hình ảnh](file:////home/runner/work/logistics-website/logistics-website/feedbacks/feedback_16_10_task_87/screenshot_01_verified.png)
+### Hình ảnh minh chứng đã lưu trữ:
+- 📸 **screenshot_01.jpg**: Ảnh gốc người dùng phản hồi.
+- 📸 **screenshot_01_verified.png**: Ảnh nghiệm thu giao diện dòng mờ và nút checkmark sau khi nhập lẻ.
+- 📸 **01_single_order_inbound_dimmed.png**: Minh chứng Kịch bản 1 (Modal tiếp nhận dỡ từng đơn).
+- 📸 **02_available_for_outbound.png**: Minh chứng Kịch bản 2 (Xuất kho tức thì).
+- 📸 **03_unified_inbound_ready.png**: Minh chứng Kịch bản 3 (Hoàn tất dỡ hàng).
 
 ---
 

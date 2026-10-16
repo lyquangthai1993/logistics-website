@@ -458,6 +458,30 @@ jobs:
             exit $AGY_EXIT
           fi
 
+      - name: "6.5. Kiểm định Chất lượng Kiểm thử E2E qua e2e-code-auditor"
+        if: success() && (needs.intake-task.outputs.mode == 'todo' || inputs.mode == 'todo' || contains(needs.intake-task.outputs.prompt, '/force') || contains(inputs.prompt, '/force'))
+        run: |
+          echo "🛡️ Đang kiểm toán chất lượng các file Playwright test mới tạo hoặc sửa đổi..."
+          MODIFIED_SPECS=$(git -C frontend status --porcelain 2>/dev/null | grep -E 'e2e/.*\.spec\.ts$' | awk '{print $2}' || true)
+          if [ -n "$MODIFIED_SPECS" ]; then
+            for spec in $MODIFIED_SPECS; do
+              SPEC_PATH="frontend/$spec"
+              if [ -f "$SPEC_PATH" ]; then
+                echo "🔍 Đang kiểm định: $SPEC_PATH"
+                node scripts/e2e-auditor.mjs "$SPEC_PATH"
+                AUDIT_EXIT=$?
+                if [ $AUDIT_EXIT -ne 0 ]; then
+                  echo "❌ File test $SPEC_PATH KHÔNG ĐẠT chuẩn e2e-code-auditor (Score < 40/50 hoặc dính shallow test)!"
+                  echo "❌ Kiểm định chất lượng test thất bại: $SPEC_PATH không đạt chuẩn /e2e-code-auditor. Dừng quy trình push." > /tmp/workflow_error.txt
+                  exit 1
+                fi
+              fi
+            done
+            echo "✅ Toàn bộ file Playwright E2E spec đều đạt chuẩn chất lượng cao của e2e-code-auditor!"
+          else
+            echo "ℹ️ Không phát hiện file E2E spec mới nào cần kiểm toán."
+          fi
+
       - name: "7. Tự động Commit & Push lên nhánh dev nếu có thay đổi"
         if: success()
         env:

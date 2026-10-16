@@ -24,8 +24,14 @@ export function auditE2eFile(filePath) {
   const findings = [];
   let autoFail = false;
 
-  // D1: Spec Alignment & Scenario Completeness (10 pts)
+  // Dimension Scores
   let d1Score = 10;
+  let d2Score = 10;
+  let d3Score = 10;
+  let d4Score = 10;
+  let d5Score = 10;
+
+  // D1: Spec Alignment & Scenario Completeness (10 pts)
   const testBlocks = content.match(/test\s*\(\s*['"`](.*?)['"`]/g) || [];
   const testCount = testBlocks.length;
   const expectCount = (content.match(/expect\s*\(/g) || []).length;
@@ -42,8 +48,22 @@ export function auditE2eFile(filePath) {
     }
   }
 
+  // Check: Static file checks masquerading as E2E assertions (e.g. fs.readFileSync in spec)
+  const staticFsExpects = (content.match(/expect\s*\(\s*(?:beContent|feContent|gridContent|modalContent|fs\.readFileSync|content)\s*\)/g) || []).length;
+  if (staticFsExpects > 3) {
+    d1Score -= 3;
+    findings.push({ dim: 'D1', severity: 'WARN', msg: `Phát hiện ${staticFsExpects} assertions kiểm tra chuỗi file tĩnh (fs.readFileSync). E2E Playwright phải kiểm thử luồng tương tác thực tế của trình duyệt chứ không chỉ đọc code tĩnh.` });
+  }
+
+  // Check: Shallow browser assertions count (at least 3 browser assertions required when page.goto exists)
+  const browserExpectCount = (content.match(/(?:await\s+)?expect\s*\(\s*(?:page|locator|tripRows|pendingRow|modal|btn|action|header|count|[\w$]+(?:\.locator|\.first|\.getBy|\.count|\.isVisible))/g) || []).length;
+  if (/page\.goto\s*\(/.test(content) && browserExpectCount < 3) {
+    d1Score -= 4;
+    d5Score -= 3;
+    findings.push({ dim: 'D1', severity: 'WARN', msg: `Test giao diện chỉ có ${browserExpectCount} assertions trên UI locator/page. Quá nông để kiểm tra nghiệp vụ đầy đủ.` });
+  }
+
   // D2: Anti-Pattern & Flakiness Prevention (10 pts)
-  let d2Score = 10;
   if (/waitForLoadState\s*\(\s*['"`]networkidle['"`]\s*\)/.test(content)) {
     d2Score -= 5;
     autoFail = true;
@@ -67,8 +87,13 @@ export function auditE2eFile(filePath) {
     findings.push({ dim: 'D2', severity: 'WARN', msg: 'Nhấp trực tiếp vào tr row thay vì nút hành động cụ thể bên trong ô dữ liệu.' });
   }
 
+  // Check: Swallow pattern via soft isVisible() check with else-fallback screenshot
+  if (/if\s*\(\s*await\s+\w+.*isVisible\(.*\)\.catch\(\(\)\s*=>\s*false\)\s*\)[\s\S]*?else\s*\{[^}]*?screenshot/i.test(content)) {
+    d2Score -= 3;
+    findings.push({ dim: 'D2', severity: 'WARN', msg: "Phát hiện cấu trúc nuốt lỗi `if (await ...isVisible().catch(() => false)) ... else { screenshot }`. Nếu UI không mở đúng, test vẫn âm thầm chụp ảnh trang nền và pass xanh ảo." });
+  }
+
   // D3: Network & Anti-Hang Protocol Compliance (10 pts)
-  let d3Score = 10;
   if (/curl\s+-s\s+http/.test(content) && !/curl\.exe/.test(content)) {
     d3Score -= 5;
     autoFail = true;
@@ -81,7 +106,6 @@ export function auditE2eFile(filePath) {
   }
 
   // D4: Real Database & Zero-Mock Integrity (10 pts)
-  let d4Score = 10;
   if (/page\.route\s*\(/.test(content)) {
     d4Score -= 10;
     autoFail = true;
@@ -96,13 +120,20 @@ export function auditE2eFile(filePath) {
   }
 
   // D5: Visual Evidence & Assertion Rigor (10 pts)
-  let d5Score = 10;
   const hasBrowserTest = /page\.goto\s*\(/.test(content);
   const hasScreenshot = /screenshot\s*\(/.test(content) || /saveEvidenceScreenshot/.test(content);
 
   if (hasBrowserTest && !hasScreenshot) {
     d5Score -= 4;
     findings.push({ dim: 'D5', severity: 'WARN', msg: 'Test giao diện trình duyệt nhưng không chụp ảnh minh chứng (screenshot).' });
+  }
+
+  // Check: Look-only test (Zero user interaction: has page.goto and screenshot, but zero click/fill actions)
+  const hasUserAction = /\.(?:click|fill|type|selectOption|check|press)\s*\(/.test(content);
+  if (hasBrowserTest && !hasUserAction) {
+    d1Score -= 3;
+    d5Score -= 3;
+    findings.push({ dim: 'D5', severity: 'WARN', msg: "Phát hiện bài test 'chỉ xem không thao tác' (Look-only test). Test chỉ mở URL bằng page.goto mà không thực hiện bất kỳ hành động click, fill hay submit nào để kiểm chứng chức năng." });
   }
 
   // Fake Evidence Check: if (count > 0) ... else { screenshot of empty table } mà không assert count > 0!

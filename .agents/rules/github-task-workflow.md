@@ -236,6 +236,15 @@ flowchart TD
    - **Cơ chế Autonomous Local Self-Healing (Tối đa 3 lần retry)**:
      - Nếu test fail, phân tích lỗi tại chỗ, chỉnh sửa code và chạy lại test.
      - **CHỐT CHẶN BẮT BUỘC**: 100% test case Local PHẢI PASS thì mới được phép sang Giai đoạn 3. Tuyệt đối không commit code lỗi lên remote.
+4. **Kiểm định mã nguồn test độc lập qua `/e2e-code-auditor` (BẮT BUỘC TRƯỚC KHI TẠO PR)**:
+   - Chạy công cụ kiểm toán test AST/Static analysis:
+     ```bash
+     node scripts/e2e-auditor.mjs frontend/e2e/<test_spec>.spec.ts
+     ```
+   - **Tiêu chuẩn nghiệm thu E2E Auditor Gate**:
+     * Điểm đánh giá $\ge 40/50$, **0 lỗi Auto-FAIL**.
+     * **Nghiêm cấm Shallow Tests**: Bị loại bỏ lập tức nếu test chỉ đọc chuỗi file tĩnh (`fs.readFileSync`), chỉ mở URL mà không thao tác click/fill (Look-only test), hoặc rẽ nhánh nuốt lỗi `if (isVisible) ... else { screenshot }`.
+     * Nếu không đạt $\ge 40/50$ hoặc dính cảnh báo test hời hợt: **CẤM TẠO PR, CẤM AUTO-MERGE**. AI phải tái cấu trúc test spec tương tác thực tế với UI và API trước khi chuyển giai đoạn.
 
 ---
 

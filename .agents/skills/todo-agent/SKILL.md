@@ -276,11 +276,13 @@ flowchart TD
     S2 --> S3["3. Nghiệm thu Tầng 1: Local E2E<br>(Localhost Playwright Test)"]
     S3 -- "Fail" --> S3R["Local Self-Healing Auto-Fix<br>(Tối đa 3 lần retry tại chỗ)"]
     S3R --> S3
-    S3 -- "Pass 100%" --> S4["4. Push & Tạo PR vào Dev<br>(Bằng chứng Audit Evidence trên GitHub)"]
+    S3 -- "Pass 100%" --> SAUD["3.5. Chốt chặn /e2e-code-auditor<br>(node scripts/e2e-auditor.mjs >= 40/50)"]
+    SAUD -- "FAIL / Shallow Test" --> S3
+    SAUD -- "PASS" --> S4["4. Push & Tạo PR vào Dev<br>(Bằng chứng Audit Evidence trên GitHub)"]
     S4 --> S5["5. Tự động Merge PR vào Dev<br>(gh pr merge --merge)"]
     S5 --> S6["6. Chờ Cloud Dev Deploy<br>(Railway Health Check HTTP 200)"]
     S6 --> S7["7. Nghiệm thu Tầng 2: Cloud Dev E2E<br>(Playwright Live trên Domain Dev)"]
-    S7 --> S8["8. Đánh giá chéo E2E Audit<br>(node scripts/e2e-auditor.mjs)"]
+    S7 --> S8["8. Thẩm định chéo E2E Lần 2 & Chứng minh<br>(Bảng điểm 50đ đính kèm RESOLUTION.md)"]
     S8 --> S9["9. Ghi nhận Biên bản & Timeline<br>(npm run todo:record <folder>)"]
     S9 --> S10["10. Báo cáo Telegram Mobile-First<br>(Kèm link PR GitHub & ảnh nghiệm thu)"]
 ```
@@ -296,15 +298,19 @@ flowchart TD
 2. **Submodule-First Code Modifications**:
    - Triển khai code theo checklist `TODO.md` (tuân thủ Compact Density `p-1`, `p-2`, cấm `p-4`, 0 mock data, 0 jargon kỹ thuật).
    - Kiểm tra biên dịch tĩnh: `npm run build --prefix backend` và `npx --prefix frontend tsc --noEmit`.
-3. **Nghiệm Thu Tầng 1: Kiểm Thử Local E2E Gate (Chốt Chặn Máy Trạm)**:
+3. **Nghiệm Thu Tầng 1: Kiểm Thử Local E2E Gate & Chốt Chặn Bắt Buộc `/e2e-code-auditor`**:
    - Kích hoạt Playwright E2E suite trên Local (`http://localhost:4000` & `4001`).
    - Tự động sửa lỗi cục bộ (Autonomous Local Self-Healing, tối đa 3 lần).
-   - **ĐIỀU KIỆN TIÊN QUYẾT**: 100% test local phải PASS. Tuyệt đối không đẩy code lỗi lên remote.
+   - **KÍCH HOẠT /e2e-code-auditor ĐÁNH GIÁ CHÉO TEST CODE**:
+     * Chạy ngay: `node scripts/e2e-auditor.mjs frontend/e2e/<spec_file>.spec.ts`.
+     * Điểm đánh giá bắt buộc $\ge 40/50$, **0 lỗi Auto-FAIL**.
+     * **Nghiêm cấm Shallow Tests**: Tuyệt đối không cho phép test đọc chuỗi file tĩnh (`fs.readFileSync`), look-only tests (chỉ mở URL mà không click/fill), hoặc rẽ nhánh nuốt lỗi `if (isVisible) ... else { screenshot }`.
+     * **ĐIỀU KIỆN TIÊN QUYẾT**: 100% test local phải PASS VÀ auditor phải duyệt PASS ($\ge 40/50$). Nếu không đạt chuẩn, **CẤM PUSH CODE LÊN REMOTE, CẤM TẠO PR**.
 4. **Đẩy Nhánh, Tạo PR vào `dev` Làm Bằng Chứng & Tự Động Merge**:
    - Commit code trong submodule (`git -C <submodule> commit -am "feat(task-<id>): ..."`).
    - Push nhánh lên remote: `git -C <submodule> push -u origin feature/task-<id>-<name>`.
-   - Tạo PR vào `dev` trên GitHub làm bằng chứng kiểm toán (Audit Evidence):
-     `gh pr create --repo <submodule_repo> --base dev --head feature/task-<id>-<name> --title "feat(task-<id>): ..." --body "..."`
+   - Tạo PR vào `dev` trên GitHub làm bằng chứng kiểm toán (Audit Evidence) kèm điểm số Auditor:
+     `gh pr create --repo <submodule_repo> --base dev --head feature/task-<id>-<name> --title "feat(task-<id>): ..." --body "## Task #<id>`n`n- Checklist: feedbacks/.../TODO.md`n- Local E2E: PASS 100%`n- E2E Auditor Score: PASS (>= 40/50)`n- Target: dev"`
    - Tự động merge PR vào `dev`:
      `gh pr merge --repo <submodule_repo> feature/task-<id>-<name> --merge --delete-branch`
      *(Hoặc thực hiện merge git an toàn và đẩy lên origin/dev nếu CLI chưa login)*.
@@ -318,10 +324,11 @@ flowchart TD
      PLAYWRIGHT_BASE_URL=https://frontend-tms-core-dev.up.railway.app API_URL=https://backend-tms-core-dev.up.railway.app/api/v1 npx playwright test e2e/<spec_file>.spec.ts
      ```
    - Chụp ảnh màn hình bằng chứng thực tế (`screenshot_*_verified.png`) với bảng dữ liệu thật (không chụp bảng rỗng).
-7. **Cross-Evaluation Audit (Đánh giá chéo E2E)**:
-   - Chạy automated auditor: `node scripts/e2e-auditor.mjs frontend/e2e/<spec_file>.spec.ts` (điểm $\ge$ 40/50).
+7. **Thẩm Định Chéo E2E Lần 2 & Chứng Nhận Chất Lượng**:
+   - Chạy auditor: `node scripts/e2e-auditor.mjs frontend/e2e/<spec_file>.spec.ts` (điểm $\ge$ 40/50).
+   - Đính kèm bảng điểm chi tiết 5 chiều vào biên bản `RESOLUTION.md`.
 8. **Checklist & Ghi Nhận Biên Niên Sử Kỹ Thuật**:
-   - Đồng bộ checklist `TODO.md` thành `- [x]`.
+   - Chỉ được đồng bộ checklist `TODO.md` thành `- [x]` khi cả 2 tầng E2E và auditor đều PASS.
    - Chạy `npm run todo:record <folder_name>` để sinh `RESOLUTION.md` và đồng bộ `docs/SYSTEM_TIMELINE.md`.
 9. **Báo Cáo Nghiệm Thu Mobile-First Qua Telegram**:
    - Gửi ảnh bằng chứng qua Telegram `sendPhoto`.
