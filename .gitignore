@@ -57,3 +57,5 @@ pencil-workspace/fonts/
 pencil-workspace/scripts
 images/
 
+# Workflow Diff Summary (Root level only, task folders keep their diffs)
+/git_diff_summary.txt

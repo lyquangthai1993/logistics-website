@@ -250,6 +250,8 @@ Before writing or modifying any backend endpoint, frontend page, or data model, 
   ├── nestjs-best-practices ──► Backend Services, TypeORM, Controllers, BullMQ
   ├── nextjs-best-practices ──► Frontend App Router, UI Components, React 19
   ├── jwt-rbac-auth ──► Authentication guards, tokens, role authorization
+  ├── n8n-expert ──► Workflow automation, event pipelines, cron schedulers, CI/CD dispatch
+  ├── github-workflow ──► CI/CD pipelines, submodule branching, PR audit trail, 2-tier quality gates
   ├── ui-ux-flow-designer ──► User experience design, wireframes, dashboard
   └── git-commit-reviewer ──► Pre-commit safety auditing
 ```

@@ -1,9 +1,8 @@
 name: Daily RBAC & Security Audit Workflow (22:00 PM)
 
 on:
-  schedule:
-    # 15:00 UTC corresponds to 22:00 (10:00 PM) GMT+7 (Hanoi / Ho Chi Minh time)
-    - cron: '0 15 * * *'
+  repository_dispatch:
+    types: [rbac-audit]
   workflow_dispatch:
     inputs:
       notify_telegram:
@@ -48,6 +47,8 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_ALLOWED_CHAT_ID: ${{ secrets.TELEGRAM_ALLOWED_CHAT_ID || secrets.ALLOWED_CHAT_ID || '-5509877448' }}
+          BACKEND_URL: https://backend-tms-core-dev.up.railway.app
+          RUN_LIVE_TESTS: 'true'
         run: |
           echo "🚀 Khởi chạy kiểm toán bảo mật RBAC & rà soát SYSTEM_TIMELINE.md..."
           node scripts/audit-rbac-daily.mjs

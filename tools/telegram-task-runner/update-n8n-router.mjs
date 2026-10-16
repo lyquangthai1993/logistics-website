@@ -35,11 +35,15 @@ async function main() {
   console.log('Login successful.');
 
   const jsCode = `
-const msg = $input.item.json.body?.message || $input.item.json.body?.callback_query?.message;
-const callbackQuery = $input.item.json.body?.callback_query;
+const firstItem = $input.first();
+if (!firstItem || !firstItem.json) return [];
+
+const body = firstItem.json.body || firstItem.json;
+const msg = body?.message || body?.callback_query?.message;
+const callbackQuery = body?.callback_query;
 if (!msg && !callbackQuery) return [];
 
-const rawText = (callbackQuery ? callbackQuery.data : (msg.text || msg.caption || '')).trim();
+const rawText = (callbackQuery ? callbackQuery.data : (msg?.text || msg?.caption || '')).trim();
 
 let photoFileId = null;
 if (msg?.photo && Array.isArray(msg.photo) && msg.photo.length > 0) {
@@ -138,8 +142,13 @@ let modeBadge = '';
 let modeGoal = '';
 let cleanText = '';
 let promptForDB = '';
+let extractedTaskId = null;
 
 if (isForce) {
+  const taskMatch = rawText.match(/(?:task[_\\-#\\s]*|\\/force(?:@\\w+)?\\s+)(\\d+)/i);
+  if (taskMatch) {
+    extractedTaskId = taskMatch[1];
+  }
   const folderMatch = rawText.match(/(?:feedbacks[\\/])?feedback_\\d{1,2}_\\d{1,2}[a-zA-Z0-9_]*/i);
   modeBadge = '<code>todo-agent</code> (Thực thi code & kiểm thử)';
   modeGoal = folderMatch 
@@ -204,7 +213,8 @@ return [{
     analysis: promptForDB,
     sql: sql,
     mode_badge: modeBadge,
-    mode_goal: modeGoal
+    mode_goal: modeGoal,
+    extracted_task_id: extractedTaskId
   }
 }];
 `.trim();
@@ -415,7 +425,7 @@ return [{
         },
         sendBody: true,
         specifyBody: 'json',
-        jsonBody: '={{ JSON.stringify({\n  event_type: "telegram-task",\n  client_payload: {\n    task_id: ($("Enqueue Task to Neon DB").first().json.task_id != null ? String($("Enqueue Task to Neon DB").first().json.task_id) : String($("Enqueue Task to Neon DB").first().json.id || "manual")),\n    db_id: String($("Enqueue Task to Neon DB").first().json.id || ""),\n    prompt: String(($("Format Leader Prompt").first().json.analysis || $("Format Leader Prompt").first().json.raw_prompt) || "").split("<id>").join(String($("Enqueue Task to Neon DB").first().json.task_id != null ? $("Enqueue Task to Neon DB").first().json.task_id : ($("Enqueue Task to Neon DB").first().json.id || ""))),\n    sender_name: $("Format Leader Prompt").first().json.sender_name,\n    mode: ($("Format Leader Prompt").first().json.mode_badge || "").indexOf("todo-agent") !== -1 ? "todo" : "leader"\n  }\n}) }}',
+        jsonBody: '={{ JSON.stringify({\n  event_type: ($("Format Leader Prompt").first().json.mode_badge || "").indexOf("todo-agent") !== -1 ? "telegram-todo" : "telegram-feedback",\n  client_payload: {\n    task_id: ($("Format Leader Prompt").first().json.extracted_task_id != null ? String($("Format Leader Prompt").first().json.extracted_task_id) : ($("Enqueue Task to Neon DB").first().json.task_id != null ? String($("Enqueue Task to Neon DB").first().json.task_id) : String($("Enqueue Task to Neon DB").first().json.id || "manual"))),\n    db_id: String($("Enqueue Task to Neon DB").first().json.id || ""),\n    prompt: String(($("Format Leader Prompt").first().json.analysis || $("Format Leader Prompt").first().json.raw_prompt) || "").split("<id>").join(String($("Format Leader Prompt").first().json.extracted_task_id != null ? $("Format Leader Prompt").first().json.extracted_task_id : ($("Enqueue Task to Neon DB").first().json.task_id != null ? $("Enqueue Task to Neon DB").first().json.task_id : ($("Enqueue Task to Neon DB").first().json.id || "")))),\n    sender_name: $("Format Leader Prompt").first().json.sender_name,\n    mode: ($("Format Leader Prompt").first().json.mode_badge || "").indexOf("todo-agent") !== -1 ? "todo" : "leader"\n  }\n}) }}',
         options: {}
       },
       id: 'trigger-github-actions-node',

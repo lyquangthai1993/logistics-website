@@ -14,6 +14,9 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 16/10/2026 | `feedbacks/feedback_16_10_task_87` | Feedback 16/10 — Task 87: Tính Năng Nhập Kho Tách Lẻ... | 34/34 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_16_10_task_87/RESOLUTION.md) |
+| 16/10/2026 | `feedbacks/feedback_16_10_task_86` | Feedback 16/10 (Task #86) — Tự Động Loại Bỏ Thông Ti... | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_16_10_task_86/RESOLUTION.md) |
+| 16/10/2026 | `feedbacks/feedback_16_10_task_85` | Feedback 16/10 Task #85 — Tinh gọn Thông tin & Tối ư... | 24/24 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_16_10_task_85/RESOLUTION.md) |
 | 15/10/2026 | `feedbacks/feedback_15_10_task_88` | Feedback 15/10 (Task #88) — Chặn Tuyệt Đối '/dashboa... | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_10_task_88/RESOLUTION.md) |
 | 15/10/2026 | `feedbacks/feedback_15_10_task_87` | Feedback 15/10 (Task #87) — Chuyển Hướng Đăng Nhập T... | 15/15 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_10_task_87/RESOLUTION.md) |
 | 15/10/2026 | `feedbacks/feedback_15_10_task_86` | Feedback 15/10 (Task #86) — Tạm Thời Ẩn Nút Kính Lúp... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_10_task_86/RESOLUTION.md) |
@@ -72,6 +75,42 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_16_10_TASK_87] — Feedback 16/10 — Task 87: Tính Năng Nhập Kho Tách Lẻ Từng Đơn Trong Trip Chờ Xử Lý & Xuất Kho Tức Thì (16/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (34/34 việc)
+- **Báo cáo bởi**: Quản lý Vận hành TMS (@Thai) & Team Lead Nghiệp vụ TMS (`/leader`)
+- **Phạm vi**: Quản lý Nhập kho (`/warehouse/inbound`) ➔ Chi tiết Chuyến xe Nhập kho Chờ xử lý ([`WarehouseTripDetailModal`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) • Bảng kê chỉnh sửa dòng hàng kho vận ([`WarehouseEditableGrid`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-editable-grid.tsx)) • In Phiếu Nhập Kho A4 ([`WarehouseInboundReceiptModal`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-inbound-receipt-modal.tsx) & API `inbound/receipt-data`) • Quản lý Xuất kho (`/warehouse/outbound` & [`getAvailableOutboundOrders`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts)) • Backend API Tiếp nhận Kho & Sổ cái Tồn kho ([`WarehouseService.confirmInbound`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts))
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Nâng cấp logic `confirmInbound` trong `WarehouseService` ([`warehouse.service.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts)); Bổ sung tham số `keepTripPending?: boolean` vào payload tiếp nhận kho.; Khi `keepTripPending === true`...
+  * **Frontend**: Nâng cấp component `WarehouseEditableGrid` ([`warehouse-editable-grid.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-editable-grid.tsx)); Mở rộng interface `WarehouseEditableGridProps`; Cập nhật `TableMeta`...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_01_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_16_10_task_87/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_16_10_task_87/TODO.md)
+
+### 🚀 [FEEDBACK_16_10_TASK_86] — Feedback 16/10 (Task #86) — Tự Động Loại Bỏ Thông Tin Chuyến Xe (Trip) Chưa Lưu Nháp Hoặc Xác Nhận Khi Bấm "Quay Lại Danh Sách" (16/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (12/12 việc)
+- **Báo cáo bởi**: @User / @Thai (Quản lý nghiệp vụ / Vận hành Hệ thống Logistics TMS Spider Express)
+- **Phạm vi**: Quản lý Nhập kho (`/dashboard/warehouse/inbound` ➔ [`frontend/src/app/dashboard/warehouse/inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx)) • Quản lý Xuất kho (`/dashboard/warehouse/outbound` ➔ [`frontend/src/app/dashboard/warehouse/outbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/outbound/page.tsx)) • Lưới kiểm đếm & nhập liệu chuyến xe hàng hóa ([`WarehouseEditableGrid`](file:///frontend/src/features/warehouse/components/warehouse-editable-grid.tsx)) • Cơ chế đồng bộ dữ liệu tạm thời Excel Converter ([`excel-converter/page.tsx`](file:///frontend/src/app/dashboard/warehouse/excel-converter/page.tsx)) • Backend Service Quản lý Kho ([`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts), [`warehouse.controller.ts`](file:///backend/src/orders/warehouse.controller.ts))
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Kiểm tra API Batch-Create & Inbound Services
+  * **Frontend**: Tạo hàm chuẩn hóa `resetMode1Form()` trong Nhập kho ([`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx)); Xử lý sự kiện nút `✕ Quay lại danh sách` ([`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx)); Xử lý sự kiện nút `Tạo đơn nhập mới` trên Inbound Board ([`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx))...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_01_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_16_10_task_86/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_16_10_task_86/TODO.md)
+
+### 🚀 [FEEDBACK_16_10_TASK_85] — Feedback 16/10 Task #85 — Tinh gọn Thông tin & Tối ưu Giao diện Xem Chi tiết Chuyến xe Nhập/Xuất Kho (UI Compact Density & Clean Read-only Audit View) (16/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (24/24 việc)
+- **Báo cáo bởi**: @Thai (Quản lý nghiệp vụ / Vận hành) & @Antigravity Business Team Lead
+- **Phạm vi**: Quản lý Nhập kho (`/dashboard/warehouse/inbound`) ➔ Modal xem chi tiết chuyến xe nhập kho ([`WarehouseTripDetailModal`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx) với `readOnly={true}`, `mode='INBOUND'`) • Quản lý Xuất kho (`/dashboard/warehouse/outbound`) ➔ Modal xem chi tiết chuyến xe xuất kho ([`WarehouseTripDetailModal`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx) với `readOnly={true}`, `mode='OUTBOUND'`) • Bảng kê kiểm đếm hàng hóa ([`WarehouseTripTallyTable`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-tally-table.tsx)) • Hạ tầng Frontend TMS (Next.js 15+ App Router, Tailwind CSS, TanStack Query v5) & Backend API (NestJS 11+)
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Rà soát tính tương thích API Manifest & Chuyến xe ([`warehouse.service.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts)); Đảm bảo API `GET /api/v1/warehouse/trips/:tripCode/manifest` và `GET /api/v1/warehouse/inbound-trips` tiếp tục phục vụ đầy đủ dữ liệu cho cả 2 chế độ xem và tác nghiệp.; Đảm bảo không có thay đổi nào làm ảnh hưởng đến dữ liệu sổ cái tồn kho và chốt trạm trung chuyển....
+  * **Frontend**: Hiệu chỉnh Component [`WarehouseTripDetailModal`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx); Khu vực 1 (Header Action Buttons); Khu vực 2 (Banner cảnh báo khóa sổ & Lộ trình xe)...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_01_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_16_10_task_85/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_16_10_task_85/TODO.md)
 
 ### 🚀 [FEEDBACK_15_10_TASK_88] — Feedback 15/10 (Task #88) — Chặn Tuyệt Đối '/dashboard/overview' & Tự Động Chuyển Hướng Đến Màn Hình Nhập Kho (15/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (13/13 việc)

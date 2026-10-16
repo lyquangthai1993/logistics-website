@@ -63,7 +63,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"event_type\": \"telegram-task\",\n  \"client_payload\": {\n    \"prompt\": \"npm run audit:rbac\",\n    \"task_id\": \"n8n-daily-rbac-22pm\",\n    \"sender_name\": \"n8n Scheduler\"\n  }\n}",
+        "jsonBody": "={\n  \"event_type\": \"rbac-audit\",\n  \"client_payload\": {\n    \"task_id\": \"n8n-daily-rbac-22pm\",\n    \"sender_name\": \"n8n Scheduler\",\n    \"mode\": \"rbac\"\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
