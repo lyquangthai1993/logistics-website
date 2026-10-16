@@ -114,35 +114,35 @@ flowchart TD
 ## 📋 Danh sách công việc triển khai (Action Checklist)
 
 ### 🎯 1. Phân hệ Backend (NestJS 11 - `backend/`)
-- [ ] **Kiểm tra API Batch-Create & Inbound Services**:
+- [x] **Kiểm tra API Batch-Create & Inbound Services**:
   - Đối soát [`backend/src/orders/warehouse.controller.ts`](file:///backend/src/orders/warehouse.controller.ts) và [`warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts): Đảm bảo tuyệt đối không có cơ chế tự động ghi dữ liệu ngầm (no silent auto-save) khi người dùng đang nhập dở ở frontend.
   - Xác thực phân định rõ ràng giữa 2 trạng thái: `DRAFT` (khi người dùng bấm Lưu nháp) và `INBOUND` (khi người dùng bấm Xác nhận nhập kho).
   - Đảm bảo endpoint `POST /api/v1/warehouse/inbound/batch-create` thực thi an toàn trong TypeORM transaction, không sinh rác DB khi request bị hủy hoặc gián đoạn.
 
 ### 🎨 2. Phân hệ Frontend (Next.js 15 App Router - `frontend/`)
-- [ ] **Tạo hàm chuẩn hóa `resetMode1Form()` trong Nhập kho ([`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx))**:
+- [x] **Tạo hàm chuẩn hóa `resetMode1Form()` trong Nhập kho ([`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx))**:
   - Reset `licensePlate` về `''` (chuỗi rỗng).
   - Reset `driverName` về `''` (chuỗi rỗng).
   - Reset `receiveDate` về ngày hiện tại (`new Date().toISOString().split('T')[0]`).
   - Reset `mode1Rows` về đúng 1 dòng rỗng chuẩn ban đầu (`[emptyWarehouseRow()]` gồm `orderCode: ''`, `pickupAddress: ''`, `goodsDescription: ''`, `totalQuantity: 1`, `totalWeight: 0`, `totalVolume: 0`, `deliveryAddress: ''`, `notes: ''`).
   - Xóa bỏ cờ bộ nhớ tạm `sessionStorage.removeItem('TMS_INBOUND_CONVERTER_TRANSFER')` để tránh tình trạng nạp lại dữ liệu cũ ngoài ý muốn.
-- [ ] **Xử lý sự kiện nút `✕ Quay lại danh sách` ([`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx))**:
+- [x] **Xử lý sự kiện nút `✕ Quay lại danh sách` ([`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx))**:
   - Cập nhật handler của nút `✕ Quay lại danh sách`: Khi người dùng bấm nút, tự động gọi `resetMode1Form()` trước khi chuyển `setActiveView('BOARD')`.
   - Triệt tiêu hoàn toàn tình trạng giữ lại thông tin xe và danh sách đơn khi chưa lưu nháp hoặc xác nhận.
-- [ ] **Xử lý sự kiện nút `Tạo đơn nhập mới` trên Inbound Board ([`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx))**:
+- [x] **Xử lý sự kiện nút `Tạo đơn nhập mới` trên Inbound Board ([`inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx))**:
   - Tại sự kiện bấm nút `Tạo đơn nhập mới`: Chủ động gọi `resetMode1Form()` trước khi `setActiveView('MODE1_CUSTOMER')`, bảo đảm mở form là form mới tinh 100%.
-- [ ] **Đồng bộ chuẩn hóa cho Phân hệ Xuất kho ([`outbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/outbound/page.tsx))**:
+- [x] **Đồng bộ chuẩn hóa cho Phân hệ Xuất kho ([`outbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/outbound/page.tsx))**:
   - Cập nhật nút `✕ Quay lại danh sách` của trang Xuất kho: Bắt buộc gọi `resetMode1Form()` trước khi chuyển `setActiveView('BOARD')`.
   - Cập nhật hàm `handleOpenNewMode1`: Loại bỏ logic giữ lại note dở dang (`keeps an unfinished new note`), luôn gọi `resetMode1Form()` để đảm bảo form xuất kho mới luôn sạch sẽ.
-- [ ] **Kiểm tra tuân thủ Quy chuẩn UI Compact Density**:
+- [x] **Kiểm tra tuân thủ Quy chuẩn UI Compact Density**:
   - Giữ vững quy cách padding gọn gàng (`p-1`, `p-2`), font chữ nhỏ gọn, không thêm class phình to (`p-4`, `space-y-3`, `gap-4`).
   - Giữ vững nguyên tắc Zero Redundant Icons.
 
 ### 🧪 3. Kiểm thử Tự động E2E & Minh chứng Hình ảnh (Playwright E2E)
-- [ ] **Xây dựng kịch bản kiểm thử Playwright chuyên biệt**:
+- [x] **Xây dựng kịch bản kiểm thử Playwright chuyên biệt**:
   - Tạo file kiểm thử mới: [`frontend/e2e/89-feedback-16-10-task-86-discard-unsaved-trip-info.spec.ts`](file:///frontend/e2e/89-feedback-16-10-task-86-discard-unsaved-trip-info.spec.ts).
   - Tích hợp tài khoản thủ kho chuẩn theo quy định Hub-scoping (`USER_WAREHOUSE_HCM` - `Andromeda Hub - HCM`).
-- [ ] **Ma trận kịch bản kiểm thử (Test Matrix)**:
+- [x] **Ma trận kịch bản kiểm thử (Test Matrix)**:
   1. **Case 1: Điền thông tin chuyến nhập kho -> Bấm 'Quay lại danh sách' -> Dữ liệu phải bị xóa bỏ**:
      - Đăng nhập vào `/dashboard/warehouse/inbound`.
      - Bấm "Tạo đơn nhập mới".
@@ -164,13 +164,13 @@ flowchart TD
      - Điền thông tin -> Bấm "Lưu nháp".
      - Chuyến xe xuất hiện trên Board với trạng thái `Chờ xử lý`.
      - Bấm nút "Tiếp tục" -> Chuyến xe mở ra đầy đủ thông tin để hoàn tất tác nghiệp.
-- [ ] **Xuất hình ảnh minh chứng kiểm thử thực tế**:
+- [x] **Xuất hình ảnh minh chứng kiểm thử thực tế**:
   - Lưu ảnh chụp màn hình nghiệm thu tại: [`feedbacks/feedback_16_10_task_86/screenshot_01_verified.png`](file:///feedbacks/feedback_16_10_task_86/screenshot_01_verified.png).
 
 ### 📝 4. Ghi nhận Biên niên sử & Biên bản Nghiệm thu
-- [ ] Biên soạn file [`RESOLUTION.md`](file:///feedbacks/feedback_16_10_task_86/RESOLUTION.md) trong thư mục task.
-- [ ] Cập nhật Biên niên sử hệ thống [`docs/SYSTEM_TIMELINE.md`](file:///docs/SYSTEM_TIMELINE.md).
-- [ ] Kiểm tra tính toàn vẹn qua lệnh `npm run todo:record feedbacks/feedback_16_10_task_86`.
+- [x] Biên soạn file [`RESOLUTION.md`](file:///feedbacks/feedback_16_10_task_86/RESOLUTION.md) trong thư mục task.
+- [x] Cập nhật Biên niên sử hệ thống [`docs/SYSTEM_TIMELINE.md`](file:///docs/SYSTEM_TIMELINE.md).
+- [x] Kiểm tra tính toàn vẹn qua lệnh `npm run todo:record feedbacks/feedback_16_10_task_86`.
 
 ---
 
