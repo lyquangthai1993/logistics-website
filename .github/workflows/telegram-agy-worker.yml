@@ -1,7 +1,7 @@
 name: Antigravity Telegram Task Worker
 run-name: >-
   ${{
-    (github.event.client_payload.mode == 'todo' || inputs.mode == 'todo' || github.event.action == 'telegram-todo')
+    (github.event.client_payload.mode == 'todo' || inputs.mode == 'todo' || github.event.action == 'telegram-todo' || contains(github.event.client_payload.prompt, '/force') || contains(inputs.prompt, '/force') || contains(github.event.client_payload.prompt, 'todo-agent') || contains(inputs.prompt, 'todo-agent'))
       && format('🔨 [LÀM TASK TODO] #{0} ({1})', github.event.client_payload.task_id || inputs.task_id || 'batch', github.event.client_payload.sender_name || inputs.sender_name || 'Scheduler')
     || format('🧠 [PHÂN TÍCH FEEDBACK] #{0} ({1})', github.event.client_payload.task_id || inputs.task_id || 'new', github.event.client_payload.sender_name || inputs.sender_name || 'Telegram')
   }}
@@ -39,7 +39,7 @@ on:
 concurrency:
   group: >-
     ${{
-      (github.event.client_payload.mode == 'todo' || inputs.mode == 'todo' || github.event.action == 'telegram-todo')
+      (github.event.client_payload.mode == 'todo' || inputs.mode == 'todo' || github.event.action == 'telegram-todo' || contains(github.event.client_payload.prompt, '/force') || contains(inputs.prompt, '/force') || contains(github.event.client_payload.prompt, 'todo-agent') || contains(inputs.prompt, 'todo-agent'))
         && format('agy-todo-{0}', github.ref)
         || format('agy-feedback-{0}', github.event.client_payload.task_id || inputs.task_id || github.run_id)
     }}
@@ -1074,15 +1074,20 @@ jobs:
 
             if (isDone) {
               if (isLeaderMode) {
-                titleHeader = `📋 <b>[TASK #${escapeHtml(taskId)}] ĐÃ LẬP KẾ HOẠCH (TODO_CREATED)</b>`;
-                statusSubtext = `📋 <i>Đã phân tích yêu cầu & lập checklist TODO.md sẵn sàng triển khai.</i>\n\n`;
+                titleHeader = `🧠 <b>[PHÂN TÍCH FEEDBACK #${escapeHtml(taskId)}] HOÀN TẤT KẾ HOẠCH (TODO_CREATED)</b>`;
+                statusSubtext = `📋 <i>Đã phân tích feedback, lập checklist <code>TODO.md</code> và đẩy lên branch <code>dev</code> sẵn sàng triển khai.</i>\n\n`;
               } else {
-                titleHeader = `✅ <b>[TASK #${escapeHtml(taskId)}] HOÀN THÀNH (DONE)</b>`;
-                statusSubtext = `✅ <i>Hoàn tất kiểm định & nghiệm thu kỹ thuật.</i>\n\n`;
+                titleHeader = `🔨 <b>[LÀM TASK TODO #${escapeHtml(taskId)}] HOÀN THÀNH (DONE)</b>`;
+                statusSubtext = `✅ <i>Đã hoàn tất lập trình, kiểm định E2E thành công và nghiệm thu kỹ thuật.</i>\n\n`;
               }
             } else {
-              titleHeader = `❌ <b>[TASK #${escapeHtml(taskId)}] THẤT BẠI (FAIL)</b>`;
-              statusSubtext = `⚠️ <b>Lỗi chính:</b> <code>${escapeHtml(detailedError.slice(0, 300))}</code>\n\n`;
+              if (isLeaderMode) {
+                titleHeader = `❌ <b>[PHÂN TÍCH FEEDBACK #${escapeHtml(taskId)}] THẤT BẠI (FAIL)</b>`;
+                statusSubtext = `⚠️ <b>Lỗi phân tích:</b> <code>${escapeHtml(detailedError.slice(0, 300))}</code>\n\n`;
+              } else {
+                titleHeader = `❌ <b>[LÀM TASK TODO #${escapeHtml(taskId)}] THẤT BẠI (FAIL)</b>`;
+                statusSubtext = `⚠️ <b>Lỗi thực thi:</b> <code>${escapeHtml(detailedError.slice(0, 300))}</code>\n\n`;
+              }
             }
 
             // 1. Kiểm tra ảnh bằng chứng nghiệm thu trong artifact
