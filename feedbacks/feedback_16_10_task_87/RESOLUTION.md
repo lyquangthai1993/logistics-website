@@ -205,3 +205,15 @@ sequenceDiagram
 
 > ⚠️ **LƯU Ý DÀNH CHO CÁC AI AGENT SESSION MỚI**:  
 > Tài liệu này cùng với [`TODO.md`](file:////home/runner/work/logistics-website/logistics-website/feedbacks/feedback_16_10_task_87/TODO.md) và [`docs/SYSTEM_TIMELINE.md`](file:///docs/SYSTEM_TIMELINE.md) là **CƠ SỞ KỸ THUẬT VÀ BẰNG CHỨNG BẤT BIẾN** đã được nghiệm thu. Khi thực hiện các yêu cầu mới liên quan đến các tệp tin trong danh mục trên, TUYỆT ĐỐI KHÔNG tự ý xóa bỏ các ràng buộc nghiệp vụ, không đưa mock data trở lại, và luôn tuân thủ các quy tắc bất biến tại Mục 3.
+
+---
+
+## 7. 🛠️ Hotfix 16/10: Giới Hạn Phạm Vi Làm Mờ (Row Dimming & Lock Scope Correction)
+
+- **Vấn đề phát sinh (User Feedback)**: Việc làm mờ dòng (`opacity-50`) và khóa ô input (`disabled={isRowInbound}`) ban đầu được viết chung trong [`WarehouseEditableGrid`](file:///d:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-editable-grid.tsx) dựa trên `status === 'INBOUND' || status === 'IN_WAREHOUSE'`. Điều này dẫn đến tác dụng phụ ("làm quá lố"): bên màn hình **Xuất kho** (`/dashboard/warehouse/outbound`), các đơn hàng đang lưu kho sẵn sàng xuất cũng bị mờ hoàn toàn và bị khóa input / vô hiệu hóa nút xóa.
+- **Giải pháp xử lý**:
+  - Đóng gói hàm kiểm tra `isRowInboundLocked(rowStatus, isInboundTripMode)`.
+  - Cơ chế làm mờ và khóa input **CHỈ KÍCH HOẠT** khi `isInboundTripMode === true` (tức là trong modal tiếp nhận chuyến xe nhập kho chờ xử lý).
+  - Đối với màn hình Xuất kho (`/warehouse/outbound`) và Nhập kho mới (`/warehouse/inbound`), `isInboundTripMode === false`: toàn bộ các đơn lưu kho hiển thị sáng rõ (100% opacity), cho phép sửa đổi số lượng xuất, thay đổi địa chỉ giao/xe bo, ghi chú, và xóa dòng bình thường.
+  - Bộ kiểm thử Playwright (`90-feedback-16-10-task-87-partial-inbound-single-order.spec.ts`) đã bổ sung assertion kiểm tra trực tiếp tính năng này và đạt **3/3 PASS (100%)**.
+
