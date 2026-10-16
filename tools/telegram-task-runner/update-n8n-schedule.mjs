@@ -74,7 +74,7 @@ async function main() {
         },
         sendBody: true,
         specifyBody: 'json',
-        jsonBody: '={{ JSON.stringify({\n  event_type: "telegram-task",\n  client_payload: {\n    task_id: String($("Enqueue Todo Task to DB").first().json.id || "schedule"),\n    prompt: "Hãy kích hoạt skill todo-agent để quét toàn bộ checklist TODO.md hôm nay trong các thư mục feedback_DD_MM*, kiểm tra mã nguồn backend/ và frontend/, sửa code theo checklist, chạy build/typecheck và cập nhật [-] sang [x]",\n    sender_name: "Schedule (" + $("Format Todo-Agent Task").first().json.time_label + ")",\n    mode: "todo"\n  }\n}) }}',
+        jsonBody: '={{ JSON.stringify({\n  event_type: "telegram-todo",\n  client_payload: {\n    task_id: String($("Enqueue Todo Task to DB").first().json.id || "schedule"),\n    prompt: "Hãy kích hoạt skill todo-agent để quét toàn bộ checklist TODO.md hôm nay trong các thư mục feedback_DD_MM*, kiểm tra mã nguồn backend/ và frontend/, sửa code theo checklist, chạy build/typecheck và cập nhật [-] sang [x]",\n    sender_name: "Schedule (" + $("Format Todo-Agent Task").first().json.time_label + ")",\n    mode: "todo"\n  }\n}) }}',
         options: {}
       },
       id: 'trigger-github-actions-schedule-node',

@@ -146,8 +146,11 @@ function parseControllerEndpoints(filePath) {
   const controllerPrefixMatch = content.match(/path:\s*['"]([^'"]+)['"]/);
   const controllerPrefix = controllerPrefixMatch ? controllerPrefixMatch[1] : '';
 
-  const classHasJwt = content.includes("AuthGuard('jwt')");
-  const classHasRolesGuard = content.includes('RolesGuard');
+  // Check class-level guards specifically inside @UseGuards decorator
+  const classUseGuardsMatch = classHeader.match(/@UseGuards\(([\s\S]*?)\)/);
+  const classUseGuardsStr = classUseGuardsMatch ? classUseGuardsMatch[1] : '';
+  const classHasJwt = classUseGuardsStr.includes("AuthGuard('jwt')");
+  const classHasRolesGuard = classUseGuardsStr.includes('RolesGuard');
 
   // Process methods after class declaration
   const methodContent = classDeclIndex !== -1 ? content.slice(classDeclIndex) : content;
@@ -395,7 +398,140 @@ function auditTripAndWarehouseSecurity() {
   return findings;
 }
 
-// 5. Main Execution & Telegram Formatting
+// 5. Live Runtime Security & RBAC Enforcement Module
+async function verifyLiveApiGuards(backendUrl) {
+  const result = {
+    tested: false,
+    backendUrl,
+    passCount: 0,
+    failCount: 0,
+    totalTests: 0,
+    failures: [],
+    details: [],
+    reason: null,
+  };
+
+  if (!backendUrl) {
+    result.reason = 'Không tìm thấy cấu hình BACKEND_URL (bỏ qua kiểm thử live).';
+    return result;
+  }
+
+  // Check health first with bounded timeout
+  try {
+    const healthRes = await fetch(`${backendUrl}/api/v1/health`, {
+      method: 'GET',
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!healthRes.ok) {
+      result.reason = `Backend health check trả về status ${healthRes.status}.`;
+      return result;
+    }
+  } catch (err) {
+    result.reason = `Không thể kết nối Backend (${err.message}).`;
+    return result;
+  }
+
+  // Login 4 test accounts
+  const users = [
+    { role: 'SUPER_ADMIN', email: process.env.E2E_SUPER_ADMIN_EMAIL || 'lyquangthai1993+1@gmail.com', password: process.env.E2E_SUPER_ADMIN_PASSWORD || 'secret' },
+    { role: 'DISPATCHER', email: process.env.E2E_DISPATCHER_EMAIL || 'lyquangthai1993+2@gmail.com', password: process.env.E2E_DISPATCHER_PASSWORD || 'secret' },
+    { role: 'FLEET_MANAGER', email: process.env.E2E_FLEET_MANAGER_EMAIL || 'lyquangthai1993+3@gmail.com', password: process.env.E2E_FLEET_MANAGER_PASSWORD || 'secret' },
+    { role: 'WAREHOUSE_MANAGER', email: process.env.E2E_WAREHOUSE_MANAGER_HCM_EMAIL || 'lyquangthai1993+6@gmail.com', password: process.env.E2E_WAREHOUSE_MANAGER_PASSWORD || 'secret' },
+  ];
+
+  const tokens = {};
+  for (const u of users) {
+    try {
+      const res = await fetch(`${backendUrl}/api/v1/auth/email/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: u.email, password: u.password }),
+        signal: AbortSignal.timeout(15000),
+      });
+      if (!res.ok) {
+        result.reason = `Đăng nhập thất bại cho vai trò ${u.role} (Status ${res.status}).`;
+        return result;
+      }
+      const data = await res.json();
+      const token = data.data?.token || data.token;
+      if (!token) {
+        result.reason = `Không nhận được JWT token cho vai trò ${u.role}.`;
+        return result;
+      }
+      tokens[u.role] = token;
+    } catch (err) {
+      result.reason = `Lỗi mạng khi đăng nhập vai trò ${u.role}: ${err.message}`;
+      return result;
+    }
+  }
+
+  // 12 test matrix
+  const testMatrix = [
+    { role: 'DISPATCHER', method: 'POST', path: '/api/v1/trips', body: { name: 'Audit Test' }, expected: 403, desc: 'DISPATCHER cấm tạo Chuyến xe' },
+    { role: 'FLEET_MANAGER', method: 'POST', path: '/api/v1/warehouse/inbound/quick-create', body: { customerName: 'Audit Test' }, expected: 403, desc: 'FLEET_MANAGER cấm tạo Phiếu nhập kho' },
+    { role: 'WAREHOUSE_MANAGER', method: 'DELETE', path: '/api/v1/users/999999', expected: 403, desc: 'WAREHOUSE_MANAGER cấm xóa Người dùng' },
+    { role: 'DISPATCHER', method: 'DELETE', path: '/api/v1/users/999999', expected: 403, desc: 'DISPATCHER cấm xóa Người dùng' },
+    { role: 'FLEET_MANAGER', method: 'POST', path: '/api/v1/orders', body: {}, expected: 403, desc: 'FLEET_MANAGER cấm tạo Lệnh điều vận' },
+    { role: 'WAREHOUSE_MANAGER', method: 'POST', path: '/api/v1/vehicles', body: {}, expected: 403, desc: 'WAREHOUSE_MANAGER cấm tạo Xe' },
+    { role: 'DISPATCHER', method: 'POST', path: '/api/v1/vehicles', body: {}, expected: 403, desc: 'DISPATCHER cấm tạo Xe' },
+    { role: 'WAREHOUSE_MANAGER', method: 'POST', path: '/api/v1/trips', body: {}, expected: 403, desc: 'WAREHOUSE_MANAGER cấm tạo Chuyến xe' },
+    { role: 'DISPATCHER', method: 'GET', path: '/api/v1/orders', expected: 200, desc: 'DISPATCHER được xem Lệnh điều vận' },
+    { role: 'FLEET_MANAGER', method: 'GET', path: '/api/v1/vehicles', expected: 200, desc: 'FLEET_MANAGER được xem Đội xe' },
+    { role: 'WAREHOUSE_MANAGER', method: 'GET', path: '/api/v1/warehouse/inbound-trips', expected: 200, desc: 'WAREHOUSE_MANAGER được xem Chuyến xe nhập kho' },
+    { role: 'SUPER_ADMIN', method: 'GET', path: '/api/v1/users', expected: 200, desc: 'SUPER_ADMIN được xem Danh sách người dùng' },
+  ];
+
+  result.tested = true;
+  result.totalTests = testMatrix.length;
+
+  for (const t of testMatrix) {
+    try {
+      const headers = { 'Authorization': `Bearer ${tokens[t.role]}` };
+      if (t.body) headers['Content-Type'] = 'application/json';
+
+      const res = await fetch(`${backendUrl}${t.path}`, {
+        method: t.method,
+        headers,
+        body: t.body ? JSON.stringify(t.body) : undefined,
+        signal: AbortSignal.timeout(15000),
+      });
+
+      const passed = res.status === t.expected;
+      if (passed) {
+        result.passCount++;
+      } else {
+        result.failCount++;
+        result.failures.push({
+          desc: t.desc,
+          role: t.role,
+          endpoint: `${t.method} ${t.path}`,
+          expectedStatus: t.expected,
+          actualStatus: res.status,
+        });
+      }
+      result.details.push({
+        desc: t.desc,
+        role: t.role,
+        endpoint: `${t.method} ${t.path}`,
+        status: res.status,
+        expected: t.expected,
+        passed,
+      });
+    } catch (err) {
+      result.failCount++;
+      result.failures.push({
+        desc: t.desc,
+        role: t.role,
+        endpoint: `${t.method} ${t.path}`,
+        error: err.message,
+      });
+    }
+  }
+
+  return result;
+}
+
+// 6. Main Execution & Telegram Formatting
 async function main() {
   console.log('🛡️ Starting Daily RBAC & Security Audit (10:00 PM Scheduled Workflow)...');
 
@@ -438,7 +574,6 @@ async function main() {
   const undocumentedEndpoints = [];
 
   for (const ep of allEndpoints) {
-    // Normalize path for comparison (e.g. replace :params with :param)
     const normPath = ep.path.replace(/\/:[^/]+/g, '/:param');
     const matched = Array.from(documentedEndpoints).some((docEp) => {
       const [m, p] = docEp.split(' ');
@@ -458,13 +593,20 @@ async function main() {
   // Step 4: Audit Trip & Warehouse specific security invariants
   const domainFindings = auditTripAndWarehouseSecurity();
 
-  // Step 5: Format Telegram Report (Mobile-First according to /telegram-task-responder)
-  const isHealthy = securityWarnings.length === 0 && domainFindings.length === 0;
-  const statusBadge = isHealthy ? '🟢 AN TOÀN' : securityWarnings.length > 0 ? '🔴 CẢNH BÁO BẢO MẬT' : '🟡 CHÚ Ý';
+  // Step 5: Live Runtime Security Verification
+  const backendTarget = process.env.BACKEND_URL || 'https://backend-tms-core-dev.up.railway.app';
+  console.log(`🌐 Executing Live Guard Runtime Verification against: ${backendTarget}`);
+  const liveGuardResult = await verifyLiveApiGuards(backendTarget);
+  console.log(`Live Guard result: ${liveGuardResult.passCount}/${liveGuardResult.totalTests} passed (Tested: ${liveGuardResult.tested})`);
+
+  // Step 6: Format Telegram Report (Mobile-First according to /telegram-task-responder)
+  const hasLiveFailures = liveGuardResult.tested && liveGuardResult.failCount > 0;
+  const isHealthy = securityWarnings.length === 0 && domainFindings.length === 0 && !hasLiveFailures;
+  const statusBadge = isHealthy ? '🟢 AN TOÀN' : (securityWarnings.length > 0 || hasLiveFailures) ? '🔴 CẢNH BÁO BẢO MẬT' : '🟡 CHÚ Ý';
 
   let message = `<b>${statusBadge}: BÁO CÁO AUDIT RBAC & PHÂN QUYỀN 22:00</b>\n` +
     `━━━━━━━━━━━━━━━━━━━━\n` +
-    `⚡ <b>Mục tiêu:</b> Rà soát biến động 7 ngày qua & tính bảo mật JWT/RBAC toàn hệ thống.\n\n` +
+    `⚡ <b>Mục tiêu:</b> Rà soát biến động 7 ngày qua, tĩnh học AST & thực thi bảo mật JWT/RBAC runtime.\n\n` +
     `<b>1. Biến Động Vận Hành 7 Ngày Qua:</b>\n` +
     `• <b>Task hoàn thành:</b> ${recentMilestones.length} tasks trong <code>SYSTEM_TIMELINE.md</code>\n` +
     `• <b>Trọng tâm gần nhất:</b>\n`;
@@ -493,16 +635,35 @@ async function main() {
     message += `• <b>Endpoint biến động dữ liệu:</b> 100% được gán @Roles chặt chẽ\n`;
   }
 
+  // 4. Live Runtime Security Check
+  message += `\n<b>4. Thực Thi Bảo Mật Live Runtime (Live Guard Matrix):</b>\n`;
+  if (liveGuardResult.tested) {
+    if (liveGuardResult.failCount === 0) {
+      message += `• <b>Kết quả:</b> ✅ PASS 100% (${liveGuardResult.passCount}/${liveGuardResult.totalTests} ca kiểm thử)\n` +
+        `  ▫️ Chặn truy cập trái quyền (403 Forbidden): 8/8 endpoints nhạy cảm\n` +
+        `  ▫️ Cho phép truy cập đúng quyền (200 OK): 4/4 endpoints nghiệp vụ\n` +
+        `  ▫️ Môi trường mục tiêu: <code>${liveGuardResult.backendUrl}</code>\n`;
+    } else {
+      message += `• <b>🚨 PHÁT HIỆN LỖ HỔNG PHÂN QUYỀN:</b> ${liveGuardResult.failCount}/${liveGuardResult.totalTests} ca thất bại!\n`;
+      for (const f of liveGuardResult.failures.slice(0, 3)) {
+        message += `  ▫️ <code>${f.role}</code>: ${f.desc} (${f.endpoint} -> Status ${f.actualStatus}, kỳ vọng ${f.expectedStatus})\n`;
+      }
+    }
+  } else {
+    message += `• <b>Trạng thái:</b> ⚠️ Bỏ qua (${liveGuardResult.reason})\n`;
+  }
+
+  // 5. RBAC Matrix Doc
   if (syncedCount > 0) {
     const epExamples = undocumentedEndpoints.map(e => `${e.method} ${e.path}`).slice(0, 2).join(', ');
-    message += `\n<b>4. Cập Nhật Tài Liệu RBAC Matrix:</b>\n` +
+    message += `\n<b>5. Cập Nhật Tài Liệu RBAC Matrix:</b>\n` +
       `• 🛠️ <b>Tự động đồng bộ:</b> Đã tự động bổ sung ${syncedCount} endpoints mới vào <code>rbac-matrix.md</code> (${epExamples}).\n` +
       `• <b>Trạng thái:</b> ✅ Khớp 100% với mã nguồn.\n`;
   } else if (undocumentedEndpoints.length > 0) {
-    message += `\n<b>4. Cập Nhật Tài Liệu RBAC Matrix:</b>\n` +
+    message += `\n<b>5. Cập Nhật Tài Liệu RBAC Matrix:</b>\n` +
       `• Phát hiện ${undocumentedEndpoints.length} endpoints chưa bổ sung vào <code>rbac-matrix.md</code> (ví dụ: <code>${undocumentedEndpoints[0].method} ${undocumentedEndpoints[0].path}</code>).\n`;
   } else {
-    message += `\n<b>4. Tài Liệu RBAC Matrix:</b> ✅ Khớp 100% với mã nguồn (${allEndpoints.length} endpoints)\n`;
+    message += `\n<b>5. Tài Liệu RBAC Matrix:</b> ✅ Khớp 100% với mã nguồn (${allEndpoints.length} endpoints)\n`;
   }
 
   message += `\n━━━━━━━━━━━━━━━━━━━━\n` +
@@ -520,7 +681,7 @@ async function main() {
     console.log('ℹ️ Local audit complete. Telegram message logged above.');
   }
 
-  return { isHealthy, securityWarnings, domainFindings, undocumentedEndpoints };
+  return { isHealthy, securityWarnings, domainFindings, undocumentedEndpoints, liveGuardResult };
 }
 
 main().catch((err) => {

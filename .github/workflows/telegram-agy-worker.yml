@@ -1,4 +1,10 @@
 name: Antigravity Telegram Task Worker
+run-name: >-
+  ${{
+    (github.event.client_payload.mode == 'todo' || inputs.mode == 'todo' || github.event.action == 'telegram-todo')
+      && format('🔨 [LÀM TASK TODO] #{0} ({1})', github.event.client_payload.task_id || inputs.task_id || 'batch', github.event.client_payload.sender_name || inputs.sender_name || 'Scheduler')
+    || format('🧠 [PHÂN TÍCH FEEDBACK] #{0} ({1})', github.event.client_payload.task_id || inputs.task_id || 'new', github.event.client_payload.sender_name || inputs.sender_name || 'Telegram')
+  }}
 
 on:
   workflow_dispatch:
@@ -28,10 +34,15 @@ on:
           - sync
 
   repository_dispatch:
-    types: [telegram-task]
+    types: [telegram-task, telegram-feedback, telegram-todo]
 
 concurrency:
-  group: agy-worker-${{ github.ref }}
+  group: >-
+    ${{
+      (github.event.client_payload.mode == 'todo' || inputs.mode == 'todo' || github.event.action == 'telegram-todo')
+        && format('agy-todo-{0}', github.ref)
+        || format('agy-feedback-{0}', github.event.client_payload.task_id || inputs.task_id || github.run_id)
+    }}
   cancel-in-progress: false
 
 jobs:
@@ -70,7 +81,7 @@ jobs:
           TASK_ID: ${{ github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}
           SENDER: ${{ github.event.inputs.sender_name || github.event.client_payload.sender_name || 'User' }}
           RAW_PROMPT: ${{ github.event.inputs.prompt || github.event.client_payload.prompt }}
-          MODE: ${{ github.event.inputs.mode || github.event.client_payload.mode || 'leader' }}
+          MODE: ${{ github.event.inputs.mode || github.event.client_payload.mode || (github.event.action == 'telegram-todo' && 'todo') || 'leader' }}
           GITHUB_RUN_ID: ${{ github.run_id }}
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_REPOSITORY: ${{ github.repository }}
