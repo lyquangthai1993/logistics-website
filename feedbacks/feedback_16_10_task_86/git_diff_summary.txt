@@ -1,7 +1,10 @@
 === Root ===
-7666752 docs(task-86): record resolution and verified evidence for task #86
- git_diff_summary.txt | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+d3e39d5 chore(submodules): update backend and frontend pointers for task #87
+29d5180 docs(feedback): record resolution and verified evidence for task #87
+ git_diff_summary.txt | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
  M git_diff_summary.txt
+=== Backend ===
+6ec5e2b feat(warehouse): task #87 support partial inbound single order and keepTripPending
 === Frontend ===
-652e630 feat(warehouse): task #86 discard unsaved trip info when clicking back to list
+ddccfb5 feat(warehouse): task #87 single-order inbound button, row dimming and trip receipt
