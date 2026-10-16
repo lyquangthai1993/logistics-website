@@ -79,6 +79,7 @@ jobs:
           TELEGRAM_ALLOWED_CHAT_ID: ${{ secrets.TELEGRAM_ALLOWED_CHAT_ID }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           TASK_ID: ${{ github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}
+          DB_ID: ${{ github.event.client_payload.db_id || '' }}
           SENDER: ${{ github.event.inputs.sender_name || github.event.client_payload.sender_name || 'User' }}
           RAW_PROMPT: ${{ github.event.inputs.prompt || github.event.client_payload.prompt }}
           MODE: ${{ github.event.inputs.mode || github.event.client_payload.mode || (github.event.action == 'telegram-todo' && 'todo') || 'leader' }}
@@ -112,6 +113,7 @@ jobs:
           async function main() {
             const dbUrl = process.env.DATABASE_URL;
             let requestedId = process.env.TASK_ID;
+            let dbId = process.env.DB_ID;
             let sender = process.env.SENDER || "User";
             let rawPrompt = process.env.RAW_PROMPT || "";
             let mode = process.env.MODE || "leader";
@@ -127,16 +129,22 @@ jobs:
                 });
                 await client.connect();
 
-                // 1. Nếu có requestedId (task_id cụ thể được chỉ định từ webhook/dispatch) -> Ưu tiên xử lý chính xác task này
-                if (requestedId && requestedId !== "manual" && !isNaN(Number(requestedId))) {
-                  const reqRes = await client.query(
-                    "SELECT * FROM telegram_tasks WHERE task_id = $1 OR (task_id IS NULL AND id = $1)",
+                // 1. Ưu tiên dbId nếu được truyền từ webhook/dispatch
+                let reqRes = null;
+                if (dbId && !isNaN(Number(dbId))) {
+                  reqRes = await client.query("SELECT * FROM telegram_tasks WHERE id = $1", [parseInt(dbId, 10)]);
+                }
+                // 2. Nếu không có dbId hoặc không tìm thấy, đối soát qua requestedId với độ ưu tiên task_id chính xác và id mới nhất
+                if ((!reqRes || reqRes.rows.length === 0) && requestedId && requestedId !== "manual" && !isNaN(Number(requestedId))) {
+                  reqRes = await client.query(
+                    "SELECT * FROM telegram_tasks WHERE task_id = $1 OR (task_id IS NULL AND id = $1) ORDER BY (task_id = $1) DESC, id DESC LIMIT 1",
                     [parseInt(requestedId, 10)]
                   );
-                  if (reqRes.rows.length > 0) {
-                    const existingTask = reqRes.rows[0];
-                    const promptToCheck = (existingTask.raw_prompt || "") + " " + (rawPrompt || "");
-                    const isExplicitForce = promptToCheck.includes("/force") || promptToCheck.includes("/retry");
+                }
+                if (reqRes && reqRes.rows.length > 0) {
+                  const existingTask = reqRes.rows[0];
+                  const promptToCheck = (existingTask.raw_prompt || "") + " " + (rawPrompt || "");
+                  const isExplicitForce = promptToCheck.includes("/force") || promptToCheck.includes("/retry");
 
                     if (existingTask.status === "PENDING" || isExplicitForce) {
                       await client.query("UPDATE telegram_tasks SET status = $1, started_at = NOW() WHERE id = $2", ["IN_PROGRESS", existingTask.id]);
