@@ -699,7 +699,11 @@ jobs:
 
           echo "📦 Đang commit & push thay đổi trong root repo..."
           git checkout dev 2>/dev/null || git switch dev 2>/dev/null || true
-          if commit_with_self_healing "." "chore(task): update task #${TASK_ID} artifacts and submodules"; then
+          ROOT_COMMIT_MSG="chore(task): update task #${TASK_ID} artifacts and submodules"
+          if [ "$MODE" = "leader" ] || [ "$MODE" = "feedback" ]; then
+            ROOT_COMMIT_MSG="docs(feedback): analyze feedback task #${TASK_ID} and generate TODO.md"
+          fi
+          if commit_with_self_healing "." "$ROOT_COMMIT_MSG"; then
             if ! push_with_retry "."; then
               echo "❌ Root repo push thất bại, dừng quy trình push."
               exit 1

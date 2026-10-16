@@ -168,6 +168,17 @@ flowchart TD
 
 ---
 
+### Giai Đoạn 0: Phân Tích Feedback & Commit Hồ Sơ Trực Tiếp Lên Branch `dev` (Root Monorepo)
+
+> 📌 **Nguyên tắc bất biến (Feedback Baseline Checkpoint)**:  
+> Khi tiếp nhận feedback từ người dùng hoặc Telegram Bot, hệ thống kích hoạt luồng **`🧠 [PHÂN TÍCH FEEDBACK]`** (skill `/leader`).  
+> 1. **Chỉ tác động Root Repository**: Giai đoạn này chỉ tải ảnh chụp màn hình từ Telegram (`screenshot_*.jpg`) và khởi tạo tài liệu khảo sát nghiệp vụ (`feedbacks/feedback_DD_MM_task_<id>/TODO.md`). Hoàn toàn **chưa can thiệp hoặc sửa đổi mã nguồn** trong các submodule [`backend/`](file:///d:/Projects/logistics-website/backend) hay [`frontend/`](file:///d:/Projects/logistics-website/frontend).
+> 2. **Bắt buộc commit & push thẳng lên `dev`**: Toàn bộ thư mục `feedbacks/feedback_DD_MM_task_<id>/` **BẮT BUỘC ĐƯỢC COMMIT VÀ PUSH TRỰC TIẾP LÊN BRANCH `dev`** của Root Repository với commit message: `docs(feedback): analyze feedback task #<id> and generate TODO.md`.
+> 3. **Tuyệt đối không tạo Feature Branch ở Giai đoạn 0**: Không sinh các nhánh tạm rác cho tài liệu phân tích.
+> 4. **Bảo toàn tính toàn vẹn cho Giai đoạn 1**: Nhờ việc commit thẳng lên `dev`, khi chuyển sang Giai đoạn 1 ("Thực sự làm task todo"), bất kỳ agent ([`/todo-agent`](file:///d:/Projects/logistics-website/.agents/skills/todo-agent/SKILL.md)) hoặc kỹ sư nào chạy lệnh `git checkout dev && git pull origin dev` đều đã có sẵn đầy đủ hồ sơ task, hình ảnh đối chiếu và checklist `TODO.md` ngay trên nền `dev`. Nhờ đó, việc tạo nhánh feature `<type>/task-<id>-<module>-<action>` sẽ xuất phát từ một branch `dev` hoàn chỉnh, không bao giờ bị lỗi thiếu file và không vi phạm quy tắc rẽ nhánh.
+
+---
+
 ### Giai Đoạn 1: Nhận Task & Khởi Tạo Branch từ `dev`
 
 1. **Kiểm tra trạng thái kho lưu trữ**:
