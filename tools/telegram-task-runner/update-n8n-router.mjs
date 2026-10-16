@@ -141,7 +141,7 @@ let promptForDB = '';
 let extractedTaskId = null;
 
 if (isForce) {
-  const taskMatch = rawText.match(/(?:task[_\-#\s]*|\/force(?:@\w+)?\s+)(\d+)/i);
+  const taskMatch = rawText.match(/(?:task[_\\-#\\s]*|\\/force(?:@\\w+)?\\s+)(\\d+)/i);
   if (taskMatch) {
     extractedTaskId = taskMatch[1];
   }
