@@ -55,6 +55,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       task_id: ${{ steps.claim.outputs.task_id }}
+      db_id: ${{ steps.claim.outputs.db_id }}
       prompt: ${{ steps.claim.outputs.prompt }}
       sender_name: ${{ steps.claim.outputs.sender_name }}
       mode: ${{ steps.claim.outputs.mode }}
@@ -146,21 +147,26 @@ jobs:
                   const promptToCheck = (existingTask.raw_prompt || "") + " " + (rawPrompt || "");
                   const isExplicitForce = promptToCheck.includes("/force") || promptToCheck.includes("/retry");
 
-                    if (existingTask.status === "PENDING" || isExplicitForce) {
-                      await client.query("UPDATE telegram_tasks SET status = $1, started_at = NOW() WHERE id = $2", ["IN_PROGRESS", existingTask.id]);
-                      task = existingTask;
-                      console.log(`🎯 [Direct Task] Đã claim Task #${task.task_id || task.id} sang IN_PROGRESS.`);
-                    } else if (["IN_PROGRESS", "COMPLETED", "TODO_CREATED"].includes(existingTask.status)) {
-                      console.log(`⏭️ [Deduplication] Task #${existingTask.task_id || existingTask.id} đã ở trạng thái "${existingTask.status}". Bỏ qua lượt kích hoạt trùng lặp.`);
-                      task = null;
-                      taskId = "manual";
-                      rawPrompt = "";
-                    } else {
-                      await client.query("UPDATE telegram_tasks SET status = $1, started_at = NOW() WHERE id = $2", ["IN_PROGRESS", existingTask.id]);
-                      task = existingTask;
-                      console.log(`🎯 [Direct Task] Đã kích hoạt Task #${task.task_id || task.id} sang IN_PROGRESS.`);
-                    }
+                  if (existingTask.status === "IN_PROGRESS") {
+                    console.log(`⏭️ [Deduplication] Task #${existingTask.task_id || existingTask.id} hiện đang được thực thi (IN_PROGRESS). Bỏ qua lượt kích hoạt trùng lặp.`);
+                    task = null;
+                    taskId = "manual";
+                    rawPrompt = "";
+                  } else if (existingTask.status === "PENDING" || isExplicitForce) {
+                    await client.query("UPDATE telegram_tasks SET status = $1, started_at = NOW() WHERE id = $2", ["IN_PROGRESS", existingTask.id]);
+                    task = existingTask;
+                    console.log(`🎯 [Direct Task] Đã claim Task #${task.task_id || task.id} (ID: ${task.id}) sang IN_PROGRESS.`);
+                  } else if (["COMPLETED", "TODO_CREATED"].includes(existingTask.status)) {
+                    console.log(`⏭️ [Deduplication] Task #${existingTask.task_id || existingTask.id} đã hoàn tất ("${existingTask.status}"). Bỏ qua lượt kích hoạt trùng lặp.`);
+                    task = null;
+                    taskId = "manual";
+                    rawPrompt = "";
+                  } else {
+                    await client.query("UPDATE telegram_tasks SET status = $1, started_at = NOW() WHERE id = $2", ["IN_PROGRESS", existingTask.id]);
+                    task = existingTask;
+                    console.log(`🎯 [Direct Task] Đã kích hoạt Task #${task.task_id || task.id} sang IN_PROGRESS.`);
                   }
+                }
 
                 // 2. Nếu chưa có task và không chỉ định requestedId -> Quét tìm task PENDING cũ nhất (FIFO Queue Claiming)
                 if (!task) {
@@ -204,6 +210,7 @@ jobs:
             }
 
             setOutput("task_id", taskId);
+            setOutput("db_id", task ? String(task.id) : (dbId || ""));
             setOutput("prompt", rawPrompt);
             setOutput("sender_name", sender);
             setOutput("mode", mode);
@@ -845,6 +852,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           GH_PAT_TOKEN: ${{ secrets.GH_PAT_TOKEN || secrets.GITHUB_TOKEN }}
           TASK_ID: ${{ needs.intake-task.outputs.task_id || github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}
+          DB_ID: ${{ needs.intake-task.outputs.db_id || github.event.client_payload.db_id || '' }}
           SENDER: ${{ needs.intake-task.outputs.sender_name || github.event.inputs.sender_name || github.event.client_payload.sender_name || 'User' }}
           RAW_PROMPT: ${{ needs.intake-task.outputs.prompt || github.event.inputs.prompt || github.event.client_payload.prompt || '' }}
           MODE: ${{ needs.intake-task.outputs.mode || 'leader' }}
@@ -867,6 +875,7 @@ jobs:
           const runUrl = runId ? `${serverUrl}/${repo}/actions/runs/${runId}` : `${serverUrl}/${repo}/actions`;
           const executeStatus = process.env.EXECUTE_STATUS || "failure";
           const taskId = process.env.TASK_ID || "manual";
+          const dbId = process.env.DB_ID || "";
           const sender = process.env.SENDER || "User";
           const token = process.env.TELEGRAM_BOT_TOKEN;
           const chatId = process.env.TELEGRAM_ALLOWED_CHAT_ID;
@@ -1161,45 +1170,19 @@ jobs:
                 ? null 
                 : `${errorBase.slice(0, 1800)}\n\n🔗 Workflow: ${runUrl}`;
               const finalResult = `${agyRes}\n\n🔗 Workflow: ${runUrl}`;
-              await client.query(
-                "UPDATE telegram_tasks SET status = $1, completed_at = NOW(), result = $2, error = $3 WHERE task_id = $4 OR (task_id IS NULL AND id = $4)",
-                [newStatus, finalResult, errorVal, parseInt(taskId, 10)]
-              );
-              console.log(`✅ Đã cập nhật task #${taskId} sang trạng thái ${newStatus} trong Database.`);
-
-              // TỰ ĐỘNG QUÉT & GIẢI PHÓNG HÀNG ĐỢI (AUTO-DRAIN QUEUE)
-              // Chỉ tự động kích hoạt task PENDING đã tồn tại trên 30 giây để tránh xung đột với webhook tức thời từ N8N
-              const remaining = await client.query(
-                "SELECT id, task_id, sender_name, raw_prompt FROM telegram_tasks WHERE status = $1 AND task_id IS NOT NULL AND created_at < NOW() - make_interval(secs => 30) ORDER BY id ASC LIMIT 1",
-                ["PENDING"]
-              );
-              if (remaining.rows.length > 0) {
-                const nextTask = remaining.rows[0];
-                const nextTaskId = String(nextTask.task_id != null ? nextTask.task_id : nextTask.id);
-                console.log(`🔁 Phát hiện còn Task #${nextTaskId} ("${nextTask.raw_prompt}") đang PENDING trong Database! Đang tự động kích hoạt lượt chạy kế tiếp...`);
-                const ghPat = process.env.GH_PAT_TOKEN;
-                if (ghPat) {
-                  const dispatchRes = await fetch("https://api.github.com/repos/lyquangthai1993/logistics-website/dispatches", {
-                    method: "POST",
-                    headers: {
-                      "Authorization": `Bearer ${ghPat}`,
-                      "Accept": "application/vnd.github+json",
-                      "User-Agent": "Antigravity-Queue-Drainer"
-                    },
-                    body: JSON.stringify({
-                      event_type: "telegram-task",
-                      client_payload: {
-                        task_id: nextTaskId
-                      }
-                    }),
-                    signal: AbortSignal.timeout(10000)
-                  });
-                  if (dispatchRes.status === 204) {
-                    console.log(`🚀 Đã tự động kích hoạt GitHub Actions cho Task #${nextTaskId} thành công!`);
-                  } else {
-                    console.warn(`⚠️ Kích hoạt Task #${nextTaskId} trả về status: ${dispatchRes.status}`);
-                  }
-                }
+              const targetDbId = dbId && !isNaN(Number(dbId)) ? parseInt(dbId, 10) : null;
+              if (targetDbId) {
+                await client.query(
+                  "UPDATE telegram_tasks SET status = $1, completed_at = NOW(), result = $2, error = $3 WHERE id = $4",
+                  [newStatus, finalResult, errorVal, targetDbId]
+                );
+                console.log(`✅ Đã cập nhật task record #${targetDbId} (Task #${taskId}) sang trạng thái ${newStatus} trong Database.`);
+              } else {
+                await client.query(
+                  "UPDATE telegram_tasks SET status = $1, completed_at = NOW(), result = $2, error = $3 WHERE task_id = $4 OR (task_id IS NULL AND id = $4)",
+                  [newStatus, finalResult, errorVal, parseInt(taskId, 10)]
+                );
+                console.log(`✅ Đã cập nhật task #${taskId} sang trạng thái ${newStatus} trong Database.`);
               }
             } catch (dbErr) {
               console.warn("⚠️ Không thể cập nhật Database telegram_tasks:", dbErr.message);
