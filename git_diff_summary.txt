@@ -1,8 +1,10 @@
 === Root ===
-8724f9c feat(frontend): update frontend submodule for task #85
-8703af3 docs(task-85): complete checklist, resolution and evidence for task #85
- git_diff_summary.txt | 14 ++------------
- 1 file changed, 2 insertions(+), 12 deletions(-)
+7c48b26 docs(task-86): record technical resolution and sync SYSTEM_TIMELINE.md
+ frontend             | 2 +-
+ git_diff_summary.txt | 8 +-------
+ 2 files changed, 2 insertions(+), 8 deletions(-)
+ M frontend
  M git_diff_summary.txt
 === Frontend ===
-c4ce731 feat(warehouse): task #85 clean read-only trip view modal
+9fd363e feat: merge fix/task-86-discard-unsaved-trip-info into dev (Task #86)
+dbd14fb feat(warehouse): task #86 discard unsaved trip info when clicking back to list
