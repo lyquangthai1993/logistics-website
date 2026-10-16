@@ -116,58 +116,58 @@ sequenceDiagram
 
 ### ⚙️ PHẦN I: BACKEND (NestJS 11+ & PostgreSQL TypeORM)
 
-- [ ] **Nâng cấp logic `confirmInbound` trong `WarehouseService` ([`warehouse.service.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts))**:
-  - [ ] Bổ sung tham số `keepTripPending?: boolean` vào payload tiếp nhận kho.
-  - [ ] Khi `keepTripPending === true`:
+- [x] **Nâng cấp logic `confirmInbound` trong `WarehouseService` ([`warehouse.service.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts))**:
+  - [x] Bổ sung tham số `keepTripPending?: boolean` vào payload tiếp nhận kho.
+  - [x] Khi `keepTripPending === true`:
     * Chuyển trạng thái đơn hàng chỉ định sang `INBOUND`, gán `currentHubId = hubId`, cập nhật `inboundQuantity` và `remainingQuantity`.
     * Ghi nhận bản ghi `OrderInventoryTransactionEntity` (type: `INBOUND`, ghi chú: tiếp nhận đơn lẻ từ chuyến xe).
     * **Tuyệt đối KHÔNG cập nhật `trip_stop.status = COMPLETED`**; giữ nguyên trạng thái `TripStopStatus.PENDING`.
     * **Tuyệt đối KHÔNG cập nhật `trip.status = COMPLETED`**; chuyến xe vẫn tiếp tục hoạt động dỡ hàng.
-  - [ ] Xử lý kịch bản hoàn tất chuyến xe (`keepTripPending === false` hoặc mặc định):
+  - [x] Xử lý kịch bản hoàn tất chuyến xe (`keepTripPending === false` hoặc mặc định):
     * Kiểm tra nếu đơn hàng trong danh sách đã được tạo `txRepo` Inbound trước đó (do đã nhập riêng lẻ):
       - Bỏ qua việc tạo trùng lặp giao dịch kho hoặc không ném lỗi `UnprocessableEntityException`.
       - Vẫn lưu và gán đơn hàng vào danh sách `savedOrders` để phục vụ tổng kết phiếu in.
     * Đánh dấu `trip_stop.status = COMPLETED` và chuyển trạng thái chuyến xe sang `COMPLETED` khi tất cả các dòng hàng đã được tiếp nhận.
-- [ ] **Đảm bảo tính tương thích của API Xuất kho ([`getAvailableOutboundOrders`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts))**:
-  - [ ] Xác nhận đơn hàng sau khi nhập riêng có `status IN ('INBOUND', 'IN_WAREHOUSE', 'STORED', 'LUU_KHO')` và `currentHubId = currentHubId`.
-  - [ ] Đơn hàng lập tức được trả về trong danh sách chờ xuất mà không phụ thuộc vào trạng thái của chuyến xe nhập ban đầu (`tripCode`).
-- [ ] **Đảm bảo API dữ liệu in phiếu ([`getInboundReceiptData`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts))**:
-  - [ ] Khi in phiếu theo `tripCode`, gom toàn bộ các đơn hàng thuộc chuyến xe cập cảng tại Hub hiện tại, **bao gồm cả đơn đã nhập riêng trước đó lẫn đơn nhập đợt cuối**.
-  - [ ] Tính toán chính xác tổng số kiện, tổng trọng lượng và tổng thể tích của toàn bộ chuyến xe trên phiếu in.
-- [ ] **Kiểm tra biên dịch & Linting Backend**:
-  - [ ] Chạy `npm run lint --prefix backend` đạt 0 lỗi.
-  - [ ] Chạy `npm run build --prefix backend` đạt PASS.
+- [x] **Đảm bảo tính tương thích của API Xuất kho ([`getAvailableOutboundOrders`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts))**:
+  - [x] Xác nhận đơn hàng sau khi nhập riêng có `status IN ('INBOUND', 'IN_WAREHOUSE', 'STORED', 'LUU_KHO')` và `currentHubId = currentHubId`.
+  - [x] Đơn hàng lập tức được trả về trong danh sách chờ xuất mà không phụ thuộc vào trạng thái của chuyến xe nhập ban đầu (`tripCode`).
+- [x] **Đảm bảo API dữ liệu in phiếu ([`getInboundReceiptData`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts))**:
+  - [x] Khi in phiếu theo `tripCode`, gom toàn bộ các đơn hàng thuộc chuyến xe cập cảng tại Hub hiện tại, **bao gồm cả đơn đã nhập riêng trước đó lẫn đơn nhập đợt cuối**.
+  - [x] Tính toán chính xác tổng số kiện, tổng trọng lượng và tổng thể tích của toàn bộ chuyến xe trên phiếu in.
+- [x] **Kiểm tra biên dịch & Linting Backend**:
+  - [x] Chạy `npm run lint --prefix backend` đạt 0 lỗi.
+  - [x] Chạy `npm run build --prefix backend` đạt PASS.
 
 ---
 
 ### 🎨 PHẦN II: FRONTEND (Next.js 15 App Router, React 19 & Tailwind CSS)
 
-- [ ] **Nâng cấp component `WarehouseEditableGrid` ([`warehouse-editable-grid.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-editable-grid.tsx))**:
-  - [ ] Mở rộng interface `WarehouseEditableGridProps`:
+- [x] **Nâng cấp component `WarehouseEditableGrid` ([`warehouse-editable-grid.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-editable-grid.tsx))**:
+  - [x] Mở rộng interface `WarehouseEditableGridProps`:
     * Thêm prop `isInboundTripMode?: boolean` (mặc định `false`).
     * Thêm callback `onInboundSingleOrder?: (row: WarehouseRowItem, rowIndex: number) => Promise<void> | void`.
     * Thêm state hoặc prop `loadingRowIndex?: number | null`.
-  - [ ] Cập nhật `TableMeta`:
+  - [x] Cập nhật `TableMeta`:
     * Khai báo `isInboundTripMode?: boolean`.
     * Khai báo `onInboundSingleOrder?: (rowIndex: number) => void`.
     * Khai báo `loadingRowIndex?: number | null`.
-  - [ ] Cập nhật cell `ActionsCell`:
+  - [x] Cập nhật cell `ActionsCell`:
     * Khi `isInboundTripMode === true`:
       - **Thay thế nút `IconCopy` ("Nhân bản dòng") bằng nút Nhập kho**:
         * Nếu đơn **chưa nhập** (`r.status !== 'INBOUND'` và `r.status !== 'IN_WAREHOUSE'`): Render `<Button><IconBuildingWarehouse className="h-3.5 w-3.5 text-emerald-600" /></Button>` với tooltip *"Nhập kho đơn hàng này"*. Khi click gọi `meta?.onInboundSingleOrder?.(idx)`.
         * Nếu đang loading dòng này: Render `<IconLoader2 className="h-3.5 w-3.5 animate-spin text-blue-600" />`.
         * Nếu đơn **đã nhập**: Render `<Button disabled className="h-6 w-6 p-0 text-emerald-600 opacity-80 cursor-default"><IconCircleCheck className="h-3.5 w-3.5" /></Button>` với tooltip *"Đơn hàng đã nhập kho"*.
       - **Vô hiệu hóa nút xóa (`IconTrash`)** khi đơn đã được nhập kho (`disabled={r.status === 'INBOUND' || rowsCount <= 1}`).
-  - [ ] **Quy chuẩn làm mờ dòng hàng đã nhập kho**:
+  - [x] **Quy chuẩn làm mờ dòng hàng đã nhập kho**:
     * Trong `tbody tr`: Nếu dòng có `r.status === 'INBOUND'` hoặc `r.status === 'IN_WAREHOUSE'`:
       - Thêm class CSS: `opacity-50 bg-slate-50/80 dark:bg-slate-800/40 transition-opacity`.
       - Vô hiệu hóa chỉnh sửa các ô input (`disabled={r.status === 'INBOUND'}`).
-- [ ] **Nâng cấp Modal `WarehouseTripDetailModal` ([`warehouse-trip-detail-modal.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx))**:
-  - [ ] Truyền các props mới vào `WarehouseEditableGrid`:
+- [x] **Nâng cấp Modal `WarehouseTripDetailModal` ([`warehouse-trip-detail-modal.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx))**:
+  - [x] Truyền các props mới vào `WarehouseEditableGrid`:
     * `isInboundTripMode={mode === 'INBOUND' && isCurrentHubPending}`.
     * `onInboundSingleOrder={handleInboundSingleOrder}`.
     * `loadingRowIndex={inboundLoadingIndex}`.
-  - [ ] Xây dựng hàm `handleInboundSingleOrder(row: WarehouseRowItem, rowIndex: number)`:
+  - [x] Xây dựng hàm `handleInboundSingleOrder(row: WarehouseRowItem, rowIndex: number)`:
     * Kiểm tra hợp lệ dữ liệu dòng hàng (số kiện > 0, mã đơn hợp lệ).
     * Bật `inboundLoadingIndex = rowIndex`.
     * Gửi request `POST /api/v1/warehouse/inbound/confirm` với:
@@ -187,26 +187,26 @@ sequenceDiagram
       - **TUYỆT ĐỐI KHÔNG GỌI `onOpenReceipt`** (không in phiếu nhập kho lẻ).
       - Hiển thị Toast thông báo: `toast.success("Đã nhập kho đơn hàng " + row.orderCode + " thành công! Sẵn sàng xuất kho.")`.
       - Invalidate TanStack query cache: `['warehouse', 'inbound-trips']`, `['warehouse', 'available-outbound-orders']`, `['warehouse', 'outbound-trips']`, `['warehouse', 'kpi']`.
-  - [ ] Hoàn thiện hàm `handleConfirmInbound` (Nút "Xác nhận nhập kho" ở Footer):
+  - [x] Hoàn thiện hàm `handleConfirmInbound` (Nút "Xác nhận nhập kho" ở Footer):
     * Gửi request xác nhận tất cả các dòng còn lại với `keepTripPending: false`.
     * Sau khi thành công:
       - Đánh dấu chuyến xe `COMPLETED`.
       - **TỰ ĐỘNG GỌI `onOpenReceipt(updatedTripGroup)`**: Mở modal In Phiếu Nhập Kho chứa đầy đủ toàn bộ các đơn hàng trong chuyến xe (cả đơn đã nhập lẻ trước đó lẫn đơn vừa nhập).
-- [ ] **Tuân thủ nghiêm ngặt Quy chuẩn giao diện hẹp (UI Compact Density Mandate)**:
-  - [ ] Card padding: giữ nguyên `p-1`, Modal Body `p-2`.
-  - [ ] Table row padding: `py-1 px-1.5`, typography `text-[10px]`, mã đơn `text-[11px] font-mono font-bold`.
-  - [ ] Không sinh các class bị cấm (`p-4`, `space-y-3`, `gap-4`).
-  - [ ] Zero redundant icons: Triệt tiêu mọi icon/ký tự trùng lặp trong nhãn nút.
+- [x] **Tuân thủ nghiêm ngặt Quy chuẩn giao diện hẹp (UI Compact Density Mandate)**:
+  - [x] Card padding: giữ nguyên `p-1`, Modal Body `p-2`.
+  - [x] Table row padding: `py-1 px-1.5`, typography `text-[10px]`, mã đơn `text-[11px] font-mono font-bold`.
+  - [x] Không sinh các class bị cấm (`p-4`, `space-y-3`, `gap-4`).
+  - [x] Zero redundant icons: Triệt tiêu mọi icon/ký tự trùng lặp trong nhãn nút.
 
 ---
 
 ### 🧪 PHẦN III: KẾ HOẠCH KIỂM THỬ & NGHIỆM THU (TESTING & VERIFICATION PLAN)
 
-- [ ] **Kiểm tra biên dịch & Linting toàn dự án**:
-  - [ ] `npm run lint --prefix backend` & `npm run build --prefix backend` PASS (0 errors).
-  - [ ] `npm run build --prefix frontend` PASS (Turbopack compile PASS, 0 type errors).
-- [ ] **Kịch bản kiểm thử nghiệp vụ thực tế (Manual & E2E Verification)**:
-  - [ ] **Kịch bản 1: Nhập riêng 1 đơn trong chuyến xe chờ xử lý**:
+- [x] **Kiểm tra biên dịch & Linting toàn dự án**:
+  - [x] `npm run lint --prefix backend` & `npm run build --prefix backend` PASS (0 errors).
+  - [x] `npm run build --prefix frontend` PASS (Turbopack compile PASS, 0 type errors).
+- [x] **Kịch bản kiểm thử nghiệp vụ thực tế (Manual & E2E Verification)**:
+  - [x] **Kịch bản 1: Nhập riêng 1 đơn trong chuyến xe chờ xử lý**:
     1. Đăng nhập tài khoản thủ kho HCM (`USER_WAREHOUSE_HCM` / `warehouse_hcm`).
     2. Mở chuyến xe nhập kho `SD53` (Andromeda Hub - HCM, trạng thái `Chờ xử lý`).
     3. Quan sát cột THAO TÁC: Xác nhận nút thứ 2 đã là nút "Nhập kho đơn hàng", nút "Nhân bản dòng" không còn xuất hiện.
@@ -218,13 +218,13 @@ sequenceDiagram
        * Nút xóa dòng bị vô hiệu hóa.
        * **KHÔNG CÓ bất kỳ popup in phiếu nhập kho nào xuất hiện**.
        * Chuyến xe `SD53` trên danh sách ngoài bảng vẫn hiển thị trạng thái `Chờ xử lý`.
-  - [ ] **Kịch bản 2: Xuất kho tức thì cho đơn hàng vừa nhập riêng**:
+  - [x] **Kịch bản 2: Xuất kho tức thì cho đơn hàng vừa nhập riêng**:
     1. Chuyển sang màn hình Quản lý Xuất kho (`/warehouse/outbound`).
     2. Mở giao diện tạo chuyến xe xuất mới hoặc gán đơn hàng xuất.
     3. Kỳ vọng:
        * Đơn hàng `NMC2610-125` đã xuất hiện trong danh sách hàng lưu kho sẵn sàng xuất của Andromeda Hub.
        * Cho phép chọn đơn `NMC2610-125` để xuất kho ngay lập tức cho khách hoặc gán lên xe trung chuyển mới.
-  - [ ] **Kịch bản 3: Xác nhận nhập kho toàn bộ chuyến xe & In phiếu tổng hợp**:
+  - [x] **Kịch bản 3: Xác nhận nhập kho toàn bộ chuyến xe & In phiếu tổng hợp**:
     1. Quay lại màn hình Nhập kho, mở lại chuyến xe `SD53`.
     2. Dòng `NMC2610-125` vẫn hiển thị ở trạng thái đã nhập kho (làm mờ).
     3. Bấm nút **"Xác nhận nhập kho"** ở chân modal để hoàn tất các đơn còn lại (`SGN2610-132`, `SGN2610-325`, `VTX2610-384`).

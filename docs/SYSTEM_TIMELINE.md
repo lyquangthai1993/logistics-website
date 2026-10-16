@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 16/10/2026 | `feedbacks/feedback_16_10_task_87` | Feedback 16/10 — Task 87: Tính Năng Nhập Kho Tách Lẻ... | 34/34 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_16_10_task_87/RESOLUTION.md) |
 | 16/10/2026 | `feedbacks/feedback_16_10_task_86` | Feedback 16/10 (Task #86) — Tự Động Loại Bỏ Thông Ti... | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_16_10_task_86/RESOLUTION.md) |
 | 16/10/2026 | `feedbacks/feedback_16_10_task_85` | Feedback 16/10 Task #85 — Tinh gọn Thông tin & Tối ư... | 24/24 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_16_10_task_85/RESOLUTION.md) |
 | 15/10/2026 | `feedbacks/feedback_15_10_task_88` | Feedback 15/10 (Task #88) — Chặn Tuyệt Đối '/dashboa... | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_10_task_88/RESOLUTION.md) |
@@ -74,6 +75,18 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_16_10_TASK_87] — Feedback 16/10 — Task 87: Tính Năng Nhập Kho Tách Lẻ Từng Đơn Trong Trip Chờ Xử Lý & Xuất Kho Tức Thì (16/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (34/34 việc)
+- **Báo cáo bởi**: Quản lý Vận hành TMS (@Thai) & Team Lead Nghiệp vụ TMS (`/leader`)
+- **Phạm vi**: Quản lý Nhập kho (`/warehouse/inbound`) ➔ Chi tiết Chuyến xe Nhập kho Chờ xử lý ([`WarehouseTripDetailModal`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)) • Bảng kê chỉnh sửa dòng hàng kho vận ([`WarehouseEditableGrid`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-editable-grid.tsx)) • In Phiếu Nhập Kho A4 ([`WarehouseInboundReceiptModal`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-inbound-receipt-modal.tsx) & API `inbound/receipt-data`) • Quản lý Xuất kho (`/warehouse/outbound` & [`getAvailableOutboundOrders`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts)) • Backend API Tiếp nhận Kho & Sổ cái Tồn kho ([`WarehouseService.confirmInbound`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts))
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Nâng cấp logic `confirmInbound` trong `WarehouseService` ([`warehouse.service.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts)); Bổ sung tham số `keepTripPending?: boolean` vào payload tiếp nhận kho.; Khi `keepTripPending === true`...
+  * **Frontend**: Nâng cấp component `WarehouseEditableGrid` ([`warehouse-editable-grid.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-editable-grid.tsx)); Mở rộng interface `WarehouseEditableGridProps`; Cập nhật `TableMeta`...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_01_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_16_10_task_87/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_16_10_task_87/TODO.md)
 
 ### 🚀 [FEEDBACK_16_10_TASK_86] — Feedback 16/10 (Task #86) — Tự Động Loại Bỏ Thông Tin Chuyến Xe (Trip) Chưa Lưu Nháp Hoặc Xác Nhận Khi Bấm "Quay Lại Danh Sách" (16/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (12/12 việc)
