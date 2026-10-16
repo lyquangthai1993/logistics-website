@@ -73,6 +73,13 @@ Whenever the user refers to, asks for, or mentions **"domain pro"** (hoặc "dom
     - In native PowerShell, always set `-TimeoutSec`: `(Invoke-WebRequest -Uri "https://<domain>/api/v1/health" -TimeoutSec 15).Content`.
     - In Node.js / Playwright / scripts, always supply an abort signal: `fetch(url, { signal: AbortSignal.timeout(15000) })`.
     - Polling checks MUST NEVER loop indefinitely; cap polling at maximum 5 attempts with 15–20s backoff.
+- **Zero-Hang & Non-Blocking Execution Mandate (Quy chuẩn Chống Treo Script & Triệt Tiêu Kẹt Queue Messages - RULE-ANTI-HANG-EXEC-01)**:
+  - Tất cả các tác vụ chạy qua `run_command` bắt buộc phải tự kết thúc nhanh và trả về đồng bộ (`WaitMsBeforeAsync: 10000`). TUYỆT ĐỐI TRÁNH để lệnh bị Antigravity đẩy vào hàng đợi ngầm (`Background Processes Running`) vì sẽ gây khóa phiên (Session Lock) và làm **đóng băng toàn bộ hàng đợi User-Queued Messages**.
+  - **3 Nguyên tắc cốt tử**:
+    1. **Script Node.js / DB Scratch (`scratch/*.mjs`, `scripts/*.mjs`)**: Bắt buộc cài đặt Hard Timeout tự hủy (`setTimeout(() => process.exit(1), 8000).unref()`) và luôn bọc trong khối `finally { await client.end(); process.exit(0); }`. Cấm để mở socket TCP làm treo Node.js Event Loop.
+    2. **Lệnh Git**: Tuyệt đối không tự ý chạy `git push` khi không có yêu cầu rõ ràng. Không gộp chuỗi lệnh dài vượt quá thời gian đồng bộ. Khi cần chạy lệnh remote Git, bắt buộc đặt `$env:GIT_TERMINAL_PROMPT=0`.
+    3. **Active Task Hygiene**: Nếu một tác vụ bất đắc dĩ bị rơi vào Background Task, Agent phải kiểm tra và chủ động hủy ngay bằng `manage_task(kill)` nếu sau 15 giây không có tiến triển, không để người dùng phải bấm hủy tay `[X]`.
+  - Quy chuẩn chi tiết xem tại [`.agents/rules/anti-hang-execution.md`](file:///d:/Projects/logistics-website/.agents/rules/anti-hang-execution.md).
 - **Zero Premature Telegram Reporting Mandate (Quy chuẩn Chống Báo Cáo Nghiệm Thu Non & Cưỡng Chế 2-Tier Quality Gate: Test Local First -> Cloud Dev Gate)**:
   - Operating agents and background daemons (`neon-worker.mjs`) are STRICTLY FORBIDDEN from reporting task completion to Telegram or claiming "ĐÃ TEST DEV XONG" immediately upon Git push or local compile exit.
   - A completion notification is ONLY permitted after fulfilling the closed 2-Tier Verification Pipeline:
