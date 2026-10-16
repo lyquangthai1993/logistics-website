@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 16/10/2026 | `feedbacks/feedback_16_10_task_85` | Feedback 16/10 Task #85 — Tinh gọn Thông tin & Tối ư... | 24/24 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_16_10_task_85/RESOLUTION.md) |
 | 15/10/2026 | `feedbacks/feedback_15_10_task_88` | Feedback 15/10 (Task #88) — Chặn Tuyệt Đối '/dashboa... | 13/13 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_10_task_88/RESOLUTION.md) |
 | 15/10/2026 | `feedbacks/feedback_15_10_task_87` | Feedback 15/10 (Task #87) — Chuyển Hướng Đăng Nhập T... | 15/15 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_10_task_87/RESOLUTION.md) |
 | 15/10/2026 | `feedbacks/feedback_15_10_task_86` | Feedback 15/10 (Task #86) — Tạm Thời Ẩn Nút Kính Lúp... | 9/9 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_10_task_86/RESOLUTION.md) |
@@ -72,6 +73,18 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_16_10_TASK_85] — Feedback 16/10 Task #85 — Tinh gọn Thông tin & Tối ưu Giao diện Xem Chi tiết Chuyến xe Nhập/Xuất Kho (UI Compact Density & Clean Read-only Audit View) (16/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (24/24 việc)
+- **Báo cáo bởi**: @Thai (Quản lý nghiệp vụ / Vận hành) & @Antigravity Business Team Lead
+- **Phạm vi**: Quản lý Nhập kho (`/dashboard/warehouse/inbound`) ➔ Modal xem chi tiết chuyến xe nhập kho ([`WarehouseTripDetailModal`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx) với `readOnly={true}`, `mode='INBOUND'`) • Quản lý Xuất kho (`/dashboard/warehouse/outbound`) ➔ Modal xem chi tiết chuyến xe xuất kho ([`WarehouseTripDetailModal`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx) với `readOnly={true}`, `mode='OUTBOUND'`) • Bảng kê kiểm đếm hàng hóa ([`WarehouseTripTallyTable`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-tally-table.tsx)) • Hạ tầng Frontend TMS (Next.js 15+ App Router, Tailwind CSS, TanStack Query v5) & Backend API (NestJS 11+)
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Rà soát tính tương thích API Manifest & Chuyến xe ([`warehouse.service.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts)); Đảm bảo API `GET /api/v1/warehouse/trips/:tripCode/manifest` và `GET /api/v1/warehouse/inbound-trips` tiếp tục phục vụ đầy đủ dữ liệu cho cả 2 chế độ xem và tác nghiệp.; Đảm bảo không có thay đổi nào làm ảnh hưởng đến dữ liệu sổ cái tồn kho và chốt trạm trung chuyển....
+  * **Frontend**: Hiệu chỉnh Component [`WarehouseTripDetailModal`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx); Khu vực 1 (Header Action Buttons); Khu vực 2 (Banner cảnh báo khóa sổ & Lộ trình xe)...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.jpg, screenshot_01_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_16_10_task_85/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_16_10_task_85/TODO.md)
 
 ### 🚀 [FEEDBACK_15_10_TASK_88] — Feedback 15/10 (Task #88) — Chặn Tuyệt Đối '/dashboard/overview' & Tự Động Chuyển Hướng Đến Màn Hình Nhập Kho (15/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (13/13 việc)

@@ -146,8 +146,8 @@ Dựa trên ảnh minh chứng [`screenshot_01.jpg`](file:///home/runner/work/lo
 ## 📋 Danh sách công việc triển khai (Action Checklist)
 
 ### 1. Phân hệ Frontend (Next.js 15 App Router - `frontend/`)
-- [ ] **Hiệu chỉnh Component [`WarehouseTripDetailModal`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)**:
-  - [ ] **Khu vực 1 (Header Action Buttons)**:
+- [x] **Hiệu chỉnh Component [`WarehouseTripDetailModal`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx)**:
+  - [x] **Khu vực 1 (Header Action Buttons)**:
     - Bổ sung điều kiện kiểm tra `!readOnly`:
       ```tsx
       {/* Ẩn các nút in trên Header khi ở chế độ xem trip */}
@@ -164,7 +164,7 @@ Dựa trên ảnh minh chứng [`screenshot_01.jpg`](file:///home/runner/work/lo
       )}
       ```
     - Đảm bảo nút đóng `[X]` vẫn luôn hiển thị góc phải trên cùng.
-  - [ ] **Khu vực 2 (Banner cảnh báo khóa sổ & Lộ trình xe)**:
+  - [x] **Khu vực 2 (Banner cảnh báo khóa sổ & Lộ trình xe)**:
     - Bọc điều kiện `!readOnly` cho khối `hub-locked-banner`:
       ```tsx
       {!readOnly && isHubAccountLocked && (
@@ -183,7 +183,7 @@ Dựa trên ảnh minh chứng [`screenshot_01.jpg`](file:///home/runner/work/lo
       )}
       ```
     - Đảm bảo trong chế độ xem (`readOnly={true}`), phần thân cuộn modal mở ra hiển thị ngay thẻ thông tin xe: Ngày nhập/xuất, Biển số xe, Tài xế phụ trách.
-  - [ ] **Khu vực 3 (Khối Badge Thống kê trên đầu Bảng kê)**:
+  - [x] **Khu vực 3 (Khối Badge Thống kê trên đầu Bảng kê)**:
     - Bọc điều kiện `!readOnly` cho khối badge thống kê dỡ kho / đi tiếp:
       ```tsx
       {!readOnly && (
@@ -193,34 +193,34 @@ Dựa trên ảnh minh chứng [`screenshot_01.jpg`](file:///home/runner/work/lo
       )}
       ```
     - Khi `readOnly={true}`, bảng kê `WarehouseTripTallyTable` hoặc bảng chi tiết sẽ áp sát thanh tiêu đề bảng, tối đa hóa số dòng hiển thị.
-  - [ ] **Bảo toàn các hành vi tại Chân trang (Sticky Footer)**:
+  - [x] **Bảo toàn các hành vi tại Chân trang (Sticky Footer)**:
     - Nút `[Đóng]` và nút `[In phiếu xe]` tại Footer vẫn duy trì hoạt động bình thường để người dùng có thể in biên bản chuyến xe khi có nhu cầu.
     - Dòng tổng kết số liệu `Dỡ tại kho: X / Y dòng • Thực nhận: Z kiện` được giữ nguyên để đối soát số lượng.
-  - [ ] **Bảo toàn Chế độ Tác nghiệp (`readOnly={false}`)**:
+  - [x] **Bảo toàn Chế độ Tác nghiệp (`readOnly={false}`)**:
     - Khi thủ kho bấm `Tiếp tục` để thực hiện kiểm đếm dỡ hàng hoặc xuất kho mới, các nút `In phiếu nhập`, các badge thống kê và luồng thao tác nghiệp vụ vẫn hoạt động chuẩn xác 100% như thiết kế đã duyệt tại Task #83.
-- [ ] **Kiểm tra tương thích trên màn hình Xuất kho ([`frontend/src/app/dashboard/warehouse/outbound/page.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/app/dashboard/warehouse/outbound/page.tsx))**:
-  - [ ] Kiểm tra khi click vào mã chuyến xe xuất kho (`isTripDetailModalOpen = true`, `readOnly = true`, `mode = 'OUTBOUND'`), modal hiển thị tinh gọn, không xuất hiện các thành phần thừa đã loại bỏ.
-- [ ] **Kiểm tra tương thích trên màn hình Nhập kho ([`frontend/src/app/dashboard/warehouse/inbound/page.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/app/dashboard/warehouse/inbound/page.tsx))**:
-  - [ ] Kiểm tra khi click vào mã chuyến xe nhập kho (`isTripViewModalOpen = true`, `readOnly = true`, `mode = 'INBOUND'`), modal loại bỏ triệt để 3 khu vực theo đúng yêu cầu.
-- [ ] **Kiểm tra biên dịch & Chuẩn mực giao diện hẹp**:
-  - [ ] Chạy `npm run build --prefix frontend` đảm bảo 0 lỗi TypeScript, 0 lỗi linting.
-  - [ ] Đảm bảo không phát sinh bất kỳ class cấm nào theo `ui-compact-density.md` (`p-4`, `space-y-4`, `gap-4`).
+- [x] **Kiểm tra tương thích trên màn hình Xuất kho ([`frontend/src/app/dashboard/warehouse/outbound/page.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/app/dashboard/warehouse/outbound/page.tsx))**:
+  - [x] Kiểm tra khi click vào mã chuyến xe xuất kho (`isTripDetailModalOpen = true`, `readOnly = true`, `mode = 'OUTBOUND'`), modal hiển thị tinh gọn, không xuất hiện các thành phần thừa đã loại bỏ.
+- [x] **Kiểm tra tương thích trên màn hình Nhập kho ([`frontend/src/app/dashboard/warehouse/inbound/page.tsx`](file:///home/runner/work/logistics-website/logistics-website/frontend/src/app/dashboard/warehouse/inbound/page.tsx))**:
+  - [x] Kiểm tra khi click vào mã chuyến xe nhập kho (`isTripViewModalOpen = true`, `readOnly = true`, `mode = 'INBOUND'`), modal loại bỏ triệt để 3 khu vực theo đúng yêu cầu.
+- [x] **Kiểm tra biên dịch & Chuẩn mực giao diện hẹp**:
+  - [x] Chạy `npm run build --prefix frontend` đảm bảo 0 lỗi TypeScript, 0 lỗi linting.
+  - [x] Đảm bảo không phát sinh bất kỳ class cấm nào theo `ui-compact-density.md` (`p-4`, `space-y-4`, `gap-4`).
 
 ---
 
 ### 2. Phân hệ Backend (NestJS 11 - `backend/`)
-- [ ] **Rà soát tính tương thích API Manifest & Chuyến xe ([`warehouse.service.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts))**:
-  - [ ] Đảm bảo API `GET /api/v1/warehouse/trips/:tripCode/manifest` và `GET /api/v1/warehouse/inbound-trips` tiếp tục phục vụ đầy đủ dữ liệu cho cả 2 chế độ xem và tác nghiệp.
-  - [ ] Đảm bảo không có thay đổi nào làm ảnh hưởng đến dữ liệu sổ cái tồn kho và chốt trạm trung chuyển.
-- [ ] **Kiểm tra biên dịch Backend**:
-  - [ ] Chạy `npm run build --prefix backend` đạt `Exit code 0`.
+- [x] **Rà soát tính tương thích API Manifest & Chuyến xe ([`warehouse.service.ts`](file:///home/runner/work/logistics-website/logistics-website/backend/src/orders/warehouse.service.ts))**:
+  - [x] Đảm bảo API `GET /api/v1/warehouse/trips/:tripCode/manifest` và `GET /api/v1/warehouse/inbound-trips` tiếp tục phục vụ đầy đủ dữ liệu cho cả 2 chế độ xem và tác nghiệp.
+  - [x] Đảm bảo không có thay đổi nào làm ảnh hưởng đến dữ liệu sổ cái tồn kho và chốt trạm trung chuyển.
+- [x] **Kiểm tra biên dịch Backend**:
+  - [x] Chạy `npm run build --prefix backend` đạt `Exit code 0`.
 
 ---
 
 ### 3. Kiểm thử Tự động E2E & Bằng chứng Nghiệm thu (Playwright E2E)
-- [ ] **Xây dựng kịch bản kiểm thử Playwright chuyên biệt**:
+- [x] **Xây dựng kịch bản kiểm thử Playwright chuyên biệt**:
   - File kiểm thử: [`frontend/e2e/85-feedback-16-10-task-85-clean-trip-view-modal.spec.ts`](file:///home/runner/work/logistics-website/logistics-website/frontend/e2e/85-feedback-16-10-task-85-clean-trip-view-modal.spec.ts).
-- [ ] **Nội dung kiểm thử chi tiết**:
+- [x] **Nội dung kiểm thử chi tiết**:
   - **Case 1: Kiểm thử Màn hình Xem Chuyến xe Nhập kho (`/dashboard/warehouse/inbound`)**:
     - Đăng nhập tài khoản thủ kho HCM (`warehouse_hcm`).
     - Mở trang Nhập kho, click vào mã chuyến xe đã xử lý `SD49` (hoặc chuyến bất kỳ) để mở Modal ở chế độ Xem (`readOnly={true}`).
@@ -236,16 +236,16 @@ Dựa trên ảnh minh chứng [`screenshot_01.jpg`](file:///home/runner/work/lo
   - **Case 3: Kiểm thử Tính Độc lập với Chế độ Tác nghiệp (Regression Prevention)**:
     - Tại bảng Nhập kho, mở chuyến xe ở trạng thái `Chờ xử lý` bằng nút `Tiếp tục` (`readOnly={false}`).
     - Xác nhận chế độ Tác nghiệp vẫn hiển thị đầy đủ các thành phần phục vụ kiểm đếm theo đúng quy trình nghiệp vụ.
-- [ ] **Chạy kiểm thử Playwright E2E**:
+- [x] **Chạy kiểm thử Playwright E2E**:
   - Thực thi kiểm thử cục bộ: `npx playwright test frontend/e2e/85-feedback-16-10-task-85-clean-trip-view-modal.spec.ts`.
   - Đảm bảo 100% test cases PASS và lưu ảnh bằng chứng visual evidence vào thư mục feedback.
 
 ---
 
 ### 4. Biên niên sử & Cập nhật Hệ thống
-- [ ] Khởi tạo tài liệu tổng kết kỹ thuật [`RESOLUTION.md`](file:///home/runner/work/logistics-website/logistics-website/feedbacks/feedback_16_10_task_85/RESOLUTION.md) thông qua lệnh `npm run todo:record feedbacks/feedback_16_10_task_85`.
-- [ ] Đồng bộ mốc nâng cấp ngày 16/10/2026 vào [`docs/SYSTEM_TIMELINE.md`](file:///home/runner/work/logistics-website/logistics-website/docs/SYSTEM_TIMELINE.md).
-- [ ] Kiểm tra tiến độ hoàn thành đạt 100% qua lệnh `npm run todo:today`.
+- [x] Khởi tạo tài liệu tổng kết kỹ thuật [`RESOLUTION.md`](file:///home/runner/work/logistics-website/logistics-website/feedbacks/feedback_16_10_task_85/RESOLUTION.md) thông qua lệnh `npm run todo:record feedbacks/feedback_16_10_task_85`.
+- [x] Đồng bộ mốc nâng cấp ngày 16/10/2026 vào [`docs/SYSTEM_TIMELINE.md`](file:///home/runner/work/logistics-website/logistics-website/docs/SYSTEM_TIMELINE.md).
+- [x] Kiểm tra tiến độ hoàn thành đạt 100% qua lệnh `npm run todo:today`.
 
 ---
 
