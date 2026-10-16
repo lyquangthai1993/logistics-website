@@ -161,7 +161,6 @@ jobs:
                       console.log(`🎯 [Direct Task] Đã kích hoạt Task #${task.task_id || task.id} sang IN_PROGRESS.`);
                     }
                   }
-                }
 
                 // 2. Nếu chưa có task và không chỉ định requestedId -> Quét tìm task PENDING cũ nhất (FIFO Queue Claiming)
                 if (!task) {
