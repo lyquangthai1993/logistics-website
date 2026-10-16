@@ -35,11 +35,15 @@ async function main() {
   console.log('Login successful.');
 
   const jsCode = `
-const msg = $input.item.json.body?.message || $input.item.json.body?.callback_query?.message;
-const callbackQuery = $input.item.json.body?.callback_query;
+const firstItem = $input.first();
+if (!firstItem || !firstItem.json) return [];
+
+const body = firstItem.json.body || firstItem.json;
+const msg = body?.message || body?.callback_query?.message;
+const callbackQuery = body?.callback_query;
 if (!msg && !callbackQuery) return [];
 
-const rawText = (callbackQuery ? callbackQuery.data : (msg.text || msg.caption || '')).trim();
+const rawText = (callbackQuery ? callbackQuery.data : (msg?.text || msg?.caption || '')).trim();
 
 let photoFileId = null;
 if (msg?.photo && Array.isArray(msg.photo) && msg.photo.length > 0) {

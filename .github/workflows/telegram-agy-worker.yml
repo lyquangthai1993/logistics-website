@@ -463,6 +463,7 @@ jobs:
         env:
           GH_PAT_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
           TASK_ID: ${{ needs.intake-task.outputs.task_id || github.event.inputs.task_id || github.event.client_payload.task_id || 'manual' }}
+          FEEDBACK_DIR: ${{ needs.intake-task.outputs.feedback_dir || '' }}
           MODE: ${{ needs.intake-task.outputs.mode || github.event.inputs.mode || github.event.client_payload.mode || 'leader' }}
           SENDER: ${{ needs.intake-task.outputs.sender_name || 'User' }}
           RAW_PROMPT: ${{ needs.intake-task.outputs.prompt || '' }}
@@ -532,7 +533,23 @@ jobs:
               git -C frontend diff --stat
               git -C frontend status -s
             fi
-          } > git_diff_summary.txt 2>&1
+          } > /tmp/git_diff_summary.txt 2>&1
+
+          # Xóa file git_diff_summary.txt ở root repo nếu vô tình sinh ra để không làm bẩn git root
+          rm -f git_diff_summary.txt
+
+          # Nếu có thư mục task feedback, lưu git_diff_summary.txt vào đúng thư mục task đó
+          TARGET_TASK_DIR=""
+          if [ -n "$FEEDBACK_DIR" ] && [ -d "$FEEDBACK_DIR" ]; then
+            TARGET_TASK_DIR="$FEEDBACK_DIR"
+          elif [ -n "$TASK_ID" ] && [ "$TASK_ID" != "manual" ]; then
+            TARGET_TASK_DIR=$(find feedbacks -maxdepth 1 -type d -name "*task_${TASK_ID}*" 2>/dev/null | head -n 1)
+          fi
+
+          if [ -n "$TARGET_TASK_DIR" ] && [ -d "$TARGET_TASK_DIR" ]; then
+            cp /tmp/git_diff_summary.txt "$TARGET_TASK_DIR/git_diff_summary.txt"
+            echo "📝 Đã lưu diff summary vào thư mục task: $TARGET_TASK_DIR/git_diff_summary.txt"
+          fi
 
           if [ -z "$HAS_ROOT" ] && [ -z "$HAS_BE" ] && [ -z "$HAS_FE" ] && [ "$AHEAD_ROOT" -eq 0 ] && [ "$AHEAD_BE" -eq 0 ] && [ "$AHEAD_FE" -eq 0 ]; then
             if [ "$MODE" = "audit" ] || [[ "$TASK_ID" == *"audit"* ]] || [[ "$SENDER" == *"Schedule Trigger"* ]] || [[ "$RAW_PROMPT" == *"/todo-agent quét"* ]]; then
@@ -738,7 +755,10 @@ jobs:
           const { execSync } = require("child_process");
 
           let diffSummary = "Không có thay đổi file";
-          if (fs.existsSync("git_diff_summary.txt")) {
+          if (fs.existsSync("/tmp/git_diff_summary.txt")) {
+            const saved = fs.readFileSync("/tmp/git_diff_summary.txt", "utf8").trim();
+            if (saved) diffSummary = saved;
+          } else if (fs.existsSync("git_diff_summary.txt")) {
             const saved = fs.readFileSync("git_diff_summary.txt", "utf8").trim();
             if (saved) diffSummary = saved;
           }

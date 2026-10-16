@@ -1,0 +1,7 @@
+=== Root ===
+7666752 docs(task-86): record resolution and verified evidence for task #86
+ git_diff_summary.txt | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
+ M git_diff_summary.txt
+=== Frontend ===
+652e630 feat(warehouse): task #86 discard unsaved trip info when clicking back to list
