@@ -187,7 +187,12 @@ jobs:
             }
 
             if (task) {
-              taskId = String(task.task_id != null ? task.task_id : task.id);
+              if (task.task_id != null) {
+                taskId = String(task.task_id);
+              } else {
+                const match = (task.raw_prompt || "").match(/(?:task[_\-#\s]*)(\d+)/i);
+                taskId = match ? match[1] : String(task.id);
+              }
               sender = task.sender_name || sender;
               rawPrompt = (task.analysis || task.raw_prompt || rawPrompt).replace(/<id>/g, taskId);
               if (task.raw_prompt && (task.raw_prompt.includes("/force") || task.raw_prompt.includes("todo-agent") || task.raw_prompt.includes("/todo"))) {
