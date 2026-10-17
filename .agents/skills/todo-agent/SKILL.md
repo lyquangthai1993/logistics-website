@@ -298,14 +298,20 @@ flowchart TD
 2. **Submodule-First Code Modifications**:
    - Triển khai code theo checklist `TODO.md` (tuân thủ Compact Density `p-1`, `p-2`, cấm `p-4`, 0 mock data, 0 jargon kỹ thuật).
    - Kiểm tra biên dịch tĩnh: `npm run build --prefix backend` và `npx --prefix frontend tsc --noEmit`.
-3. **Nghiệm Thu Tầng 1: Kiểm Thử Local E2E Gate & Chốt Chặn Bắt Buộc `/e2e-code-auditor`**:
-   - Kích hoạt Playwright E2E suite trên Local (`http://localhost:4000` & `4001`).
-   - Tự động sửa lỗi cục bộ (Autonomous Local Self-Healing, tối đa 3 lần).
-   - **KÍCH HOẠT /e2e-code-auditor ĐÁNH GIÁ CHÉO TEST CODE**:
-     * Chạy ngay: `node scripts/e2e-auditor.mjs frontend/e2e/<spec_file>.spec.ts`.
-     * Điểm đánh giá bắt buộc $\ge 40/50$, **0 lỗi Auto-FAIL**.
-     * **Nghiêm cấm Shallow Tests**: Tuyệt đối không cho phép test đọc chuỗi file tĩnh (`fs.readFileSync`), look-only tests (chỉ mở URL mà không click/fill), hoặc rẽ nhánh nuốt lỗi `if (isVisible) ... else { screenshot }`.
-     * **ĐIỀU KIỆN TIÊN QUYẾT**: 100% test local phải PASS VÀ auditor phải duyệt PASS ($\ge 40/50$). Nếu không đạt chuẩn, **CẤM PUSH CODE LÊN REMOTE, CẤM TẠO PR**.
+3. **Nghiệm Thu Tầng 1: Điều Phối `/e2e-test-runner` (Local E2E Gate) & Chốt Chặn `/e2e-code-auditor`**:
+   - **Bàn giao cho `/e2e-test-runner` chạy Round 1**:
+     - Kích hoạt Playwright E2E suite trên Local (`http://localhost:4000` & `4001`):
+       ```bash
+       $env:PLAYWRIGHT_BASE_URL="http://localhost:4000"
+       $env:API_URL="http://localhost:4001/api/v1"
+       npx --prefix frontend playwright test e2e/<spec_file>.spec.ts
+       ```
+     - Tự động sửa lỗi cục bộ (Autonomous Local Self-Healing, tối đa 3 lần) cho đến khi 100% PASS.
+   - **Thông báo & Bàn giao cho `/e2e-code-auditor` (Thẩm định chéo mã test)**:
+     - Kích hoạt auditor chạy ngay: `node scripts/e2e-auditor.mjs frontend/e2e/<spec_file>.spec.ts`.
+     - Điểm đánh giá bắt buộc $\ge 40/50$, **0 lỗi Auto-FAIL**.
+     - **Nghiêm cấm Shallow Tests**: Tuyệt đối không cho phép test đọc chuỗi file tĩnh (`fs.readFileSync`), look-only tests (chỉ mở URL mà không click/fill), hoặc rẽ nhánh nuốt lỗi `if (isVisible) ... else { screenshot }`.
+     - **ĐIỀU KIỆN TIÊN QUYẾT BẮT BUỘC**: 100% test local phải PASS VÀ `/e2e-code-auditor` phải duyệt PASS ($\ge 40/50$). Nếu không đạt chuẩn, **CẤM PUSH CODE LÊN REMOTE, CẤM TẠO PR**.
 4. **Đẩy Nhánh, Tạo PR vào `dev` Làm Bằng Chứng & Tự Động Merge**:
    - Commit code trong submodule (`git -C <submodule> commit -am "feat(task-<id>): ..."`).
    - Push nhánh lên remote: `git -C <submodule> push -u origin feature/task-<id>-<name>`.
@@ -318,13 +324,17 @@ flowchart TD
    - Chờ Railway Cloud hoàn tất build & deploy trên nhánh `dev`.
    - Kiểm tra Dev Backend readiness (anti-hang timeout):
      `curl.exe -m 15 -i https://backend-tms-core-dev.up.railway.app/api/v1/health`
-6. **Nghiệm Thu Tầng 2: Kiểm Thử Cloud Dev E2E Gate (Lần Thứ Hai)**:
-   - Chạy Playwright E2E trực tiếp trên Domain Dev:
-     ```bash
-     PLAYWRIGHT_BASE_URL=https://frontend-tms-core-dev.up.railway.app API_URL=https://backend-tms-core-dev.up.railway.app/api/v1 npx playwright test e2e/<spec_file>.spec.ts
-     ```
-   - Chụp ảnh màn hình bằng chứng thực tế (`screenshot_*_verified.png`) với bảng dữ liệu thật (không chụp bảng rỗng).
-7. **Thẩm Định Chéo E2E Lần 2 & Chứng Nhận Chất Lượng**:
+6. **Nghiệm Thu Tầng 2: Điều Phối `/e2e-test-runner` (Cloud Dev E2E Gate - Lần Thứ Hai)**:
+   - **Bàn giao cho `/e2e-test-runner` chạy Round 2**:
+     - Kích hoạt Playwright E2E trực tiếp trên Domain Dev của Railway Cloud:
+       ```bash
+       $env:PLAYWRIGHT_BASE_URL="https://frontend-tms-core-dev.up.railway.app"
+       $env:API_URL="https://backend-tms-core-dev.up.railway.app/api/v1"
+       npx --prefix frontend playwright test e2e/<spec_file>.spec.ts
+       ```
+     - Chụp ảnh màn hình bằng chứng thực tế (`screenshot_*_verified.png`) với bảng dữ liệu thật (nghiêm cấm chụp bảng rỗng).
+7. **Thẩm Định Chéo Lần 2 & Chứng Nhận Chất Lượng — `/e2e-code-auditor`**:
+   - `/e2e-code-auditor` thẩm định kết quả chạy thực tế và ảnh chụp màn hình minh chứng.
    - Chạy auditor: `node scripts/e2e-auditor.mjs frontend/e2e/<spec_file>.spec.ts` (điểm $\ge$ 40/50).
    - Đính kèm bảng điểm chi tiết 5 chiều vào biên bản `RESOLUTION.md`.
 8. **Checklist & Ghi Nhận Biên Niên Sử Kỹ Thuật**:
@@ -332,7 +342,7 @@ flowchart TD
    - Chạy `npm run todo:record <folder_name>` để sinh `RESOLUTION.md` và đồng bộ `docs/SYSTEM_TIMELINE.md`.
 9. **Báo Cáo Nghiệm Thu Mobile-First Qua Telegram**:
    - Gửi ảnh bằng chứng qua Telegram `sendPhoto`.
-   - Gửi báo cáo hoàn thành chứa link PR GitHub, kết quả 2 tầng E2E test, link `RESOLUTION.md` và `docs/SYSTEM_TIMELINE.md`.
+   - Gửi báo cáo hoàn thành chứa link PR GitHub, kết quả 2 tầng E2E test (Round 1 Local + Round 2 Cloud Dev), link `RESOLUTION.md` và `docs/SYSTEM_TIMELINE.md`.
 
 ---
 
