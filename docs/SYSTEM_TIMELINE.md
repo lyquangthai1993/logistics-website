@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 17/10/2026 | `feedbacks/feedback_17_10_extra` | 📋 Kế hoạch Thực thi & Báo cáo Tiến độ: Feedback 17/... | 4/4 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_17_10_extra/RESOLUTION.md) |
 | 16/10/2026 | `feedbacks/feedback_16_10_task_87` | Feedback 16/10 — Task 87: Tính Năng Nhập Kho Tách Lẻ... | 34/34 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_16_10_task_87/RESOLUTION.md) |
 | 16/10/2026 | `feedbacks/feedback_16_10_task_86` | Feedback 16/10 (Task #86) — Tự Động Loại Bỏ Thông Ti... | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_16_10_task_86/RESOLUTION.md) |
 | 16/10/2026 | `feedbacks/feedback_16_10_task_85` | Feedback 16/10 Task #85 — Tinh gọn Thông tin & Tối ư... | 24/24 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_16_10_task_85/RESOLUTION.md) |
@@ -75,6 +76,14 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_17_10_EXTRA] — 📋 Kế hoạch Thực thi & Báo cáo Tiến độ: Feedback 17/10 Extra (Warehouse Grid, Trip Board & Outbound Receipt) (17/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (4/4 việc)
+- **Năng lực & Tính năng mới**:
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: 1.png, 2.png, 2_1.png, 2_3.png, 3.png, screenshot_01_task1_enter_tab_search_verified.png, screenshot_02_task2_inbound_trip_board_waybills_verified.png, screenshot_03_task2_outbound_trip_board_waybills_verified.png, screenshot_04_task3_outbound_receipt_destination_verified.png, screenshot_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_17_10_extra/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_17_10_extra/TODO.md)
 
 ### 🚀 [FEEDBACK_16_10_TASK_87] — Feedback 16/10 — Task 87: Tính Năng Nhập Kho Tách Lẻ Từng Đơn Trong Trip Chờ Xử Lý & Xuất Kho Tức Thì (16/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (34/34 việc)
