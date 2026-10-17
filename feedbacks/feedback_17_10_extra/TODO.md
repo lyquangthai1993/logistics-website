@@ -14,12 +14,13 @@
 - **Giải pháp**:
   - Loại bỏ hoàn toàn `setTimeout` tự động tìm kiếm trong `handleOutboundChange` và `handleInboundChange`.
   - Chỉ kích hoạt tìm kiếm (`performSearch` ở màn Xuất kho / `performInboundSearch` ở màn Nhập kho) khi nhân viên kho nhấn phím **`Enter`** hoặc **`Tab`** trong `handleKeyDown` (hoặc khi `onBlur` rời ô input), kèm cơ chế khóa chống gọi đúp (`inFlightCodeRef` / `lastSearchedCodeRef`) khi nhấn `Tab` làm kích hoạt đồng thời `onKeyDown` và `onBlur`.
+  - Thu nhỏ cỡ chữ trong ô nhập `MÃ VẬN ĐƠN *` (`text-[10px] md:text-[10px] tracking-tight px-1`) để ghi đè `md:text-sm` (`14px`) mặc định của `<Input />`, giúp mã vận đơn hiển thị gọn và trọn vẹn trong ô.
 
 ### 2. Task 2 (`2.png`, `2_1.png`, `2_3.png`) — Bố cục cột `XE & TÀI XẾ` và bổ sung cột `MÃ VẬN ĐƠN` trên Bảng quản lý Chuyến xe
 - **Hiện trạng**: Trên bảng `Danh sách Chuyến xe Nhập kho` ([`inbound/page.tsx`](file:///c:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/inbound/page.tsx#L967-L1108)) và `Danh sách Chuyến xe Xuất kho` ([`outbound/page.tsx`](file:///c:/Projects/logistics-website/frontend/src/app/dashboard/warehouse/outbound/page.tsx#L1005-L1150)), 5 cột hiện tại đều gắn độ rộng cố định nhỏ (`w-[150px]`, `w-[150px]`, `w-[130px]`, `w-[100px]`, `w-[180px]`) trên bảng `w-full`, khiến trình duyệt tự giãn rộng khoảng trắng lớn giữa `CHUYẾN XE / TRIP` và `XE & TÀI XẾ`, đồng thời thiếu cột hiển thị danh sách các mã vận đơn trong chuyến.
 - **Giải pháp**:
   - Thu gọn độ rộng cột `CHUYẾN XE / TRIP` (`w-[115px] whitespace-nowrap`) và đặt cột `XE & TÀI XẾ` (`w-[160px]`) nằm sát ngay bên cạnh.
-  - Ở khoảng trống lớn giữa `XE & TÀI XẾ` và `SỐ KIỆN / TẢI TRỌNG`, bổ sung cột mới **`MÃ VẬN ĐƠN`** (`min-w-[240px]`) hiển thị đầy đủ tất cả các mã vận đơn (`orderCode`) thuộc chuyến xe đó (cách nhau bằng khoảng trắng, ví dụ: `NAV2610-0094 CTB2610-052 NMC26010-069...`).
+  - Ở khoảng trống lớn giữa `XE & TÀI XẾ` và `SỐ KIỆN / TẢI TRỌNG`, bổ sung cột mới **`MÃ VẬN ĐƠN`** (`min-w-[240px]`) hiển thị đầy đủ tất cả các mã vận đơn (`orderCode`) thuộc chuyến xe đó (ngăn cách nhau bằng dấu phẩy `, `, ví dụ: `ORD-TASK67-01, LTV1710-1111, LTV1710-7771, LTV1710-8319`).
   - Định dạng danh sách mã vận đơn bằng cỡ chữ nhỏ và màu sắc đồng bộ với tên tài xế dưới biển số xe (`text-[10px] text-gray-500 dark:text-slate-400 leading-snug break-words`) để hiển thị toàn bộ mã vận đơn của chuyến xe nhiều đơn mà không bị cắt khuất.
 
 ### 3. Task 3 (`3.png`) — In Phiếu Xuất Kho cột `Kho đích / Nơi giao` phải in theo địa chỉ hiển thị ở màn hình Xuất kho
