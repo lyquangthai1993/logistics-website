@@ -2,7 +2,7 @@
 ## [FEEDBACK_17_10_EXTRA] — 📋 Kế hoạch Thực thi & Báo cáo Tiến độ: Feedback 17/10 Extra (Warehouse Grid, Trip Board & Outbound Receipt)
 
 > **Thời gian nghiệm thu**: 17/10/2026  
-> **Trạng thái thực thi**: ✅ ĐÃ HOÀN THÀNH 100% (4/4 tasks)  
+> **Trạng thái thực thi**: ✅ ĐÃ HOÀN THÀNH 100% (6/6 tasks)  
 > **Người báo cáo / Nghiệp vụ**: @【M】【C】【D】 (Quản lý vận hành)  
 > **Phạm vi tác động**: Hệ thống Quản lý Vận tải Logistics TMS (Spider Express)  
 > **Môi trường kiểm chứng**: Development (Live) & Staging / Production  
@@ -38,7 +38,7 @@ Nhiệm vụ này giải quyết phản hồi thực tế từ vận hành hiệ
   * Backend: `https://logistics-website-backend-1jho.onrender.com`
 - **Kiểm tra sức khỏe Backend (Anti-Hang Health Check)**: `curl.exe -m 15 -i https://logistics-website-backend-1jho.onrender.com/api/v1/health` -> HTTP 200 OK.
 
-### Hình ảnh minh chứng đã lưu trữ (10 tệp):
+### Hình ảnh minh chứng đã lưu trữ (11 tệp):
 - 📸 **1.png**: [Xem hình ảnh](file:///C:/Projects/logistics-website/feedbacks/feedback_17_10_extra/1.png)
 - 📸 **2.png**: [Xem hình ảnh](file:///C:/Projects/logistics-website/feedbacks/feedback_17_10_extra/2.png)
 - 📸 **2_1.png**: [Xem hình ảnh](file:///C:/Projects/logistics-website/feedbacks/feedback_17_10_extra/2_1.png)
@@ -48,6 +48,7 @@ Nhiệm vụ này giải quyết phản hồi thực tế từ vận hành hiệ
 - 📸 **screenshot_02_task2_inbound_trip_board_waybills_verified.png**: [Xem hình ảnh](file:///C:/Projects/logistics-website/feedbacks/feedback_17_10_extra/screenshot_02_task2_inbound_trip_board_waybills_verified.png)
 - 📸 **screenshot_03_task2_outbound_trip_board_waybills_verified.png**: [Xem hình ảnh](file:///C:/Projects/logistics-website/feedbacks/feedback_17_10_extra/screenshot_03_task2_outbound_trip_board_waybills_verified.png)
 - 📸 **screenshot_04_task3_outbound_receipt_destination_verified.png**: [Xem hình ảnh](file:///C:/Projects/logistics-website/feedbacks/feedback_17_10_extra/screenshot_04_task3_outbound_receipt_destination_verified.png)
+- 📸 **screenshot_05_task6_draft_trip_save_verified.png**: [Xem hình ảnh](file:///C:/Projects/logistics-website/feedbacks/feedback_17_10_extra/screenshot_05_task6_draft_trip_save_verified.png)
 - 📸 **screenshot_verified.png**: [Xem hình ảnh](file:///C:/Projects/logistics-website/feedbacks/feedback_17_10_extra/screenshot_verified.png)
 
 ---
@@ -64,6 +65,8 @@ Nhiệm vụ này giải quyết phản hồi thực tế từ vận hành hiệ
 | 6 | `scripts/e2e-auditor.mjs` | Source |
 | 7 | `docs/SYSTEM_TIMELINE.md` | Documentation |
 | 8 | `frontend/src/app/auth/forgot-password/page.tsx` | Frontend (Next.js) |
+| 9 | `backend/src/orders/dto/confirm-outbound.dto.ts` | Backend (NestJS) |
+| 10 | `frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx` | Frontend (Next.js) |
 
 ---
 
