@@ -127,9 +127,14 @@ Step 4: Review Reports & Teardown (frontend/: npm run e2e:report)
 
 ---
 
-### Step 1: Start Dev Servers at Root Folder (`npm run dev`)
+### Step 1: Dev Servers & Environment Selection (2-Round Testing Architecture)
 
-E2E tests require **BOTH** the NestJS Backend (`http://localhost:3001`) and the Next.js Frontend (`http://localhost:3000`) to be running.
+Logistics TMS enforces a mandatory **2-Tier Quality Gate (2-Round Testing Protocol)**:
+- **Round 1 (Local Gate)**: Executed against local dev servers (`http://localhost:4000` & `http://localhost:4001`) before code is committed to GitHub.
+- **Round 2 (Cloud Dev Gate)**: Executed against live Railway Cloud Dev (`https://frontend-tms-core-dev.up.railway.app` & `https://backend-tms-core-dev.up.railway.app`) after PR is merged into `dev`.
+
+#### Local Dev Servers at Root Folder (`npm run dev`)
+E2E tests in Round 1 require **BOTH** the NestJS Backend (`http://localhost:4001`) and the Next.js Frontend (`http://localhost:4000`) to be running.
 Always use the root orchestrator instead of manually launching each folder:
 
 ```bash
@@ -138,9 +143,9 @@ npm run dev
 ```
 
 #### What `npm run dev` does under the hood (`scripts/start-dev.js`):
-1. **Spawns NestJS Backend** (`npm run start:dev` inside `./backend` on port `3001`).
-2. **Polls Backend Health Endpoint** (`http://localhost:3001/api`) with a 2-minute timeout until active.
-3. **Spawns Next.js Frontend** (`npm run dev` inside `./frontend` on port `3000`) once backend is ready.
+1. **Spawns NestJS Backend** (`npm run start:dev` inside `./backend` on port `4001`).
+2. **Polls Backend Health Endpoint** (`http://localhost:4001/api`) with a 2-minute timeout until active.
+3. **Spawns Next.js Frontend** (`npm run dev` inside `./frontend` on port `4000`) once backend is ready.
 4. **Multiplexes Logs** with color tags (`[BACKEND]` in blue, `[FRONTEND]` in magenta).
 5. **Unified Lifecycle**: Sending `Ctrl+C` (SIGINT/SIGTERM) gracefully shuts down both child processes together.
 
@@ -149,15 +154,15 @@ npm run dev
 
 ---
 
-### Step 2: Pre-Flight Server Verification
+### Step 2: Pre-Flight Server Verification (Local Round 1)
 
-Before running Playwright, always verify both servers are responsive:
+Before running Playwright locally, always verify both servers are responsive:
 
 ```bash
 # In frontend folder: d:\Projects\logistics-website\frontend
 cd frontend
 npm run e2e:check
-# (Runs node scripts/check-servers.mjs to verify ports 3000 & 3001)
+# (Runs node scripts/check-servers.mjs to verify ports 4000 & 4001)
 ```
 
 - If check **FAILS**: Return to Step 1 and run `npm run dev` at the root folder.
@@ -165,33 +170,52 @@ npm run e2e:check
 
 ---
 
-### Step 3: Run Playwright Test Suites
+### Step 3: Run Playwright Test Suites (Dual-Round Execution)
 
-Execute test suites from the `frontend/` directory:
-
+#### 🔄 ROUND 1: Local E2E Gate (Pre-PR Verification)
 ```bash
 # In frontend folder: d:\Projects\logistics-website\frontend
+$env:PLAYWRIGHT_BASE_URL="http://localhost:4000"
+$env:API_URL="http://localhost:4001/api/v1"
 
-# ── A. Run Server & Runtime Log Tracer (RUN FIRST) ──
-npx playwright test e2e/00-runtime-log-tracer.spec.ts
+# Run target spec for the task:
+npx playwright test e2e/<task_spec>.spec.ts
 
-# ── B. Run Individual Core Suites ──
+# Autonomous Self-Healing: If failed, fix code locally (up to 3 retries) until 100% PASS.
+# Hand off to /e2e-code-auditor for Round 1 static inspection:
+node ../scripts/e2e-auditor.mjs e2e/<task_spec>.spec.ts
+```
+
+#### 🌐 ROUND 2: Cloud Dev Gate (Post-PR Merge & Railway Deploy)
+Triggered once PR is merged into `dev` and Railway Cloud Dev is healthy (HTTP 200):
+```bash
+# In frontend folder: d:\Projects\logistics-website\frontend
+$env:PLAYWRIGHT_BASE_URL="https://frontend-tms-core-dev.up.railway.app"
+$env:API_URL="https://backend-tms-core-dev.up.railway.app/api/v1"
+
+# Run test on live cloud environment:
+npx playwright test e2e/<task_spec>.spec.ts
+
+# Capture non-empty visual evidence:
+# Must save to feedbacks/feedback_DD_MM*/screenshot_*_verified.png
+
+# Hand off to /e2e-code-auditor for Round 2 evidence certification:
+node ../scripts/e2e-auditor.mjs e2e/<task_spec>.spec.ts
+```
+
+---
+
+#### ── General Core Test Commands ──
+```bash
+# In frontend folder:
 npm run e2e:console      # Sub-Agent A: Console health & JS exceptions (01-console-health.spec.ts)
 npm run e2e:login        # Sub-Agent B: Login flow & error sanitization (02-login-flow.spec.ts)
 npm run e2e:rbac         # Sub-Agent C: RBAC routing & route guards (03-rbac-routing.spec.ts)
 npm run e2e:websocket    # Real-time WebSocket notifications (06c-websocket-realtime-notification.spec.ts)
 npm run e2e:multi-account# Multi-account dispatch & notification sync (06b-realtime-multi-account-notification.spec.ts)
-
-# ── C. Run Viewport & Table UX Matrix ──
-npx playwright test e2e/11-orders-table-no-hscroll.spec.ts
-
-# ── D. Run Visual & Pen Canvas Matching Suite (Sub-Agent F) ──
-npx playwright test e2e/13-warehouse-ui-visual-validation.spec.ts
-
-# ── E. Run ALL Test Suites ──
-npm run e2e              # Automatically runs pre-flight check then executes all specs
-
-# ── F. Debug / Headed Mode ──
+npx playwright test e2e/11-orders-table-no-hscroll.spec.ts # Viewport & Table UX Matrix
+npx playwright test e2e/13-warehouse-ui-visual-validation.spec.ts # Visual & Pen Canvas Matching
+npm run e2e              # Run all test specs
 npm run e2e:debug        # Launches Playwright Inspector in headed browser
 ```
 
@@ -244,11 +268,26 @@ Default password: `secret` (configured in `.env.local`).
    - Verify `body.scrollWidth <= viewport.width` (no global page overflow).
    - Verify table renders cleanly without truncated text or clipped action buttons.
    - Verify horizontal scrolling is enabled within the table container when content exceeds width.
-4. **Capture Visual Evidence**: Always save screenshots at each breakpoint (`playwright-report/<page>-<width>px-sidebar-<state>.png`) for visual verification.
-5. **Dev Domain & Cloud Endpoint Anti-Hang Rule**:
-   - When verifying remote backend readiness on **Domain Dev** (`https://logistics-website-backend-1jho.onrender.com`), NEVER ping or check health using bare `curl -s` without timeout.
+4. **Capture Visual Evidence**: Always save screenshots at each breakpoint (`playwright-report/<page>-<width>px-sidebar-<state>.png` or `feedbacks/feedback_DD_MM*/screenshot_*_verified.png`) for visual verification.
+5. **Dev Domain & Cloud Endpoint Anti-Hang Rule (Primary: Railway Cloud)**:
+   - Primary Dev Backend: `https://backend-tms-core-dev.up.railway.app`
+   - Primary Dev Frontend: `https://frontend-tms-core-dev.up.railway.app`
+   - Secondary / Fallback: `https://logistics-website-backend-1jho.onrender.com`
+   - NEVER ping or check health using bare `curl -s` without timeout.
    - Always use `curl.exe -m 15 -i <url>` or pass `{ signal: AbortSignal.timeout(15000) }` in Node/Playwright.
-   - Account for Render cold starts (up to 45–60s) with max 5 bounded attempts (15s timeout per attempt). NEVER loop indefinitely.
-6. **Model Role Allocation in Test Execution & Autonomous Self-Healing**:
+   - Polling capped at max 5 attempts (15-20s backoff). NEVER loop indefinitely.
+6. **Collaboration Protocol with /todo-agent & /e2e-code-auditor**:
+   - **Hand-off From `/todo-agent` (Round 1 - Local Gate)**:
+     - `/todo-agent` completes code changes -> calls `/e2e-test-runner` with local params.
+     - Runs Playwright tests against `http://localhost:4000` & `http://localhost:4001/api/v1`.
+     - Autonomous Self-Healing loop runs up to 3 times if errors occur.
+     - Upon 100% PASS, notifies `/e2e-code-auditor` to audit test code (`node scripts/e2e-auditor.mjs`).
+   - **Hand-off From `/todo-agent` (Round 2 - Cloud Dev Gate)**:
+     - PR is auto-merged into `dev` and Railway deployment is ready (HTTP 200).
+     - `/todo-agent` calls `/e2e-test-runner` with Cloud Dev domains.
+     - Executes Playwright test suite against live Railway Cloud.
+     - Saves non-empty verified screenshot `screenshot_*_verified.png`.
+     - Hands off to `/e2e-code-auditor` for final audit score & evidence validation before `/todo-agent` generates `RESOLUTION.md`.
+7. **Model Role Allocation in Test Execution & Autonomous Self-Healing**:
    - ⚡ **Orchestration, Execution & Log Tracing**: Sử dụng **Gemini 2.5 Flash / Gemini 3.8 Flash** để điều phối lệnh test, theo dõi console log, kiểm tra server readiness (`npm run e2e:check`) và trích xuất trace lỗi với tốc độ phản hồi nhanh nhất.
    - 🛠️ **Autonomous Self-Healing Loop (AI Auto-Fix)**: Khi test thất bại và kích hoạt vòng lặp tự sửa lỗi (`runAgyAutoFixSession`), bàn giao việc sửa code ứng dụng trong `frontend/` hoặc `backend/` cho **Claude 3.5 Sonnet / Claude 3.7 Sonnet** để đảm bảo sửa đúng nguyên nhân gốc rễ (RCA), chuẩn TypeScript và không gây lỗi hồi quy trước khi retry test.

@@ -51,6 +51,26 @@ flowchart LR
 
 ---
 
+### 🔄 2-Round Audit Protocol & Agent Handoff Lifecycle
+
+The `e2e-code-auditor` is triggered **TWICE** during the task lifecycle by `/todo-agent`:
+
+#### 1. Round 1 Audit Gate (Pre-PR Local Verification):
+- **Trigger**: Called right after `/e2e-test-runner` completes 100% pass on Localhost (`http://localhost:4000` & `4001`).
+- **Action**: Runs AST & static analysis (`node scripts/e2e-auditor.mjs frontend/e2e/<spec>.spec.ts`).
+- **Verdict**: Score $\ge$ 40/50 with 0 Auto-FAILs is required to create PR and auto-merge to `dev`.
+- **Enforcement**: If score < 40 or shallow test detected, block PR creation and instruct `/todo-agent` to remediate test code.
+
+#### 2. Round 2 Audit Gate (Post-Merge Cloud Dev Evidence Certification):
+- **Trigger**: Called after PR is merged into `dev`, Railway Cloud deployment completes (HTTP 200), and `/e2e-test-runner` finishes testing against `https://frontend-tms-core-dev.up.railway.app`.
+- **Action**:
+  - Re-verifies AST compliance.
+  - Audits captured visual screenshot evidence in `feedbacks/feedback_DD_MM*/screenshot_*_verified.png`.
+  - **Non-Empty Table Gate**: Asserts screenshot contains real rows (not an empty table / 0-row fallback).
+- **Handoff**: Delivers final certification scorecard to `/todo-agent` to embed directly into `RESOLUTION.md` and authorize Telegram reporting.
+
+---
+
 ## 2. The 50-Point E2E Evaluation Rubric (5 Dimensions x 10 Pts)
 
 Every E2E test file is evaluated across 5 objective dimensions:
