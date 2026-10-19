@@ -1,60 +1,74 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-process.loadEnvFile(path.resolve(__dirname, '../tools/telegram-task-runner/.env'));
+process.loadEnvFile(
+  path.resolve(__dirname, "../tools/telegram-task-runner/.env"),
+);
 
-const BASE_URL = process.env.N8N_BASE_URL || 'https://n8n-automation-production-d298.up.railway.app';
-const WORKFLOW_ID = 'npbnCeqRGuBWPNjI';
+const BASE_URL =
+  process.env.N8N_BASE_URL ||
+  "https://n8n-automation-production-d298.up.railway.app";
+const WORKFLOW_ID = "npbnCeqRGuBWPNjI";
 const email = process.env.N8N_EMAIL;
 const password = process.env.N8N_PASSWORD;
 
 async function main() {
-  console.log('1. Đăng nhập vào n8n Cloud...');
+  console.log("1. Đăng nhập vào n8n Cloud...");
   const loginRes = await fetch(`${BASE_URL}/rest/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ emailOrLdapLoginId: email, password })
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ emailOrLdapLoginId: email, password }),
   });
-  const cookie = loginRes.headers.get('set-cookie');
+  const cookie = loginRes.headers.get("set-cookie");
 
-  console.log('2. Lấy workflow chi tiết hiện tại...');
+  console.log("2. Lấy workflow chi tiết hiện tại...");
   const getRes = await fetch(`${BASE_URL}/rest/workflows/${WORKFLOW_ID}`, {
-    headers: { 'Cookie': cookie }
+    headers: { Cookie: cookie },
   });
   const currentWf = (await getRes.json()).data;
 
   console.log('3. Cập nhật các node dùng "id" sang "task_id"...');
-  const nodes = currentWf.nodes.map(node => {
+  const nodes = currentWf.nodes.map((node) => {
     // 1. Node Query Pending Feedback
-    if (node.name === 'Query Pending Feedback') {
+    if (node.name === "Query Pending Feedback") {
       return {
         ...node,
+        alwaysOutputData: true,
         parameters: {
           ...node.parameters,
-          query: `SELECT 
+          query: `SELECT DISTINCT ON (t.task_id)
   t.id, 
   t.task_id,
-  t.feedback_dir, 
+  COALESCE(
+    NULLIF(t.feedback_dir, ''),
+    'feedbacks/feedback_' || to_char(t.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh', 'DD_MM') || '_task_' || t.task_id
+  ) AS feedback_dir, 
   t.raw_prompt, 
   t.sender_name, 
+  t.status,
   t.created_at
 FROM telegram_tasks t
 WHERE t.task_id IS NOT NULL
-  AND t.status = 'COMPLETED'
-  AND t.feedback_dir IS NOT NULL
+  AND t.status = 'TODO_CREATED'
+  AND t.raw_prompt NOT ILIKE '%/force%'
   AND t.raw_prompt NOT ILIKE '%/todo%'
   AND t.raw_prompt NOT ILIKE '%todo-agent%'
-  AND t.created_at >= CURRENT_DATE
-ORDER BY t.task_id DESC;`
-        }
+  AND NOT EXISTS (
+    SELECT 1 FROM telegram_tasks t2
+    WHERE t2.task_id = t.task_id
+      AND t2.id <> t.id
+      AND t2.status IN ('COMPLETED', 'IN_PROGRESS', 'VERIFYING_LOCAL', 'VERIFYING_DEV')
+  )
+ORDER BY t.task_id ASC, t.id DESC;`,
+        },
       };
     }
 
     // 2. Node Format Todo-Agent Task
-    if (node.name === 'Format Todo-Agent Task') {
+    if (node.name === "Format Todo-Agent Task") {
       const updatedJsCode = `const items = $input.all();
 const validItems = items.filter(i => i.json && (i.json.task_id != null || i.json.id));
 
@@ -113,24 +127,24 @@ return [{
         ...node,
         parameters: {
           ...node.parameters,
-          jsCode: updatedJsCode
-        }
+          jsCode: updatedJsCode,
+        },
       };
     }
 
     // 3. Node Notify Telegram Success
-    if (node.name === 'Notify Telegram Success') {
+    if (node.name === "Notify Telegram Success") {
       return {
         ...node,
         parameters: {
           ...node.parameters,
-          text: `={{ \`⏰ <b>[Trigger \${$('Format Todo-Agent Task').item.json.time_label} - Kích hoạt Todo Agent]</b>\\n\\n📋 <b>Tổng hợp Feedback ngày hôm nay:</b>\\n• <b>Số lượng:</b> \${$('Format Todo-Agent Task').item.json.task_count} feedback (\${$('Format Todo-Agent Task').item.json.task_ids})\\n• <b>Thư mục mục tiêu:</b> Toàn bộ thư mục <code>feedback_DD_MM*</code> hôm nay\\n\\n🚀 <b>Hành động:</b> Đã kích hoạt tiến trình <b>todo-agent</b> vào hàng đợi!\\n💻 <b>Tiến trình AGY Cloud:</b> Đang kích hoạt <b>GitHub Actions Cloud Runner</b> để thực thi:\\n  1️⃣ Quét toàn bộ checklist <code>TODO.md</code> hôm nay.\\n  2️⃣ Thực thi sửa đổi mã nguồn trong <code>backend/</code> và <code>frontend/</code>.\\n  3️⃣ Kiểm tra biên dịch (<code>npm run build</code>, <code>tsc --noEmit</code>) & cập nhật <code>- [x]</code>.\\n  4️⃣ Tự động commit/push lên nhánh <code>dev</code> và báo cáo Git Diff về Telegram.\` }}`
-        }
+          text: `={{ \`⏰ <b>[Trigger \${$('Format Todo-Agent Task').item.json.time_label} - Kích hoạt Todo Agent]</b>\\n\\n📋 <b>Tổng hợp Feedback ngày hôm nay:</b>\\n• <b>Số lượng:</b> \${$('Format Todo-Agent Task').item.json.task_count} feedback (\${$('Format Todo-Agent Task').item.json.task_ids})\\n• <b>Thư mục mục tiêu:</b> Toàn bộ thư mục <code>feedback_DD_MM*</code> hôm nay\\n\\n🚀 <b>Hành động:</b> Đã kích hoạt tiến trình <b>todo-agent</b> vào hàng đợi!\\n💻 <b>Tiến trình AGY Cloud:</b> Đang kích hoạt <b>GitHub Actions Cloud Runner</b> để thực thi:\\n  1️⃣ Quét toàn bộ checklist <code>TODO.md</code> hôm nay.\\n  2️⃣ Thực thi sửa đổi mã nguồn trong <code>backend/</code> và <code>frontend/</code>.\\n  3️⃣ Kiểm tra biên dịch (<code>npm run build</code>, <code>tsc --noEmit</code>) & cập nhật <code>- [x]</code>.\\n  4️⃣ Tự động commit/push lên nhánh <code>dev</code> và báo cáo Git Diff về Telegram.\` }}`,
+        },
       };
     }
 
     // 4. Node Trigger GitHub Actions
-    if (node.name === 'Trigger GitHub Actions') {
+    if (node.name === "Trigger GitHub Actions") {
       return {
         ...node,
         parameters: {
@@ -144,25 +158,25 @@ return [{
     sender_name: "Schedule (" + $("Format Todo-Agent Task").item.json.time_label + ")",
     mode: "todo"
   }
-}) }}`
-        }
+}) }}`,
+        },
       };
     }
 
     return node;
   });
 
-  console.log('4. Gửi PATCH cập nhật workflow...');
+  console.log("4. Gửi PATCH cập nhật workflow...");
   const updateRes = await fetch(`${BASE_URL}/rest/workflows/${WORKFLOW_ID}`, {
-    method: 'PATCH',
+    method: "PATCH",
     headers: {
-      'Content-Type': 'application/json',
-      'Cookie': cookie
+      "Content-Type": "application/json",
+      Cookie: cookie,
     },
     body: JSON.stringify({
       nodes: nodes,
-      connections: currentWf.connections
-    })
+      connections: currentWf.connections,
+    }),
   });
 
   if (!updateRes.ok) {
@@ -173,19 +187,24 @@ return [{
   const versionId = updateData.data?.versionId;
   console.log(`✅ Cập nhật thành công! VersionId mới: ${versionId}`);
 
-  console.log('5. Tái kích hoạt workflow...');
-  const actRes = await fetch(`${BASE_URL}/rest/workflows/${WORKFLOW_ID}/activate`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Cookie': cookie
+  console.log("5. Tái kích hoạt workflow...");
+  const actRes = await fetch(
+    `${BASE_URL}/rest/workflows/${WORKFLOW_ID}/activate`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: cookie,
+      },
+      body: JSON.stringify({ versionId }),
     },
-    body: JSON.stringify({ versionId })
-  });
+  );
   const actData = await actRes.json();
-  console.log('Active state:', actData.data?.active);
+  console.log("Active state:", actData.data?.active);
 
-  console.log('\n🎉 Đã nâng cấp 100% các node trong workflow "Daily Todo-Agent Orchestrator" sang task_id chuẩn!');
+  console.log(
+    '\n🎉 Đã nâng cấp 100% các node trong workflow "Daily Todo-Agent Orchestrator" sang task_id chuẩn!',
+  );
 }
 
 main().catch(console.error);

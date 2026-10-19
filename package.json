@@ -36,7 +36,8 @@
     "deploy:railway": "node scripts/railway-deploy.mjs",
     "deploy:railway:backend": "node scripts/railway-deploy.mjs backend",
     "deploy:railway:frontend": "node scripts/railway-deploy.mjs frontend",
-    "hooks:railway": "node scripts/install-railway-hooks.mjs"
+    "hooks:railway": "node scripts/install-railway-hooks.mjs",
+    "exec:timeout": "node scripts/hooks/timeout-runner.mjs 300"
   },
   "dependencies": {
     "dotenv": "^16.4.7",

@@ -1,0 +1,47 @@
+=== Root ===
+ backend                                  |  0
+ docs/SYSTEM_TIMELINE.md                  | 13 +++++++++++++
+ feedbacks/feedback_19_10_task_89/TODO.md | 24 ++++++++++++------------
+ frontend                                 |  0
+ 4 files changed, 25 insertions(+), 12 deletions(-)
+ m backend
+ M docs/SYSTEM_TIMELINE.md
+ M feedbacks/feedback_19_10_task_89/TODO.md
+ m frontend
+?? feedbacks/feedback_19_10_task_89/RESOLUTION.md
+?? feedbacks/feedback_19_10_task_89/screenshot_vietnamese_font_verified.png
+=== Backend ===
+ src/mail/mail-templates/activation.hbs        | 2 +-
+ src/mail/mail-templates/confirm-new-email.hbs | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+ M src/mail/mail-templates/activation.hbs
+ M src/mail/mail-templates/confirm-new-email.hbs
+=== Frontend ===
+ src/app/layout.tsx                                 |  2 +-
+ src/components/themes/font.config.ts               | 98 ++++------------------
+ .../warehouse/components/pallet-label-a4-modal.tsx | 26 ++++--
+ src/styles/theme.css                               |  9 --
+ src/styles/themes/astro-vista.css                  |  4 +-
+ src/styles/themes/claude.css                       | 20 ++---
+ src/styles/themes/discord.css                      |  6 +-
+ src/styles/themes/light-green.css                  |  4 +-
+ src/styles/themes/notebook.css                     |  8 +-
+ src/styles/themes/supabase.css                     |  4 +-
+ src/styles/themes/vercel.css                       | 12 ++-
+ src/styles/themes/whatsapp.css                     | 16 ++--
+ src/styles/themes/zen.css                          |  4 +-
+ 13 files changed, 83 insertions(+), 130 deletions(-)
+ M src/app/layout.tsx
+ M src/components/themes/font.config.ts
+ M src/features/warehouse/components/pallet-label-a4-modal.tsx
+ M src/styles/theme.css
+ M src/styles/themes/astro-vista.css
+ M src/styles/themes/claude.css
+ M src/styles/themes/discord.css
+ M src/styles/themes/light-green.css
+ M src/styles/themes/notebook.css
+ M src/styles/themes/supabase.css
+ M src/styles/themes/vercel.css
+ M src/styles/themes/whatsapp.css
+ M src/styles/themes/zen.css
+?? e2e/92-feedback-19-10-task-89-vietnamese-font-family.spec.ts

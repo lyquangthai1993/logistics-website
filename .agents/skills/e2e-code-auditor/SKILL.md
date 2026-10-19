@@ -108,11 +108,12 @@ Every E2E test file is evaluated across 5 objective dimensions:
 
 ---
 
-### Dimension 3: Network & Anti-Hang Protocol Compliance (10 pts)
-**Standard**: Network calls and background commands must never hang or block execution loops indefinitely.
+### Dimension 3: Network, Canonical Domain & Anti-Hang Protocol Compliance (10 pts)
+**Standard**: Network calls must never hang indefinitely, and all URLs/domains in E2E specs and `RESOLUTION.md` must strictly reference the canonical Primary infrastructure (Railway Cloud: `frontend-tms-core-dev.up.railway.app` & `backend-tms-core-dev.up.railway.app`) defined in [`.agents/rules/environments.md`](file:///d:/Projects/logistics-website/.agents/rules/environments.md).
 
 | Checkpoint | Deduction | Auto-FAIL? |
 |---|---|---|
+| **Deprecated / Wrong Domain Reference**: Hardcoding legacy Vercel/Render URLs (`logistics-website-frontend-git-dev...vercel.app`, `logistics-website-backend-1jho.onrender.com`) as primary targets in E2E specs or task `RESOLUTION.md` | -5 | **YES** |
 | Bare `curl` without `-m` / `--max-time` timeout or unescaped in PowerShell scripts | -5 | **YES** |
 | `fetch()` or HTTP requests executed without an `AbortSignal.timeout(15000)` or Playwright request timeout | -3 per request | No |
 | Polling loops that lack a hard iteration cap (max 5 attempts with 15–20s backoff) | -4 | No |
@@ -137,11 +138,12 @@ Every E2E test file is evaluated across 5 objective dimensions:
 
 ---
 
-### Dimension 5: Visual Evidence & Assertion Rigor (10 pts)
-**Standard**: Browser UI tests must capture screenshot artifacts of critical modal/stepper states and assert UI compact density invariants.
+### Dimension 5: Visual Evidence, Link Integrity & Assertion Rigor (10 pts)
+**Standard**: Browser UI tests must capture screenshot artifacts of critical modal/stepper states, assert UI compact density invariants, and ensure `RESOLUTION.md` uses valid portable relative links.
 
 | Checkpoint | Deduction | Auto-FAIL? |
 |---|---|---|
+| **Broken Runner / Local Absolute File Links**: Emitting `file:////home/runner/work/...` or broken `file:///docs/SYSTEM_TIMELINE.md` inside `RESOLUTION.md` instead of portable relative markdown links (`./TODO.md`, `./screenshot_...`, `../../docs/SYSTEM_TIMELINE.md`) | -5 | **YES** |
 | **Zero Visual Evidence**: Test verifies complex modals/steppers but saves 0 screenshot artifacts | -4 | No |
 | **Fake Visual Evidence (Empty Table Fallback Screenshot)**: Using `if (count > 0) ... else { save screenshot of empty table }` without asserting target element presence, silencing failures and generating misleading 0-row screenshots for row-level features | -6 | **YES** |
 | Screenshots saved outside the designated evidence directories (`frontend/evidence/` or `feedbacks/feedback_DD_MM*/`) | -2 | No |

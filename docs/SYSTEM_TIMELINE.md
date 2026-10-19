@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 19/10/2026 | `feedbacks/feedback_19_10_task_89` | Feedback 19/10 — Task 89: Cải Thiện Font Family Toàn... | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_19_10_task_89/RESOLUTION.md) |
 | 19/10/2026 | `feedbacks/feedback_19_10_inbound_receipt_fix` | Feedback 19/10 — Bảo Toàn Danh Sách Đơn Hàng Lịch Sử Trên Phiếu Nhập Kho & Loại Bỏ Nút "In Phiếu Xe" Thừa | 2/2 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_19_10_inbound_receipt_fix/RESOLUTION.md) |
 | 17/10/2026 | `feedbacks/feedback_17_10_extra` | 📋 Kế hoạch Thực thi & Báo cáo Tiến độ: Feedback 17/... | 6/6 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_17_10_extra/RESOLUTION.md) |
 | 16/10/2026 | `feedbacks/feedback_16_10_task_87` | Feedback 16/10 — Task 87: Tính Năng Nhập Kho Tách Lẻ... | 34/34 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_16_10_task_87/RESOLUTION.md) |
@@ -78,6 +79,17 @@
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
 
+### 🚀 [FEEDBACK_19_10_TASK_89] — Feedback 19/10 — Task 89: Cải Thiện Font Family Toàn Dự Án, Đảm Bảo Hỗ Trợ 100% Tiếng Việt Cho Tất Cả Theme (19/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (12/12 việc)
+- **Báo cáo bởi**: Quản lý Vận hành TMS (@Thai) & Team Lead Nghiệp vụ TMS (`/leader`)
+- **Phạm vi**: Toàn bộ hệ thống giao diện TMS (Toàn bộ 10 Theme: Vercel, Claude, Discord, Supabase, Mono, Notebook, Light Green, Zen, Astro Vista, WhatsApp) • Cấu hình nạp Google Fonts & Next.js font loader ([`frontend/src/components/themes/font.config.ts`](frontend/src/components/themes/font.config.ts)) • Stylesheet điều phối font toàn cục ([`frontend/src/styles/theme.css`](frontend/src/styles/theme.css) & [`frontend/src/styles/globals.css`](frontend/src/styles/globals.css)) • 10 file cấu hình theme chi tiết ([`frontend/src/styles/themes/*.css`](frontend/src/styles/themes/)) • Root Layout & Document HTML lang attribute ([`frontend/src/app/layout.tsx`](frontend/src/app/layout.tsx)) • Modal in tem nhãn kho vận A4 ([`frontend/src/features/warehouse/components/pallet-label-a4-modal.tsx`](frontend/src/features/warehouse/components/pallet-label-a4-modal.tsx)) • Các mẫu Email thông báo của Backend ([`backend/src/mail/mail-templates/*.hbs`](backend/src/mail/mail-templates/))
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Khảo sát và chuẩn hóa font-family trong toàn bộ các template email Handlebars tại `backend/src/mail/mail-templates/` sang chuỗi font an toàn hỗ trợ 100% tiếng Việt trên mọi email client: `font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;`; Cập nhật mẫu email kích hoạt tài khoản tại `backend/src/mail/mail-templates/activation.hbs` (thay thế `font-family:arial` bằng chuỗi font tiếng Việt chuẩn).; Cập nhật mẫu email xác nhận đổi email tại `backend/src/mail/mail-templates/confirm-new-email.hbs` (thay thế `font-family:arial` bằng chuỗi font tiếng Việt chuẩn)....
+  * **Frontend**: Tái cấu trúc và tối ưu hóa file nạp font `frontend/src/components/themes/font.config.ts`; Sửa dứt điểm lỗi Circular Dependency và chuẩn hóa cấu hình font trong toàn bộ 10 Theme CSS; Sửa lỗi ghi đè `--font-sans: initial;` trong `frontend/src/styles/theme.css`...
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_vietnamese_font_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_19_10_task_89/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_19_10_task_89/TODO.md)
 ### 🚀 [FEEDBACK_19_10_INBOUND_RECEIPT_FIX] — Feedback 19/10 — Bảo Toàn Danh Sách Đơn Hàng Lịch Sử Trên Phiếu Nhập Kho & Loại Bỏ Nút "In Phiếu Xe" Thừa (19/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (2/2 việc)
 - **Báo cáo bởi**: @User / Vận hành Kho Logistics TMS Spider Express

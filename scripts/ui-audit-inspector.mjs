@@ -1,31 +1,49 @@
-import { createRequire } from 'node:module';
+import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
-const { chromium } = require('../frontend/node_modules/@playwright/test');
-import fs from 'node:fs';
-import path from 'node:path';
+const { chromium } = require("../frontend/node_modules/@playwright/test");
+import fs from "node:fs";
+import path from "node:path";
 
-const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || 'https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app';
-const OUT_DIR = path.resolve('docs/ui-audit-evidence');
+const BASE_URL =
+  process.env.PLAYWRIGHT_BASE_URL ||
+  "https://frontend-tms-core-dev.up.railway.app";
+const OUT_DIR = path.resolve("docs/ui-audit-evidence");
 
 if (!fs.existsSync(OUT_DIR)) {
   fs.mkdirSync(OUT_DIR, { recursive: true });
 }
 
 const VIEWPORTS = [
-  { name: 'desktop', width: 1440, height: 900 },
-  { name: 'tablet', width: 768, height: 1024 },
-  { name: 'mobile', width: 375, height: 812 },
+  { name: "desktop", width: 1440, height: 900 },
+  { name: "tablet", width: 768, height: 1024 },
+  { name: "mobile", width: 375, height: 812 },
 ];
 
 const ROUTES = [
-  { path: '/auth/sign-in', auth: false, title: 'Đăng nhập (Sign In)' },
-  { path: '/dashboard/overview', auth: true, title: 'Tổng quan (Overview)' },
-  { path: '/dashboard/orders', auth: true, title: 'Quản lý Đơn hàng (Orders)' },
-  { path: '/dashboard/trips', auth: true, title: 'Điều phối Chuyến xe (Trips)' },
-  { path: '/dashboard/warehouse/inbound', auth: true, title: 'Kho - Xe nhập kho (Inbound)' },
-  { path: '/dashboard/warehouse/outbound', auth: true, title: 'Kho - Xe xuất kho (Outbound)' },
-  { path: '/dashboard/fleet', auth: true, title: 'Đội xe (Fleet)' },
-  { path: '/dashboard/notifications', auth: true, title: 'Thông báo (Notifications)' },
+  { path: "/auth/sign-in", auth: false, title: "Đăng nhập (Sign In)" },
+  { path: "/dashboard/overview", auth: true, title: "Tổng quan (Overview)" },
+  { path: "/dashboard/orders", auth: true, title: "Quản lý Đơn hàng (Orders)" },
+  {
+    path: "/dashboard/trips",
+    auth: true,
+    title: "Điều phối Chuyến xe (Trips)",
+  },
+  {
+    path: "/dashboard/warehouse/inbound",
+    auth: true,
+    title: "Kho - Xe nhập kho (Inbound)",
+  },
+  {
+    path: "/dashboard/warehouse/outbound",
+    auth: true,
+    title: "Kho - Xe xuất kho (Outbound)",
+  },
+  { path: "/dashboard/fleet", auth: true, title: "Đội xe (Fleet)" },
+  {
+    path: "/dashboard/notifications",
+    auth: true,
+    title: "Thông báo (Notifications)",
+  },
 ];
 
 async function run() {
@@ -41,39 +59,58 @@ async function run() {
   const routeEvidence = [];
 
   // 1. Inspect unauthenticated pages
-  console.log('--- Auditing /auth/sign-in ---');
+  console.log("--- Auditing /auth/sign-in ---");
   for (const vp of VIEWPORTS) {
     await page.setViewportSize({ width: vp.width, height: vp.height });
-    await page.goto(`${BASE_URL}/auth/sign-in`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.goto(`${BASE_URL}/auth/sign-in`, {
+      waitUntil: "domcontentloaded",
+      timeout: 30000,
+    });
     await page.waitForTimeout(1000);
 
     // Light mode screenshot
     const lightImg = `auth_signin_${vp.width}_light.png`;
-    await page.screenshot({ path: path.join(OUT_DIR, lightImg), fullPage: true });
+    await page.screenshot({
+      path: path.join(OUT_DIR, lightImg),
+      fullPage: true,
+    });
 
     // Inspect DOM
-    const lightChecks = await inspectPageDOM(page, '/auth/sign-in', vp.width, 'light');
+    const lightChecks = await inspectPageDOM(
+      page,
+      "/auth/sign-in",
+      vp.width,
+      "light",
+    );
     issues.push(...lightChecks);
 
     // Dark mode
     await page.evaluate(() => {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add("dark");
     });
     await page.waitForTimeout(500);
     const darkImg = `auth_signin_${vp.width}_dark.png`;
-    await page.screenshot({ path: path.join(OUT_DIR, darkImg), fullPage: true });
+    await page.screenshot({
+      path: path.join(OUT_DIR, darkImg),
+      fullPage: true,
+    });
 
-    const darkChecks = await inspectPageDOM(page, '/auth/sign-in', vp.width, 'dark');
+    const darkChecks = await inspectPageDOM(
+      page,
+      "/auth/sign-in",
+      vp.width,
+      "dark",
+    );
     issues.push(...darkChecks);
 
     // Reset dark
     await page.evaluate(() => {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove("dark");
     });
 
     routeEvidence.push({
-      route: '/auth/sign-in',
-      title: 'Đăng nhập (Sign In)',
+      route: "/auth/sign-in",
+      title: "Đăng nhập (Sign In)",
       viewport: vp.width,
       lightImg,
       darkImg,
@@ -81,47 +118,60 @@ async function run() {
   }
 
   // 2. Perform Login to get session
-  console.log('--- Performing Login for Authenticated Routes ---');
+  console.log("--- Performing Login for Authenticated Routes ---");
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto(`${BASE_URL}/auth/sign-in`, { waitUntil: 'domcontentloaded' });
-  await page.locator('input[name="email"]').waitFor({ state: 'visible', timeout: 15000 });
-  await page.fill('input[name="email"]', 'lyquangthai1993+1@gmail.com');
-  await page.fill('input[name="password"]', 'secret');
+  await page.goto(`${BASE_URL}/auth/sign-in`, {
+    waitUntil: "domcontentloaded",
+  });
+  await page
+    .locator('input[name="email"]')
+    .waitFor({ state: "visible", timeout: 15000 });
+  await page.fill('input[name="email"]', "lyquangthai1993+1@gmail.com");
+  await page.fill('input[name="password"]', "secret");
   await page.click('button[type="submit"]');
   await page.waitForURL(/\/dashboard\/.*/, { timeout: 20000 });
-  console.log('Login successful! Current URL:', page.url());
+  console.log("Login successful! Current URL:", page.url());
 
   // 3. Inspect Authenticated Routes
-  for (const r of ROUTES.filter(r => r.auth)) {
+  for (const r of ROUTES.filter((r) => r.auth)) {
     console.log(`--- Auditing ${r.path} (${r.title}) ---`);
     for (const vp of VIEWPORTS) {
       await page.setViewportSize({ width: vp.width, height: vp.height });
-      await page.goto(`${BASE_URL}${r.path}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await page.goto(`${BASE_URL}${r.path}`, {
+        waitUntil: "domcontentloaded",
+        timeout: 30000,
+      });
       await page.waitForTimeout(1500);
 
       // Light mode screenshot
-      const safeName = r.path.replace(/[^a-zA-Z0-9]/g, '_').replace(/^_+/, '');
+      const safeName = r.path.replace(/[^a-zA-Z0-9]/g, "_").replace(/^_+/, "");
       const lightImg = `${safeName}_${vp.width}_light.png`;
-      await page.screenshot({ path: path.join(OUT_DIR, lightImg), fullPage: false });
+      await page.screenshot({
+        path: path.join(OUT_DIR, lightImg),
+        fullPage: false,
+      });
 
       // Inspect DOM Light
-      const lightChecks = await inspectPageDOM(page, r.path, vp.width, 'light');
+      const lightChecks = await inspectPageDOM(page, r.path, vp.width, "light");
       issues.push(...lightChecks);
 
       // Dark mode screenshot
       await page.evaluate(() => {
-        document.documentElement.classList.add('dark');
+        document.documentElement.classList.add("dark");
       });
       await page.waitForTimeout(500);
       const darkImg = `${safeName}_${vp.width}_dark.png`;
-      await page.screenshot({ path: path.join(OUT_DIR, darkImg), fullPage: false });
+      await page.screenshot({
+        path: path.join(OUT_DIR, darkImg),
+        fullPage: false,
+      });
 
-      const darkChecks = await inspectPageDOM(page, r.path, vp.width, 'dark');
+      const darkChecks = await inspectPageDOM(page, r.path, vp.width, "dark");
       issues.push(...darkChecks);
 
       // Reset dark
       await page.evaluate(() => {
-        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.remove("dark");
       });
 
       routeEvidence.push({
@@ -140,138 +190,168 @@ async function run() {
   const uniqueIssues = deduplicateIssues(issues);
 
   // Write report.json
-  fs.writeFileSync(path.join(OUT_DIR, 'audit-report.json'), JSON.stringify(uniqueIssues, null, 2));
+  fs.writeFileSync(
+    path.join(OUT_DIR, "audit-report.json"),
+    JSON.stringify(uniqueIssues, null, 2),
+  );
 
   // Generate so-sanh.html
   generateHtmlComparison(OUT_DIR, routeEvidence, uniqueIssues);
 
   console.log(`Audit complete! Total issues detected: ${uniqueIssues.length}`);
-  console.log(`Report and HTML comparison generated at: ${OUT_DIR}/so-sanh.html`);
+  console.log(
+    `Report and HTML comparison generated at: ${OUT_DIR}/so-sanh.html`,
+  );
 }
 
 async function inspectPageDOM(page, route, width, mode) {
-  return await page.evaluate(({ route, width, mode }) => {
-    const list = [];
+  return await page.evaluate(
+    ({ route, width, mode }) => {
+      const list = [];
 
-    // 1. Check Horizontal Overflow (Hỏng)
-    const scrollW = document.documentElement.scrollWidth;
-    const clientW = window.innerWidth;
-    if (scrollW > clientW + 2) {
-      // Find element causing overflow
-      const elements = Array.from(document.querySelectorAll('*'));
-      let offender = 'unknown';
-      for (const el of elements) {
-        const r = el.getBoundingClientRect();
-        if (r.right > clientW + 2) {
-          offender = `${el.tagName.toLowerCase()}${el.className ? '.' + el.className.split(' ').slice(0, 3).join('.') : ''}`;
-          break;
+      // 1. Check Horizontal Overflow (Hỏng)
+      const scrollW = document.documentElement.scrollWidth;
+      const clientW = window.innerWidth;
+      if (scrollW > clientW + 2) {
+        // Find element causing overflow
+        const elements = Array.from(document.querySelectorAll("*"));
+        let offender = "unknown";
+        for (const el of elements) {
+          const r = el.getBoundingClientRect();
+          if (r.right > clientW + 2) {
+            offender = `${el.tagName.toLowerCase()}${el.className ? "." + el.className.split(" ").slice(0, 3).join(".") : ""}`;
+            break;
+          }
         }
-      }
-      list.push({
-        category: 'Hỏng',
-        route,
-        viewport: `${width}px`,
-        mode,
-        location: `${route} (${width}px)`,
-        issue: `Trang bị cuộn ngang (scrollWidth ${scrollW}px > ${clientW}px) do ${offender}`,
-        fix: 'Thêm overflow-hidden, w-full hoặc min-w-0 trên container',
-        source: 'đo',
-      });
-    }
-
-    // 2. Check Interactive Element Sizes
-    const interactives = Array.from(document.querySelectorAll('button, a, input, select, [role="button"]'));
-    for (const el of interactives) {
-      // Ignore hidden or 0x0 elements
-      const rect = el.getBoundingClientRect();
-      if (rect.width === 0 || rect.height === 0) continue;
-      const style = window.getComputedStyle(el);
-      if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') continue;
-
-      const label = (el.innerText || el.getAttribute('aria-label') || el.getAttribute('placeholder') || el.value || '').trim().slice(0, 30);
-      const tag = `${el.tagName.toLowerCase()}${el.className ? '.' + el.className.split(' ').slice(0, 2).join('.') : ''}`;
-
-      if (rect.width < 24 || rect.height < 24) {
-        // Exclude checkbox/radio if drawn at 16-20px (per review.md rule V2)
-        if ((el.type === 'checkbox' || el.type === 'radio') && rect.width >= 14 && rect.height >= 14) {
-          list.push({
-            category: 'Lệch hệ',
-            route,
-            viewport: `${width}px`,
-            mode,
-            location: `${tag} "${label}"`,
-            issue: `Checkbox/radio gốc có kích thước nhỏ (${Math.round(rect.width)}×${Math.round(rect.height)}px)`,
-            fix: 'Sử dụng Checkbox component từ shadcn (@/components/ui/checkbox) có vùng bấm chuẩn',
-            source: 'đo',
-          });
-        } else {
-          list.push({
-            category: 'Hỏng',
-            route,
-            viewport: `${width}px`,
-            mode,
-            location: `${tag} "${label}"`,
-            issue: `Vùng bấm quá nhỏ (${Math.round(rect.width)}×${Math.round(rect.height)}px < 24px)`,
-            fix: 'Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu',
-            source: 'đo',
-          });
-        }
-      } else if (rect.width < 32 || rect.height < 32) {
         list.push({
-          category: 'Gu',
+          category: "Hỏng",
           route,
           viewport: `${width}px`,
           mode,
-          location: `${tag} "${label}"`,
-          issue: `Vùng bấm nhỏ (${Math.round(rect.width)}×${Math.round(rect.height)}px, 24-31px)`,
-          fix: 'Tăng chiều cao lên chuẩn h-8 (32px)',
-          source: 'đo',
+          location: `${route} (${width}px)`,
+          issue: `Trang bị cuộn ngang (scrollWidth ${scrollW}px > ${clientW}px) do ${offender}`,
+          fix: "Thêm overflow-hidden, w-full hoặc min-w-0 trên container",
+          source: "đo",
         });
       }
-    }
 
-    // 3. Check for Native Unstyled Select or Range
-    const selects = Array.from(document.querySelectorAll('select:not([data-slot])'));
-    for (const s of selects) {
-      list.push({
-        category: 'Lệch hệ',
-        route,
-        viewport: `${width}px`,
-        mode,
-        location: `select`,
-        issue: 'Thẻ select gốc của trình duyệt chưa dùng UI component chuẩn',
-        fix: 'Thay bằng Select component của dự án (@/components/ui/select)',
-        source: 'đọc code',
-      });
-    }
+      // 2. Check Interactive Element Sizes
+      const interactives = Array.from(
+        document.querySelectorAll('button, a, input, select, [role="button"]'),
+      );
+      for (const el of interactives) {
+        // Ignore hidden or 0x0 elements
+        const rect = el.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) continue;
+        const style = window.getComputedStyle(el);
+        if (
+          style.display === "none" ||
+          style.visibility === "hidden" ||
+          style.opacity === "0"
+        )
+          continue;
 
-    // 4. Check for Redundant Emojis in Buttons or Links
-    const emojiRegex = /[🚚📦🔄🖨️✕🔍⚡➕❌💡]/;
-    for (const el of interactives) {
-      const text = el.innerText || '';
-      if (emojiRegex.test(text)) {
-        const svgCount = el.querySelectorAll('svg').length;
-        if (svgCount > 0) {
+        const label = (
+          el.innerText ||
+          el.getAttribute("aria-label") ||
+          el.getAttribute("placeholder") ||
+          el.value ||
+          ""
+        )
+          .trim()
+          .slice(0, 30);
+        const tag = `${el.tagName.toLowerCase()}${el.className ? "." + el.className.split(" ").slice(0, 2).join(".") : ""}`;
+
+        if (rect.width < 24 || rect.height < 24) {
+          // Exclude checkbox/radio if drawn at 16-20px (per review.md rule V2)
+          if (
+            (el.type === "checkbox" || el.type === "radio") &&
+            rect.width >= 14 &&
+            rect.height >= 14
+          ) {
+            list.push({
+              category: "Lệch hệ",
+              route,
+              viewport: `${width}px`,
+              mode,
+              location: `${tag} "${label}"`,
+              issue: `Checkbox/radio gốc có kích thước nhỏ (${Math.round(rect.width)}×${Math.round(rect.height)}px)`,
+              fix: "Sử dụng Checkbox component từ shadcn (@/components/ui/checkbox) có vùng bấm chuẩn",
+              source: "đo",
+            });
+          } else {
+            list.push({
+              category: "Hỏng",
+              route,
+              viewport: `${width}px`,
+              mode,
+              location: `${tag} "${label}"`,
+              issue: `Vùng bấm quá nhỏ (${Math.round(rect.width)}×${Math.round(rect.height)}px < 24px)`,
+              fix: "Nới padding tối thiểu h-8 (32px) hoặc thêm p-1.5 để đạt kích thước tối thiểu",
+              source: "đo",
+            });
+          }
+        } else if (rect.width < 32 || rect.height < 32) {
           list.push({
-            category: 'Lệch hệ',
+            category: "Gu",
             route,
             viewport: `${width}px`,
             mode,
-            location: `${el.tagName.toLowerCase()}: "${text.trim().slice(0, 35)}"`,
-            issue: 'Vi phạm Zero Redundant Icons: Nút vừa chứa icon SVG vừa chứa emoji trùng lặp trong văn bản',
-            fix: 'Bỏ emoji trong text label, chỉ giữ lại icon SVG vector sạch',
-            source: 'đo',
+            location: `${tag} "${label}"`,
+            issue: `Vùng bấm nhỏ (${Math.round(rect.width)}×${Math.round(rect.height)}px, 24-31px)`,
+            fix: "Tăng chiều cao lên chuẩn h-8 (32px)",
+            source: "đo",
           });
         }
       }
-    }
 
-    // 5. Scrollbar width check (globals.css has 10px instead of 4px)
-    const bodyScrollbar = window.getComputedStyle(document.body);
-    // Checked via stylesheet analysis
+      // 3. Check for Native Unstyled Select or Range
+      const selects = Array.from(
+        document.querySelectorAll("select:not([data-slot])"),
+      );
+      for (const s of selects) {
+        list.push({
+          category: "Lệch hệ",
+          route,
+          viewport: `${width}px`,
+          mode,
+          location: `select`,
+          issue: "Thẻ select gốc của trình duyệt chưa dùng UI component chuẩn",
+          fix: "Thay bằng Select component của dự án (@/components/ui/select)",
+          source: "đọc code",
+        });
+      }
 
-    return list;
-  }, { route, width, mode });
+      // 4. Check for Redundant Emojis in Buttons or Links
+      const emojiRegex = /[🚚📦🔄🖨️✕🔍⚡➕❌💡]/;
+      for (const el of interactives) {
+        const text = el.innerText || "";
+        if (emojiRegex.test(text)) {
+          const svgCount = el.querySelectorAll("svg").length;
+          if (svgCount > 0) {
+            list.push({
+              category: "Lệch hệ",
+              route,
+              viewport: `${width}px`,
+              mode,
+              location: `${el.tagName.toLowerCase()}: "${text.trim().slice(0, 35)}"`,
+              issue:
+                "Vi phạm Zero Redundant Icons: Nút vừa chứa icon SVG vừa chứa emoji trùng lặp trong văn bản",
+              fix: "Bỏ emoji trong text label, chỉ giữ lại icon SVG vector sạch",
+              source: "đo",
+            });
+          }
+        }
+      }
+
+      // 5. Scrollbar width check (globals.css has 10px instead of 4px)
+      const bodyScrollbar = window.getComputedStyle(document.body);
+      // Checked via stylesheet analysis
+
+      return list;
+    },
+    { route, width, mode },
+  );
 }
 
 function deduplicateIssues(issues) {
@@ -290,25 +370,30 @@ function deduplicateIssues(issues) {
 }
 
 function generateHtmlComparison(outDir, routeEvidence, issues) {
-  const issuesHtml = issues.map((item, idx) => {
-    const catBadge = item.category === 'Hỏng' 
-      ? '<span class="badge badge-danger">Hỏng</span>' 
-      : item.category === 'Lệch hệ' 
-      ? '<span class="badge badge-warning">Lệch hệ</span>' 
-      : '<span class="badge badge-info">Gu</span>';
-    return `
+  const issuesHtml = issues
+    .map((item, idx) => {
+      const catBadge =
+        item.category === "Hỏng"
+          ? '<span class="badge badge-danger">Hỏng</span>'
+          : item.category === "Lệch hệ"
+            ? '<span class="badge badge-warning">Lệch hệ</span>'
+            : '<span class="badge badge-info">Gu</span>';
+      return `
       <tr>
         <td class="text-center font-mono font-bold">${idx + 1}</td>
         <td>${catBadge}</td>
         <td><span class="font-mono text-xs">${item.route}</span> <br><small class="text-muted">${item.location}</small></td>
         <td><strong>${item.issue}</strong></td>
         <td class="text-success text-xs font-mono">${item.fix}</td>
-        <td><span class="badge badge-secondary">${item.source} (${item.viewports.join(', ')})</span></td>
+        <td><span class="badge badge-secondary">${item.source} (${item.viewports.join(", ")})</span></td>
       </tr>
     `;
-  }).join('');
+    })
+    .join("");
 
-  const evidenceHtml = routeEvidence.map((ev) => `
+  const evidenceHtml = routeEvidence
+    .map(
+      (ev) => `
     <div class="evidence-card">
       <div class="evidence-header">
         <strong>${ev.title} (${ev.route})</strong>
@@ -329,7 +414,9 @@ function generateHtmlComparison(outDir, routeEvidence, issues) {
         </div>
       </div>
     </div>
-  `).join('');
+  `,
+    )
+    .join("");
 
   const html = `<!DOCTYPE html>
 <html lang="vi">
@@ -489,10 +576,10 @@ function generateHtmlComparison(outDir, routeEvidence, issues) {
 </body>
 </html>`;
 
-  fs.writeFileSync(path.join(outDir, 'so-sanh.html'), html, 'utf8');
+  fs.writeFileSync(path.join(outDir, "so-sanh.html"), html, "utf8");
 }
 
 run().catch((err) => {
-  console.error('Audit failed with error:', err);
+  console.error("Audit failed with error:", err);
   process.exit(1);
 });
