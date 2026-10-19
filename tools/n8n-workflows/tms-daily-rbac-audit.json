@@ -21,7 +21,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const now = new Date();\nconst dateStr = now.toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });\nconst timeStr = now.toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });\n\nconst initText = `<b>🛡️ N8N CRON: KHỞI CHẠY AUDIT RBAC & BẢO MẬT (22:00)</b>\\n` +\n  `━━━━━━━━━━━━━━━━━━━━\\n` +\n  `⏰ <b>Thời gian kích hoạt:</b> ${timeStr} - ${dateStr}\\n` +\n  `⚡ <b>Mục tiêu:</b> Rà soát 7 ngày biến động trong <code>SYSTEM_TIMELINE.md</code> & Đối soát 59 API endpoints với RBAC Matrix.\\n` +\n  `🚀 <b>Điều phối:</b> Kích hoạt tự động GitHub Actions CI/CD và Script Auditor.`;\n\nreturn [{\n  json: {\n    chat_id: '-5509877448',\n    text: initText,\n    parse_mode: 'HTML',\n    timestamp: now.toISOString(),\n    cron: '0 22 * * *'\n  }\n}];"
+        "jsCode": "const now = new Date();\nconst dateStr = now.toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });\nconst timeStr = now.toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });\n\nconst initText = `<b>🛡️ N8N CRON: KHỞI CHẠY AUDIT RBAC & BẢO MẬT (22:00)</b>\\n` +\n  `━━━━━━━━━━━━━━━━━━━━\\n` +\n  `⏰ <b>Thời gian kích hoạt:</b> ${timeStr} - ${dateStr}\\n` +\n  `⚡ <b>Mục tiêu:</b> Rà soát 7 ngày biến động trong <code>SYSTEM_TIMELINE.md</code> & Đối soát toàn bộ API endpoints với RBAC Matrix.\\n` +\n  `🚀 <b>Điều phối:</b> Kích hoạt tự động GitHub Actions CI/CD và Script Auditor.`;\n\nreturn [{\n  json: {\n    chat_id: '-5509877448',\n    text: initText,\n    parse_mode: 'HTML',\n    timestamp: now.toISOString(),\n    cron: '0 22 * * *'\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -35,7 +35,7 @@
         "url": "https://api.telegram.org/bot8676574641:AAGKfr1V4sZVA4DSooyIvfziggvUGS-7HyE/sendMessage",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"chat_id\": \"{{ $json.chat_id }}\",\n  \"text\": \"{{ $json.text }}\",\n  \"parse_mode\": \"HTML\"\n}",
+        "jsonBody": "={{ JSON.stringify({\n  chat_id: $json.chat_id,\n  text: $json.text,\n  parse_mode: 'HTML'\n}) }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -56,6 +56,10 @@
               "value": "application/vnd.github+json"
             },
             {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.GH_PAT_TOKEN }}"
+            },
+            {
               "name": "User-Agent",
               "value": "n8n-Automation-TMS"
             }
@@ -63,7 +67,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"event_type\": \"rbac-audit\",\n  \"client_payload\": {\n    \"task_id\": \"n8n-daily-rbac-22pm\",\n    \"sender_name\": \"n8n Scheduler\",\n    \"mode\": \"rbac\"\n  }\n}",
+        "jsonBody": "={{ JSON.stringify({\n  event_type: 'rbac-audit',\n  client_payload: {\n    task_id: 'n8n-daily-rbac-22pm',\n    sender_name: 'n8n Scheduler',\n    mode: 'rbac'\n  }\n}) }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
