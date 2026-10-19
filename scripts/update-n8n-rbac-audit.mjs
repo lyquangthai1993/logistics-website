@@ -10,7 +10,7 @@ if (fs.existsSync(envPath)) {
 }
 
 const BASE_URL = process.env.N8N_BASE_URL || 'https://n8n-automation-production-d298.up.railway.app';
-const WORKFLOW_ID = 'M1IVf9rAsyFD5TYq';
+const WORKFLOW_ID = '3333333333333333';
 const email = process.env.N8N_EMAIL;
 const password = process.env.N8N_PASSWORD;
 const GH_PAT_TOKEN = process.env.GH_PAT_TOKEN;
