@@ -97,13 +97,13 @@ Sau khi rà soát toàn bộ cấu hình mã nguồn trong `frontend/src/` và `
 ## 📋 Danh sách công việc triển khai (Action Checklist)
 
 ### 1. Backend (backend/)
-- [ ] Khảo sát và chuẩn hóa font-family trong toàn bộ các template email Handlebars tại `backend/src/mail/mail-templates/` sang chuỗi font an toàn hỗ trợ 100% tiếng Việt trên mọi email client: `font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;`
-- [ ] Cập nhật mẫu email kích hoạt tài khoản tại `backend/src/mail/mail-templates/activation.hbs` (thay thế `font-family:arial` bằng chuỗi font tiếng Việt chuẩn).
-- [ ] Cập nhật mẫu email xác nhận đổi email tại `backend/src/mail/mail-templates/confirm-new-email.hbs` (thay thế `font-family:arial` bằng chuỗi font tiếng Việt chuẩn).
-- [ ] Chạy kiểm tra biên dịch backend: `npm --prefix backend run build` bảo đảm không phát sinh lỗi cú pháp hay gãy build.
+- [x] Khảo sát và chuẩn hóa font-family trong toàn bộ các template email Handlebars tại `backend/src/mail/mail-templates/` sang chuỗi font an toàn hỗ trợ 100% tiếng Việt trên mọi email client: `font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;`
+- [x] Cập nhật mẫu email kích hoạt tài khoản tại `backend/src/mail/mail-templates/activation.hbs` (thay thế `font-family:arial` bằng chuỗi font tiếng Việt chuẩn).
+- [x] Cập nhật mẫu email xác nhận đổi email tại `backend/src/mail/mail-templates/confirm-new-email.hbs` (thay thế `font-family:arial` bằng chuỗi font tiếng Việt chuẩn).
+- [x] Chạy kiểm tra biên dịch backend: `npm --prefix backend run build` bảo đảm không phát sinh lỗi cú pháp hay gãy build.
 
 ### 2. Frontend (frontend/)
-- [ ] Tái cấu trúc và tối ưu hóa file nạp font `frontend/src/components/themes/font.config.ts`:
+- [x] Tái cấu trúc và tối ưu hóa file nạp font `frontend/src/components/themes/font.config.ts`:
   * Loại bỏ hoàn toàn 10 instance font trùng lặp lãng phí (`fontInstrument`, `fontDMSans`, `fontInter` trùng, `fontFiraCode`, `fontJetBrainsMono` trùng, `fontOutfit`, `fontArchitectsDaughter` trùng).
   * Giữ lại và chuẩn hóa danh sách các font cốt lõi với cấu hình `subsets: ['latin', 'vietnamese']`:
     - `fontInter`: Inter (chính cho UI hiện đại) ➔ `--font-inter`
@@ -115,7 +115,7 @@ Sau khi rà soát toàn bộ cấu hình mã nguồn trong `frontend/src/` và `
     - `fontMerriweather`: Merriweather (serif) ➔ `--font-merriweather`
     - `fontPlayfairDisplay`: Playfair Display (serif trang nhã) ➔ `--font-playfair-display`
   * Đồng bộ biến tổng hợp `fontVariables` để Next.js inject đầy đủ các CSS custom properties vào thẻ `<body>`.
-- [ ] Sửa dứt điểm lỗi Circular Dependency và chuẩn hóa cấu hình font trong toàn bộ 10 Theme CSS:
+- [x] Sửa dứt điểm lỗi Circular Dependency và chuẩn hóa cấu hình font trong toàn bộ 10 Theme CSS:
   * `frontend/src/styles/themes/vercel.css`: Thay thế `var(--font-sans)` tự tham chiếu bằng `var(--font-inter), var(--font-be-vietnam-pro), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;` và sửa `--font-mono` thành `var(--font-jetbrains-mono), monospace;`
   * `frontend/src/styles/themes/claude.css`: Bổ sung `var(--font-inter), var(--font-be-vietnam-pro)` đứng đầu chuỗi font-sans để đảm bảo 100% tiếng Việt thay vì chỉ dựa vào font hệ thống.
   * `frontend/src/styles/themes/whatsapp.css`: Bổ sung `var(--font-plus-jakarta-sans), var(--font-be-vietnam-pro)` vào chuỗi font-sans.
@@ -126,19 +126,19 @@ Sau khi rà soát toàn bộ cấu hình mã nguồn trong `frontend/src/` và `
   * `frontend/src/styles/themes/light-green.css`: Đảm bảo sử dụng `var(--font-inter), var(--font-be-vietnam-pro), sans-serif;`
   * `frontend/src/styles/themes/zen.css`: Đảm bảo sử dụng `var(--font-inter), var(--font-be-vietnam-pro), sans-serif;`
   * `frontend/src/styles/themes/astro-vista.css`: Đảm bảo sử dụng `var(--font-plus-jakarta-sans), var(--font-be-vietnam-pro), sans-serif;`
-- [ ] Sửa lỗi ghi đè `--font-sans: initial;` trong `frontend/src/styles/theme.css`:
+- [x] Sửa lỗi ghi đè `--font-sans: initial;` trong `frontend/src/styles/theme.css`:
   * Xóa bỏ đoạn mã `--font-sans: initial; --font-mono: initial; --font-serif: initial;` gây hỏng kế thừa CSS.
   * Đảm bảo `font-family: var(--font-sans);` trên `body` kế thừa mượt mà và chính xác giá trị từ theme active (`[data-theme]`).
-- [ ] Cập nhật modal in ấn tem nhãn pallet kho vận tại `frontend/src/features/warehouse/components/pallet-label-a4-modal.tsx`:
+- [x] Cập nhật modal in ấn tem nhãn pallet kho vận tại `frontend/src/features/warehouse/components/pallet-label-a4-modal.tsx`:
   * Bổ sung `Be Vietnam Pro` và fallback stack chuẩn tiếng Việt vào thuộc tính inline style `fontFamily`.
-- [ ] Kiểm tra và đồng bộ thuộc tính `lang="vi"` trong `frontend/src/app/layout.tsx` đảm bảo các quy tắc phân tách từ, gạch nối và ngữ nghĩa tiếng Việt của trình duyệt hoạt động chuẩn xác nhất.
-- [ ] Chạy typecheck và lint trên frontend: `npm --prefix frontend run typecheck && npm --prefix frontend run lint` đảm bảo sạch lỗi 100%.
+- [x] Kiểm tra và đồng bộ thuộc tính `lang="vi"` trong `frontend/src/app/layout.tsx` đảm bảo các quy tắc phân tách từ, gạch nối và ngữ nghĩa tiếng Việt của trình duyệt hoạt động chuẩn xác nhất.
+- [x] Chạy typecheck và lint trên frontend: `npm --prefix frontend run typecheck && npm --prefix frontend run lint` đảm bảo sạch lỗi 100%.
 
 ### 3. Kiểm thử & Nghiệm thu E2E (frontend/e2e/)
-- [ ] Xây dựng file kiểm thử tự động Playwright E2E mới: `frontend/e2e/92-feedback-19-10-task-89-vietnamese-font-family.spec.ts`:
+- [x] Xây dựng file kiểm thử tự động Playwright E2E mới: `frontend/e2e/92-feedback-19-10-task-89-vietnamese-font-family.spec.ts`:
   * Kịch bản 1: Đăng nhập với tài khoản `USER_ADMIN` (`admin`), kiểm tra font chữ mặc định của trang Dashboard (Theme Vercel) có computed style `fontFamily` chứa `Inter` hoặc `Be Vietnam Pro`, xác nhận KHÔNG bị rơi về `Times New Roman` hay font serif lỗi.
   * Kịch bản 2: Duyệt qua toàn bộ 10 Theme trong danh sách (`vercel`, `claude`, `discord`, `supabase`, `mono`, `notebook`, `light-green`, `zen`, `astro-vista`, `whatsapp`). Chuyển đổi theme và assert computed style của `document.body` luôn hợp lệ, không chứa biến CSS rỗng/invalid.
   * Kịch bản 3: Kiểm tra hiển thị bộ ký tự tiếng Việt toàn diện (đầy đủ 134 ký tự nguyên âm có dấu thanh, dấu mũ, dấu móc: ắ, ặ, ẳ, ẵ, ế, ệ, ể, ễ, ố, ộ, ổ, ỗ, ơ, ở, ờ, ớ, ợ, ư, ừ, ứ, ử, ữ, ự, đ, Đ) trên các tiêu đề (`h1`, `h2`), bảng dữ liệu kho bãi (`table`, `th`, `td`), thẻ badge trạng thái và modal.
   * Kịch bản 4: Kiểm tra màn hình Inbound (`/dashboard/warehouse/inbound`) và Outbound (`/dashboard/warehouse/outbound`) hiển thị tiếng Việt sắc nét, chuẩn độ dày nét chữ (font-weight), không bị vỡ bố cục hoặc co giật layout.
   * Kịch bản 5: Chụp ảnh bằng chứng nghiệm thu thực tế `screenshot_vietnamese_font_verified.png` lưu trong thư mục task và xuất báo cáo kiểm thử.
-- [ ] Chạy kiểm tra chất lượng E2E cross-audit qua `node scripts/e2e-auditor.mjs` bảo đảm đạt điểm tối đa (>= 40/50 điểm, 0 lỗi Auto-FAIL).
+- [x] Chạy kiểm tra chất lượng E2E cross-audit qua `node scripts/e2e-auditor.mjs` bảo đảm đạt điểm tối đa (>= 40/50 điểm, 0 lỗi Auto-FAIL).
