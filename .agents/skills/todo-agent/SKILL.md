@@ -50,9 +50,10 @@ All operations performed by the `todo-agent` MUST strictly adhere to the project
    - The workspace consists of 3 independent Git repositories: `root`, [`backend/`](file:///d:/Projects/logistics-website/backend) (`logistics-website-backend`), and [`frontend/`](file:///d:/Projects/logistics-website/frontend) (`logistics-website-frontend`).
    - All code edits, commits, and branch creation MUST be performed **directly inside the target submodule**, never only at root.
    - All branches MUST branch off from `dev` (`git checkout dev && git pull origin dev`).
-2. **Canonical Environments**:
-   - **Domain Dev**: Frontend `https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app` | Backend `https://logistics-website-backend-1jho.onrender.com`
-   - **Domain Pro**: Frontend `https://logistics-website-frontend-kappa.vercel.app` | Backend `https://logistics-website-backend-1.onrender.com`
+2. **Canonical Environments (Primary: Railway Cloud)**:
+   - **Domain Dev (Primary)**: Frontend `https://frontend-tms-core-dev.up.railway.app` | Backend `https://backend-tms-core-dev.up.railway.app` | Docs `https://backend-tms-core-dev.up.railway.app/docs`
+   - **Domain Pro (Primary)**: Frontend `https://frontend-tms-core-production.up.railway.app` | Backend `https://backend-tms-core-production.up.railway.app` | Docs `https://backend-tms-core-production.up.railway.app/docs`
+   - *Secondary / Fallback (Vercel & Render)*: Dev (`https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app`, `https://logistics-website-backend-1jho.onrender.com`) | Pro (`https://logistics-website-frontend-kappa.vercel.app`, `https://logistics-website-backend-1.onrender.com`)
 3. **UI Compact Density Mandate** ([`.agents/rules/ui-compact-density.md`](file:///d:/Projects/logistics-website/.agents/rules/ui-compact-density.md)):
    - Card padding: `p-1` (strictly banned: `p-4`, `p-6`).
    - Modal body: `p-2` (max `p-2.5`).
@@ -66,7 +67,7 @@ All operations performed by the `todo-agent` MUST strictly adhere to the project
 6. **Real Database Data Mandate**:
    - Zero mock data, sample arrays, or fake fallback rows in `.catch()` blocks. All UI tables and KPIs connect to real PostgreSQL REST APIs.
 7. **Network & Health Check Execution Protocol (Anti-Hang Mandate)**:
-   - When verifying backend service readiness or pinging Dev/Pro endpoints (`https://logistics-website-backend-1jho.onrender.com`), NEVER run bare `curl -s` without timeout or without `.exe` in PowerShell.
+   - When verifying backend service readiness or pinging Dev/Pro endpoints (`https://backend-tms-core-dev.up.railway.app`), NEVER run bare `curl -s` without timeout or without `.exe` in PowerShell.
    - ALWAYS use `curl.exe -m 15 -i <url>` or `(Invoke-WebRequest -Uri <url> -TimeoutSec 15).Content`.
    - Node.js test scripts must pass `signal: AbortSignal.timeout(15000)`.
    - Polling checks must never loop indefinitely (max 5 attempts, 15-20s backoff).
@@ -405,9 +406,9 @@ When reporting results to the user via Telegram Bot, the message MUST lead with 
 • Thư mục mục tiêu: feedback_DD_MM*
 • Trạng thái Checklist: 100% công việc đã hoàn thành [x]
 
-🌐 Môi trường kiểm thử (Domain Dev):
-• Frontend Dev: https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app
-• Backend Dev: https://logistics-website-backend-1jho.onrender.com
+🌐 Môi trường kiểm thử (Domain Dev - Railway Cloud):
+• Frontend Dev: https://frontend-tms-core-dev.up.railway.app
+• Backend Dev: https://backend-tms-core-dev.up.railway.app
 
 🧪 Kết quả Kiểm thử E2E & Đánh giá chéo:
 • Playwright E2E Suite: PASS (100% passed, 0 failed)

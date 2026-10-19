@@ -263,6 +263,10 @@ When instructed to check remote deployments (e.g. Render, Vercel) or ping servic
 - [ ] No `--force` or `-f` flags in scripts or commands
 - [ ] No committed git credentials or personal access tokens in git remotes/configs
 
+#### 5. Canonical Domain & Portable Link Integrity (from [`.agents/rules/environments.md`](file:///d:/Projects/logistics-website/.agents/rules/environments.md))
+- [ ] No legacy Vercel/Render URLs (`logistics-website-frontend-git-dev...vercel.app`, `logistics-website-backend-1jho.onrender.com`) used as primary `domain dev` / `domain pro` in newly generated `RESOLUTION.md`, `TODO.md`, scripts, or E2E specs (must use Railway Cloud Primary: `https://frontend-tms-core-dev.up.railway.app` & `https://backend-tms-core-dev.up.railway.app`)
+- [ ] No machine-specific runner paths (`file:////home/runner/work/...`) or broken root-relative `file:///docs/...` links in committed markdown files (must use portable relative paths like `./TODO.md`, `./screenshot_...`, `../../docs/SYSTEM_TIMELINE.md`)
+
 ---
 
 ### 🟡 WARNING – Flag for User Review

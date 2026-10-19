@@ -90,7 +90,6 @@
   * Playwright E2E: PASS 100%
   * Minh chứng hình ảnh: screenshot_vietnamese_font_verified.png
 - **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_19_10_task_89/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_19_10_task_89/TODO.md)
-
 ### 🚀 [FEEDBACK_19_10_INBOUND_RECEIPT_FIX] — Feedback 19/10 — Bảo Toàn Danh Sách Đơn Hàng Lịch Sử Trên Phiếu Nhập Kho & Loại Bỏ Nút "In Phiếu Xe" Thừa (19/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (2/2 việc)
 - **Báo cáo bởi**: @User / Vận hành Kho Logistics TMS Spider Express

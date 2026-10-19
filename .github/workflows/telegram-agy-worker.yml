@@ -482,6 +482,22 @@ jobs:
             echo "ℹ️ Không phát hiện file E2E spec mới nào cần kiểm toán."
           fi
 
+          MODIFIED_RES=$(git status --porcelain 2>/dev/null | grep -E 'feedbacks/.*/RESOLUTION\.md$' | awk '{print $2}' || true)
+          if [ -n "$MODIFIED_RES" ]; then
+            for res_file in $MODIFIED_RES; do
+              if [ -f "$res_file" ]; then
+                echo "🔍 Đang kiểm định Domain & Link chuẩn trong: $res_file"
+                node scripts/e2e-auditor.mjs "$res_file"
+                if [ $? -ne 0 ]; then
+                  echo "❌ Biên bản $res_file chứa sai lệch domain hoặc đường dẫn file runner! Đang tự động chạy lại todo:record để chuẩn hóa..."
+                  FOLDER_NAME=$(basename "$(dirname "$res_file")")
+                  node scripts/todo-agent.mjs record "$FOLDER_NAME"
+                  node scripts/e2e-auditor.mjs "$res_file"
+                fi
+              fi
+            done
+          fi
+
       - name: "7. Tự động Commit & Push lên nhánh dev nếu có thay đổi"
         if: success()
         env:
@@ -1226,6 +1242,25 @@ jobs:
                   [newStatus, finalResult, errorVal, targetDbId]
                 );
                 console.log(`✅ Đã cập nhật task record #${targetDbId} (Task #${taskId}) sang trạng thái ${newStatus} trong Database.`);
+                if (newStatus === "COMPLETED" && !isLeaderMode) {
+                  if (!isNaN(Number(taskId))) {
+                    await client.query(
+                      "UPDATE telegram_tasks SET status = 'COMPLETED', completed_at = NOW(), result = COALESCE(result, $1) WHERE task_id = $2 AND status = 'TODO_CREATED'",
+                      [finalResult, parseInt(taskId, 10)]
+                    );
+                  }
+                  const rawPromptText = process.env.RAW_PROMPT || "";
+                  const matchedTaskNums = [...rawPromptText.matchAll(/#(\d+)|task[_\-#\s]*(\d+)/gi)]
+                    .map(m => parseInt(m[1] || m[2], 10))
+                    .filter(n => !isNaN(n));
+                  if (matchedTaskNums.length > 0) {
+                    await client.query(
+                      "UPDATE telegram_tasks SET status = 'COMPLETED', completed_at = NOW() WHERE task_id = ANY($1::int[]) AND status = 'TODO_CREATED'",
+                      [matchedTaskNums]
+                    );
+                    console.log(`✅ Đã đồng bộ trạng thái COMPLETED cho các task gốc: ${matchedTaskNums.map(n => "#" + n).join(", ")}`);
+                  }
+                }
               } else {
                 await client.query(
                   "UPDATE telegram_tasks SET status = $1, completed_at = NOW(), result = $2, error = $3 WHERE task_id = $4 OR (task_id IS NULL AND id = $4)",

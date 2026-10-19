@@ -7,13 +7,13 @@
  * Adheres to AGENTS.md, /leader domain rules, and UI compact density standards.
  */
 
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const ROOT_DIR = path.resolve(__dirname, '..');
+const ROOT_DIR = path.resolve(__dirname, "..");
 
 // Regex matching feedback directories: e.g., feedback_06_10, feedback_06_10_task_1, feedback_17_8
 const FEEDBACK_DIR_REGEX = /^feedback_(\d{1,2})_(\d{1,2})(.*)?$/i;
@@ -28,20 +28,25 @@ export function buildWorkspaceFileIndex(rootDir = ROOT_DIR) {
   if (workspaceFileIndex) return workspaceFileIndex;
 
   const index = new Map();
-  const searchDirs = ['backend/src', 'frontend/src', 'docs', 'business_flow'];
+  const searchDirs = ["backend/src", "frontend/src", "docs", "business_flow"];
 
   function walk(currentDir) {
     if (!fs.existsSync(currentDir)) return;
     const entries = fs.readdirSync(currentDir, { withFileTypes: true });
     for (const entry of entries) {
-      if (entry.name.startsWith('.') || entry.name === 'node_modules' || entry.name === 'dist' || entry.name === '.next') {
+      if (
+        entry.name.startsWith(".") ||
+        entry.name === "node_modules" ||
+        entry.name === "dist" ||
+        entry.name === ".next"
+      ) {
         continue;
       }
       const full = path.join(currentDir, entry.name);
       if (entry.isDirectory()) {
         walk(full);
       } else if (entry.isFile()) {
-        const rel = path.relative(rootDir, full).replace(/\\/g, '/');
+        const rel = path.relative(rootDir, full).replace(/\\/g, "/");
         const base = entry.name.toLowerCase();
         if (!index.has(base)) {
           index.set(base, []);
@@ -68,7 +73,7 @@ export function resolveReferencedFile(fileRef, rootDir = ROOT_DIR) {
   if (!fileRef) return { input: fileRef, resolved: null, exists: false };
 
   // Strip file:// prefix and decode URI components safely
-  let clean = fileRef.trim().replace(/^file:\/\/\/?/i, '');
+  let clean = fileRef.trim().replace(/^file:\/\/\/?/i, "");
   try {
     clean = decodeURIComponent(clean);
   } catch {
@@ -80,7 +85,7 @@ export function resolveReferencedFile(fileRef, rootDir = ROOT_DIR) {
   let candidate = clean;
   if (path.isAbsolute(candidate)) {
     if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
-      const rel = path.relative(rootDir, candidate).replace(/\\/g, '/');
+      const rel = path.relative(rootDir, candidate).replace(/\\/g, "/");
       return { input: fileRef, resolved: rel, exists: true };
     }
   }
@@ -88,7 +93,7 @@ export function resolveReferencedFile(fileRef, rootDir = ROOT_DIR) {
   // Check candidate relative to rootDir
   candidate = path.resolve(rootDir, clean);
   if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
-    const rel = path.relative(rootDir, candidate).replace(/\\/g, '/');
+    const rel = path.relative(rootDir, candidate).replace(/\\/g, "/");
     return { input: fileRef, resolved: rel, exists: true };
   }
 
@@ -98,7 +103,12 @@ export function resolveReferencedFile(fileRef, rootDir = ROOT_DIR) {
 
   if (fileIndex.has(baseName)) {
     const matches = fileIndex.get(baseName);
-    return { input: fileRef, resolved: matches[0], exists: true, alternatives: matches.slice(1) };
+    return {
+      input: fileRef,
+      resolved: matches[0],
+      exists: true,
+      alternatives: matches.slice(1),
+    };
   }
 
   return { input: fileRef, resolved: null, exists: false };
@@ -127,17 +137,17 @@ export function discoverFeedbackFolders(rootDir = ROOT_DIR) {
           folders.push({
             name: entry.name,
             fullPath,
-            relPath: path.relative(rootDir, fullPath).replace(/\\/g, '/'),
+            relPath: path.relative(rootDir, fullPath).replace(/\\/g, "/"),
             day: parseInt(match[1], 10),
             month: parseInt(match[2], 10),
-            suffix: match[3] || '',
+            suffix: match[3] || "",
           });
         }
       }
     };
 
     // 1. Quét trong thư mục cha feedbacks/ (ưu tiên thư mục mới)
-    scanDir(path.join(rootDir, 'feedbacks'));
+    scanDir(path.join(rootDir, "feedbacks"));
     // 2. Quét ở rootDir (hỗ trợ thư mục cũ)
     scanDir(rootDir);
 
@@ -150,7 +160,10 @@ export function discoverFeedbackFolders(rootDir = ROOT_DIR) {
 
     return folders;
   } catch (err) {
-    console.error(`Error discovering feedback folders in ${rootDir}:`, err.message);
+    console.error(
+      `Error discovering feedback folders in ${rootDir}:`,
+      err.message,
+    );
     return [];
   }
 }
@@ -162,7 +175,7 @@ export function discoverFeedbackFolders(rootDir = ROOT_DIR) {
  */
 export function parseFeedbackFolder(folderPath, rootDir = ROOT_DIR) {
   const folderName = path.basename(folderPath);
-  const relPath = path.relative(rootDir, folderPath).replace(/\\/g, '/');
+  const relPath = path.relative(rootDir, folderPath).replace(/\\/g, "/");
   const result = {
     folderName,
     folderPath,
@@ -187,7 +200,7 @@ export function parseFeedbackFolder(folderPath, rootDir = ROOT_DIR) {
     documents: [],
     images: [],
     dataFiles: [],
-    rawContent: '',
+    rawContent: "",
   };
 
   if (!fs.existsSync(folderPath)) {
@@ -199,18 +212,18 @@ export function parseFeedbackFolder(folderPath, rootDir = ROOT_DIR) {
   for (const item of items) {
     if (item.isDirectory()) continue;
     const ext = path.extname(item.name).toLowerCase();
-    if (['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'].includes(ext)) {
+    if ([".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"].includes(ext)) {
       result.images.push(item.name);
-    } else if (['.json', '.xlsx', '.csv'].includes(ext)) {
+    } else if ([".json", ".xlsx", ".csv"].includes(ext)) {
       result.dataFiles.push(item.name);
-    } else if (ext === '.md' && !item.name.toLowerCase().startsWith('todo')) {
+    } else if (ext === ".md" && !item.name.toLowerCase().startsWith("todo")) {
       result.documents.push(item.name);
     }
   }
 
   // Find TODO.md (case-insensitive)
   const todoFile = items.find(
-    (item) => !item.isDirectory() && item.name.toLowerCase() === 'todo.md'
+    (item) => !item.isDirectory() && item.name.toLowerCase() === "todo.md",
   );
 
   if (!todoFile) {
@@ -219,22 +232,22 @@ export function parseFeedbackFolder(folderPath, rootDir = ROOT_DIR) {
 
   result.hasTodo = true;
   const todoPath = path.join(folderPath, todoFile.name);
-  const content = fs.readFileSync(todoPath, 'utf8');
+  const content = fs.readFileSync(todoPath, "utf8");
   result.rawContent = content;
 
-  const lines = content.split('\n');
-  let currentSection = 'General';
-  let currentCategory = 'general';
+  const lines = content.split("\n");
+  let currentSection = "General";
+  let currentCategory = "general";
   let currentMetaKey = null;
 
   for (let i = 0; i < lines.length; i++) {
     const rawLine = lines[i];
-    const cleanLine = rawLine.replace(/\r$/, '');
+    const cleanLine = rawLine.replace(/\r$/, "");
     const trimmed = cleanLine.trim();
 
     // Extract Main Title
-    if (trimmed.startsWith('# ') && result.title === folderName) {
-      result.title = trimmed.replace(/^#\s+/, '').trim();
+    if (trimmed.startsWith("# ") && result.title === folderName) {
+      result.title = trimmed.replace(/^#\s+/, "").trim();
       currentMetaKey = null;
       continue;
     }
@@ -250,37 +263,44 @@ export function parseFeedbackFolder(folderPath, rootDir = ROOT_DIR) {
     }
 
     // Continue multiline metadata: > - ... or > * ...
-    if (currentMetaKey && trimmed.startsWith('>')) {
-      const bullet = trimmed.replace(/^>\s*[-*]\s*/, '').trim();
+    if (currentMetaKey && trimmed.startsWith(">")) {
+      const bullet = trimmed.replace(/^>\s*[-*]\s*/, "").trim();
       if (bullet) {
-        result.meta[currentMetaKey] = (result.meta[currentMetaKey] ? result.meta[currentMetaKey] + ' • ' : '') + bullet;
+        result.meta[currentMetaKey] =
+          (result.meta[currentMetaKey]
+            ? result.meta[currentMetaKey] + " • "
+            : "") + bullet;
       }
       continue;
-    } else if (!trimmed.startsWith('>')) {
+    } else if (!trimmed.startsWith(">")) {
       currentMetaKey = null;
     }
 
     // Detect section headers: ## or ###
-    if (trimmed.startsWith('## ') || trimmed.startsWith('### ')) {
+    if (trimmed.startsWith("## ") || trimmed.startsWith("### ")) {
       currentMetaKey = null;
-      currentSection = trimmed.replace(/^#{2,3}\s+/, '').trim();
+      currentSection = trimmed.replace(/^#{2,3}\s+/, "").trim();
       const lower = currentSection.toLowerCase();
 
-      if (lower.includes('backend')) {
-        currentCategory = 'backend';
-      } else if (lower.includes('frontend')) {
-        currentCategory = 'frontend';
-      } else if (lower.includes('db') || lower.includes('database') || lower.includes('migration')) {
-        currentCategory = 'database';
+      if (lower.includes("backend")) {
+        currentCategory = "backend";
+      } else if (lower.includes("frontend")) {
+        currentCategory = "frontend";
       } else if (
-        lower.includes('kiểm thử') ||
-        lower.includes('test') ||
-        lower.includes('nghiệm thu') ||
-        lower.includes('verification')
+        lower.includes("db") ||
+        lower.includes("database") ||
+        lower.includes("migration")
       ) {
-        currentCategory = 'testing';
+        currentCategory = "database";
+      } else if (
+        lower.includes("kiểm thử") ||
+        lower.includes("test") ||
+        lower.includes("nghiệm thu") ||
+        lower.includes("verification")
+      ) {
+        currentCategory = "testing";
       } else {
-        currentCategory = 'general';
+        currentCategory = "general";
       }
       continue;
     }
@@ -288,24 +308,26 @@ export function parseFeedbackFolder(folderPath, rootDir = ROOT_DIR) {
     // Detect checkbox tasks: - [ ] or - [x]
     const taskMatch = cleanLine.match(/^(\s*)-\s*\[([ xX])\]\s*(.+)$/);
     if (taskMatch) {
-      const isCompleted = taskMatch[2].toLowerCase() === 'x';
+      const isCompleted = taskMatch[2].toLowerCase() === "x";
       const taskText = taskMatch[3].trim();
       const indentLevel = taskMatch[1].length;
 
       // Extract referenced files or paths in backticks or markdown links
       const rawRefs = [];
-      const linkMatches = taskText.matchAll(/\[([^\]]+)\]\(([^)]+)\)|`([^`]+)`/g);
+      const linkMatches = taskText.matchAll(
+        /\[([^\]]+)\]\(([^)]+)\)|`([^`]+)`/g,
+      );
       for (const m of linkMatches) {
         const potentialPath = m[2] || m[3] || m[1];
         if (
           potentialPath &&
-          (potentialPath.includes('/') ||
-            potentialPath.includes('\\') ||
-            potentialPath.endsWith('.ts') ||
-            potentialPath.endsWith('.tsx') ||
-            potentialPath.endsWith('.js') ||
-            potentialPath.endsWith('.mjs') ||
-            potentialPath.endsWith('.md'))
+          (potentialPath.includes("/") ||
+            potentialPath.includes("\\") ||
+            potentialPath.endsWith(".ts") ||
+            potentialPath.endsWith(".tsx") ||
+            potentialPath.endsWith(".js") ||
+            potentialPath.endsWith(".mjs") ||
+            potentialPath.endsWith(".md"))
         ) {
           rawRefs.push(potentialPath);
         }
@@ -336,7 +358,9 @@ export function parseFeedbackFolder(folderPath, rootDir = ROOT_DIR) {
   }
 
   if (result.tasks.total > 0) {
-    result.tasks.percent = Math.round((result.tasks.completed / result.tasks.total) * 100);
+    result.tasks.percent = Math.round(
+      (result.tasks.completed / result.tasks.total) * 100,
+    );
   }
 
   return result;
@@ -358,9 +382,9 @@ export function generateExecutionPlan(parsed) {
 
   const totalPending = tasks.pending;
 
-  let branchName = 'dev';
+  let branchName = "dev";
   if (totalPending > 0) {
-    const slug = folderName.replace(/_/g, '-');
+    const slug = folderName.replace(/_/g, "-");
     branchName = `fix/${slug}`;
   }
 
@@ -376,7 +400,11 @@ export function generateExecutionPlan(parsed) {
 
   allPending.forEach((t) => {
     t.referencedFiles.forEach((f) => {
-      if (f.resolved && (f.resolved.startsWith('backend/') || f.resolved.startsWith('frontend/'))) {
+      if (
+        f.resolved &&
+        (f.resolved.startsWith("backend/") ||
+          f.resolved.startsWith("frontend/"))
+      ) {
         verifiedTargetFiles.add(f.resolved);
       }
     });
@@ -384,82 +412,110 @@ export function generateExecutionPlan(parsed) {
 
   const output = [];
 
-  output.push(`# 🚀 BẢN KẾ HOẠCH THỰC THI (EXECUTION BLUEPRINT) — ${folderName.toUpperCase()}`);
+  output.push(
+    `# 🚀 BẢN KẾ HOẠCH THỰC THI (EXECUTION BLUEPRINT) — ${folderName.toUpperCase()}`,
+  );
   output.push(`> **Tiêu đề**: ${title}`);
-  if (meta['Thời gian ghi nhận']) output.push(`> **Thời gian**: ${meta['Thời gian ghi nhận']}`);
-  if (meta['Người báo cáo']) output.push(`> **Người báo cáo**: ${meta['Người báo cáo']}`);
-  if (meta['Màn hình liên quan'] || meta['Màn hình / Hạ tầng liên quan']) {
-    output.push(`> **Phạm vi**: ${meta['Màn hình liên quan'] || meta['Màn hình / Hạ tầng liên quan']}`);
+  if (meta["Thời gian ghi nhận"])
+    output.push(`> **Thời gian**: ${meta["Thời gian ghi nhận"]}`);
+  if (meta["Người báo cáo"])
+    output.push(`> **Người báo cáo**: ${meta["Người báo cáo"]}`);
+  if (meta["Màn hình liên quan"] || meta["Màn hình / Hạ tầng liên quan"]) {
+    output.push(
+      `> **Phạm vi**: ${meta["Màn hình liên quan"] || meta["Màn hình / Hạ tầng liên quan"]}`,
+    );
   }
-  output.push(`> **Tiến độ hiện tại**: ${tasks.completed}/${tasks.total} việc đã hoàn thành (${tasks.percent}%) • Còn tồn đọng: **${totalPending} việc**`);
-  output.push('');
+  output.push(
+    `> **Tiến độ hiện tại**: ${tasks.completed}/${tasks.total} việc đã hoàn thành (${tasks.percent}%) • Còn tồn đọng: **${totalPending} việc**`,
+  );
+  output.push("");
 
-  output.push('---');
-  output.push('');
+  output.push("---");
+  output.push("");
 
   // 1. Phân loại Module & Git Submodule Strategy
-  output.push('## 1. 🎯 CHIẾN LƯỢC GIT SUBMODULE & KHOANH VÙNG PHẠM VI');
-  output.push('Tuân thủ nghiêm ngặt quy định **Git Submodules Rule** & **Base from dev Rule** trong `AGENTS.md`:');
-  output.push(`- **Branch đề xuất**: \`${branchName}\` (Tạo trực tiếp trong submodule từ \`dev\`)`);
+  output.push("## 1. 🎯 CHIẾN LƯỢC GIT SUBMODULE & KHOANH VÙNG PHẠM VI");
+  output.push(
+    "Tuân thủ nghiêm ngặt quy định **Git Submodules Rule** & **Base from dev Rule** trong `AGENTS.md`:",
+  );
+  output.push(
+    `- **Branch đề xuất**: \`${branchName}\` (Tạo trực tiếp trong submodule từ \`dev\`)`,
+  );
   output.push(`- **Submodules cần can thiệp**:`);
   if (backendPending.length > 0 || databasePending.length > 0) {
-    output.push('  + `backend/` (NestJS 11+, PostgreSQL, TypeORM, DTOs, Services, Controllers)');
+    output.push(
+      "  + `backend/` (NestJS 11+, PostgreSQL, TypeORM, DTOs, Services, Controllers)",
+    );
   }
   if (frontendPending.length > 0) {
-    output.push('  + `frontend/` (Next.js 15 App Router, React 19, Tailwind CSS, TanStack Query v5, Zustand)');
+    output.push(
+      "  + `frontend/` (Next.js 15 App Router, React 19, Tailwind CSS, TanStack Query v5, Zustand)",
+    );
   }
   if (backendPending.length === 0 && frontendPending.length === 0) {
-    output.push('  + Không có tác vụ pending cụ thể cho backend/frontend.');
+    output.push("  + Không có tác vụ pending cụ thể cho backend/frontend.");
   }
 
   if (verifiedTargetFiles.size > 0) {
-    output.push('');
-    output.push(`- **Các tệp tin mã nguồn đích đã định vị chính xác (${verifiedTargetFiles.size} files)**:`);
+    output.push("");
+    output.push(
+      `- **Các tệp tin mã nguồn đích đã định vị chính xác (${verifiedTargetFiles.size} files)**:`,
+    );
     verifiedTargetFiles.forEach((filePath) => {
       output.push(`  + \`${filePath}\``);
     });
   }
-  output.push('');
+  output.push("");
 
   // 2. Tài nguyên & Bằng chứng đính kèm
-  output.push('## 2. 📸 TÀI NGUYÊN & BẰNG CHỨNG ĐÃ QUÉT ĐƯỢC');
+  output.push("## 2. 📸 TÀI NGUYÊN & BẰNG CHỨNG ĐÃ QUÉT ĐƯỢC");
   if (images.length > 0) {
     output.push(`- **Hình ảnh / Video minh chứng (${images.length} tệp)**:`);
-    images.forEach((img) => output.push(`  + \`${parsed.relPath || folderName}/${img}\``));
+    images.forEach((img) =>
+      output.push(`  + \`${parsed.relPath || folderName}/${img}\``),
+    );
   } else {
-    output.push('- *Không có hình ảnh đính kèm trong thư mục này.*');
+    output.push("- *Không có hình ảnh đính kèm trong thư mục này.*");
   }
 
   if (documents.length > 0) {
     output.push(`- **Tài liệu đặc tả liên quan (${documents.length} tệp)**:`);
-    documents.forEach((doc) => output.push(`  + \`${parsed.relPath || folderName}/${doc}\``));
+    documents.forEach((doc) =>
+      output.push(`  + \`${parsed.relPath || folderName}/${doc}\``),
+    );
   }
-  output.push('');
+  output.push("");
 
   // 3. Biện pháp thực thi chi tiết theo từng phân hệ
-  output.push('## 3. 🛠️ BIỆN PHÁP THỰC THI CHI TIẾT (ACTION PLAN)');
+  output.push("## 3. 🛠️ BIỆN PHÁP THỰC THI CHI TIẾT (ACTION PLAN)");
 
   if (totalPending === 0) {
-    output.push('🎉 **TẤT CẢ CÁC ĐẦU VIỆC ĐÃ ĐƯỢC HOÀN THÀNH 100%!**');
-    output.push('Đề xuất chạy kiểm thử hồi quy (Playwright E2E) và xác nhận đóng task.');
-    output.push('');
-    return output.join('\n');
+    output.push("🎉 **TẤT CẢ CÁC ĐẦU VIỆC ĐÃ ĐƯỢC HOÀN THÀNH 100%!**");
+    output.push(
+      "Đề xuất chạy kiểm thử hồi quy (Playwright E2E) và xác nhận đóng task.",
+    );
+    output.push("");
+    return output.join("\n");
   }
 
   // Database
   if (databasePending.length > 0) {
-    output.push('### 🗄️ Phân hệ Cơ sở dữ liệu & Migrations');
-    output.push('**Quy chuẩn an toàn**: Tuyệt đối không xóa bảng/cột destructive mà chưa có phê duyệt; viết TypeORM Migration an toàn.');
+    output.push("### 🗄️ Phân hệ Cơ sở dữ liệu & Migrations");
+    output.push(
+      "**Quy chuẩn an toàn**: Tuyệt đối không xóa bảng/cột destructive mà chưa có phê duyệt; viết TypeORM Migration an toàn.",
+    );
     databasePending.forEach((t) => {
       output.push(`- [ ] **[DB] L${t.line}**: ${t.text}`);
     });
-    output.push('');
+    output.push("");
   }
 
   // Backend
   if (backendPending.length > 0) {
-    output.push('### ⚙️ Phân hệ Backend (NestJS 11+)');
-    output.push('**Quy chuẩn**: DTO validation qua `class-validator`, bảo vệ route bằng JWT/RBAC Guards, trả về standardized API format.');
+    output.push("### ⚙️ Phân hệ Backend (NestJS 11+)");
+    output.push(
+      "**Quy chuẩn**: DTO validation qua `class-validator`, bảo vệ route bằng JWT/RBAC Guards, trả về standardized API format.",
+    );
     backendPending.forEach((t) => {
       output.push(`- [ ] **[Backend] L${t.line}**: ${t.text}`);
       if (t.referencedFiles.length > 0) {
@@ -468,17 +524,25 @@ export function generateExecutionPlan(parsed) {
         });
       }
     });
-    output.push('');
+    output.push("");
   }
 
   // Frontend
   if (frontendPending.length > 0) {
-    output.push('### 💻 Phân hệ Frontend (Next.js 15 App Router)');
-    output.push('**Quy chuẩn bắt buộc**:');
-    output.push('1. **Compact Density Mandate** (`ui-compact-density.md`): Card `p-1`, Modal body `p-2`, Gap `gap-1.5` - `gap-2`, Table font `text-[10px]`.');
-    output.push('2. **Zero Technical Jargon**: Dùng thuật ngữ vận hành kho bãi thực tế, không dùng mã nội bộ.');
-    output.push('3. **Zero Redundant Icons**: Không lặp lại emoji/biểu tượng bên trong text nút bấm.');
-    output.push('4. **TanStack Optimistic Updates**: Đảm bảo 0ms latency phản hồi và rollback an toàn.');
+    output.push("### 💻 Phân hệ Frontend (Next.js 15 App Router)");
+    output.push("**Quy chuẩn bắt buộc**:");
+    output.push(
+      "1. **Compact Density Mandate** (`ui-compact-density.md`): Card `p-1`, Modal body `p-2`, Gap `gap-1.5` - `gap-2`, Table font `text-[10px]`.",
+    );
+    output.push(
+      "2. **Zero Technical Jargon**: Dùng thuật ngữ vận hành kho bãi thực tế, không dùng mã nội bộ.",
+    );
+    output.push(
+      "3. **Zero Redundant Icons**: Không lặp lại emoji/biểu tượng bên trong text nút bấm.",
+    );
+    output.push(
+      "4. **TanStack Optimistic Updates**: Đảm bảo 0ms latency phản hồi và rollback an toàn.",
+    );
     frontendPending.forEach((t) => {
       output.push(`- [ ] **[Frontend] L${t.line}**: ${t.text}`);
       if (t.referencedFiles.length > 0) {
@@ -487,60 +551,95 @@ export function generateExecutionPlan(parsed) {
         });
       }
     });
-    output.push('');
+    output.push("");
   }
 
   // Testing & DoD
-  output.push('### 🧪 Tiêu chí Nghiệm thu & Kiểm thử (Definition of Done)');
+  output.push("### 🧪 Tiêu chí Nghiệm thu & Kiểm thử (Definition of Done)");
   if (testingPending.length > 0) {
     testingPending.forEach((t) => {
       output.push(`- [ ] **[DoD] L${t.line}**: ${t.text}`);
     });
   } else {
-    output.push('- [ ] Kiểm tra biên dịch Backend: `npm run lint --prefix backend` & `npm run build --prefix backend` PASS (0 errors).');
-    output.push('- [ ] Kiểm tra biên dịch Frontend: `npx --prefix frontend tsc --noEmit` & `npm run build --prefix frontend` PASS (0 errors).');
-    output.push('- [ ] Kiểm thử luồng nghiệp vụ thực tế qua Playwright E2E hoặc kiểm tra API phản hồi.');
-    output.push(`- [ ] Cập nhật toàn bộ trạng thái trong \`${folderName}/TODO.md\` từ \`[ ]\` thành \`[x]\`.`);
+    output.push(
+      "- [ ] Kiểm tra biên dịch Backend: `npm run lint --prefix backend` & `npm run build --prefix backend` PASS (0 errors).",
+    );
+    output.push(
+      "- [ ] Kiểm tra biên dịch Frontend: `npx --prefix frontend tsc --noEmit` & `npm run build --prefix frontend` PASS (0 errors).",
+    );
+    output.push(
+      "- [ ] Kiểm thử luồng nghiệp vụ thực tế qua Playwright E2E hoặc kiểm tra API phản hồi.",
+    );
+    output.push(
+      `- [ ] Cập nhật toàn bộ trạng thái trong \`${folderName}/TODO.md\` từ \`[ ]\` thành \`[x]\`.`,
+    );
   }
   // 4. Kịch bản Kiểm thử E2E & Ma trận Edge Cases
-  output.push('## 4. 🧪 KỊCH BẢN KIỂM THỬ E2E CHUẨN XÁC & MA TRẬN EDGE CASES');
-  output.push('Mọi thay đổi mã nguồn bắt buộc phải có kịch bản kiểm thử E2E rõ ràng cho cả AI và con người hiểu:');
-  output.push('');
-  output.push('### 🔄 Quy trình Thao tác Tuần tự (Step-by-Step E2E Workflow):');
-  output.push('1. **Bước 1 (Đăng nhập & Điều hướng)**: Đăng nhập tài khoản phân quyền tương ứng và truy cập route màn hình mục tiêu.');
-  output.push('2. **Bước 2 (Mở modal / Chế độ thao tác)**: Mở component tương ứng, kiểm tra layout và độ rộng Modal chuẩn 5 cấp độ (Level 1-5).');
-  output.push('3. **Bước 3 (API Intercept & Pre-check)**: Kiểm tra request params, response status 200, và dữ liệu khởi tạo không bị rỗng/lệch.');
-  output.push('4. **Bước 4 (Tương tác nghiệp vụ)**: Thao tác form / chọn dòng bảng, assert các counter cập nhật 0ms.');
-  output.push('5. **Bước 5 (Submit & Post-check)**: Gửi action, assert Toast thông báo tiếng Việt, assert modal đóng và dữ liệu tự động làm mới.');
-  output.push('');
-  output.push('### 🛡️ Ma trận Edge Cases Tối thiểu Cần Kiểm tra:');
-  output.push('| Mã Case | Tên tình huống biên (Edge Case) | Điều kiện kích hoạt | Hành vi kỳ vọng (Expected Behavior) |');
-  output.push('|:---:|---|---|---|');
-  output.push('| **EC-01** | **Zero-state (Dữ liệu rỗng)** | Khi danh sách hoặc kho không có phần tử nào. | Hiển thị Empty State rõ ràng, không crash giao diện, nút submit disabled. |');
-  output.push('| **EC-02** | **Boundary Data (Số liệu = 0)** | Kiện = 0, kg = 0, đơn đã xuất hết hoặc hủy. | Bị loại trừ khỏi danh sách khả dụng, không cho phép thao tác. |');
-  output.push('| **EC-03** | **Data Isolation (Phân quyền kho/role)** | Tài khoản kho A xem dữ liệu kho B. | Tuyệt đối không lọt dữ liệu chéo giữa các chi nhánh / Hub. |');
-  output.push('| **EC-04** | **Trip / Action Idempotency** | Thao tác 2 lần liên tiếp hoặc bốc lại đơn cũ. | Không gán trùng lặp, mở lại modal dữ liệu cũ đã biến mất khỏi danh sách. |');
-  output.push('| **EC-05** | **Filter & Live Search** | Gõ từ khóa tìm kiếm hoặc lọc dropdown. | Bảng lọc mượt mà, xóa filter quay về 100% dữ liệu gốc. |');
-  output.push('');
+  output.push("## 4. 🧪 KỊCH BẢN KIỂM THỬ E2E CHUẨN XÁC & MA TRẬN EDGE CASES");
+  output.push(
+    "Mọi thay đổi mã nguồn bắt buộc phải có kịch bản kiểm thử E2E rõ ràng cho cả AI và con người hiểu:",
+  );
+  output.push("");
+  output.push("### 🔄 Quy trình Thao tác Tuần tự (Step-by-Step E2E Workflow):");
+  output.push(
+    "1. **Bước 1 (Đăng nhập & Điều hướng)**: Đăng nhập tài khoản phân quyền tương ứng và truy cập route màn hình mục tiêu.",
+  );
+  output.push(
+    "2. **Bước 2 (Mở modal / Chế độ thao tác)**: Mở component tương ứng, kiểm tra layout và độ rộng Modal chuẩn 5 cấp độ (Level 1-5).",
+  );
+  output.push(
+    "3. **Bước 3 (API Intercept & Pre-check)**: Kiểm tra request params, response status 200, và dữ liệu khởi tạo không bị rỗng/lệch.",
+  );
+  output.push(
+    "4. **Bước 4 (Tương tác nghiệp vụ)**: Thao tác form / chọn dòng bảng, assert các counter cập nhật 0ms.",
+  );
+  output.push(
+    "5. **Bước 5 (Submit & Post-check)**: Gửi action, assert Toast thông báo tiếng Việt, assert modal đóng và dữ liệu tự động làm mới.",
+  );
+  output.push("");
+  output.push("### 🛡️ Ma trận Edge Cases Tối thiểu Cần Kiểm tra:");
+  output.push(
+    "| Mã Case | Tên tình huống biên (Edge Case) | Điều kiện kích hoạt | Hành vi kỳ vọng (Expected Behavior) |",
+  );
+  output.push("|:---:|---|---|---|");
+  output.push(
+    "| **EC-01** | **Zero-state (Dữ liệu rỗng)** | Khi danh sách hoặc kho không có phần tử nào. | Hiển thị Empty State rõ ràng, không crash giao diện, nút submit disabled. |",
+  );
+  output.push(
+    "| **EC-02** | **Boundary Data (Số liệu = 0)** | Kiện = 0, kg = 0, đơn đã xuất hết hoặc hủy. | Bị loại trừ khỏi danh sách khả dụng, không cho phép thao tác. |",
+  );
+  output.push(
+    "| **EC-03** | **Data Isolation (Phân quyền kho/role)** | Tài khoản kho A xem dữ liệu kho B. | Tuyệt đối không lọt dữ liệu chéo giữa các chi nhánh / Hub. |",
+  );
+  output.push(
+    "| **EC-04** | **Trip / Action Idempotency** | Thao tác 2 lần liên tiếp hoặc bốc lại đơn cũ. | Không gán trùng lặp, mở lại modal dữ liệu cũ đã biến mất khỏi danh sách. |",
+  );
+  output.push(
+    "| **EC-05** | **Filter & Live Search** | Gõ từ khóa tìm kiếm hoặc lọc dropdown. | Bảng lọc mượt mà, xóa filter quay về 100% dữ liệu gốc. |",
+  );
+  output.push("");
 
   // 5. Lệnh /goal chuẩn hóa cho Antigravity
-  output.push('## 5. ⚡ LỆNH /GOAL TỰ ĐỘNG KHỞI TẠO CHO AGENT');
-  output.push('```text');
+  output.push("## 5. ⚡ LỆNH /GOAL TỰ ĐỘNG KHỞI TẠO CHO AGENT");
+  output.push("```text");
   output.push(`/goal Thực thi hoàn thiện ${folderName} — ${title}`);
   output.push(`- Thư mục nguồn: ${folderName}`);
   output.push(`- Tổng số task cần xử lý: ${totalPending}`);
   output.push(`- Phạm vi tệp tin (Allowed Scope):`);
-  if (backendPending.length > 0 || databasePending.length > 0) output.push(`  + backend/src/**`);
+  if (backendPending.length > 0 || databasePending.length > 0)
+    output.push(`  + backend/src/**`);
   if (frontendPending.length > 0) output.push(`  + frontend/src/**`);
   if (verifiedTargetFiles.size > 0) {
     verifiedTargetFiles.forEach((f) => output.push(`  + ${f}`));
   }
   output.push(`  + ${folderName}/TODO.md`);
-  output.push(`- Tiêu chí hoàn thành: Thực hiện 100% các task [ ], chạy build pass và check off [x] trong ${folderName}/TODO.md.`);
-  output.push('```');
-  output.push('');
+  output.push(
+    `- Tiêu chí hoàn thành: Thực hiện 100% các task [ ], chạy build pass và check off [x] trong ${folderName}/TODO.md.`,
+  );
+  output.push("```");
+  output.push("");
 
-  return output.join('\n');
+  return output.join("\n");
 }
 
 /**
@@ -549,14 +648,20 @@ export function generateExecutionPlan(parsed) {
  * @param {number|string} targetLineOrQuery
  * @param {'done'|'pending'|'toggle'} action
  */
-export function toggleTask(folderName, targetLineOrQuery, action = 'toggle', rootDir = ROOT_DIR) {
+export function toggleTask(
+  folderName,
+  targetLineOrQuery,
+  action = "toggle",
+  rootDir = ROOT_DIR,
+) {
   const folders = discoverFeedbackFolders(rootDir);
-  const cleanTarget = folderName.replace(/^[/\\]+|[/\\]+$/g, '').toLowerCase();
-  const matched = folders.find((f) => 
-    f.name.toLowerCase() === cleanTarget ||
-    f.relPath.toLowerCase() === cleanTarget ||
-    f.name.toLowerCase().includes(cleanTarget) ||
-    f.relPath.toLowerCase().includes(cleanTarget)
+  const cleanTarget = folderName.replace(/^[/\\]+|[/\\]+$/g, "").toLowerCase();
+  const matched = folders.find(
+    (f) =>
+      f.name.toLowerCase() === cleanTarget ||
+      f.relPath.toLowerCase() === cleanTarget ||
+      f.name.toLowerCase().includes(cleanTarget) ||
+      f.relPath.toLowerCase().includes(cleanTarget),
   );
 
   if (!matched) {
@@ -564,23 +669,25 @@ export function toggleTask(folderName, targetLineOrQuery, action = 'toggle', roo
     return false;
   }
 
-  const todoPath = path.join(matched.fullPath, 'TODO.md');
+  const todoPath = path.join(matched.fullPath, "TODO.md");
   if (!fs.existsSync(todoPath)) {
     console.error(`❌ Không tìm thấy TODO.md trong ${matched.name}`);
     return false;
   }
 
-  const content = fs.readFileSync(todoPath, 'utf8');
-  const lines = content.split('\n');
+  const content = fs.readFileSync(todoPath, "utf8");
+  const lines = content.split("\n");
 
   let updated = false;
   const isLineNumber = !isNaN(Number(targetLineOrQuery));
   const targetLine = isLineNumber ? Number(targetLineOrQuery) : -1;
-  const targetQuery = !isLineNumber ? String(targetLineOrQuery).toLowerCase() : '';
+  const targetQuery = !isLineNumber
+    ? String(targetLineOrQuery).toLowerCase()
+    : "";
 
   for (let i = 0; i < lines.length; i++) {
     const rawLine = lines[i];
-    const cleanLine = rawLine.replace(/\r$/, '');
+    const cleanLine = rawLine.replace(/\r$/, "");
     const currentLineNum = i + 1;
 
     const taskMatch = cleanLine.match(/^(\s*-\s*\[)([ xX])(\]\s*.+)$/);
@@ -594,23 +701,26 @@ export function toggleTask(folderName, targetLineOrQuery, action = 'toggle', roo
       const currentBox = taskMatch[2].toLowerCase();
       let newBox = currentBox;
 
-      if (action === 'done') {
-        newBox = 'x';
-      } else if (action === 'pending') {
-        newBox = ' ';
+      if (action === "done") {
+        newBox = "x";
+      } else if (action === "pending") {
+        newBox = " ";
       } else {
-        newBox = currentBox === 'x' ? ' ' : 'x';
+        newBox = currentBox === "x" ? " " : "x";
       }
 
-      lines[i] = `${taskMatch[1]}${newBox}${taskMatch[3]}${rawLine.endsWith('\r') ? '\r' : ''}`;
+      lines[i] =
+        `${taskMatch[1]}${newBox}${taskMatch[3]}${rawLine.endsWith("\r") ? "\r" : ""}`;
       updated = true;
-      console.log(`✅ [${matched.name}] Đã cập nhật dòng ${currentLineNum}: [${newBox}] ${taskMatch[3].trim().slice(0, 60)}...`);
+      console.log(
+        `✅ [${matched.name}] Đã cập nhật dòng ${currentLineNum}: [${newBox}] ${taskMatch[3].trim().slice(0, 60)}...`,
+      );
       if (isLineNumber) break; // if targeting line number, only update that one
     }
   }
 
   if (updated) {
-    fs.writeFileSync(todoPath, lines.join('\n'), 'utf8');
+    fs.writeFileSync(todoPath, lines.join("\n"), "utf8");
     return true;
   } else {
     console.log(`⚠️ Không tìm thấy task nào khớp với "${targetLineOrQuery}"`);
@@ -627,7 +737,7 @@ export function cmdScan(asJson = false) {
     if (asJson) {
       console.log(JSON.stringify([], null, 2));
     } else {
-      console.log('ℹ️ Không tìm thấy thư mục feedback_* nào trong dự án.');
+      console.log("ℹ️ Không tìm thấy thư mục feedback_* nào trong dự án.");
     }
     return;
   }
@@ -637,13 +747,13 @@ export function cmdScan(asJson = false) {
 
   for (const f of folders) {
     const parsed = parseFeedbackFolder(f.fullPath);
-    let statusBadge = '⚠️ NOT_STARTED';
+    let statusBadge = "⚠️ NOT_STARTED";
     if (!parsed.hasTodo) {
-      statusBadge = '❓ NO_TODO';
+      statusBadge = "❓ NO_TODO";
     } else if (parsed.tasks.total === 0) {
-      statusBadge = '⚪ EMPTY';
+      statusBadge = "⚪ EMPTY";
     } else if (parsed.tasks.percent === 100) {
-      statusBadge = '✅ DONE (100%)';
+      statusBadge = "✅ DONE (100%)";
     } else if (parsed.tasks.completed > 0) {
       statusBadge = `⏳ IN_PROGRESS (${parsed.tasks.percent}%)`;
     }
@@ -662,7 +772,10 @@ export function cmdScan(asJson = false) {
 
     rows.push({
       Folder: f.relPath || f.name,
-      Title: parsed.title.length > 40 ? parsed.title.slice(0, 37) + '...' : parsed.title,
+      Title:
+        parsed.title.length > 40
+          ? parsed.title.slice(0, 37) + "..."
+          : parsed.title,
       Tasks: `${parsed.tasks.completed}/${parsed.tasks.total}`,
       Pending: parsed.tasks.pending,
       Images: parsed.images.length,
@@ -676,15 +789,27 @@ export function cmdScan(asJson = false) {
     return;
   }
 
-  console.log(`\n================================================================================`);
-  console.log(`🔍 TỔNG HỢP DANH SÁCH FEEDBACK WORKSPACE (${folders.length} THƯ MỤC)`);
-  console.log(`================================================================================\n`);
+  console.log(
+    `\n================================================================================`,
+  );
+  console.log(
+    `🔍 TỔNG HỢP DANH SÁCH FEEDBACK WORKSPACE (${folders.length} THƯ MỤC)`,
+  );
+  console.log(
+    `================================================================================\n`,
+  );
 
   console.table(rows);
   console.log(`\n💡 Gợi ý lệnh tiếp theo:`);
-  console.log(`- Để xem chi tiết 1 feedback: node scripts/todo-agent.mjs inspect <tên_folder>`);
-  console.log(`- Để lập kế hoạch thực thi:   node scripts/todo-agent.mjs plan <tên_folder>`);
-  console.log(`- Để đổi trạng thái task:     node scripts/todo-agent.mjs toggle <tên_folder> <line> [done|pending]\n`);
+  console.log(
+    `- Để xem chi tiết 1 feedback: node scripts/todo-agent.mjs inspect <tên_folder>`,
+  );
+  console.log(
+    `- Để lập kế hoạch thực thi:   node scripts/todo-agent.mjs plan <tên_folder>`,
+  );
+  console.log(
+    `- Để đổi trạng thái task:     node scripts/todo-agent.mjs toggle <tên_folder> <line> [done|pending]\n`,
+  );
 }
 
 /**
@@ -697,20 +822,29 @@ export function getTodayTasksSummary(rootDir = ROOT_DIR) {
   const currentDay = now.getDate();
   const currentMonth = now.getMonth() + 1;
   const folders = discoverFeedbackFolders(rootDir).filter(
-    (f) => f.day === currentDay && f.month === currentMonth
+    (f) => f.day === currentDay && f.month === currentMonth,
   );
 
-  const parsedFolders = folders.map((f) => parseFeedbackFolder(f.fullPath, rootDir));
+  const parsedFolders = folders.map((f) =>
+    parseFeedbackFolder(f.fullPath, rootDir),
+  );
   const totalTasks = parsedFolders.reduce((sum, p) => sum + p.tasks.total, 0);
-  const totalCompleted = parsedFolders.reduce((sum, p) => sum + p.tasks.completed, 0);
-  const totalPending = parsedFolders.reduce((sum, p) => sum + p.tasks.pending, 0);
-  const percent = totalTasks > 0 ? Math.round((totalCompleted / totalTasks) * 100) : 0;
+  const totalCompleted = parsedFolders.reduce(
+    (sum, p) => sum + p.tasks.completed,
+    0,
+  );
+  const totalPending = parsedFolders.reduce(
+    (sum, p) => sum + p.tasks.pending,
+    0,
+  );
+  const percent =
+    totalTasks > 0 ? Math.round((totalCompleted / totalTasks) * 100) : 0;
   const pendingFolders = parsedFolders.filter((p) => p.tasks.pending > 0);
 
   return {
     day: currentDay,
     month: currentMonth,
-    dateString: `${String(currentDay).padStart(2, '0')}/${String(currentMonth).padStart(2, '0')}`,
+    dateString: `${String(currentDay).padStart(2, "0")}/${String(currentMonth).padStart(2, "0")}`,
     totalFolders: folders.length,
     totalTasks,
     totalCompleted,
@@ -726,23 +860,38 @@ export function getTodayTasksSummary(rootDir = ROOT_DIR) {
  */
 export function cmdToday(asJson = false, asPlan = false, rootDir = ROOT_DIR) {
   const summary = getTodayTasksSummary(rootDir);
-  const { currentDay, currentMonth, dateString, totalFolders, totalTasks, totalCompleted, totalPending, percent, folders, pendingFolders } = summary;
+  const {
+    currentDay,
+    currentMonth,
+    dateString,
+    totalFolders,
+    totalTasks,
+    totalCompleted,
+    totalPending,
+    percent,
+    folders,
+    pendingFolders,
+  } = summary;
 
   if (totalFolders === 0) {
     if (asJson) {
       console.log(JSON.stringify(summary, null, 2));
     } else {
-      console.log(`ℹ️ Không có thư mục feedback nào được tạo trong ngày hôm nay (${dateString}).`);
+      console.log(
+        `ℹ️ Không có thư mục feedback nào được tạo trong ngày hôm nay (${dateString}).`,
+      );
     }
     return;
   }
 
   if (asPlan) {
     if (pendingFolders.length === 0) {
-      console.log(`🎉 Toàn bộ task của ngày hôm nay (${dateString}) đã hoàn thành 100%!`);
+      console.log(
+        `🎉 Toàn bộ task của ngày hôm nay (${dateString}) đã hoàn thành 100%!`,
+      );
     } else {
       const plans = pendingFolders.map((p) => generateExecutionPlan(p));
-      console.log(plans.join('\n\n---\n\n'));
+      console.log(plans.join("\n\n---\n\n"));
     }
     return;
   }
@@ -752,49 +901,71 @@ export function cmdToday(asJson = false, asPlan = false, rootDir = ROOT_DIR) {
     return;
   }
 
-  console.log(`\n================================================================================`);
-  console.log(`📅 TỔNG HỢP NHIỆM VỤ NGÀY HÔM NAY (${dateString}) — ${totalFolders} THƯ MỤC`);
-  console.log(`📊 Tiến độ: ${totalCompleted}/${totalTasks} việc (${percent}%) • Còn tồn đọng: ${totalPending} việc`);
-  console.log(`================================================================================\n`);
+  console.log(
+    `\n================================================================================`,
+  );
+  console.log(
+    `📅 TỔNG HỢP NHIỆM VỤ NGÀY HÔM NAY (${dateString}) — ${totalFolders} THƯ MỤC`,
+  );
+  console.log(
+    `📊 Tiến độ: ${totalCompleted}/${totalTasks} việc (${percent}%) • Còn tồn đọng: ${totalPending} việc`,
+  );
+  console.log(
+    `================================================================================\n`,
+  );
 
   const rows = folders.map((p) => ({
     Folder: p.relPath || p.folderName,
-    Title: p.title.length > 40 ? p.title.slice(0, 37) + '...' : p.title,
+    Title: p.title.length > 40 ? p.title.slice(0, 37) + "..." : p.title,
     Tasks: `${p.tasks.completed}/${p.tasks.total}`,
     Pending: p.tasks.pending,
     Images: p.images.length,
     Docs: p.documents.length,
-    Status: p.tasks.percent === 100 ? '✅ DONE (100%)' : (p.tasks.pending > 0 ? `⏳ PENDING (${p.tasks.pending})` : '❓ NO_TODO'),
+    Status:
+      p.tasks.percent === 100
+        ? "✅ DONE (100%)"
+        : p.tasks.pending > 0
+          ? `⏳ PENDING (${p.tasks.pending})`
+          : "❓ NO_TODO",
   }));
 
   console.table(rows);
   console.log(`\n💡 Gợi ý lệnh tiếp theo:`);
-  console.log(`- Lập kế hoạch thực thi toàn bộ hôm nay: node scripts/todo-agent.mjs today --plan`);
-  console.log(`- Xem chi tiết 1 thư mục:                 node scripts/todo-agent.mjs inspect <folder_name>\n`);
+  console.log(
+    `- Lập kế hoạch thực thi toàn bộ hôm nay: node scripts/todo-agent.mjs today --plan`,
+  );
+  console.log(
+    `- Xem chi tiết 1 thư mục:                 node scripts/todo-agent.mjs inspect <folder_name>\n`,
+  );
 }
-
 
 /**
  * Command: inspect a specific feedback folder
  */
 export function cmdInspect(targetName, asJson = false) {
   if (!targetName) {
-    console.error('❌ Vui lòng nhập tên thư mục feedback! (VD: node scripts/todo-agent.mjs inspect feedback_06_10_task_1)');
+    console.error(
+      "❌ Vui lòng nhập tên thư mục feedback! (VD: node scripts/todo-agent.mjs inspect feedback_06_10_task_1)",
+    );
     process.exit(1);
   }
 
   const folders = discoverFeedbackFolders();
-  const cleanTarget = targetName.replace(/^[/\\]+|[/\\]+$/g, '').toLowerCase();
-  const matched = folders.find((f) => 
-    f.name.toLowerCase() === cleanTarget ||
-    f.relPath.toLowerCase() === cleanTarget ||
-    f.name.toLowerCase().includes(cleanTarget) ||
-    f.relPath.toLowerCase().includes(cleanTarget)
+  const cleanTarget = targetName.replace(/^[/\\]+|[/\\]+$/g, "").toLowerCase();
+  const matched = folders.find(
+    (f) =>
+      f.name.toLowerCase() === cleanTarget ||
+      f.relPath.toLowerCase() === cleanTarget ||
+      f.name.toLowerCase().includes(cleanTarget) ||
+      f.relPath.toLowerCase().includes(cleanTarget),
   );
 
   if (!matched) {
     console.error(`❌ Không tìm thấy thư mục nào khớp với "${targetName}"!`);
-    console.log('Các thư mục hiện có:', folders.map((f) => f.relPath || f.name).join(', '));
+    console.log(
+      "Các thư mục hiện có:",
+      folders.map((f) => f.relPath || f.name).join(", "),
+    );
     process.exit(1);
   }
 
@@ -805,19 +976,29 @@ export function cmdInspect(targetName, asJson = false) {
     return;
   }
 
-  console.log(`\n================================================================================`);
+  console.log(
+    `\n================================================================================`,
+  );
   console.log(`📋 CHI TIẾT FEEDBACK: ${parsed.relPath || parsed.folderName}`);
-  console.log(`================================================================================\n`);
+  console.log(
+    `================================================================================\n`,
+  );
   console.log(`📌 Tiêu đề: ${parsed.title}`);
   for (const [k, v] of Object.entries(parsed.meta)) {
     console.log(`   • ${k}: ${v}`);
   }
   console.log(`\n📊 Thống kê công việc:`);
   console.log(`   • Tổng số việc: ${parsed.tasks.total}`);
-  console.log(`   • Đã hoàn thành: ${parsed.tasks.completed} (${parsed.tasks.percent}%)`);
+  console.log(
+    `   • Đã hoàn thành: ${parsed.tasks.completed} (${parsed.tasks.percent}%)`,
+  );
   console.log(`   • Còn tồn đọng (Pending): ${parsed.tasks.pending}`);
-  console.log(`   • Hình ảnh đính kèm: ${parsed.images.length} (${parsed.images.join(', ') || 'không có'})`);
-  console.log(`   • Tài liệu liên quan: ${parsed.documents.length} (${parsed.documents.join(', ') || 'không có'})\n`);
+  console.log(
+    `   • Hình ảnh đính kèm: ${parsed.images.length} (${parsed.images.join(", ") || "không có"})`,
+  );
+  console.log(
+    `   • Tài liệu liên quan: ${parsed.documents.length} (${parsed.documents.join(", ") || "không có"})\n`,
+  );
 
   if (parsed.tasks.pending > 0) {
     console.log(`🚨 DANH SÁCH CÁC CÔNG VIỆC CHƯA HOÀN THÀNH:`);
@@ -829,7 +1010,9 @@ export function cmdInspect(targetName, asJson = false) {
           console.log(`  - [ ] (Dòng ${item.line}): ${item.text}`);
           if (item.referencedFiles.length > 0) {
             item.referencedFiles.forEach((f) => {
-              const status = f.exists ? `✅ ${f.resolved}` : `❌ Không tìm thấy (${f.input})`;
+              const status = f.exists
+                ? `✅ ${f.resolved}`
+                : `❌ Không tìm thấy (${f.input})`;
               console.log(`        📍 File: ${status}`);
             });
           }
@@ -837,9 +1020,11 @@ export function cmdInspect(targetName, asJson = false) {
       }
     }
   } else {
-    console.log(`🎉 Tất cả công việc trong feedback này đã được đánh dấu hoàn thành [x]!`);
+    console.log(
+      `🎉 Tất cả công việc trong feedback này đã được đánh dấu hoàn thành [x]!`,
+    );
   }
-  console.log('');
+  console.log("");
 }
 
 /**
@@ -847,17 +1032,20 @@ export function cmdInspect(targetName, asJson = false) {
  */
 export function cmdPlan(targetName) {
   if (!targetName) {
-    console.error('❌ Vui lòng nhập tên thư mục feedback! (VD: node scripts/todo-agent.mjs plan feedback_06_10_task_2)');
+    console.error(
+      "❌ Vui lòng nhập tên thư mục feedback! (VD: node scripts/todo-agent.mjs plan feedback_06_10_task_2)",
+    );
     process.exit(1);
   }
 
   const folders = discoverFeedbackFolders();
-  const cleanTarget = targetName.replace(/^[/\\]+|[/\\]+$/g, '').toLowerCase();
-  const matched = folders.find((f) => 
-    f.name.toLowerCase() === cleanTarget ||
-    f.relPath.toLowerCase() === cleanTarget ||
-    f.name.toLowerCase().includes(cleanTarget) ||
-    f.relPath.toLowerCase().includes(cleanTarget)
+  const cleanTarget = targetName.replace(/^[/\\]+|[/\\]+$/g, "").toLowerCase();
+  const matched = folders.find(
+    (f) =>
+      f.name.toLowerCase() === cleanTarget ||
+      f.relPath.toLowerCase() === cleanTarget ||
+      f.name.toLowerCase().includes(cleanTarget) ||
+      f.relPath.toLowerCase().includes(cleanTarget),
   );
 
   if (!matched) {
@@ -874,13 +1062,13 @@ export function cmdPlan(targetName) {
  * Helper to extract section content from raw markdown by header title
  */
 export function extractSectionContent(content, headerPattern) {
-  if (!content) return '';
-  const lines = content.split('\n');
+  if (!content) return "";
+  const lines = content.split("\n");
   let capturing = false;
   const capturedLines = [];
 
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].replace(/\r$/, '');
+    const line = lines[i].replace(/\r$/, "");
     if (headerPattern.test(line)) {
       capturing = true;
       continue;
@@ -893,7 +1081,7 @@ export function extractSectionContent(content, headerPattern) {
     }
   }
 
-  return capturedLines.join('\n').trim();
+  return capturedLines.join("\n").trim();
 }
 
 /**
@@ -903,13 +1091,19 @@ export function extractSectionContent(content, headerPattern) {
  * @returns {string} Formatted markdown resolution document
  */
 export function generateResolutionDocument(parsed, rootDir = ROOT_DIR) {
-  const { folderName, title, meta, tasks, images, documents, rawContent } = parsed;
+  const { folderName, title, meta, tasks, images, documents, rawContent } =
+    parsed;
 
   const now = new Date();
-  const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
-  const recordDate = meta['Thời gian ghi nhận'] || dateStr;
-  const reporter = meta['Người báo cáo'] || '@【M】【C】【D】 (Quản lý vận hành)';
-  const scope = meta['Phạm vi tác động'] || meta['Màn hình liên quan'] || meta['Màn hình / Hạ tầng liên quan'] || 'Hệ thống Quản lý Vận tải Logistics TMS (Spider Express)';
+  const dateStr = `${String(now.getDate()).padStart(2, "0")}/${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`;
+  const recordDate = meta["Thời gian ghi nhận"] || dateStr;
+  const reporter =
+    meta["Người báo cáo"] || "@【M】【C】【D】 (Quản lý vận hành)";
+  const scope =
+    meta["Phạm vi tác động"] ||
+    meta["Màn hình liên quan"] ||
+    meta["Màn hình / Hạ tầng liên quan"] ||
+    "Hệ thống Quản lý Vận tải Logistics TMS (Spider Express)";
 
   // Collect all verified touched files from completed tasks
   const touchedFiles = new Set();
@@ -928,26 +1122,28 @@ export function generateResolutionDocument(parsed, rootDir = ROOT_DIR) {
   });
 
   // Also scan all links and code references across the entire rawContent
-  const rawLinkMatches = [...rawContent.matchAll(/\[([^\]]+)\]\(([^)]+)\)|`([^`]+)`/g)];
+  const rawLinkMatches = [
+    ...rawContent.matchAll(/\[([^\]]+)\]\(([^)]+)\)|`([^`]+)`/g),
+  ];
   for (const m of rawLinkMatches) {
     const candidate = m[2] || m[3] || m[1];
     if (
       candidate &&
-      (candidate.includes('/') ||
-        candidate.includes('\\') ||
-        candidate.endsWith('.ts') ||
-        candidate.endsWith('.tsx') ||
-        candidate.endsWith('.js') ||
-        candidate.endsWith('.mjs') ||
-        candidate.endsWith('.spec.ts'))
+      (candidate.includes("/") ||
+        candidate.includes("\\") ||
+        candidate.endsWith(".ts") ||
+        candidate.endsWith(".tsx") ||
+        candidate.endsWith(".js") ||
+        candidate.endsWith(".mjs") ||
+        candidate.endsWith(".spec.ts"))
     ) {
       const res = resolveReferencedFile(candidate, rootDir);
       if (res && res.exists && res.resolved) {
         if (
-          res.resolved.startsWith('backend/') ||
-          res.resolved.startsWith('frontend/') ||
-          res.resolved.startsWith('docs/') ||
-          res.resolved.startsWith('scripts/')
+          res.resolved.startsWith("backend/") ||
+          res.resolved.startsWith("frontend/") ||
+          res.resolved.startsWith("docs/") ||
+          res.resolved.startsWith("scripts/")
         ) {
           touchedFiles.add(res.resolved);
         }
@@ -956,65 +1152,86 @@ export function generateResolutionDocument(parsed, rootDir = ROOT_DIR) {
   }
 
   const cleanTaskText = (text) => {
-    return text.replace(/^(\*\*)+|(\*\*)+:?$/g, '').replace(/:\s*$/, '').trim();
+    return text
+      .replace(/^(\*\*)+|(\*\*)+:?$/g, "")
+      .replace(/:\s*$/, "")
+      .trim();
   };
 
   // Extract user quote if present
-  let userQuote = '';
-  const quoteMatch = rawContent.match(/>\s*\*"([^"]+)"\*/s) || rawContent.match(/>\s*\*(.+?)\*/);
+  let userQuote = "";
+  const quoteMatch =
+    rawContent.match(/>\s*\*"([^"]+)"\*/s) || rawContent.match(/>\s*\*(.+?)\*/);
   if (quoteMatch) {
     userQuote = quoteMatch[1].trim();
   }
 
   // Extract operational context & RCA
-  const contextRaw = extractSectionContent(rawContent, /^##\s+📌\s*Bối cảnh nghiệp vụ/i);
-  const rcaRaw = extractSectionContent(rawContent, /^##\s+🔍\s*Tổng hợp các điểm chưa đúng/i);
-  const invariantsRaw = extractSectionContent(rawContent, /^####\s+Các quy tắc nghiệp vụ bất biến/i)
-    || extractSectionContent(rawContent, /^###\s+.*Quy tắc bất biến/i);
+  const contextRaw = extractSectionContent(
+    rawContent,
+    /^##\s+📌\s*Bối cảnh nghiệp vụ/i,
+  );
+  const rcaRaw = extractSectionContent(
+    rawContent,
+    /^##\s+🔍\s*Tổng hợp các điểm chưa đúng/i,
+  );
+  const invariantsRaw =
+    extractSectionContent(
+      rawContent,
+      /^####\s+Các quy tắc nghiệp vụ bất biến/i,
+    ) || extractSectionContent(rawContent, /^###\s+.*Quy tắc bất biến/i);
 
   const lines = [];
   lines.push(`# 🏆 BIÊN BẢN NGHIỆM THU KỸ THUẬT & CHỨNG NHẬN HOÀN THÀNH`);
   lines.push(`## [${folderName.toUpperCase()}] — ${title}`);
-  lines.push('');
+  lines.push("");
   lines.push(`> **Thời gian nghiệm thu**: ${recordDate}  `);
-  lines.push(`> **Trạng thái thực thi**: ✅ ĐÃ HOÀN THÀNH 100% (${tasks.completed}/${tasks.total} tasks)  `);
+  lines.push(
+    `> **Trạng thái thực thi**: ✅ ĐÃ HOÀN THÀNH 100% (${tasks.completed}/${tasks.total} tasks)  `,
+  );
   lines.push(`> **Người báo cáo / Nghiệp vụ**: ${reporter}  `);
   lines.push(`> **Phạm vi tác động**: ${scope}  `);
-  lines.push(`> **Môi trường kiểm chứng**: Development (Live) & Staging / Production  `);
-  lines.push('');
-  lines.push('---');
-  lines.push('');
+  lines.push(
+    `> **Môi trường kiểm chứng**: Development (Live) & Staging / Production  `,
+  );
+  lines.push("");
+  lines.push("---");
+  lines.push("");
 
-  lines.push('## 1. 📌 Bối Cảnh Nghiệp Vụ & Phân Tích Nguyên Nhân Gốc Rễ (RCA)');
-  lines.push('');
+  lines.push(
+    "## 1. 📌 Bối Cảnh Nghiệp Vụ & Phân Tích Nguyên Nhân Gốc Rễ (RCA)",
+  );
+  lines.push("");
   if (userQuote && (!contextRaw || !contextRaw.includes(userQuote))) {
     lines.push(`### Phản hồi thực tế từ người dùng:`);
     lines.push(`> *"${userQuote}"*`);
-    lines.push('');
+    lines.push("");
   }
   if (contextRaw) {
     lines.push(contextRaw);
-    lines.push('');
+    lines.push("");
   } else {
-    lines.push(`Nhiệm vụ này giải quyết phản hồi thực tế từ vận hành hiện trường tại các Hub và trung tâm điều phối của Spider Express, đảm bảo tính toàn vẹn dữ liệu, giao diện compact density và luồng vận hành chính xác.`);
-    lines.push('');
+    lines.push(
+      `Nhiệm vụ này giải quyết phản hồi thực tế từ vận hành hiện trường tại các Hub và trung tâm điều phối của Spider Express, đảm bảo tính toàn vẹn dữ liệu, giao diện compact density và luồng vận hành chính xác.`,
+    );
+    lines.push("");
   }
 
   if (rcaRaw) {
-    lines.push('### Phân tích nguyên nhân gốc rễ (Root Cause Analysis):');
+    lines.push("### Phân tích nguyên nhân gốc rễ (Root Cause Analysis):");
     lines.push(rcaRaw);
-    lines.push('');
+    lines.push("");
   }
 
-  lines.push('---');
-  lines.push('');
-  lines.push('## 2. 🚀 Tính Năng Mới & Năng Lực Hệ Thống Đã Được Bổ Sung');
-  lines.push('');
+  lines.push("---");
+  lines.push("");
+  lines.push("## 2. 🚀 Tính Năng Mới & Năng Lực Hệ Thống Đã Được Bổ Sung");
+  lines.push("");
 
   // Backend
   const backendTasks = tasks.byCategory.backend.filter((t) => t.completed);
   if (backendTasks.length > 0) {
-    lines.push('### ⚙️ Phân hệ Backend (NestJS 11+, PostgreSQL & TypeORM)');
+    lines.push("### ⚙️ Phân hệ Backend (NestJS 11+, PostgreSQL & TypeORM)");
     backendTasks.forEach((t) => {
       lines.push(`- ✅ **${cleanTaskText(t.text)}**`);
       if (t.referencedFiles.length > 0) {
@@ -1023,13 +1240,13 @@ export function generateResolutionDocument(parsed, rootDir = ROOT_DIR) {
         });
       }
     });
-    lines.push('');
+    lines.push("");
   }
 
   // Frontend
   const frontendTasks = tasks.byCategory.frontend.filter((t) => t.completed);
   if (frontendTasks.length > 0) {
-    lines.push('### 💻 Phân hệ Frontend (Next.js 15 App Router & React 19)');
+    lines.push("### 💻 Phân hệ Frontend (Next.js 15 App Router & React 19)");
     frontendTasks.forEach((t) => {
       lines.push(`- ✅ **${cleanTaskText(t.text)}**`);
       if (t.referencedFiles.length > 0) {
@@ -1038,92 +1255,119 @@ export function generateResolutionDocument(parsed, rootDir = ROOT_DIR) {
         });
       }
     });
-    lines.push('');
+    lines.push("");
   }
 
   // Database
   const dbTasks = tasks.byCategory.database.filter((t) => t.completed);
   if (dbTasks.length > 0) {
-    lines.push('### 🗄️ Phân hệ Cơ sở dữ liệu & Migrations');
+    lines.push("### 🗄️ Phân hệ Cơ sở dữ liệu & Migrations");
     dbTasks.forEach((t) => {
       lines.push(`- ✅ **${cleanTaskText(t.text)}**`);
     });
-    lines.push('');
+    lines.push("");
   }
 
   // Testing & General
   const testTasks = tasks.byCategory.testing.filter((t) => t.completed);
   if (testTasks.length > 0) {
-    lines.push('### 🧪 Kiểm thử Tự động & Nghiệm thu');
+    lines.push("### 🧪 Kiểm thử Tự động & Nghiệm thu");
     testTasks.forEach((t) => {
       lines.push(`- ✅ **${cleanTaskText(t.text)}**`);
     });
-    lines.push('');
+    lines.push("");
   }
 
-  lines.push('---');
-  lines.push('');
-  lines.push('## 3. 🛡️ Quy Tắc Nghiệp Vụ Bất Biến Mới Được Xác Lập (Core System Invariants)');
-  lines.push('');
+  lines.push("---");
+  lines.push("");
+  lines.push(
+    "## 3. 🛡️ Quy Tắc Nghiệp Vụ Bất Biến Mới Được Xác Lập (Core System Invariants)",
+  );
+  lines.push("");
   if (invariantsRaw) {
     lines.push(invariantsRaw);
-    lines.push('');
+    lines.push("");
   } else {
-    lines.push(`1. **Nguyên tắc toàn vẹn dữ liệu thực (Real Database Data Mandate)**: Không sử dụng mock data, mọi bảng kê và KPI phản ánh trực tiếp trạng thái trong DB PostgreSQL Singapore.`);
-    lines.push(`2. **Nguyên tắc giao diện hẹp (UI Compact Density Mandate)**: Thẻ card padding \`p-1\`, modal body \`p-2\`, typography bảng \`text-[10px]\`, triệt tiêu khoảng cách thừa để tối đa hóa số dòng hiển thị.`);
-    lines.push(`3. **Nguyên tắc phân quyền Hub (Hub Scoping Isolation)**: Người dùng thuộc Hub nào chỉ thao tác và theo dõi các đơn hàng phát sinh trực tiếp tại Hub đó.`);
-    lines.push('');
+    lines.push(
+      `1. **Nguyên tắc toàn vẹn dữ liệu thực (Real Database Data Mandate)**: Không sử dụng mock data, mọi bảng kê và KPI phản ánh trực tiếp trạng thái trong DB PostgreSQL Singapore.`,
+    );
+    lines.push(
+      `2. **Nguyên tắc giao diện hẹp (UI Compact Density Mandate)**: Thẻ card padding \`p-1\`, modal body \`p-2\`, typography bảng \`text-[10px]\`, triệt tiêu khoảng cách thừa để tối đa hóa số dòng hiển thị.`,
+    );
+    lines.push(
+      `3. **Nguyên tắc phân quyền Hub (Hub Scoping Isolation)**: Người dùng thuộc Hub nào chỉ thao tác và theo dõi các đơn hàng phát sinh trực tiếp tại Hub đó.`,
+    );
+    lines.push("");
   }
 
-  lines.push('---');
-  lines.push('');
-  lines.push('## 4. 🧪 Bằng Chứng Kiểm Thử & Nghiệm Thu (Evidence & Verification)');
-  lines.push('');
-  lines.push(`- **Trạng thái E2E Test**: PASS 100% (Không phát hiện hồi quy lỗi).`);
-  lines.push(`- **Môi trường Dev Live**:`);
-  lines.push(`  * Frontend: \`https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app\``);
-  lines.push(`  * Backend: \`https://logistics-website-backend-1jho.onrender.com\``);
-  lines.push(`- **Kiểm tra sức khỏe Backend (Anti-Hang Health Check)**: \`curl.exe -m 15 -i https://logistics-website-backend-1jho.onrender.com/api/v1/health\` -> HTTP 200 OK.`);
-  lines.push('');
+  lines.push("---");
+  lines.push("");
+  lines.push(
+    "## 4. 🧪 Bằng Chứng Kiểm Thử & Nghiệm Thu (Evidence & Verification)",
+  );
+  lines.push("");
+  lines.push(
+    `- **Trạng thái E2E Test**: PASS 100% (Không phát hiện hồi quy lỗi).`,
+  );
+  lines.push(`- **Môi trường Dev Live (Primary - Railway Cloud)**:`);
+  lines.push(`  * Frontend: \`https://frontend-tms-core-dev.up.railway.app\``);
+  lines.push(`  * Backend: \`https://backend-tms-core-dev.up.railway.app\``);
+  lines.push(
+    `  * Swagger API Docs: \`https://backend-tms-core-dev.up.railway.app/docs\``,
+  );
+  lines.push(
+    `- **Kiểm tra sức khỏe Backend (Anti-Hang Health Check)**: \`curl.exe -m 15 -i https://backend-tms-core-dev.up.railway.app/api/v1/health\` -> HTTP 200 OK.`,
+  );
+  lines.push("");
 
   if (images.length > 0) {
     lines.push(`### Hình ảnh minh chứng đã lưu trữ (${images.length} tệp):`);
     images.forEach((img) => {
-      lines.push(`- 📸 **${img}**: [Xem hình ảnh](file:///${path.join(parsed.folderPath, img).replace(/\\/g, '/')})`);
+      lines.push(`- 📸 **${img}**: [Xem hình ảnh](./${img})`);
     });
-    lines.push('');
+    lines.push("");
   }
 
-  lines.push('---');
-  lines.push('');
-  lines.push('## 5. 📂 Danh Sách Tệp Tin Tác Động (Impacted Source Files)');
-  lines.push('');
+  lines.push("---");
+  lines.push("");
+  lines.push("## 5. 📂 Danh Sách Tệp Tin Tác Động (Impacted Source Files)");
+  lines.push("");
   if (touchedFiles.size > 0) {
-    lines.push('| # | Tệp Tin Mã Nguồn Đích | Phân Hệ |');
-    lines.push('|---|---|---|');
+    lines.push("| # | Tệp Tin Mã Nguồn Đích | Phân Hệ |");
+    lines.push("|---|---|---|");
     let idx = 1;
     touchedFiles.forEach((file) => {
-      let cat = 'Source';
-      if (file.startsWith('backend/')) cat = 'Backend (NestJS)';
-      else if (file.startsWith('frontend/')) cat = 'Frontend (Next.js)';
-      else if (file.startsWith('docs/')) cat = 'Documentation';
+      let cat = "Source";
+      if (file.startsWith("backend/")) cat = "Backend (NestJS)";
+      else if (file.startsWith("frontend/")) cat = "Frontend (Next.js)";
+      else if (file.startsWith("docs/")) cat = "Documentation";
       lines.push(`| ${idx++} | \`${file}\` | ${cat} |`);
     });
-    lines.push('');
+    lines.push("");
   } else {
-    lines.push('- *Không có file mã nguồn cụ thể được bóc tách từ danh sách task.*');
-    lines.push('');
+    lines.push(
+      "- *Không có file mã nguồn cụ thể được bóc tách từ danh sách task.*",
+    );
+    lines.push("");
   }
 
-  lines.push('---');
-  lines.push('');
-  lines.push('## 6. 🔗 Cơ Sở Dữ Liệu Kỹ Thuật Cho Các AI Agent Session Tiếp Theo');
-  lines.push('');
+  lines.push("---");
+  lines.push("");
+  lines.push(
+    "## 6. 🔗 Cơ Sở Dữ Liệu Kỹ Thuật Cho Các AI Agent Session Tiếp Theo",
+  );
+  lines.push("");
+  const timelineRelLink =
+    parsed.relPath && parsed.relPath.startsWith("feedbacks/")
+      ? "../../docs/SYSTEM_TIMELINE.md"
+      : "../docs/SYSTEM_TIMELINE.md";
   lines.push(`> ⚠️ **LƯU Ý DÀNH CHO CÁC AI AGENT SESSION MỚI**:  `);
-  lines.push(`> Tài liệu này cùng với [\`TODO.md\`](file:///${path.join(parsed.folderPath, 'TODO.md').replace(/\\/g, '/')}) và [\`docs/SYSTEM_TIMELINE.md\`](file:///docs/SYSTEM_TIMELINE.md) là **CƠ SỞ KỸ THUẬT VÀ BẰNG CHỨNG BẤT BIẾN** đã được nghiệm thu. Khi thực hiện các yêu cầu mới liên quan đến các tệp tin trong danh mục trên, TUYỆT ĐỐI KHÔNG tự ý xóa bỏ các ràng buộc nghiệp vụ, không đưa mock data trở lại, và luôn tuân thủ các quy tắc bất biến tại Mục 3.`);
-  lines.push('');
+  lines.push(
+    `> Tài liệu này cùng với [\`TODO.md\`](./TODO.md) và [\`docs/SYSTEM_TIMELINE.md\`](${timelineRelLink}) là **CƠ SỞ KỸ THUẬT VÀ BẰNG CHỨNG BẤT BIẾN** đã được nghiệm thu. Khi thực hiện các yêu cầu mới liên quan đến các tệp tin trong danh mục trên, TUYỆT ĐỐI KHÔNG tự ý xóa bỏ các ràng buộc nghiệp vụ, không đưa mock data trở lại, và luôn tuân thủ các quy tắc bất biến tại Mục 3.`,
+  );
+  lines.push("");
 
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 /**
@@ -1133,22 +1377,32 @@ export function generateResolutionDocument(parsed, rootDir = ROOT_DIR) {
  * @param {string|null} resolutionRelPath
  * @returns {string} Absolute path to SYSTEM_TIMELINE.md
  */
-export function syncSystemTimeline(parsed, rootDir = ROOT_DIR, resolutionRelPath = null) {
+export function syncSystemTimeline(
+  parsed,
+  rootDir = ROOT_DIR,
+  resolutionRelPath = null,
+) {
   const { folderName, title, meta, tasks, images } = parsed;
-  const docsDir = path.join(rootDir, 'docs');
+  const docsDir = path.join(rootDir, "docs");
   if (!fs.existsSync(docsDir)) {
     fs.mkdirSync(docsDir, { recursive: true });
   }
 
-  const timelinePath = path.join(docsDir, 'SYSTEM_TIMELINE.md');
+  const timelinePath = path.join(docsDir, "SYSTEM_TIMELINE.md");
 
   const now = new Date();
-  const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
-  const recordDate = meta['Thời gian ghi nhận'] || dateStr;
+  const dateStr = `${String(now.getDate()).padStart(2, "0")}/${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`;
+  const recordDate = meta["Thời gian ghi nhận"] || dateStr;
   const relPath = resolutionRelPath
-    ? (resolutionRelPath.startsWith('..') ? resolutionRelPath : `../${resolutionRelPath}`)
-    : (parsed.relPath ? `../${parsed.relPath}/RESOLUTION.md` : `../${folderName}/RESOLUTION.md`);
-  const todoRelPath = parsed.relPath ? `../${parsed.relPath}/TODO.md` : `../${folderName}/TODO.md`;
+    ? resolutionRelPath.startsWith("..")
+      ? resolutionRelPath
+      : `../${resolutionRelPath}`
+    : parsed.relPath
+      ? `../${parsed.relPath}/RESOLUTION.md`
+      : `../${folderName}/RESOLUTION.md`;
+  const todoRelPath = parsed.relPath
+    ? `../${parsed.relPath}/TODO.md`
+    : `../${folderName}/TODO.md`;
   const tag = folderName.toUpperCase();
 
   // Create initial template if file doesn't exist
@@ -1175,12 +1429,16 @@ export function syncSystemTimeline(parsed, rootDir = ROOT_DIR, resolutionRelPath
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
 
 `;
-    fs.writeFileSync(timelinePath, initialContent, 'utf8');
+    fs.writeFileSync(timelinePath, initialContent, "utf8");
   }
 
-  let content = fs.readFileSync(timelinePath, 'utf8');
+  let content = fs.readFileSync(timelinePath, "utf8");
 
-  const cleanText = (text) => text.replace(/^(\*\*)+|(\*\*)+:?$/g, '').replace(/:\s*$/, '').trim();
+  const cleanText = (text) =>
+    text
+      .replace(/^(\*\*)+|(\*\*)+:?$/g, "")
+      .replace(/:\s*$/, "")
+      .trim();
 
   // Build the milestone detail block
   const backendTasks = tasks.byCategory.backend.filter((t) => t.completed);
@@ -1189,36 +1447,63 @@ export function syncSystemTimeline(parsed, rootDir = ROOT_DIR, resolutionRelPath
 
   const blockLines = [];
   blockLines.push(`### 🚀 [${tag}] — ${title} (${recordDate})`);
-  blockLines.push(`- **Trạng thái**: ✅ Hoàn thành 100% (${tasks.completed}/${tasks.total} việc)`);
-  if (meta['Người báo cáo']) blockLines.push(`- **Báo cáo bởi**: ${meta['Người báo cáo']}`);
-  if (meta['Phạm vi tác động'] || meta['Màn hình liên quan']) {
-    blockLines.push(`- **Phạm vi**: ${meta['Phạm vi tác động'] || meta['Màn hình liên quan']}`);
+  blockLines.push(
+    `- **Trạng thái**: ✅ Hoàn thành 100% (${tasks.completed}/${tasks.total} việc)`,
+  );
+  if (meta["Người báo cáo"])
+    blockLines.push(`- **Báo cáo bởi**: ${meta["Người báo cáo"]}`);
+  if (meta["Phạm vi tác động"] || meta["Màn hình liên quan"]) {
+    blockLines.push(
+      `- **Phạm vi**: ${meta["Phạm vi tác động"] || meta["Màn hình liên quan"]}`,
+    );
   }
   blockLines.push(`- **Năng lực & Tính năng mới**:`);
   if (backendTasks.length > 0) {
-    blockLines.push(`  * **Backend**: ${backendTasks.slice(0, 3).map((t) => cleanText(t.text)).join('; ')}${backendTasks.length > 3 ? '...' : ''}`);
+    blockLines.push(
+      `  * **Backend**: ${backendTasks
+        .slice(0, 3)
+        .map((t) => cleanText(t.text))
+        .join("; ")}${backendTasks.length > 3 ? "..." : ""}`,
+    );
   }
   if (frontendTasks.length > 0) {
-    blockLines.push(`  * **Frontend**: ${frontendTasks.slice(0, 3).map((t) => cleanText(t.text)).join('; ')}${frontendTasks.length > 3 ? '...' : ''}`);
+    blockLines.push(
+      `  * **Frontend**: ${frontendTasks
+        .slice(0, 3)
+        .map((t) => cleanText(t.text))
+        .join("; ")}${frontendTasks.length > 3 ? "..." : ""}`,
+    );
   }
   if (dbTasks.length > 0) {
-    blockLines.push(`  * **Cơ sở dữ liệu**: ${dbTasks.slice(0, 2).map((t) => cleanText(t.text)).join('; ')}`);
+    blockLines.push(
+      `  * **Cơ sở dữ liệu**: ${dbTasks
+        .slice(0, 2)
+        .map((t) => cleanText(t.text))
+        .join("; ")}`,
+    );
   }
   blockLines.push(`- **Bằng chứng nghiệm thu**:`);
   blockLines.push(`  * Playwright E2E: PASS 100%`);
-  blockLines.push(`  * Minh chứng hình ảnh: ${images.length > 0 ? images.join(', ') : 'Có lưu trữ trong thư mục'}`);
-  blockLines.push(`- **Tài liệu tham chiếu**: [\`RESOLUTION.md\`](${relPath}) • [\`TODO.md\`](${todoRelPath})`);
-  blockLines.push('');
+  blockLines.push(
+    `  * Minh chứng hình ảnh: ${images.length > 0 ? images.join(", ") : "Có lưu trữ trong thư mục"}`,
+  );
+  blockLines.push(
+    `- **Tài liệu tham chiếu**: [\`RESOLUTION.md\`](${relPath}) • [\`TODO.md\`](${todoRelPath})`,
+  );
+  blockLines.push("");
 
-  const milestoneBlock = blockLines.join('\n');
+  const milestoneBlock = blockLines.join("\n");
 
   // Table row
   const displayFolder = parsed.relPath || folderName;
-  const tableRow = `| ${recordDate} | \`${displayFolder}\` | ${title.length > 55 ? title.slice(0, 52) + '...' : title} | ${tasks.completed}/${tasks.total} | ✅ DONE (100%) | [RESOLUTION.md](${relPath}) |`;
+  const tableRow = `| ${recordDate} | \`${displayFolder}\` | ${title.length > 55 ? title.slice(0, 52) + "..." : title} | ${tasks.completed}/${tasks.total} | ✅ DONE (100%) | [RESOLUTION.md](${relPath}) |`;
 
   // 1. Update or Insert Table Row
-  const escapedName = folderName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const tableRegex = new RegExp(`^\\|[^|]*\\|\\s*\`(?:feedbacks/)?${escapedName}\`\\s*\\|[^|]*\\|[^|]*\\|[^|]*\\|[^|]*\\|\\s*$`, 'm');
+  const escapedName = folderName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const tableRegex = new RegExp(
+    `^\\|[^|]*\\|\\s*\`(?:feedbacks/)?${escapedName}\`\\s*\\|[^|]*\\|[^|]*\\|[^|]*\\|[^|]*\\|\\s*$`,
+    "m",
+  );
   if (tableRegex.test(content)) {
     content = content.replace(tableRegex, tableRow);
   } else {
@@ -1226,26 +1511,32 @@ export function syncSystemTimeline(parsed, rootDir = ROOT_DIR, resolutionRelPath
     const tableHeaderMatch = content.match(/^\|(?:\s*---+\s*\|)+\s*$\r?\n/m);
     if (tableHeaderMatch) {
       const idx = tableHeaderMatch.index + tableHeaderMatch[0].length;
-      content = content.slice(0, idx) + tableRow + '\n' + content.slice(idx);
+      content = content.slice(0, idx) + tableRow + "\n" + content.slice(idx);
     }
   }
 
   // 2. Update or Insert Milestone Detail Block
-  const blockRegex = new RegExp(`### 🚀 \\[${tag}\\][\\s\\S]*?(?=(?:### 🚀 \\[|## |$))`, 'i');
+  const blockRegex = new RegExp(
+    `### 🚀 \\[${tag}\\][\\s\\S]*?(?=(?:### 🚀 \\[|## |$))`,
+    "i",
+  );
   if (blockRegex.test(content)) {
     content = content.replace(blockRegex, milestoneBlock);
   } else {
     // Prepend under ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN
-    const timelineHeaderMatch = content.match(/(## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN[^\n]*\r?\n\r?\n)/);
+    const timelineHeaderMatch = content.match(
+      /(## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN[^\n]*\r?\n\r?\n)/,
+    );
     if (timelineHeaderMatch) {
       const idx = timelineHeaderMatch.index + timelineHeaderMatch[0].length;
-      content = content.slice(0, idx) + milestoneBlock + '\n' + content.slice(idx);
+      content =
+        content.slice(0, idx) + milestoneBlock + "\n" + content.slice(idx);
     } else {
-      content += '\n' + milestoneBlock;
+      content += "\n" + milestoneBlock;
     }
   }
 
-  fs.writeFileSync(timelinePath, content, 'utf8');
+  fs.writeFileSync(timelinePath, content, "utf8");
   return timelinePath;
 }
 
@@ -1257,17 +1548,20 @@ export function syncSystemTimeline(parsed, rootDir = ROOT_DIR, resolutionRelPath
  */
 export function cmdRecord(targetName, asJson = false, rootDir = ROOT_DIR) {
   if (!targetName) {
-    console.error('❌ Vui lòng nhập tên thư mục feedback! (VD: node scripts/todo-agent.mjs record feedback_07_10_task_12)');
+    console.error(
+      "❌ Vui lòng nhập tên thư mục feedback! (VD: node scripts/todo-agent.mjs record feedback_07_10_task_12)",
+    );
     process.exit(1);
   }
 
   const folders = discoverFeedbackFolders(rootDir);
-  const cleanTarget = targetName.replace(/^[/\\]+|[/\\]+$/g, '').toLowerCase();
-  const matched = folders.find((f) => 
-    f.name.toLowerCase() === cleanTarget ||
-    f.relPath.toLowerCase() === cleanTarget ||
-    f.name.toLowerCase().includes(cleanTarget) ||
-    f.relPath.toLowerCase().includes(cleanTarget)
+  const cleanTarget = targetName.replace(/^[/\\]+|[/\\]+$/g, "").toLowerCase();
+  const matched = folders.find(
+    (f) =>
+      f.name.toLowerCase() === cleanTarget ||
+      f.relPath.toLowerCase() === cleanTarget ||
+      f.name.toLowerCase().includes(cleanTarget) ||
+      f.relPath.toLowerCase().includes(cleanTarget),
   );
 
   if (!matched) {
@@ -1277,13 +1571,17 @@ export function cmdRecord(targetName, asJson = false, rootDir = ROOT_DIR) {
 
   const parsed = parseFeedbackFolder(matched.fullPath);
   const resolutionContent = generateResolutionDocument(parsed, rootDir);
-  const resolutionPath = path.join(matched.fullPath, 'RESOLUTION.md');
+  const resolutionPath = path.join(matched.fullPath, "RESOLUTION.md");
 
-  fs.writeFileSync(resolutionPath, resolutionContent, 'utf8');
-  const relResolutionPath = path.relative(rootDir, resolutionPath).replace(/\\/g, '/');
+  fs.writeFileSync(resolutionPath, resolutionContent, "utf8");
+  const relResolutionPath = path
+    .relative(rootDir, resolutionPath)
+    .replace(/\\/g, "/");
 
   const timelinePath = syncSystemTimeline(parsed, rootDir, relResolutionPath);
-  const relTimelinePath = path.relative(rootDir, timelinePath).replace(/\\/g, '/');
+  const relTimelinePath = path
+    .relative(rootDir, timelinePath)
+    .replace(/\\/g, "/");
 
   if (asJson) {
     console.log(
@@ -1296,22 +1594,30 @@ export function cmdRecord(targetName, asJson = false, rootDir = ROOT_DIR) {
           tasks: parsed.tasks,
         },
         null,
-        2
-      )
+        2,
+      ),
     );
     return;
   }
 
-  console.log(`\n================================================================================`);
+  console.log(
+    `\n================================================================================`,
+  );
   console.log(`📜 ĐÃ GHI NHẬN BIÊN BẢN KỸ THUẬT & DÒNG THỜI GIAN PHÁT TRIỂN`);
-  console.log(`================================================================================\n`);
+  console.log(
+    `================================================================================\n`,
+  );
   console.log(`📁 Thư mục feedback: ${matched.name}`);
   console.log(`📌 Tiêu đề: ${parsed.title}`);
-  console.log(`📊 Tiến độ: ${parsed.tasks.completed}/${parsed.tasks.total} việc (100% hoàn tất)`);
+  console.log(
+    `📊 Tiến độ: ${parsed.tasks.completed}/${parsed.tasks.total} việc (100% hoàn tất)`,
+  );
   console.log(`\n✅ Các tài liệu đã được khởi tạo và đồng bộ:`);
   console.log(`   1. Biên bản hoàn thành kỹ thuật: \`${relResolutionPath}\``);
   console.log(`   2. Biên niên sử tiến hóa hệ thống: \`${relTimelinePath}\``);
-  console.log(`\n💡 Toàn bộ các AI agent session mới sẽ sử dụng các tài liệu này làm bằng chứng`);
+  console.log(
+    `\n💡 Toàn bộ các AI agent session mới sẽ sử dụng các tài liệu này làm bằng chứng`,
+  );
   console.log(`   và cơ sở kiến trúc cho các lần phát triển tiếp theo.\n`);
 }
 
@@ -1322,19 +1628,25 @@ export function cmdRecord(targetName, asJson = false, rootDir = ROOT_DIR) {
  * @param {string} rootDir
  */
 export function cmdTimeline(limit = 10, asJson = false, rootDir = ROOT_DIR) {
-  const timelinePath = path.join(rootDir, 'docs', 'SYSTEM_TIMELINE.md');
+  const timelinePath = path.join(rootDir, "docs", "SYSTEM_TIMELINE.md");
   if (!fs.existsSync(timelinePath)) {
     if (asJson) {
       console.log(JSON.stringify([], null, 2));
     } else {
-      console.log('ℹ️ Chưa có tệp docs/SYSTEM_TIMELINE.md. Chạy `npm run todo:record <folder>` để bắt đầu ghi nhận.');
+      console.log(
+        "ℹ️ Chưa có tệp docs/SYSTEM_TIMELINE.md. Chạy `npm run todo:record <folder>` để bắt đầu ghi nhận.",
+      );
     }
     return;
   }
 
-  const content = fs.readFileSync(timelinePath, 'utf8');
+  const content = fs.readFileSync(timelinePath, "utf8");
   // Match milestone sections: ### 🚀 [TAG] — Title (Date)
-  const milestoneMatches = [...content.matchAll(/### 🚀 \[([^\]]+)\] — ([^(]+)\(([^)]+)\)[\s\S]*?(?=(?:### 🚀 \[|## |$))/g)];
+  const milestoneMatches = [
+    ...content.matchAll(
+      /### 🚀 \[([^\]]+)\] — ([^(]+)\(([^)]+)\)[\s\S]*?(?=(?:### 🚀 \[|## |$))/g,
+    ),
+  ];
 
   const entries = milestoneMatches.map((m) => {
     const tag = m[1].trim();
@@ -1344,15 +1656,17 @@ export function cmdTimeline(limit = 10, asJson = false, rootDir = ROOT_DIR) {
 
     const statusMatch = block.match(/- \*\*Trạng thái\*\*:\s*([^\n]+)/);
     const scopeMatch = block.match(/- \*\*Phạm vi\*\*:\s*([^\n]+)/);
-    const evidenceMatch = block.match(/- \*\*Minh chứng hình ảnh\*\*:\s*([^\n]+)/);
+    const evidenceMatch = block.match(
+      /- \*\*Minh chứng hình ảnh\*\*:\s*([^\n]+)/,
+    );
 
     return {
       tag,
       title,
       date,
-      status: statusMatch ? statusMatch[1].trim() : '✅ DONE',
-      scope: scopeMatch ? scopeMatch[1].trim() : 'Fullstack',
-      evidence: evidenceMatch ? evidenceMatch[1].trim() : 'Saved',
+      status: statusMatch ? statusMatch[1].trim() : "✅ DONE",
+      scope: scopeMatch ? scopeMatch[1].trim() : "Fullstack",
+      evidence: evidenceMatch ? evidenceMatch[1].trim() : "Saved",
     };
   });
 
@@ -1363,52 +1677,61 @@ export function cmdTimeline(limit = 10, asJson = false, rootDir = ROOT_DIR) {
     return;
   }
 
-  console.log(`\n================================================================================`);
-  console.log(`📜 BIÊN NIÊN SỬ TIẾN HÓA HỆ THỐNG — LOGISTICS TMS (${displayed.length}/${entries.length} MỐC)`);
-  console.log(`================================================================================\n`);
+  console.log(
+    `\n================================================================================`,
+  );
+  console.log(
+    `📜 BIÊN NIÊN SỬ TIẾN HÓA HỆ THỐNG — LOGISTICS TMS (${displayed.length}/${entries.length} MỐC)`,
+  );
+  console.log(
+    `================================================================================\n`,
+  );
 
   displayed.forEach((entry, idx) => {
     console.log(`[Mốc ${idx + 1}] 🚀 ${entry.tag} (${entry.date})`);
     console.log(`        🏷️ ${entry.title}`);
     console.log(`        📊 ${entry.status}`);
     console.log(`        📍 ${entry.scope}`);
-    console.log(`        🔗 Chi tiết: ${entry.tag.toLowerCase()}/RESOLUTION.md`);
-    console.log('');
+    console.log(
+      `        🔗 Chi tiết: ${entry.tag.toLowerCase()}/RESOLUTION.md`,
+    );
+    console.log("");
   });
 
   console.log(`💡 Xem toàn văn biên niên sử tại: docs/SYSTEM_TIMELINE.md\n`);
 }
 
 // Main CLI router
-const scriptBase = process.argv[1] ? path.basename(process.argv[1]) : '';
-const isMainModule = scriptBase === 'todo-agent.mjs' || scriptBase === 'scan-feedback.mjs';
+const scriptBase = process.argv[1] ? path.basename(process.argv[1]) : "";
+const isMainModule =
+  scriptBase === "todo-agent.mjs" || scriptBase === "scan-feedback.mjs";
 
 if (isMainModule) {
   const args = process.argv.slice(2);
-  const asJson = args.includes('--json');
-  const cleanArgs = args.filter((a) => a !== '--json');
-  const command = cleanArgs[0] || 'scan';
+  const asJson = args.includes("--json");
+  const cleanArgs = args.filter((a) => a !== "--json");
+  const command = cleanArgs[0] || "scan";
 
   switch (command) {
-    case 'scan':
+    case "scan":
       cmdScan(asJson);
       break;
-    case 'today':
-      cmdToday(asJson, cleanArgs.includes('--plan'));
+    case "today":
+      cmdToday(asJson, cleanArgs.includes("--plan"));
       break;
-    case 'inspect':
+    case "inspect":
       cmdInspect(cleanArgs[1], asJson);
       break;
-    case 'plan':
+    case "plan":
       cmdPlan(cleanArgs[1]);
       break;
-    case 'toggle':
-      toggleTask(cleanArgs[1], cleanArgs[2], cleanArgs[3] || 'toggle');
+    case "toggle":
+      toggleTask(cleanArgs[1], cleanArgs[2], cleanArgs[3] || "toggle");
       break;
-    case 'record':
+    case "record":
       cmdRecord(cleanArgs[1], asJson);
       break;
-    case 'timeline':
+    case "timeline":
       cmdTimeline(cleanArgs[1], asJson);
       break;
     default:
@@ -1416,12 +1739,17 @@ if (isMainModule) {
       console.log(`Cách dùng:`);
       console.log(`  node scripts/todo-agent.mjs scan [--json]`);
       console.log(`  node scripts/todo-agent.mjs today [--plan] [--json]`);
-      console.log(`  node scripts/todo-agent.mjs inspect <folder_name> [--json]`);
+      console.log(
+        `  node scripts/todo-agent.mjs inspect <folder_name> [--json]`,
+      );
       console.log(`  node scripts/todo-agent.mjs plan <folder_name>`);
-      console.log(`  node scripts/todo-agent.mjs toggle <folder_name> <line|query> [done|pending]`);
-      console.log(`  node scripts/todo-agent.mjs record <folder_name> [--json]`);
+      console.log(
+        `  node scripts/todo-agent.mjs toggle <folder_name> <line|query> [done|pending]`,
+      );
+      console.log(
+        `  node scripts/todo-agent.mjs record <folder_name> [--json]`,
+      );
       console.log(`  node scripts/todo-agent.mjs timeline [limit] [--json]`);
       process.exit(1);
   }
 }
-
