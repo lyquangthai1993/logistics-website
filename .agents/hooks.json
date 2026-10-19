@@ -1,0 +1,39 @@
+{
+  "command-watchdog": {
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "node ./hooks/command-watchdog.mjs",
+        "timeout": 10
+      }
+    ]
+  },
+  "git-safety-and-timeout-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ./hooks/pre-command-guard.mjs",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "auto-format-lint": {
+    "PostToolUse": [
+      {
+        "matcher": "write_to_file|replace_file_content|multi_replace_file_content",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ./hooks/post-file-edit.mjs",
+            "timeout": 20
+          }
+        ]
+      }
+    ]
+  }
+}
