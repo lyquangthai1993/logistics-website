@@ -246,7 +246,7 @@ All Telegram messages dispatched by n8n MUST follow clean, structured HTML forma
 1. **Trigger**: Cron `0 22 * * *`.
 2. **Alert**: Telegram start notification.
 3. **Dispatch**: Triggers GitHub Actions workflow with `prompt: "npm run audit:rbac"`.
-4. **Audit Script**: Evaluates 59 API endpoints, checks `SYSTEM_TIMELINE.md`, and posts audit report back to Telegram channel.
+4. **Audit Script**: Evaluates all API endpoints dynamically, checks `SYSTEM_TIMELINE.md`, and posts audit report back to Telegram channel.
 
 ---
 
