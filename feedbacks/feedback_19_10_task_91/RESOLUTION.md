@@ -53,10 +53,11 @@ Nhiệm vụ này giải quyết phản hồi thực tế từ vận hành hiệ
   * Swagger API Docs: `https://backend-tms-core-dev.up.railway.app/docs`
 - **Kiểm tra sức khỏe Backend (Anti-Hang Health Check)**: `curl.exe -m 15 -i https://backend-tms-core-dev.up.railway.app/api/v1/health` -> HTTP 200 OK.
 
-### Hình ảnh minh chứng đã lưu trữ (3 tệp):
+### Hình ảnh minh chứng đã lưu trữ (4 tệp):
 - 📸 **screenshot_01.png**: [Xem hình ảnh](./screenshot_01.png)
 - 📸 **screenshot_02.png**: [Xem hình ảnh](./screenshot_02.png)
 - 📸 **screenshot_03.png**: [Xem hình ảnh](./screenshot_03.png)
+- 📸 **screenshot_feedback_19_10_task_91_verified.png**: [Xem hình ảnh](./screenshot_feedback_19_10_task_91_verified.png)
 
 ---
 

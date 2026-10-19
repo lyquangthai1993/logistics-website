@@ -87,9 +87,8 @@
   * **Frontend**: Task 4 (Frontend - Lock Master Fields on Existing Waybill in Inbound Grid)**: Cập nhật `frontend/src/features/warehouse/components/warehouse-editable-grid.tsx` để khi nhập mã vận đơn đã tồn tại thì khóa cứng `Tên hàng hóa`, `Địa chỉ giao / Đích đến`, `Tỉnh/TP`, `Chứng từ` theo lần đầu nhập; chỉ mở cho sửa `Địa chỉ nhận (Điểm lấy)`, `Số kiện`, `Số kg`, `Số m³`, `Ghi chú`.; Task 5 (Frontend - Single Unified Row in Warehouse Orders Screen)**: Cập nhật `frontend/src/app/dashboard/warehouse/orders/page.tsx` để hiển thị 1 dòng tổng hợp duy nhất cho mỗi mã vận đơn, loại bỏ xổ dòng con `Dòng 1..N` và badge `N dòng`, đồng bộ nút thao tác và xuất Excel.
 - **Bằng chứng nghiệm thu**:
   * Playwright E2E: PASS 100%
-  * Minh chứng hình ảnh: screenshot_01.png, screenshot_02.png, screenshot_03.png
+  * Minh chứng hình ảnh: screenshot_01.png, screenshot_02.png, screenshot_03.png, screenshot_feedback_19_10_task_91_verified.png
 - **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_19_10_task_91/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_19_10_task_91/TODO.md)
-
 ### 🚀 [FEEDBACK_19_10_TASK_89] — Feedback 19/10 — Task 89: Cải Thiện Font Family Toàn Dự Án, Đảm Bảo Hỗ Trợ 100% Tiếng Việt Cho Tất Cả Theme (19/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (12/12 việc)
 - **Báo cáo bởi**: Quản lý Vận hành TMS (@Thai) & Team Lead Nghiệp vụ TMS (`/leader`)
