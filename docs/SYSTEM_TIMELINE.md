@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 19/10/2026 | `feedbacks/feedback_19_10_inbound_receipt_fix` | Feedback 19/10 — Bảo Toàn Danh Sách Đơn Hàng Lịch Sử Trên Phiếu Nhập Kho & Loại Bỏ Nút "In Phiếu Xe" Thừa | 2/2 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_19_10_inbound_receipt_fix/RESOLUTION.md) |
 | 17/10/2026 | `feedbacks/feedback_17_10_extra` | 📋 Kế hoạch Thực thi & Báo cáo Tiến độ: Feedback 17/... | 6/6 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_17_10_extra/RESOLUTION.md) |
 | 16/10/2026 | `feedbacks/feedback_16_10_task_87` | Feedback 16/10 — Task 87: Tính Năng Nhập Kho Tách Lẻ... | 34/34 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_16_10_task_87/RESOLUTION.md) |
 | 16/10/2026 | `feedbacks/feedback_16_10_task_86` | Feedback 16/10 (Task #86) — Tự Động Loại Bỏ Thông Ti... | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_16_10_task_86/RESOLUTION.md) |
@@ -76,6 +77,22 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_19_10_INBOUND_RECEIPT_FIX] — Feedback 19/10 — Bảo Toàn Danh Sách Đơn Hàng Lịch Sử Trên Phiếu Nhập Kho & Loại Bỏ Nút "In Phiếu Xe" Thừa (19/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (2/2 việc)
+- **Báo cáo bởi**: @User / Vận hành Kho Logistics TMS Spider Express
+- **Phạm vi**:
+  * **Backend**: [`backend/src/orders/warehouse.service.ts`](file:///backend/src/orders/warehouse.service.ts) — Nâng cấp `getInboundTrips` join quan hệ `order.inventoryTransactions` để cung cấp lịch sử số lượng kiện thực nhận tại Hub.
+  * **Frontend Page**: [`frontend/src/app/dashboard/warehouse/inbound/page.tsx`](file:///frontend/src/app/dashboard/warehouse/inbound/page.tsx) — Bảo toàn 100% đơn hàng khi chuyến xe hoàn thành (`grp.status === 'COMPLETED'`), bổ sung hàm `getOrderTripInboundQty` đọc số lượng kiện nhập từ transaction `INBOUND`.
+  * **Frontend Modal**: [`frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx`](file:///frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx) — Loại bỏ hoàn toàn nút "In phiếu xe" ở footer modal chi tiết chuyến xe.
+  * **Kiểm thử E2E**: [`frontend/e2e/91-feedback-19-10-inbound-receipt-historical-orders.spec.ts`](file:///frontend/e2e/91-feedback-19-10-inbound-receipt-historical-orders.spec.ts)
+- **Năng lực & Tính năng mới**:
+  * **Bảo toàn nguyên vẹn chứng từ Phiếu Nhập Kho (Goods Receipt Note Invariant)**: Đơn hàng sau khi nhập kho vào chuyến (ví dụ chuyến `SD62` nhập 6 đơn, 232 kiện) nếu sau đó được xuất kho trung chuyển tiếp đi nơi khác (`SD94`) thì phiếu in nhập kho của chuyến xe ban đầu vẫn giữ trọn vẹn 6 đơn (232 kiện) mà không bị mất hoặc thu hẹp theo tồn khả dụng hiện tại.
+  * **Loại bỏ nút in gây hiểu nhầm**: Xóa bỏ nút "In phiếu xe" tại modal chi tiết chuyến xe, tập trung duy nhất vào nút "In phiếu nhập" trên bảng điều hành và phiếu in chuẩn A4.
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100% trên cả 2 môi trường Railway Cloud Dev và Production
+  * Minh chứng hình ảnh: [`feedbacks/feedback_19_10_inbound_receipt_fix/screenshot_01_verified.png`](../feedbacks/feedback_19_10_inbound_receipt_fix/screenshot_01_verified.png)
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_19_10_inbound_receipt_fix/RESOLUTION.md)
 
 ### 🚀 [FEEDBACK_17_10_EXTRA] — 📋 Kế hoạch Thực thi & Báo cáo Tiến độ: Feedback 17/10 Extra (Warehouse Grid, Trip Board & Outbound Receipt) (17/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (6/6 việc)
