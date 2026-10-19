@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 19/10/2026 | `feedbacks/feedback_19_10_task_91` | Feedback 19/10 (Task #91) — Gom 1 Dòng Duy Nhất Cho ... | 6/6 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_19_10_task_91/RESOLUTION.md) |
 | 19/10/2026 | `feedbacks/feedback_19_10_task_89` | Feedback 19/10 — Task 89: Cải Thiện Font Family Toàn... | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_19_10_task_89/RESOLUTION.md) |
 | 19/10/2026 | `feedbacks/feedback_19_10_inbound_receipt_fix` | Feedback 19/10 — Bảo Toàn Danh Sách Đơn Hàng Lịch Sử Trên Phiếu Nhập Kho & Loại Bỏ Nút "In Phiếu Xe" Thừa | 2/2 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_19_10_inbound_receipt_fix/RESOLUTION.md) |
 | 17/10/2026 | `feedbacks/feedback_17_10_extra` | 📋 Kế hoạch Thực thi & Báo cáo Tiến độ: Feedback 17/... | 6/6 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_17_10_extra/RESOLUTION.md) |
@@ -78,6 +79,16 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_19_10_TASK_91] — Feedback 19/10 (Task #91) — Gom 1 Dòng Duy Nhất Cho Đơn Hàng Nhập Nhiều Lần, Cộng Dồn Số Lượng/Kg/Khối & Khóa Cứng Thông Tin Gốc Khi Nhập Mới Trùng Mã Vận Đơn (19/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (6/6 việc)
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Task 1 (Backend - Canonical First-Entry Lookup)**: Cập nhật `OrdersService.findOne(idOrCode)` tại `backend/src/orders/orders.service.ts` dùng `order: { id: 'ASC' }` khi tra cứu theo `orderCode` để trả về thông tin gốc lần đầu nhập.; Task 2 (Backend - Inbound Consolidation & Master Field Lock)**: Cập nhật `quickCreateInboundOrder` và `batchCreateInboundOrders` tại `backend/src/orders/warehouse.service.ts` để khi `orderCode` đã tồn tại thì giữ nguyên tên hàng & địa điểm giao gốc, chỉ cập nhật điểm lấy cho chuyến xe mới và cộng dồn số lượng, số kg, số khối vào đơn gốc (thay vì tách thêm dòng `OrderEntity` mới).; Task 3 (Backend - Single-Row Aggregation & Outbound Multi-Line FIFO)**: Cập nhật `aggregateOrderGroup`, `getWarehouseOrders` (`OUTBOUND_LOOKUP`), `confirmOutbound` và `saveOutboundDraft` tại `backend/src/orders/warehouse.service.ts` để lấy tên hàng/đích đến theo lần nhập đầu, gom 1 dòng khi tra cứu xuất kho và tự động trừ tồn FIFO qua các bản ghi cùng `orderCode`.
+  * **Frontend**: Task 4 (Frontend - Lock Master Fields on Existing Waybill in Inbound Grid)**: Cập nhật `frontend/src/features/warehouse/components/warehouse-editable-grid.tsx` để khi nhập mã vận đơn đã tồn tại thì khóa cứng `Tên hàng hóa`, `Địa chỉ giao / Đích đến`, `Tỉnh/TP`, `Chứng từ` theo lần đầu nhập; chỉ mở cho sửa `Địa chỉ nhận (Điểm lấy)`, `Số kiện`, `Số kg`, `Số m³`, `Ghi chú`.; Task 5 (Frontend - Single Unified Row in Warehouse Orders Screen)**: Cập nhật `frontend/src/app/dashboard/warehouse/orders/page.tsx` để hiển thị 1 dòng tổng hợp duy nhất cho mỗi mã vận đơn, loại bỏ xổ dòng con `Dòng 1..N` và badge `N dòng`, đồng bộ nút thao tác và xuất Excel.
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.png, screenshot_02.png, screenshot_03.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_19_10_task_91/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_19_10_task_91/TODO.md)
 
 ### 🚀 [FEEDBACK_19_10_TASK_89] — Feedback 19/10 — Task 89: Cải Thiện Font Family Toàn Dự Án, Đảm Bảo Hỗ Trợ 100% Tiếng Việt Cho Tất Cả Theme (19/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (12/12 việc)
