@@ -53,11 +53,18 @@ Nhiệm vụ này giải quyết phản hồi thực tế từ vận hành hiệ
   * Swagger API Docs: `https://backend-tms-core-dev.up.railway.app/docs`
 - **Kiểm tra sức khỏe Backend (Anti-Hang Health Check)**: `curl.exe -m 15 -i https://backend-tms-core-dev.up.railway.app/api/v1/health` -> HTTP 200 OK.
 
-### Hình ảnh minh chứng đã lưu trữ (4 tệp):
+### Hình ảnh minh chứng đã lưu trữ (11 tệp):
 - 📸 **screenshot_01.png**: [Xem hình ảnh](./screenshot_01.png)
 - 📸 **screenshot_02.png**: [Xem hình ảnh](./screenshot_02.png)
 - 📸 **screenshot_03.png**: [Xem hình ảnh](./screenshot_03.png)
 - 📸 **screenshot_feedback_19_10_task_91_verified.png**: [Xem hình ảnh](./screenshot_feedback_19_10_task_91_verified.png)
+- 📸 **step_01_inbound_batch_1_form.png**: [Xem hình ảnh](./step_01_inbound_batch_1_form.png)
+- 📸 **step_02_inbound_batch_1_receipt.png**: [Xem hình ảnh](./step_02_inbound_batch_1_receipt.png)
+- 📸 **step_03_inbound_batch_2_locked_fields.png**: [Xem hình ảnh](./step_03_inbound_batch_2_locked_fields.png)
+- 📸 **step_04_inbound_batch_2_receipt.png**: [Xem hình ảnh](./step_04_inbound_batch_2_receipt.png)
+- 📸 **step_05_warehouse_orders_consolidated_single_row.png**: [Xem hình ảnh](./step_05_warehouse_orders_consolidated_single_row.png)
+- 📸 **step_06_waybill_detail_ledger_2_batches.png**: [Xem hình ảnh](./step_06_waybill_detail_ledger_2_batches.png)
+- 📸 **step_07_outbound_single_row_lookup.png**: [Xem hình ảnh](./step_07_outbound_single_row_lookup.png)
 
 ---
 
