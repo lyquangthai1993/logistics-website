@@ -336,12 +336,47 @@ export function parseFeedbackFolder(folderPath, rootDir = ROOT_DIR) {
       // Resolve referenced files
       const resolvedFiles = rawRefs.map((r) => resolveReferencedFile(r));
 
+      let effectiveCategory = currentCategory;
+      if (effectiveCategory === "general") {
+        const lowerTask = taskText.toLowerCase();
+        if (
+          lowerTask.includes("(backend") ||
+          lowerTask.includes("[backend]") ||
+          resolvedFiles.some(
+            (f) => f.resolved && f.resolved.startsWith("backend/"),
+          )
+        ) {
+          effectiveCategory = "backend";
+        } else if (
+          lowerTask.includes("(frontend") ||
+          lowerTask.includes("[frontend]") ||
+          resolvedFiles.some(
+            (f) => f.resolved && f.resolved.startsWith("frontend/"),
+          )
+        ) {
+          effectiveCategory = "frontend";
+        } else if (
+          lowerTask.includes("(database") ||
+          lowerTask.includes("(db") ||
+          lowerTask.includes("migration")
+        ) {
+          effectiveCategory = "database";
+        } else if (
+          lowerTask.includes("(verification") ||
+          lowerTask.includes("playwright") ||
+          lowerTask.includes("e2e") ||
+          lowerTask.includes("kiểm thử")
+        ) {
+          effectiveCategory = "testing";
+        }
+      }
+
       const taskItem = {
         line: i + 1,
         text: taskText,
         completed: isCompleted,
         section: currentSection,
-        category: currentCategory,
+        category: effectiveCategory,
         isSubtask: indentLevel > 0,
         referencedFiles: resolvedFiles,
       };
@@ -353,7 +388,7 @@ export function parseFeedbackFolder(folderPath, rootDir = ROOT_DIR) {
         result.tasks.pending++;
       }
 
-      result.tasks.byCategory[currentCategory].push(taskItem);
+      result.tasks.byCategory[effectiveCategory].push(taskItem);
     }
   }
 
@@ -384,8 +419,11 @@ export function generateExecutionPlan(parsed) {
 
   let branchName = "dev";
   if (totalPending > 0) {
+    const taskMatch = folderName.match(/task[_-](\d+)/i);
     const slug = folderName.replace(/_/g, "-");
-    branchName = `fix/${slug}`;
+    branchName = taskMatch
+      ? `feat/task-${taskMatch[1]}-warehouse-update`
+      : `fix/${slug}`;
   }
 
   // Collect all resolved target files
@@ -413,7 +451,7 @@ export function generateExecutionPlan(parsed) {
   const output = [];
 
   output.push(
-    `# 🚀 BẢN KẾ HOẠCH THỰC THI (EXECUTION BLUEPRINT) — ${folderName.toUpperCase()}`,
+    `# 🚀 BẢN KẾ HOẠCH THỰC THI 6 BƯỚC (6-STAGE SDLC BLUEPRINT) — ${folderName.toUpperCase()}`,
   );
   output.push(`> **Tiêu đề**: ${title}`);
   if (meta["Thời gian ghi nhận"])
@@ -427,6 +465,32 @@ export function generateExecutionPlan(parsed) {
   }
   output.push(
     `> **Tiến độ hiện tại**: ${tasks.completed}/${tasks.total} việc đã hoàn thành (${tasks.percent}%) • Còn tồn đọng: **${totalPending} việc**`,
+  );
+  output.push("");
+  output.push(
+    "## 0. 🏗️ QUY TRÌNH 6 BƯỚC CHUẨN (PLAN ➔ 📄 TÀI LIỆU ➔ DESIGN ➔ BUILD ➔ TEST ➔ DEPLOY ➔ MAINTAIN)",
+  );
+  output.push(
+    "| Bước | Vai trò | Skills / Agents | Đầu ra & Cổng kiểm soát (Quality Gate) |",
+  );
+  output.push("| :--- | :--- | :--- | :--- |");
+  output.push(
+    `| **1. PLAN** *(Lên kế hoạch)* | **PM** | \`/todo-agent\` + \`/leader\` | Quét feedback, Multimodal OCR (Hub & Test User), RCA ➔ Xuất **📄 Tài liệu \`${parsed.relPath || folderName}/TODO.md\`** kèm E2E Spec & 10 Edge Cases. |`,
+  );
+  output.push(
+    "| **2. DESIGN** *(Thiết kế)* | **Architect** | `/leader` + `/ui-ux-flow-designer` + `/pencil-ui-designer` | Duyệt RBAC 3 lớp (`rbac-matrix.md`), DB schema, API contract, 5-Level Modal Width & Compact Density (`p-1`, `p-2`, `text-[10px]`). |",
+  );
+  output.push(
+    `| **3. BUILD** *(Xây dựng)* | **Engineer** | \`/todo-agent\` + \`/feature-branch-advisor\` + \`/ui-spacing-guard\` | Chạy \`repo:status\` & \`repo:tracking\`, tạo nhánh \`${branchName}\` từ \`dev\` trong submodule, code & pass \`tsc --noEmit\` + \`npm run build\`. |`,
+  );
+  output.push(
+    "| **4. TEST (2 Tầng)** *(Kiểm thử 2 Tầng)* | **QA** | `/e2e-test-runner` + `/e2e-code-auditor` | **Bắt buộc 2 Tầng Test**: (1) **Tầng 1 - Test Local** (`localhost:4000` & `4001`, Self-Healing <= 3 lần) + `e2e-auditor.mjs` (`>= 40/50`); (2) **Tầng 2 - Test lại trên Môi trường Development** (`frontend-tms-core-dev.up.railway.app`) sau khi deploy để chụp ảnh thực tế & bàn giao đúng chuẩn. |",
+  );
+  output.push(
+    "| **5. DEPLOY** *(Triển khai lên Dev)* | **Release** | `/git-commit-reviewer` + `/github-workflow` | Khi Tầng 1 Local Test PASS ➔ Push submodule, tạo PR vào `dev` (`gh pr create`), auto-merge, đợi Railway Cloud Dev HTTP 200 để bàn giao cho QA chạy **Test Tầng 2 trên môi trường Development**. |",
+  );
+  output.push(
+    `| **6. MAINTAIN** *(Bàn giao & Vận hành)* | **Vận hành** | \`/tms-ops-maintainer\` + \`/codebase-auditor\` + \`/telegram-task-responder\` | Chỉ nhận bàn giao khi **CẢ 2 TẦNG TEST (Local + Development) ĐỀU PASS 100%**: Kiểm tra sức khỏe sau deploy, check \`[x]\` \`TODO.md\`, chạy \`npm run todo:record ${folderName}\` (\`RESOLUTION.md\` + \`SYSTEM_TIMELINE.md\`), báo cáo Telegram. |`,
   );
   output.push("");
 
@@ -554,30 +618,38 @@ export function generateExecutionPlan(parsed) {
     output.push("");
   }
 
-  // Testing & DoD
-  output.push("### 🧪 Tiêu chí Nghiệm thu & Kiểm thử (Definition of Done)");
+  // Testing & DoD (Mandatory 2-Tier Testing Gate)
+  output.push(
+    "### 🧪 Tiêu chí Nghiệm thu & Kiểm thử 2 Tầng Bắt buộc (2-Tier QA Gate & DoD)",
+  );
   if (testingPending.length > 0) {
     testingPending.forEach((t) => {
       output.push(`- [ ] **[DoD] L${t.line}**: ${t.text}`);
     });
-  } else {
-    output.push(
-      "- [ ] Kiểm tra biên dịch Backend: `npm run lint --prefix backend` & `npm run build --prefix backend` PASS (0 errors).",
-    );
-    output.push(
-      "- [ ] Kiểm tra biên dịch Frontend: `npx --prefix frontend tsc --noEmit` & `npm run build --prefix frontend` PASS (0 errors).",
-    );
-    output.push(
-      "- [ ] Kiểm thử luồng nghiệp vụ thực tế qua Playwright E2E hoặc kiểm tra API phản hồi.",
-    );
-    output.push(
-      `- [ ] Cập nhật toàn bộ trạng thái trong \`${folderName}/TODO.md\` từ \`[ ]\` thành \`[x]\`.`,
-    );
   }
-  // 4. Kịch bản Kiểm thử E2E & Ma trận Edge Cases
-  output.push("## 4. 🧪 KỊCH BẢN KIỂM THỬ E2E CHUẨN XÁC & MA TRẬN EDGE CASES");
   output.push(
-    "Mọi thay đổi mã nguồn bắt buộc phải có kịch bản kiểm thử E2E rõ ràng cho cả AI và con người hiểu:",
+    "- [ ] **[Build Gate]**: Kiểm tra biên dịch Backend (`npm run lint --prefix backend` & `npm run build --prefix backend`) và Frontend (`npx --prefix frontend tsc --noEmit` & `npm run build --prefix frontend`) PASS 0 lỗi.",
+  );
+  output.push(
+    "- [ ] **[Test Tầng 1 - Local]**: Chạy Playwright E2E trên Local (`http://localhost:4000` & `4001`) đạt PASS 100% + `node scripts/e2e-auditor.mjs` đạt >= 40/50 điểm trước khi đẩy code lên nhánh `dev`.",
+  );
+  output.push(
+    "- [ ] **[Deploy lên Development]**: Tạo PR vào `dev`, auto-merge và đợi môi trường Development (`https://backend-tms-core-dev.up.railway.app/api/v1/health`) trả về HTTP 200 OK.",
+  );
+  output.push(
+    "- [ ] **[Test Tầng 2 - Môi trường Development (Trước bàn giao)]**: Chạy lại toàn bộ Playwright E2E trực tiếp trên môi trường Development (`https://frontend-tms-core-dev.up.railway.app`), chụp ảnh bằng chứng nghiệm thu thực tế (`screenshot_*_verified.png`) và xác nhận PASS 100% rồi mới bàn giao.",
+  );
+  output.push(
+    `- [ ] **[Maintain & Bàn giao]**: Cập nhật \`[x]\` trong \`${folderName}/TODO.md\`, chạy \`npm run todo:record ${folderName}\` sinh \`RESOLUTION.md\` & đồng bộ \`docs/SYSTEM_TIMELINE.md\`.`,
+  );
+  output.push("");
+
+  // 4. Kịch bản Kiểm thử E2E & Ma trận Edge Cases
+  output.push(
+    "## 4. 🧪 KỊCH BẢN KIỂM THỬ E2E CHUẨN XÁC (CHẠY ĐỦ CẢ 2 TẦNG: LOCAL & DEVELOPMENT) & MA TRẬN EDGE CASES",
+  );
+  output.push(
+    "Mọi thay đổi mã nguồn bắt buộc phải chạy kịch bản E2E này qua **2 tầng kiểm thử (Tầng 1: Local -> Tầng 2: Môi trường Development)** trước khi bàn giao:",
   );
   output.push("");
   output.push("### 🔄 Quy trình Thao tác Tuần tự (Step-by-Step E2E Workflow):");
@@ -634,7 +706,7 @@ export function generateExecutionPlan(parsed) {
   }
   output.push(`  + ${folderName}/TODO.md`);
   output.push(
-    `- Tiêu chí hoàn thành: Thực hiện 100% các task [ ], chạy build pass và check off [x] trong ${folderName}/TODO.md.`,
+    `- Tiêu chí hoàn thành (Bắt buộc 2 Tầng Test): (1) Thực hiện 100% các task [ ], build pass; (2) Test Tầng 1 trên Local PASS 100% + e2e-auditor >= 40/50; (3) Đưa lên môi trường Development (PR -> merge dev -> Railway Dev HTTP 200) và chạy lại Test Tầng 2 trên môi trường Development PASS 100% kèm ảnh bằng chứng trước khi check [x] ${folderName}/TODO.md và bàn giao.`,
   );
   output.push("```");
   output.push("");

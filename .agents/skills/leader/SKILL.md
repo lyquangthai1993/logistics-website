@@ -1,45 +1,76 @@
 ---
 name: leader
 description: >-
-  Business Domain Team Lead for the Logistics TMS system. Understands full dispatch workflows,
-  fleet vehicle assignment, role-based permissions, and notification matrices.
-  MANDATORY activation before implementing status transitions, notifications, RBAC,
-  or new business features. Triggers on: "business logic", "workflow", "notifications",
-  "dispatch", "vehicle assignment", "order", "trip", "warehouse", "fleet".
+  Business Domain Team Lead & System Architect Gatekeeper for the Spider Express Logistics TMS.
+  Governs full dispatch workflows, warehouse inbound/outbound ledgers, multi-inbound waybill
+  consolidation, partial single-order receiving, fleet vehicle assignment, 3-layer RBAC permissions,
+  and the 6-Stage SDLC Pipeline (PLAN -> DESIGN -> BUILD -> TEST -> DEPLOY -> MAINTAIN).
+  MANDATORY activation before implementing status transitions, warehouse rules, notifications,
+  RBAC, or new business features. Triggers on: "leader", "/leader", "business logic", "workflow",
+  "notifications", "dispatch", "vehicle assignment", "order", "trip", "warehouse", "fleet",
+  "inbound", "outbound", "architect".
+version: 2.0.0
 ---
 
-# TMS Domain Lead — Logistics TMS Business Architecture
+# TMS Domain Lead — Logistics TMS Business & Operational Architecture
 
-> **Role**: Team Lead for all Transportation Management System (TMS) business logic, operational workflows, and dispatch governance.
-> All decisions regarding **who does what, lifecycle transitions, authorization boundaries, and notification triggers** MUST reference this skill first.
-> This skill defines **WHAT & WHY** (Business), while [`nestjs-best-practices`](../nestjs-best-practices/SKILL.md) and [`nextjs-best-practices`](../nextjs-best-practices/SKILL.md) define **HOW** (Technical Implementation).
+> **Role**: Team Lead (`PM` & `Architect` Gatekeeper) for all Transportation Management System (TMS) business logic, warehouse inbound/outbound operations, dispatch governance, and SDLC pipeline alignment.
+> All decisions regarding **who does what, lifecycle transitions, warehouse inventory ledger rules, authorization boundaries, and notification triggers** MUST reference this skill first.
+> This skill defines **WHAT & WHY** (Business & Architecture Governance), while [`nestjs-best-practices`](../nestjs-best-practices/SKILL.md) and [`nextjs-best-practices`](../nextjs-best-practices/SKILL.md) define **HOW** (Technical Implementation).
+
+---
+
+## 🏗️ 6-Stage SDLC Pipeline & Role Governance (Chuẩn 6 Bước Vận Hành)
+
+`/leader` governs the transition from **Stage 1 (`PLAN`)** through **Stage 6 (`MAINTAIN`)**, ensuring every task in `/todo-agent` completes all 6 engineering stages without skipping gates:
+
+```mermaid
+flowchart LR
+    P["1. PLAN<br>(Lên kế hoạch)<br>👤 PM"] -- "📄 Tài liệu<br>(TODO.md)" --> D["2. DESIGN<br>(Thiết kế)<br>👤 Architect"]
+    D --> B["3. BUILD<br>(Xây dựng)<br>👤 Engineer"]
+    B --> T["4. TEST (2 TẦNG)<br>• Tầng 1: Test Local<br>• Tầng 2: Test Môi trường Dev<br>👤 QA"]
+    T <-->|"Đưa lên Dev &<br>Test lại trước bàn giao"| DEP["5. DEPLOY<br>(Triển khai lên Dev)<br>👤 Release"]
+    DEP --> M["6. MAINTAIN<br>(Bàn giao & Vận hành)<br>👤 Vận hành"]
+```
+
+| Stage | Role | Active Skills / Agents | Mandatory Gate & Deliverable |
+| :--- | :--- | :--- | :--- |
+| **1. PLAN**<br>*(Lên kế hoạch)* | **PM** | [`/todo-agent`](../todo-agent/SKILL.md) + [`/leader`](SKILL.md) | Scan feedback, run Multimodal OCR (extract Hub & Test User), analyze RCA, and output **`📄 Tài liệu` (`TODO.md`)** with Step-by-Step E2E Spec & 10 Edge Cases Matrix. |
+| **2. DESIGN**<br>*(Thiết kế)* | **Architect** | [`/leader`](SKILL.md) + [`/ui-ux-flow-designer`](../ui-ux-flow-designer/SKILL.md) + [`/pencil-ui-designer`](../pencil-ui-designer/SKILL.md) + [`/nestjs-best-practices`](../nestjs-best-practices/SKILL.md) + [`/nextjs-best-practices`](../nextjs-best-practices/SKILL.md) | Verify 3-layer [`rbac-matrix.md`](../../rules/rbac-matrix.md), DB schema/migration safety, API contract, 5-Level Modal Width Taxonomy, and Compact Density (`p-1`, `p-2`, `text-[10px]`). |
+| **3. BUILD**<br>*(Xây dựng)* | **Engineer** | [`/todo-agent`](../todo-agent/SKILL.md) + [`/feature-branch-advisor`](../feature-branch-advisor/SKILL.md) + [`/ui-spacing-guard`](../ui-spacing-guard/SKILL.md) | Run `npm run repo:status` & `npm run repo:tracking`, branch `<type>/task-<id>-<module>-<action>` from `dev` inside target submodules (`backend/`, `frontend/`), implement code, pass `tsc --noEmit` & `npm run build`. |
+| **4. TEST (2 Tầng)**<br>*(Kiểm thử 2 Tầng)* | **QA** | [`/e2e-test-runner`](../e2e-test-runner/SKILL.md) + [`/e2e-code-auditor`](../e2e-code-auditor/SKILL.md) | **Bắt buộc 2 Tầng Test**:<br>• **Tầng 1 (Test Local)**: Chạy Playwright E2E trên Local (`localhost:4000` & `4001`, Self-Healing $\le 3$ lần) + `e2e-auditor.mjs` ($\ge 40/50$). Pass 100% mới đưa lên Dev.<br>• **Tầng 2 (Test trên Môi trường Development)**: Sau khi đưa lên môi trường Dev (`frontend-tms-core-dev.up.railway.app`), **chạy lại E2E + Auditor lần 2 trên Dev**, chụp ảnh thực tế (`screenshot_*_verified.png`) để **bàn giao chuẩn xác**. |
+| **5. DEPLOY**<br>*(Triển khai)* | **Release** | [`/git-commit-reviewer`](../git-commit-reviewer/SKILL.md) + [`/github-workflow`](../github-workflow/SKILL.md) | Khi Tầng 1 Local Test PASS ➔ Push submodule branch, tạo GitHub PR vào `dev` (`gh pr create`), auto-merge (`gh pr merge --merge`), đợi Railway Cloud Dev HTTP 200 để bàn giao cho QA chạy **Test Tầng 2 trên môi trường Development**. |
+| **6. MAINTAIN**<br>*(Vận hành)* | **Vận hành** | [`/tms-ops-maintainer`](../tms-ops-maintainer/SKILL.md) + [`/codebase-auditor`](../codebase-auditor/SKILL.md) + [`/telegram-task-responder`](../telegram-task-responder/SKILL.md) | Chỉ nhận bàn giao khi **CẢ 2 TẦNG TEST (Local + Development) ĐỀU PASS 100%**: Kiểm tra sức khỏe sau deploy, check `[x]` `TODO.md`, chạy `npm run todo:record <folder>` (`RESOLUTION.md` + `docs/SYSTEM_TIMELINE.md`), đồng bộ `CODEBASE_AUDIT.md` & `rbac-matrix.md`, gửi báo cáo Telegram. |
+
+---
+
+## 🌐 Canonical Environments & Git Submodule Governance
 
 > [!IMPORTANT]
-> **MANDATORY PROJECT REPO TRACKING ON START (KÍCH HOẠT TRACKING CMD KHI START TASK):**
-> Whenever starting any business analysis, planning session, or task execution, the Leader and agents MUST ALWAYS activate and run tracking commands across all 3 project repositories (`root`, `backend/`, `frontend/`) before proceeding:
+> **1. Mandatory Project Repo Tracking on Start:**
+> Before planning, designing, or modifying code, ALWAYS run:
 > ```bash
 > npm run repo:status
 > npm run repo:tracking
 > ```
-> *(Or direct git: `git status -sb; git -C backend status -sb; git -C frontend status -sb` and `git branch -vv; git -C backend branch -vv; git -C frontend branch -vv`)*.
-> This guarantees:
-> 1. Active branch in `root`, `backend`, and `frontend` are explicitly tracked and aligned with the assigned feature branch (preventing accidental work on `main`/`dev` or detached HEAD).
-> 2. Sync status with remote tracking branches (`ahead`/`behind`) is surfaced immediately.
-> 3. Working tree dirtiness or uncommitted edits across submodules are identified before new changes begin.
-
-> [!IMPORTANT]
-> **FEATURE BRANCH BASE BRANCH & QUALITY GATE PROMOTION MANDATE (QUY TẮC RẼ NHÁNH TỪ DEV & CỔNG NGHIỆM THU):**
-> 1. **Mandatory Base Branch (`dev`)**: Mọi nhánh tính năng mới (`feature/<scope>-<name>`) hoặc sửa lỗi (`fix/<scope>-<name>`) BẮT BUỘC phải rẽ nhánh từ `dev` (sau khi đã chạy `git checkout dev && git pull origin dev` trong các submodule và root). TUYỆT ĐỐI KHÔNG rẽ nhánh trực tiếp từ `master` (trừ trường hợp khẩn cấp `hotfix/<name>` cho Production).
-> 2. **3-Stage Promotion Pipeline**:
->    - **Stage 1 (Phát triển)**: Code trên branch tính năng, commit trực tiếp trong submodule (`backend/` và/hoặc `frontend/`), và push feature branch lên remote.
->    - **Stage 2 (Merge dev & Kiểm thử E2E)**: Merge feature branch vào `dev`, push lên `origin/dev`, đợi Vercel & Render dev đạt trạng thái `READY`. Bắt buộc chạy kiểm thử tự động Playwright E2E trên Domain Dev.
->    - **Stage 3 (Promote lên master)**: CHỈ KHI 100% test E2E trên dev đạt PASS, mới checkout `master`, pull `origin/master`, merge `dev` vào `master`, và push lên `origin/master` (tuân thủ thứ tự submodule-first: `backend/`, `frontend/`, rồi mới đến `root`).
-> 
-> [!IMPORTANT]
-> **ZERO CROSS-TASK IMAGE BORROWING & STRICT IMAGE PROVENANCE MANDATE (CẤM MƯỢN ẢNH VÀ ĐỐI SOÁT NGUỒN GỐC):**
-> 1. **No Image Borrowing**: /leader và các agents TUYỆT ĐỐI KHÔNG sao chép, copy hoặc mượn file ảnh từ thư mục task khác (`feedback_*`) sang thư mục task hiện tại.
-> 2. **Strict Provenance**: Mọi ảnh minh chứng đầu vào phải có nguồn gốc từ Telegram API theo đúng `image_file_ids` của task trong DB `telegram_tasks`. Nếu task không có ảnh, thư mục task không được chứa ảnh giả lập.
-> 3. **OCR & Context Parity**: /leader bắt buộc OCR giải mã đúng Mã chuyến xe, Tên Hub và đối chiếu vùng khoanh đỏ với câu lệnh người dùng. Nghiêm cấm phỏng đoán ngữ cảnh từ các task cũ. Chi tiết: [`.agents/rules/image-provenance-guard.md`](file:///d:/Projects/logistics-website/.agents/rules/image-provenance-guard.md).
+> All 3 repositories (`root`, `backend/`, `frontend/`) are independent Git repos. Always branch and commit **directly inside the target submodule (`backend/` and/or `frontend/`)** off `dev` (`git checkout dev && git pull origin dev`).
+>
+> **2. Primary Cloud Environments (Railway Cloud Primary):**
+> - **Domain Dev (`dev` branch)**:
+>   - Frontend Dev: `https://frontend-tms-core-dev.up.railway.app`
+>   - Backend Dev: `https://backend-tms-core-dev.up.railway.app` (Swagger: `/docs`, Health: `/api/v1/health`)
+> - **Domain Pro (`master` branch)**:
+>   - Frontend Pro: `https://frontend-tms-core-production.up.railway.app`
+>   - Backend Pro: `https://backend-tms-core-production.up.railway.app` (Swagger: `/docs`, Health: `/api/v1/health`)
+>   - Cloud Automation (n8n): `https://n8n-automation-production-d298.up.railway.app` (Daily RBAC Audit Workflow ID: `M1IVf9rAsyFD5TYq` @ 22:00 PM)
+> - *Secondary Fallback (Vercel & Render)*: Dev (`logistics-website-frontend-git-dev-thai-lys-projects.vercel.app`, `logistics-website-backend-1jho.onrender.com`) | Pro (`logistics-website-frontend-kappa.vercel.app`, `logistics-website-backend-1.onrender.com`).
+>
+> **3. Zero Cross-Task Image Borrowing & Strict Image Provenance:**
+> Never copy or reuse `screenshot_*.png/.jpg` from another `feedback_*` folder. Always extract Hub context from the task's own Telegram-sourced screenshot and map to the exact test user in [`frontend/e2e/helpers/auth.ts`](file:///d:/Projects/logistics-website/frontend/e2e/helpers/auth.ts):
+> - `Andromeda Hub - HCM` ➔ `USER_WAREHOUSE_HCM` (`warehouse_hcm`)
+> - `Polaris Hub - Hưng Yên` ➔ `USER_WAREHOUSE_HYN` (`warehouse_hyn`) / `USER_DISPATCHER` (`dispatcher`)
+> - `Magellan Hub - Đà Nẵng` ➔ `USER_WAREHOUSE_DAD` (`warehouse_dad`) / `USER_FLEET` (`fleet`)
+> - System-wide / Multi-hub ➔ `USER_ADMIN` (`admin`)
 
 ---
 
@@ -49,11 +80,13 @@ Before implementing features or modifying workflows, agents MUST reference:
 
 | Document | Key Scope | File Path |
 |---|---|---|
+| **System Evolutionary Timeline** | Chronological history of all completed tasks, capabilities, and invariants | [`docs/SYSTEM_TIMELINE.md`](../../../docs/SYSTEM_TIMELINE.md) |
+| **Codebase Audit Ledger** | Versioned audit of all backend/frontend modules, entities, and flows | [`CODEBASE_AUDIT.md`](../../../CODEBASE_AUDIT.md) |
+| **RBAC Permission Matrix** | Single source of truth for Sidebar, Route Guard (`proxy.ts`), and API `@Roles` | [`.agents/rules/rbac-matrix.md`](../../rules/rbac-matrix.md) |
+| **GitHub Task Workflow** | 4-part branch naming (`<type>/task-<id>-<module>-<action>`), PR & 2-Tier E2E gates | [`.agents/rules/github-task-workflow.md`](../../rules/github-task-workflow.md) |
+| **UI Compact Density** | Narrow layout, Banned Classes (`p-4`, `space-y-3`), 4px card padding, `text-[10px]` tables | [`.agents/rules/ui-compact-density.md`](../../rules/ui-compact-density.md) & [`ui-spacing-guard`](../ui-spacing-guard/SKILL.md) |
 | **Notification Matrix** | Event triggers, channels, email templates, external vehicle rules | [`notifications.md`](notifications.md) |
-| **Workflow Plan** | Dispatch planning, product decisions, split shipment architecture | [`docs/order-dispatch-workflow-plan.md`](../../../docs/order-dispatch-workflow-plan.md) |
-| **Split Shipment Guide** | 1 Order across multiple Trips & Vehicle capacity allocation | [`docs/SPLIT_SHIPMENT_BUSINESS_INTERVIEW_GUIDE.md`](../../../docs/SPLIT_SHIPMENT_BUSINESS_INTERVIEW_GUIDE.md) |
-| **User Manual** | Operational user guide and workflow step-by-step | [`docs/user-guide/USER_MANUAL_HUONG_DAN_SU_DUNG.md`](../../../docs/user-guide/USER_MANUAL_HUONG_DAN_SU_DUNG.md) |
-| **UI Compact Density** | Narrow layout, Banned Classes (p-4, space-y-3), 4px card padding, compact gaps (<=8px), text-[10px] tables | [`.agents/rules/ui-compact-density.md`](../../rules/ui-compact-density.md) & [`ui-spacing-guard`](../ui-spacing-guard/SKILL.md) |
+| **Workflow & Split Shipment** | Dispatch planning, product decisions, split shipment architecture | [`docs/order-dispatch-workflow-plan.md`](../../../docs/order-dispatch-workflow-plan.md) |
 
 ---
 
@@ -61,197 +94,137 @@ Before implementing features or modifying workflows, agents MUST reference:
 
 | Role | Enum | Business Scope & Responsibilities |
 |---|---|---|
-| **DISPATCHER** | `RoleEnum.DISPATCHER` | Creates draft orders (`DRAFT`), inputs cargo payload (weight, volume), origin/destination hubs, routes. Submits orders to Fleet queue (`PENDING_FLEET`). Handles external vehicle requests when internal fleet is overloaded. Cancels draft orders. |
-| **FLEET_MANAGER** | `RoleEnum.FLEET_MANAGER` | Receives `PENDING_FLEET` orders. Evaluates vehicle capacity and driver availability. Assigns vehicles (internal or 3PL partner) and drivers to form `Trips`. Reports vehicle shortage (`NO_VEHICLE`). Confirms finalized trips (`CONFIRMED`). |
-| **WAREHOUSE_MANAGER** | `RoleEnum.WAREHOUSE_MANAGER` | Monitors Inbound Hub Schedule Board. Supervises cargo arrival, verifies shipments, and confirms inbound/outbound receiving against confirmed trips. |
-| **SUPER_ADMIN** | `RoleEnum.SUPER_ADMIN` | Full administrative control: user management, branch hubs (CRUD & soft-delete), system configurations, audit oversight, and global notification monitoring. |
+| **DISPATCHER** | `RoleEnum.DISPATCHER` | Creates draft orders (`DRAFT`), inputs cargo payload (weight, volume, accompanying docs), origin/destination hubs, routes. Submits orders to Fleet queue (`PENDING_FLEET`). Handles external vehicle requests when internal fleet is overloaded. Cancels draft orders. Read-only on Trips. |
+| **FLEET_MANAGER** | `RoleEnum.FLEET_MANAGER` | Receives `PENDING_FLEET` orders (Read-Only on Orders, except `PATCH /orders/:id/no-vehicle`). Evaluates vehicle capacity and driver availability. Assigns vehicles (internal or 3PL partner) and drivers to form `Trips`. Confirms finalized trips (`CONFIRMED`). Full CRUD on Vehicles & Drivers. |
+| **WAREHOUSE_MANAGER** | `RoleEnum.WAREHOUSE_MANAGER` | Scoped to assigned Hub (`user.hubId`). Operates 3 primary screens: **Nhập kho** (`/dashboard/warehouse/inbound`), **Xuất kho** (`/dashboard/warehouse/outbound`), and **Đơn hàng kho** (`/dashboard/warehouse/orders`). Performs quick/batch inbound, partial single-order receiving, roadside pickup appending, stored order outbound allocation, draft trip management, and A4 Receipt / Pallet Label printing. |
+| **SUPER_ADMIN** | `RoleEnum.SUPER_ADMIN` | Full administrative control across all Hubs: user management, branch hubs (Level 1 & Level 2 Xe Bo CRUD), Master Contract Override (`PATCH /orders/:id/admin-override` with mandatory `auditReason` & `DCH` voucher), Completed Trip Rollback (`POST /warehouse/trips/:tripCode/rollback`), and BullMQ queue maintenance. |
 
 ---
 
-## 📦 Cargo & Order Data Specification (STRICT BUSINESS RULE)
+## 🛡️ Active Project Operational Invariants (Bám Sát Thực Tế Dự Án Hiện Tại)
 
 > [!IMPORTANT]
-> **NO SKU / Product Item Management Rule:**
-> - Nghiệp vụ TMS hiện tại **KHÔNG QUẢN LÝ MÃ SKU / MÃ SẢN PHẨM CHI TIẾT** (No item-level/SKU inventory management).
-> - Quản lý hàng hóa hoàn toàn theo thông số kiện vận tải (Consignment/Freight Level):
->   1. **Tên hàng**: Mô tả mặt hàng tổng quan (VD: Vải cuộn, Hạt nhựa...).
->   2. **Số thùng / Số kiện**: Đơn vị đóng gói vận chuyển.
->   3. **Số kg**: Tổng khối lượng (Gross Weight).
->   4. **Số khối ($m^3$ / CBM)**: Tổng thể tích hàng hóa.
-> - Tuyệt đối **KHÔNG** tự ý thiết kế sub-entity SKU, bảng `items/skus`, hay các trường input SKU vào DTO/Entity/UI trừ khi có yêu cầu chỉ định rõ ràng từ người dùng.
+> The following invariants reflect real production requirements established across recent operational milestones (`docs/SYSTEM_TIMELINE.md` up to Task #91). Every agent MUST preserve these rules without regression:
 
-> [!IMPORTANT]
-> **NO WAREHOUSE LOCATION / BIN / RACK MANAGEMENT RULE (KHÔNG QUẢN LÝ VỊ TRÍ KHO):**
-> - Hệ thống kho vận TMS **KHÔNG QUẢN LÝ VỊ TRÍ KHO CHI TIẾT** (No bin/rack/shelf/aisle location tracking, ví dụ: Khu A-02, Kệ B-01...).
-> - Hàng hóa trong kho chỉ quản lý ở cấp độ: **Kho lưu trữ hiện tại (Hub / Warehouse scope)** và **Trạng thái lưu kho (Inventory Status: `LƯU KHO`, `DRAFT`)** cùng các chỉ số vật lý (Số kiện, Kg, $m^3$).
-> - **Tiêu chí tìm kiếm / tra cứu hàng xuất kho (Outbound Search Criteria)** gói gọn đúng 2 tiêu chí:
->   1. **Freetext**: Tìm kiếm tự do theo Mã đơn hàng (`orderCode`) hoặc Tên hàng hóa (`cargoDescription`).
->   2. **Trạng thái**: Lọc theo trạng thái đơn hàng trong kho (`Tất cả`, `LƯU KHO`, `DRAFT`).
-> - Tuyệt đối **KHÔNG** thêm cột "Vị trí kho" / "Vị trí lưu" hay các trường `binLocation`, `rackNumber`, `zoneId`, `shelfId` vào Database Entity, TypeORM migrations, DTOs, API contracts, Table columns hay Form UI.
+### 1. Direct Warehouse Navigation & Zero Overview Dashboard Rule (Tasks #87 & #88)
+- Upon successful login, users redirect **directly to `/dashboard/warehouse/orders`** (Đơn hàng kho).
+- The legacy template screen `/dashboard/overview` is **removed from the Sidebar** (`nav-config.ts`) and strictly intercepted across 3 layers (`next.config.ts`, `proxy.ts`, `overview/page.tsx`) to **redirect immediately to `/dashboard/warehouse/inbound`** (Nhập kho).
 
-> [!IMPORTANT]
-> **DYNAMIC COUNTER & METRIC INTEGRITY GOVERNANCE (QUY TẮC TOÀN VẸN CHỈ SỐ & COUNTER):**
-> - **Zero Arbitrary Numbers**: Các con số hiển thị trong giao diện (KPI Stat Cards, số lượng trong Tab filter, Badges, Table summary row, tổng khối lượng $Kg$, thể tích $m^3$, số kiện) **KHÔNG PHẢI LÀ SỐ NGẪU NHIÊN HAY PLACEHOLDER TĨNH**. Mỗi con số đều phản ánh một chỉ số nghiệp vụ có thật (Business Metric) gắn liền với vòng đời đơn hàng / chuyến xe.
-> - **End-to-End Dynamic Handling**: Mọi counter và metric bắt buộc phải có logic tính toán dynamic xuyên suốt 3 tầng: Backend SQL/Aggregation Query (chuẩn hóa Hub scoping & status condition) ➔ API Contract / DTO ➔ Reactive State trên Frontend (TanStack Query / Zustand / Component State).
-> - **Nullish Coalescing Rule**: Tuyệt đối **KHÔNG** dùng falsy fallback `||` (ví dụ: `kpiStats.waitingInbound || 52`) vì khi dữ liệu thực tế bằng `0` (falsy) sẽ bị ghi đè thành số cứng `52`. Bắt buộc dùng Nullish Coalescing `?? 0` (`kpiStats.waitingInbound ?? 0`).
-> - **Filter & Counter Parity (1:1 Parity)**: Số lượng ghi trên Tab (ví dụ: `Chờ nhập kho (N)`) bắt buộc phải khớp 100% với số lượng bản ghi trả về và render trong bảng danh sách khi bấm vào Tab đó.
-> - **Ambiguity Protocol (Hỏi ngay khi không rõ)**: Nếu bất kỳ công thức tính toán, trạng thái mapping, hoặc logic đếm counter nào trong thiết kế / yêu cầu chưa rõ ràng, **BẮT BUỘC PHẢI DỪNG LẠI, KIỂM TRA VÀ HỎI LẠI USER NGAY**, tuyệt đối không tự ý giả định, tự sinh số mẫu hay hardcode số ngẫu nhiên vào code/UI.
+### 2. Cargo & Order Data Specification (No-SKU & No-Bin-Location Rule)
+- **No SKU Management**: Cargo is managed strictly at the **Consignment / Waybill Level**:
+  1. **Mã vận đơn (`orderCode`)**: Canonical auto-generated `{HUB_PREFIX}-{OPERATOR_INITIALS}-{YYMM}-{SEQUENCE}` or custom unique waybill code checked in real time via `GET /api/v1/orders/check-code`.
+  2. **Tên hàng hóa (`goodsDescription`)**: General cargo description.
+  3. **Số kiện (`totalQuantity`)**, **Số kg (`totalWeight`)**, **Số khối $m^3$ (`totalVolume`)**.
+  4. **Chứng từ đi kèm (`accompanyingDocs`)**, **Địa chỉ nhận (`pickupAddress`)**, **Địa chỉ giao / Đích đến (`deliveryAddress` / `destinationHub`)**, **Tỉnh/TP (`province`)**, **Ghi chú (`notes`)**.
+- **No Bin/Rack Location**: Inventory is tracked strictly by **Current Hub (`currentHubId`)** and **Inventory Status (`LƯU KHO`, `DRAFT`)** plus physical quantities (`inboundQuantity`, `outboundQuantity`, `remainingQuantity`). Never add `binLocation`, `rackNumber`, or `shelfId`.
 
-> [!IMPORTANT]
-> **REAL DATABASE DATA INTEGRATION POLICY (TUYỆT ĐỐI KHÔNG SỬ DỤNG MOCK DATA):**
-> - **Production-Grade Real DB Mandate**: Toàn bộ dự án Logistics TMS hiện tại **ĐÃ TRIỂN KHAI VÀ VẬN HÀNH TRÊN CƠ SỞ DỮ LIỆU THẬT (PostgreSQL trên Neon)**.
-> - **Zero Mock Data Rule**: Mọi màn hình UI, danh sách (Table), bảng quản lý (Board), bộ lọc phân tầng (Hub Cấp 1, Xe bo Cấp 2), ô tìm kiếm live search, thẻ chỉ số (KPI Stat Cards, Badges, Tab counts) và các luồng xác nhận/chuyển trạng thái **BẮT BUỘC PHẢI ĐỌC VÀ GHI DỮ LIỆU QUA BACKEND REST API THẬT KẾT NỐI DATABASE THẬT**.
-> - **No Hardcoded Fallbacks / Mock Arrays**: Tuyệt đối **KHÔNG** sử dụng mock data, fake rows, mảng dữ liệu mẫu hardcoded, hoặc demo fallback trong khối `.catch()` hay state khởi tạo. Khi API trả về rỗng (`[]`) hoặc gặp sự cố, hệ thống phải hiển thị trạng thái trống (Empty State) và thông báo toast lỗi một cách chuẩn chỉ.
-> - **Full State & Transaction Integrity**: Mọi thao tác nghiệp vụ (Nhập kho, Lưu kho, Luân chuyển liên Hub, Giao khách lẻ, Tạo chuyến xe, In tem nhãn Pallet) phải đồng bộ trực tiếp vào các bảng thực thể DB (`orders`, `trips`, `hubs`, `users`), đảm bảo tính nhất quán dữ liệu xuyên suốt toàn hệ thống.
+### 3. Multi-Inbound Waybill Consolidation & Master Field Lock (Task #91)
+- When the same waybill (`orderCode`) is received across multiple inbound deliveries (e.g., morning truck + afternoon truck):
+  - **Master Field Lock on First Entry (`id: 'ASC'`)**: `goodsDescription` (Tên hàng), `destinationHub` / `deliveryAddress` (Đích đến / Địa chỉ giao), `province` (Tỉnh/TP), and `accompanyingDocs` (Chứng từ) are **locked to the first inbound record**. In `WarehouseEditableGrid` (inbound mode), typing an existing `orderCode` auto-fills and locks (`disabled`/`readOnly`) those master fields; operators can only edit **Điểm lấy (`pickupAddress`)**, **Số kiện**, **Số kg**, **Số khối ($m^3$)**, and **Ghi chú**.
+  - **Single Unified Row Aggregation**: Both `/dashboard/warehouse/orders` (Đơn hàng kho) and Outbound Lookup (`flow=OUTBOUND_LOOKUP`) display **1 consolidated row per `orderCode`** summing total packages, weight, volume, and available stock (never splitting into `Dòng 1..N` or requiring operators to select multiple rows during outbound). Outbound confirmation (`confirmOutbound` / `saveOutboundDraft`) automatically deducts stock FIFO across underlying records sharing that `orderCode`.
 
-> [!IMPORTANT]
-> **TWO-TIER HUB HIERARCHY & DELIVERY DESTINATION MODES (QUY TẮC PHÂN TẦNG MẠNG LƯỚI HUB & HÌNH THỨC GIAO HÀNG):**
-> Mạng lưới kho vận TMS quản lý theo cấu trúc phân cấp 2 tầng (`hub.level`):
-> 1. **Hub Cấp 1 (`level = 1`)**: Trung tâm trung chuyển khu vực chính (Regional Linehaul Hubs: *Polaris Hub - Hưng Yên*, *Magellan Hub - Đà Nẵng*, *Andromeda Hub - HCM*). Phục vụ luân chuyển xe tải lớn/container liên vùng và lưu kho trung tâm.
-> 2. **Hub Cấp 2 / Trạm Xe Bo (`level = 2`)**: Điểm giao nhận / tuyến xe bo vệ tinh (Last-Mile / Urban Feeder Stations: ví dụ *XB-KH-02 · gom hàng tuyến nội thành*, *Xe bo Tuyến Hà Nội*, *Xe bo Tuyến HCM*...). Phục vụ xe bo gom hàng và trả hàng chặng cuối theo tuyến tỉnh thành.
->
-> **3 Hình thức giao nhận trong Lưới bảng kho (`deliveryMode`)**:
-> - **`DIRECT_CUSTOMER` (Khách tự nhận / Giao thẳng)**: Nhập địa chỉ giao hàng tận nơi cho khách (Textarea).
-> - **`HUB_L1` (Hub cấp 1 - Node uGTVE)**: Chọn đích đến từ danh sách **Hub Cấp 1** (`level = 1`) để điều chuyển trung tâm.
-> - **`XE_BO` (Xe bo - Node SzHh3)**: Chọn tuyến/trạm xe bo từ danh sách **Hub Cấp 2** (`level = 2`) để gom/phân phối tuyến nội thành.
+### 4. Partial Single-Order Inbound & Scoped Row Dimming (Task #87 — 16/10)
+- Inside a **Pending Inbound Trip (`WarehouseTripDetailModal`, `isInboundTripMode = true`)**:
+  - The action column replaces the row-duplicate icon with **"Nhập kho đơn hàng này"** (`keepTripPending: true` on `POST /api/v1/warehouse/inbound/confirm`).
+  - Receiving a single order immediately transitions that order to `INBOUND` at the current Hub (making it immediately available in `getAvailableOutboundOrders` for cross-docking/outbound), while **keeping the trip and `trip_stop` in `PENDING` ("Chờ xử lý") status** and **not** popping up an individual receipt print modal.
+  - **Scoped Row Dimming Invariant**: The already-received row is dimmed (`opacity-50`), its inputs and delete button are locked, and its action icon turns into a green checkmark (`Đã nhập kho`). This dimming/locking **ONLY applies when `isInboundTripMode === true`** (never dim or lock stored orders on the Outbound screen `/warehouse/outbound` or New Inbound screen).
+  - When the operator finally clicks **"Xác nhận nhập kho"** in the trip modal footer (`keepTripPending: false`), the trip transitions to `COMPLETED` and automatically opens the **Unified A4 Inbound Receipt Modal** containing **all orders on the trip** (both previously single-received orders and newly confirmed orders).
+
+### 5. Goods Receipt Note Historical Preservation & Print Button Hygiene (Tasks #78, #83, 19/10 Fix)
+- **Historical Receipt Integrity**: `getInboundReceiptData` queries orders linked to the trip alongside `InventoryTransactionType.INBOUND` transactions so that printing an Inbound Receipt (`Phiếu Nhập Kho A4`) for a `COMPLETED` trip always preserves **100% of the orders and package quantities originally received on that trip**, even after those orders have been dispatched out on subsequent outbound trips.
+- **Print Button Rules**:
+  - Hide **"In phiếu nhập"** when a trip is still in `PENDING` (`Chờ xử lý`) status (Task #83).
+  - Never render a redundant **"In phiếu xe"** button inside `WarehouseTripDetailModal` footer (19/10 Fix).
+  - Temporarily hide the order lookup magnifying glass button in the Outbound editable grid (Task #86).
+
+### 6. Pending Outbound Draft Trip Isolation & Stop Ledger Lock (Tasks #37, #80, #81)
+- **Pending Draft Trip Order Isolation (Task #80)**: Orders already assigned to a `PENDING` (draft/unconfirmed) outbound trip are strictly isolated and excluded from `getAvailableOutboundOrders` so they cannot be double-selected into another outbound trip.
+- **Stop Ledger Lock (Task #37)**: Once a trip stop at a Hub reaches `COMPLETED` ("Đã xử lý"), all `WAREHOUSE_MANAGER` write operations on that trip (`append-order`, `append-stored-orders`, `destination` change, `confirm`) are blocked (`403 Forbidden` via `validateTripStopEditPermission`) and the UI renders in **Read-Only** mode.
+- **Admin Trip Rollback (Task #81)**: Only `SUPER_ADMIN` can reopen a `COMPLETED` trip back to `PENDING` and revert inventory transactions via `POST /api/v1/warehouse/trips/:tripCode/rollback`.
+
+### 7. Two-Tier Hub Network & 3 Outbound Delivery Modes (`deliveryMode`)
+- **Hub Level 1 (`level = 1`)**: Regional Linehaul Hubs (*Polaris Hub - Hưng Yên*, *Magellan Hub - Đà Nẵng*, *Andromeda Hub - HCM*).
+- **Hub Level 2 (`level = 2`)**: Urban Feeder / Last-Mile Stations (*Trạm Xe Bo*).
+- **3 Delivery Modes**:
+  1. `DIRECT_CUSTOMER` (Giao thẳng khách lẻ — freeform delivery address; isolated from intermediate transit hub stops).
+  2. `HUB_L1` (Luân chuyển Hub cấp 1 — creates/links inter-hub transfer trips).
+  3. `XE_BO` (Trung chuyển Trạm Xe Bo cấp 2).
+
+### 8. Dynamic Counter Integrity, Real DB Data & UI Compact Density
+- **Zero Mock Data & Nullish Coalescing**: 100% real PostgreSQL data via NestJS REST APIs. Always use `?? 0` (never falsy `|| 52`). Tab badge counts (`Chờ xử lý (N)`, `Đã xử lý (M)`) must have 1:1 parity with table rows.
+- **Compact Density & Vietnamese Typography (Task #89)**: Card padding `p-1`, Modal body `p-2`, section/grid gaps `gap-1.5` to `gap-2`, table cells `text-[10px]`, order/trip codes `text-[11px] font-mono font-bold`, row padding `py-1 px-1.5`, sticky action footers `sticky bottom-0`, and 100% Vietnamese diacritic font support across all 10 themes and print/email templates.
 
 ---
 
-## 🧾 Order Code Generation (STRICT PRECONDITION)
+## 🔄 Order Lifecycle & Dispatch State Machine
 
-> [!IMPORTANT]
-> No canonical Order creation flow may be implemented or modified until this rule is satisfied end-to-end. The server, never the client, owns Order code generation.
-
-Canonical format: `{HUB_PREFIX}-{OPERATOR_INITIALS}-{YYMM}-{SEQUENCE}`.
-
-Example: `HCM-LTV-2609-011` means:
-
-- `HCM`: the unique `HubEntity.orderCodePrefix` of the authenticated operator's assigned `hubId`. This is separate from the existing Hub identity `code` such as `HUB-HAN-01`.
-- `LTV`: initials from every word in the operator's persisted full name. Normalize Vietnamese diacritics (`Đ → D`), remove punctuation, and uppercase; `Lê Thâm Vương → LTV`.
-- `2609`: creation period in `YYMM` order, calculated in the `Asia/Ho_Chi_Minh` business timezone.
-- `011`: the monthly counter, starting at `001`, scoped by `(hubOrderCodePrefix, operatorInitials, YYMM)`. Counters shared by operators with identical initials prevent collisions; values above 999 continue with four or more digits.
-
-Mandatory invariants:
-
-1. The authenticated creator MUST have a valid `hubId`; that Hub MUST be active and have a non-empty, unique `orderCodePrefix`. User provisioning MUST support Hub assignment for every role already authorized to create Orders. This metadata requirement does not broaden endpoint permissions. Missing prerequisites block creation with a localized business error.
-2. The operator MUST have a usable persisted full name. The server derives initials; clients cannot submit a prefix, initials, period, sequence, or final `orderCode`.
-3. Allocate the counter atomically in the same database transaction as Order creation. Use a dedicated counter row/table with a composite unique constraint; `SELECT MAX(...) + 1`, client-side generation, and non-reserving preview endpoints are forbidden.
-4. `order.orderCode` retains its global database unique constraint, is immutable after creation, remains reserved after soft deletion/cancellation, and is never recycled.
-5. Batch creation allocates one distinct code per Order row atomically. Hub-to-hub receiving reuses the existing Order code and never generates a replacement.
-6. A customer bill/reference, when needed, is stored separately (for example `customerReferenceCode`) and never replaces the internal canonical Order code.
-7. This rule does not grant a role permission to create Orders. Order creation authorization still follows the RBAC matrix; enabling Warehouse Manager Order creation requires a separately approved three-layer RBAC change.
-
----
-
-## 🔄 Order Lifecycle & State Machine
-
-```
+```text
 [Initialization]
     │
     ▼
-  DRAFT ─────────────(Dispatcher cancels)─────────────► CANCELLED / Soft-deleted
+  DRAFT ─────────────(Dispatcher / WM cancels draft)────────► CANCELLED / Soft-deleted
     │
-    │ (Dispatcher submits)
+    │ (Dispatcher submits OR Warehouse confirms Inbound)
     ▼
-PENDING_FLEET ◄────────(Dispatcher resubmits with 3PL flag)──────┐
-    │                                                            │
-    ├────────────────► NO_VEHICLE ───────────────────────────────┘
+PENDING_FLEET / INBOUND (LƯU KHO) ◄──(Resubmits with 3PL flag)─┐
+    │                                                           │
+    ├────────────────► NO_VEHICLE ──────────────────────────────┘
     │                   (Fleet reports no capacity)
-    │ (Fleet assigns vehicles & confirms all Trips)
+    │ (Fleet assigns vehicles OR Warehouse creates Outbound Trip)
     ▼
- ASSIGNED ─────(All associated Trips CONFIRMED)
+  ASSIGNED / OUTBOUND DRAFT (PENDING TRIP)
     │
-    │ (Vehicle begins transit)
+    │ (Trip confirmed / Vehicle departs)
     ▼
-IN_TRANSIT
+ IN_TRANSIT
     │
-    │ (All Trips delivered at destination hub)
+    │ (Arrives at Destination Hub -> Inbound confirm OR Delivered to Customer)
     ▼
-DELIVERED
-
-* Note: Any active state can transition to CANCELLED upon administrative or official cancellation.
+DELIVERED / COMPLETED
 ```
 
 ---
 
-## 🚚 Standard Operational Flow (Happy Path)
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor D as DISPATCHER
-    actor F as FLEET_MANAGER
-    actor W as WAREHOUSE_MANAGER
-
-    D->>D: 1. Create Draft Order (DRAFT)
-    D->>F: 2. Submit Order (status -> PENDING_FLEET) [In-app + Email]
-    Note over F: 3. Fleet checks vehicle capacity & drivers
-    F->>F: 4. Create Trip(s) & Assign Vehicle/Driver
-    F->>W: 5. Confirm Trip (Order -> ASSIGNED) [In-app + Email]
-    F->>D: 5. Notify Trip is ready [In-app + Email]
-    Note over W: 6. Warehouse sees inbound shipment on Board
-    F->>D: 7. Departure (IN_TRANSIT)
-    F->>W: 8. Delivery completed (DELIVERED) [In-app + Email]
-```
-
----
-
-## 🔀 Core Business Exceptions
-
-### 1. Draft Order Cancellation
-- Dispatchers may cancel or soft-delete orders while in `DRAFT` state.
-- **Rule**: Do NOT trigger notifications to Fleet or Warehouse since the order was never submitted to the operational dispatch queue.
-
-### 2. Fleet Vehicle Shortage (`NO_VEHICLE`)
-- When an order is `PENDING_FLEET` and internal capacity is exhausted, Fleet Manager sets status to `NO_VEHICLE` with an explicit reason.
-- System sends an immediate alert to **DISPATCHER** and **SUPER_ADMIN**.
-- Dispatcher enables external 3PL vehicle flag (`isExternalVehicleNeeded = true`, `externalNote = 'Partner details...'`) and resubmits to `PENDING_FLEET`.
-- Fleet Manager assigns external partner vehicle.
-
-### 3. Split Shipment (Multi-Trip Allocation)
-- When cargo exceeds a single vehicle's payload capacity ($Kg$ / $m^3$), Fleet Manager creates **multiple Trips** for the same Order.
-- The Order status only advances to `ASSIGNED` when **all** associated trips are `CONFIRMED`.
-- Notifications to **WAREHOUSE_MANAGER** are dispatched only after the final trip configuration is locked.
-
----
-
-## 🔔 Notification Governance
-
-For event triggers, recipient matrices, WebSocket vs. Email Handlebars templates, and external 3PL alert formatting:
-
-See [Notification Matrix in `notifications.md`](notifications.md)
-
----
-
-## ✅ Pre-Implementation Business Checklist
+## ✅ Pre-Implementation Business & Architecture Checklist (Stage 1 `PLAN` & Stage 2 `DESIGN`)
 
 Before writing or modifying any backend endpoint, frontend page, or data model, verify:
 
-0. **Project Repo Tracking Check**: Executed `npm run repo:status` and `npm run repo:tracking` across all 3 repos (`root`, `backend/`, `frontend/`) to confirm clean state and active branch alignment?
-1. **Valid State Transition**: Does the new status conform to the Order/Trip State Machine?
-2. **Authorization Enforcement**: Is the executing role permitted per the [RBAC Matrix](../../rules/rbac-matrix.md)?
-3. **Notification Matrix Reference**: Checked [`notifications.md`](notifications.md) for recipients (In-app + Email)?
-4. **SUPER_ADMIN Audit**: Is SUPER_ADMIN included in administrative event audit channels?
-5. **Non-blocking Notifications**: Wrapped all email/socket emissions in `try/catch` to prevent business transaction aborts?
-6. **External 3PL Handling**: For `isExternalVehicleNeeded = true`, are email subjects and UI badges prefixed with `🚨 [XE THUÊ NGOÀI]` / `[EXTERNAL VEHICLE]`?
-7. **Listing & Pagination Confirmation**: Asked and confirmed with the User regarding Pagination vs. Flat List mechanisms for listing APIs? Never assume without confirmation.
-8. **Order Code Prerequisite**: Is the code generated server-side from the authenticated creator's Hub prefix, persisted full-name initials, `YYMM`, and an atomic monthly counter, with global uniqueness and no reuse?
-9. **Dynamic Counter & Metric Integrity**: Verified all UI numbers, KPI badges, and tab counters are dynamically computed via backend SQL/endpoints with 100% filter parity? Never assume or hardcode mock numbers; clarify with the User if any counter logic or lifecycle formula is ambiguous.
-10. **Real Database Data Mandate (Zero Mock Data)**: Are all UI components, dropdowns, tables, and submit flows connected 100% to real PostgreSQL backend APIs? Are all mock data arrays, demo fallback rows in `.catch()`, and hardcoded placeholders completely removed?
-11. **UI Compact Density & Narrow Spacing**: Are Card paddings set to 4px (`p-1`/`py-0`), section/grid gaps <= 12px (`gap-2`/`gap-3`), table font sizes set to `text-[10px]`, and action footers pinned with `sticky bottom-0` for cohesive operational density?
+0. **Project Repo Tracking Check**: Executed `npm run repo:status` and `npm run repo:tracking` across all 3 repos (`root`, `backend/`, `frontend/`)?
+1. **System Timeline & Invariant Check**: Reviewed [`docs/SYSTEM_TIMELINE.md`](../../../docs/SYSTEM_TIMELINE.md) to ensure zero regression against Tasks #37–#91 invariants?
+2. **Multimodal OCR & Hub Account Parity**: Extracted exact Hub from screenshot and mapped to `USER_WAREHOUSE_HCM`, `USER_WAREHOUSE_HYN`, `USER_WAREHOUSE_DAD`, `USER_DISPATCHER`, `USER_FLEET`, or `USER_ADMIN`?
+3. **3-Layer RBAC Enforcement**: Checked [`rbac-matrix.md`](../../rules/rbac-matrix.md) across Sidebar (`nav-config.ts`), Route Guard (`proxy.ts`), and Controller (`@Roles()`)?
+4. **Master Contract & Stop Ledger Guards**: Preserved post-DRAFT contract immutability, first-entry waybill field lock (`id: 'ASC'`), and `COMPLETED` trip stop read-only lock?
+5. **Dynamic Counter & Real DB Integrity**: Zero mock data, `?? 0` nullish coalescing, and 1:1 tab counter parity?
+6. **UI Compact Density & 5-Level Modal Width**: Enforced `p-1` cards, `p-2` modals, `gap-1.5`/`gap-2`, `text-[10px]` tables, wide modal containers (`sm:max-w-5xl xl:max-w-6xl` for tables), and zero banned classes (`p-4`, `space-y-3`, `gap-4`)?
 
 ---
 
-## 🗂️ Skill Responsibility Breakdown
+## 🗂️ Skill & Agent Ecosystem Breakdown (Mapped to 6-Stage Pipeline)
 
 ```text
-  leader (WHAT & WHY)
-  ├── notifications.md ──► Notification matrices, templates, 3PL alert rules
-  ├── nestjs-best-practices ──► Backend Services, TypeORM, Controllers, BullMQ
-  ├── nextjs-best-practices ──► Frontend App Router, UI Components, React 19
-  ├── jwt-rbac-auth ──► Authentication guards, tokens, role authorization
-  ├── n8n-expert ──► Workflow automation, event pipelines, cron schedulers, CI/CD dispatch
-  ├── github-workflow ──► CI/CD pipelines, submodule branching, PR audit trail, 2-tier quality gates
-  ├── ui-ux-flow-designer ──► User experience design, wireframes, dashboard
-  └── git-commit-reviewer ──► Pre-commit safety auditing
+  leader (PM & Architect Gatekeeper — WHAT & WHY)
+  ├── [1. PLAN - PM]
+  │   ├── todo-agent ──► Feedback scanner, Multimodal OCR, RCA, TODO.md + E2E & Edge Case Spec
+  │   └── antigravity-goal-generator ──► Atomic /goal prompt synthesis
+  ├── [2. DESIGN - Architect]
+  │   ├── rbac-matrix.md & jwt-rbac-auth ──► 3-Layer authorization & token governance
+  │   ├── notifications.md & bullmq-redis-patterns ──► Event triggers, WebSocket, Email & Redis queues
+  │   ├── ui-ux-flow-designer & pencil-ui-designer ──► Wireframes, user flows & .pen vector canvas
+  │   └── nestjs-best-practices & nextjs-best-practices ──► Backend/Frontend architectural blueprints
+  ├── [3. BUILD - Engineer]
+  │   ├── feature-branch-advisor ──► Submodule branching (<type>/task-<id>-<module>-<action>)
+  │   ├── shadcn-ui-patterns & ui-spacing-guard ──► Compact density UI (p-1, p-2, text-[10px])
+  │   └── tanstack-query-nextjs & tanstack-optimistic-updates & zustand-state-management
+  ├── [4. TEST - QA]
+  │   ├── e2e-test-runner ──► Tier-1 Local & Tier-2 Cloud Dev Playwright execution + Self-Healing
+  │   ├── e2e-code-auditor ──► 50-point AST & behavioral audit (scripts/e2e-auditor.mjs >= 40/50)
+  │   └── ui-spec-auditor & visual-pen-matcher ──► Visual & spec compliance verification
+  ├── [5. DEPLOY - Release]
+  │   ├── git-commit-reviewer ──► Pre-commit security & rule audit across submodules
+  │   └── github-workflow ──► GitHub PR creation, audit trail, auto-merge & Railway Cloud Dev gate
+  └── [6. MAINTAIN - Vận hành]
+      ├── tms-ops-maintainer ──► Live health checks, RESOLUTION.md, SYSTEM_TIMELINE.md, rollback playbooks
+      ├── codebase-auditor ──► Living CODEBASE_AUDIT.md synchronization
+      ├── n8n-expert ──► Scheduled RBAC audit workflows & webhook automation
+      └── telegram-task-responder ──► Mobile-first acceptance reporting with visual proof
 ```
