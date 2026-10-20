@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 20/10/2026 | `feedbacks/feedback_19_10_task_92` | Feedback 19/10 (Task #92) — Xử Lý Toàn Diện 6 Edge C... | 6/6 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_19_10_task_92/RESOLUTION.md) |
 | 19/10/2026 | `feedbacks/feedback_19_10_task_91` | Feedback 19/10 (Task #91) — Gom 1 Dòng Duy Nhất Cho ... | 6/6 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_19_10_task_91/RESOLUTION.md) |
 | 19/10/2026 | `feedbacks/feedback_19_10_task_89` | Feedback 19/10 — Task 89: Cải Thiện Font Family Toàn... | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_19_10_task_89/RESOLUTION.md) |
 | 19/10/2026 | `feedbacks/feedback_19_10_inbound_receipt_fix` | Feedback 19/10 — Bảo Toàn Danh Sách Đơn Hàng Lịch Sử Trên Phiếu Nhập Kho & Loại Bỏ Nút "In Phiếu Xe" Thừa | 2/2 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_19_10_inbound_receipt_fix/RESOLUTION.md) |
@@ -79,6 +80,16 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_19_10_TASK_92] — Feedback 19/10 (Task #92) — Xử Lý Toàn Diện 6 Edge Cases Khi Lấy & Xuất Kho Đơn Hàng Nhập Nhiều Lần (Multi-Inbound Consolidation & Outbound Dispatch Edge Cases) (20/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (6/6 việc)
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Task 1 (Backend - Outbound `quantityAllocated` & Rollback Integrity)**: Bổ sung `quantityAllocated: qtyToExport` vào `TripEntity` trong `confirmOutbound` và tự động đồng bộ `quantityAllocated` từ `txList` khi `rollbackTrip` mở lại chuyến xuất kho tại `backend/src/orders/warehouse.service.ts`.; Task 2 (Backend - Sibling Trip Deduplication & Multi-Item Merge on Outbound)**: Cập nhật `consolidateSiblingOrdersByCode`, `confirmOutbound` và `saveOutboundDraft` tại `backend/src/orders/warehouse.service.ts` để gộp dòng `trip` trùng `tripCode` và cộng dồn `dto.items` nếu có nhiều dòng anh em cùng `orderCode`.; Task 3 (Backend - Re-Inbound After Full Outbound `currentHubId` Recovery)**: Cập nhật `quickCreateInboundOrder` và `createBatchInbound` tại `backend/src/orders/warehouse.service.ts` để khôi phục `activeEntry.currentHubId = originHubId` và `status = 'INBOUND'` khi đơn hàng đã xuất hết (`COMPLETED_INBOUND`) được xe sau chở về nhập bổ sung.
+  * **Frontend**: Task 4 (Frontend - Outbound Duplicate Row Prevention & Excel Paste Auto-Lookup)**: Cập nhật `frontend/src/features/warehouse/components/warehouse-editable-grid.tsx` để chặn nạp trùng mã vận đơn ở 2 dòng trên cùng phiếu xuất và tự động tra cứu `OUTBOUND_LOOKUP` khi Dán/Import Excel ở màn hình Xuất kho.; Task 5 (Frontend - Outbound Refresh Metrics Unwrapping & Pre-Submit Lookup Resolution)**: Cập nhật `handleRefreshMetrics` và bổ sung cơ chế tự động phân giải các dòng có `orderCode` nhưng chưa kịp gắn `id` trước khi bấm Xác nhận xuất kho / Lưu nháp tại `frontend/src/app/dashboard/warehouse/outbound/page.tsx`.
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_feedback_19_10_task_92_verified.png, step_01_partial_outbound_10_of_25_form.png, step_02_partial_outbound_receipt_quantity_allocated.png, step_03_duplicate_order_row_blocked.png, step_04_refresh_metrics_updated_stock_20.png, step_05_full_outbound_20_packages_receipt.png, step_06_reinbound_after_full_outbound_restored_stock.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_19_10_task_92/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_19_10_task_92/TODO.md)
 
 ### 🚀 [FEEDBACK_19_10_TASK_91] — Feedback 19/10 (Task #91) — Gom 1 Dòng Duy Nhất Cho Đơn Hàng Nhập Nhiều Lần, Cộng Dồn Số Lượng/Kg/Khối & Khóa Cứng Thông Tin Gốc Khi Nhập Mới Trùng Mã Vận Đơn (19/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (6/6 việc)
