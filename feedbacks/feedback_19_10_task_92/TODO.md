@@ -65,9 +65,41 @@ Qua phân tích sâu mã nguồn tại `backend/src/orders/warehouse.service.ts`
 
 ## 4. Danh sách Công việc Chi tiết (Task Checklist)
 
-- [ ] **Task 1 (Backend - Outbound `quantityAllocated` & Rollback Integrity)**: Bổ sung `quantityAllocated: qtyToExport` vào `TripEntity` trong `confirmOutbound` và tự động đồng bộ `quantityAllocated` từ `txList` khi `rollbackTrip` mở lại chuyến xuất kho tại `backend/src/orders/warehouse.service.ts`.
-- [ ] **Task 2 (Backend - Sibling Trip Deduplication & Multi-Item Merge on Outbound)**: Cập nhật `consolidateSiblingOrdersByCode`, `confirmOutbound` và `saveOutboundDraft` tại `backend/src/orders/warehouse.service.ts` để gộp dòng `trip` trùng `tripCode` và cộng dồn `dto.items` nếu có nhiều dòng anh em cùng `orderCode`.
-- [ ] **Task 3 (Backend - Re-Inbound After Full Outbound `currentHubId` Recovery)**: Cập nhật `quickCreateInboundOrder` và `createBatchInbound` tại `backend/src/orders/warehouse.service.ts` để khôi phục `activeEntry.currentHubId = originHubId` và `status = 'INBOUND'` khi đơn hàng đã xuất hết (`COMPLETED_INBOUND`) được xe sau chở về nhập bổ sung.
-- [ ] **Task 4 (Frontend - Outbound Duplicate Row Prevention & Excel Paste Auto-Lookup)**: Cập nhật `frontend/src/features/warehouse/components/warehouse-editable-grid.tsx` để chặn nạp trùng mã vận đơn ở 2 dòng trên cùng phiếu xuất và tự động tra cứu `OUTBOUND_LOOKUP` khi Dán/Import Excel ở màn hình Xuất kho.
-- [ ] **Task 5 (Frontend - Outbound Refresh Metrics Unwrapping & Pre-Submit Lookup Resolution)**: Cập nhật `handleRefreshMetrics` và bổ sung cơ chế tự động phân giải các dòng có `orderCode` nhưng chưa kịp gắn `id` trước khi bấm Xác nhận xuất kho / Lưu nháp tại `frontend/src/app/dashboard/warehouse/outbound/page.tsx`.
-- [ ] **Task 6 (Verification - 2-Tier E2E Test & Visual Evidence)**: Chạy kiểm thử E2E xác minh toàn bộ 6 Edge Cases (Xuất từng phần $\rightarrow$ Nhập bổ sung lần 3 $\rightarrow$ Làm mới thông số $\rightarrow$ Chặn chọn trùng dòng $\rightarrow$ Xuất kho nốt phần còn lại $\rightarrow$ Kiểm tra phiếu xuất), chấm điểm `e2e-auditor.mjs` đạt 50/50 và ghi `RESOLUTION.md`.
+- [x] **Task 1 (Backend - Outbound `quantityAllocated` & Rollback Integrity)**: Bổ sung `quantityAllocated: qtyToExport` vào `TripEntity` trong `confirmOutbound` và tự động đồng bộ `quantityAllocated` từ `txList` khi `rollbackTrip` mở lại chuyến xuất kho tại `backend/src/orders/warehouse.service.ts`.
+- [x] **Task 2 (Backend - Sibling Trip Deduplication & Multi-Item Merge on Outbound)**: Cập nhật `consolidateSiblingOrdersByCode`, `confirmOutbound` và `saveOutboundDraft` tại `backend/src/orders/warehouse.service.ts` để gộp dòng `trip` trùng `tripCode` và cộng dồn `dto.items` nếu có nhiều dòng anh em cùng `orderCode`.
+- [x] **Task 3 (Backend - Re-Inbound After Full Outbound `currentHubId` Recovery)**: Cập nhật `quickCreateInboundOrder` và `createBatchInbound` tại `backend/src/orders/warehouse.service.ts` để khôi phục `activeEntry.currentHubId = originHubId` và `status = 'INBOUND'` khi đơn hàng đã xuất hết (`COMPLETED_INBOUND`) được xe sau chở về nhập bổ sung.
+- [x] **Task 4 (Frontend - Outbound Duplicate Row Prevention & Excel Paste Auto-Lookup)**: Cập nhật `frontend/src/features/warehouse/components/warehouse-editable-grid.tsx` để chặn nạp trùng mã vận đơn ở 2 dòng trên cùng phiếu xuất và tự động tra cứu `OUTBOUND_LOOKUP` khi Dán/Import Excel ở màn hình Xuất kho.
+- [x] **Task 5 (Frontend - Outbound Refresh Metrics Unwrapping & Pre-Submit Lookup Resolution)**: Cập nhật `handleRefreshMetrics` và bổ sung cơ chế tự động phân giải các dòng có `orderCode` nhưng chưa kịp gắn `id` trước khi bấm Xác nhận xuất kho / Lưu nháp tại `frontend/src/app/dashboard/warehouse/outbound/page.tsx`.
+- [x] **Task 6 (Verification - 2-Tier E2E Test & Visual Evidence)**: Chạy kiểm thử E2E xác minh toàn bộ 6 Edge Cases (Xuất từng phần $\rightarrow$ Nhập bổ sung lần 3 $\rightarrow$ Làm mới thông số $\rightarrow$ Chặn chọn trùng dòng $\rightarrow$ Xuất kho nốt phần còn lại $\rightarrow$ Kiểm tra phiếu xuất), chấm điểm `e2e-auditor.mjs` đạt 50/50 và ghi `RESOLUTION.md`.
+
+
+---
+
+## 5. 🧪 Kịch bản Kiểm thử E2E Chuẩn xác & Ma trận Edge Cases
+
+### Phần 1: Chuỗi Hành Động Kiểm Thử E2E Từng Bước (Step-by-Step E2E Action Sequence)
+- **Tài khoản kiểm thử**: `USER_WAREHOUSE_HCM` (`warehouse_hcm` — thuộc `Andromeda Hub - HCM`).
+- **Bước 1 (Thiết lập đơn gộp 2 lần nhập & Xuất kho từng phần — Edge Cases #1 & #4)**:
+  - Tạo đơn hàng `T92E-...` qua 2 đợt nhập kho (Đợt 1: 10 kiện, 100 kg, 1.0 m³; Đợt 2: 15 kiện, 150 kg, 1.5 m³ $\rightarrow$ Tổng 25 kiện).
+  - Mở `/dashboard/warehouse/outbound`, tạo phiếu xuất kho Xe 1 (`51C-92101`), tra cứu `T92E-...` (hiển thị `Tồn: 25`), chỉnh số lượng xuất thành `10` kiện, chụp ảnh `step_01_partial_outbound_10_of_25_form.png`.
+  - Bấm `Xác nhận xuất kho`, kiểm tra Modal Phiếu Xuất Kho A4 và xác nhận bản ghi `TripEntity` lưu đúng `quantityAllocated = 10`, chụp ảnh `step_02_partial_outbound_receipt_quantity_allocated.png`.
+- **Bước 2 (Chặn chọn trùng mã vận đơn 2 dòng & Làm mới thông số tồn kho — Edge Cases #2, #3, #5)**:
+  - Mở phiếu xuất kho mới Xe 2 (`51C-92102`), nhập `T92E-...` ở Dòng 1 (`Tồn: 15`).
+  - Thêm Dòng 2, nhập lại `T92E-...` $\rightarrow$ Hệ thống báo lỗi trùng mã đơn và tự động xóa trắng Dòng 2, chụp ảnh `step_03_duplicate_order_row_blocked.png`.
+  - Nhập bổ sung Đợt 3 (5 kiện) cho `T92E-...`, sau đó bấm nút `Cập nhật lại thông số` trên màn hình Xuất kho $\rightarrow$ Dòng 1 tự động cập nhật từ `Tồn: 15` lên `Tồn: 20`, chụp ảnh `step_04_refresh_metrics_updated_stock_20.png`.
+- **Bước 3 (Xuất kho 100% tồn còn lại & Khôi phục tồn kho khi Xe 4 nhập bổ sung sau khi đã xuất hết — Edge Case #6)**:
+  - Xuất hết 20 kiện còn lại của `T92E-...`, chụp ảnh phiếu xuất `step_05_full_outbound_20_packages_receipt.png`.
+  - Nhập bổ sung Đợt 4 (8 kiện) cho mã `T92E-...` (vốn đã xuất hết `COMPLETED_INBOUND`) $\rightarrow$ Mở `/dashboard/warehouse/orders`, xác nhận đơn `T92E-...` khôi phục `currentHubId`, trạng thái `LƯU KHO` và hiển thị 1 dòng duy nhất với tồn khả dụng `8 / 38` kiện, chụp ảnh `step_06_reinbound_after_full_outbound_restored_stock.png` và `screenshot_feedback_19_10_task_92_verified.png`.
+
+### Phần 2: Ma Trận 6 Edge Cases Kiểm Chứng (Edge Cases Matrix)
+| Mã EC | Tình huống biên (Edge Case) | Kỳ vọng nghiệp vụ chuẩn |
+|---|---|---|
+| `EC-01` | Xuất kho từng phần đơn gộp (`confirmOutbound`) | Bản ghi `TripEntity` phải lưu `quantityAllocated = qtyToExport` (không bị `NULL`), hỗ trợ luân chuyển từng phần và `rollbackTrip`. |
+| `EC-02` | Dán Excel hoặc bấm Submit nhanh khi dòng chưa gắn `id` | Tự động phân giải `id` và tồn khả dụng qua `flow=OUTBOUND_LOOKUP`. |
+| `EC-03` | Bấm nút `Cập nhật lại thông số` (`handleRefreshMetrics`) | Giải nén đúng `ResponseTransformInterceptor` (`payload?.data`) kèm `flow=OUTBOUND_LOOKUP`, cập nhật ngay `Tồn: N` mới nhất. |
+| `EC-04` | Gộp các dòng anh em lịch sử (`consolidateSiblingOrdersByCode`) | Cộng dồn `quantityAllocated` khi trùng `tripCode` và gộp `dto.items` cùng đơn hàng. |
+| `EC-05` | Gõ hoặc chọn trùng 1 mã vận đơn ở 2 dòng trên phiếu xuất | Chặn ngay lập tức với thông báo lỗi rõ ràng và reset dòng bị trùng. |
+| `EC-06` | Đơn đã xuất hết (`COMPLETED_INBOUND`) được xe sau nhập bổ sung | Tự động khôi phục `currentHubId = originHubId` và chuyển trạng thái về `INBOUND` (`LƯU KHO`). |
+
+### Phần 3: File Kiểm Thử Playwright Mục Tiêu
+- `frontend/e2e/94-feedback-19-10-task-92-outbound-edge-cases.spec.ts`
