@@ -217,3 +217,20 @@ sequenceDiagram
   - Đối với màn hình Xuất kho (`/warehouse/outbound`) và Nhập kho mới (`/warehouse/inbound`), `isInboundTripMode === false`: toàn bộ các đơn lưu kho hiển thị sáng rõ (100% opacity), cho phép sửa đổi số lượng xuất, thay đổi địa chỉ giao/xe bo, ghi chú, và xóa dòng bình thường.
   - Bộ kiểm thử Playwright (`90-feedback-16-10-task-87-partial-inbound-single-order.spec.ts`) đã bổ sung assertion kiểm tra trực tiếp tính năng này và đạt **3/3 PASS (100%)**.
 
+---
+
+## 8. 🔬 Điều Tra & Kiểm Chứng Thực Tế (20/10): Nhập 2 Xe Sáng (`49 kiện`) & Chiều (`22 kiện`) Cùng Mã Đơn ➔ Xuất Lẻ `30 kiện`
+
+> 📄 **Báo cáo chi tiết đầy đủ**: Xem tại [`MULTI_INBOUND_PARTIAL_OUTBOUND_ANALYSIS.md`](file:///c:/Projects/logistics-website/feedbacks/feedback_16_10_task_87/MULTI_INBOUND_PARTIAL_OUTBOUND_ANALYSIS.md)
+
+### Tóm tắt kết quả kiểm chứng thực nghiệm trên Live Dev API (`https://backend-tms-core-dev.up.railway.app/api/v1`):
+1. **Khả năng xuất lẻ `30 kiện` từ tổng `71 kiện` (`49 + 22`)**:
+   - **ĐƯỢC 100%** trên màn hình chính Tạo Phiếu Xuất Kho (`/dashboard/warehouse/outbound` ➔ `+ Xuất kho` dùng [`WarehouseEditableGrid`](file:///c:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-editable-grid.tsx)):
+     - Xe sáng nhập `49 kiện` (`SD125`) + Xe chiều nhập `22 kiện` (`SD126`) cùng mã `VERIFY87-56055` (`orderId = 182`) ➔ Hệ thống tự động cộng dồn vào cùng `orderId = 182` với `inboundQuantity = 71`, `remainingQuantity = 71`, `effectiveHubStock = 71`.
+     - Khi xuất `30 kiện` (`SD128`, `POST /api/v1/warehouse/outbound/confirm` với `quantityToExport: 30`) ➔ Hệ thống xuất `30 kiện` (`outboundQuantity = 30`) và tự động giữ lại **`remainingQuantity = 41 kiện`** ở trạng thái **`INBOUND` (`Lưu kho`)** tại `currentHubId = 1` để xuất tiếp ở các chuyến sau.
+2. **3 Điểm hạn chế / Edge Cases phát hiện qua dò xét code thực tế (Chờ quyết định nâng cấp)**:
+   - **Hạn chế 1 (Tỷ lệ KG / M³ khi gõ tay số kiện xuất)**: Khi dán từ Excel (`hydrateOutboundRows`), hệ thống tự chia tỷ lệ `SỐ KG` và `SỐ M³` theo `30/71` (`proportionalMetric`). Nhưng khi gõ tay `30` vào ô [`QuantityCell`](file:///c:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-editable-grid.tsx#L1084-L1091), `totalWeight` và `totalVolume` chưa tự động co theo tỷ lệ `30/71` nếu người dùng không sửa tay 2 cột Kg/m³.
+   - **Hạn chế 2 (Luồng chọn đơn bằng Checkbox)**: Modal **"Chọn đơn lưu kho bốc lên chuyến xe"** ([`WarehouseSelectStoredOrdersModal`](file:///c:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-select-stored-orders-modal.tsx#L174-L178)) và [`WarehouseOutboundTransferFlow`](file:///c:/Projects/logistics-website/frontend/src/features/warehouse/components/warehouse-outbound-transfer-flow.tsx#L304-L318) hiện chỉ có checkbox chọn cả đơn (bốc hết `71 kiện`), chưa có ô nhập số lượng xuất lẻ `30 kiện`.
+   - **Hạn chế 3 (Khi Xe 2 bấm "Lưu nháp" thay vì "Xác nhận nhập kho" ngay)**: Nếu Xe Sáng (`49 kiện`) đã `INBOUND`, còn Xe Chiều (`22 kiện`, cùng mã đơn) bấm **"Lưu nháp"** (`DRAFT`), [`batchCreateInboundOrders`](file:///c:/Projects/logistics-website/backend/src/orders/warehouse.service.ts#L1622-L1630) cộng sớm `+22` vào đơn đang `INBOUND`, khiến dòng hàng trong chuyến nháp Xe Chiều bị làm mờ (`isRowInboundLocked`) và nếu bấm xác nhận nhập kho chuyến nháp đó sẽ bị cộng bồi thêm `inboundQuantity`.
+
+
