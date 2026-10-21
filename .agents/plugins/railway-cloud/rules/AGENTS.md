@@ -1,5 +1,6 @@
 # Railway Cloud Infrastructure Governance Rules
 
+- **Authoritative Token Store Mandate (`.env.railway` Top Priority)**: The [`.env.railway`](file:///d:/Projects/logistics-website/.env.railway) file at the workspace root is the authoritative single source of truth for Railway project tokens (`RAILWAY_DEV_TOKEN` for dev, `RAILWAY_PROD_TOKEN` for production, `RAILWAY_AUTO_DEPLOY`). All agents, skills, and tools interacting with Railway MUST always inspect `.env.railway` first to determine the active project environment and authenticating credentials.
 - **Primary Cloud Infrastructure Priority**: Railway Cloud (`Logistics TMS - Spider Express`, Project ID `32cad4c1-ce12-473c-9a5d-5b3c136d0ecb`) is the authoritative primary infrastructure for both `dev` and `production` environments.
 - **Canonical Domains**:
   - **Dev Frontend**: `https://frontend-tms-core-dev.up.railway.app`
