@@ -251,7 +251,7 @@ async function run() {
             'order-audit-agent@spider-express.vn',
             'CLI_AGENT',
             activeOrder.currentHubId || activeOrder.originHubId || 1,
-            'Andromeda Hub - HCM',
+            activeOrder.currentHubEntity?.name || activeOrder.originHub || 'N/A Hub',
             JSON.stringify({ totalQuantity: dbTotal, inboundQuantity: dbInbound, remainingQuantity: dbRemaining }),
             JSON.stringify({ totalQuantity: activeInbound, inboundQuantity: activeInbound, remainingQuantity: ledgerStock }),
             ledgerStock,
