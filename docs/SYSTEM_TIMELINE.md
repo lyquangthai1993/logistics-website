@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 21/10/2026 | `issues/issue_21_10` | Task #93: Quản trị Giao dịch Kho ACID, Khóa Âm Kho, Phân quyền RBAC & Chuẩn hóa Hub Fallback ('N/A Hub') | 8/8 | ✅ DONE (100%) | [RESOLUTION.md](../issues/issue_21_10/RESOLUTION.md) |
 | 20/10/2026 | `feedbacks/feedback_19_10_task_92` | Feedback 19/10 (Task #92) — Xử Lý Toàn Diện 6 Edge C... | 6/6 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_19_10_task_92/RESOLUTION.md) |
 | 19/10/2026 | `feedbacks/feedback_19_10_task_91` | Feedback 19/10 (Task #91) — Gom 1 Dòng Duy Nhất Cho ... | 6/6 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_19_10_task_91/RESOLUTION.md) |
 | 19/10/2026 | `feedbacks/feedback_19_10_task_89` | Feedback 19/10 — Task 89: Cải Thiện Font Family Toàn... | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_19_10_task_89/RESOLUTION.md) |
