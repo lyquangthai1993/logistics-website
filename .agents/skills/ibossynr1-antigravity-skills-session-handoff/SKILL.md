@@ -175,13 +175,17 @@ Each handoff in the chain:
 
 When resuming from a chain, read the most recent handoff first, then reference predecessors as needed.
 
-## Storage Location
+## Storage Location (Antigravity Gemini Native Convention)
 
-Handoffs are stored in: `.claude/handoffs/`
+Handoffs are stored directly inside the Antigravity workspace directory: `.agents/handoffs/`
 
-Naming convention: `YYYY-MM-DD-HHMMSS-[slug].md`
-
-Example: `2024-01-15-143022-implementing-auth.md`
+1. **Canonical Latest Pointer (Always Updated on Create & Read First on Resume)**:
+   - `.agents/handoffs/LATEST_HANDOFF.md`
+2. **Timestamped Archive History**:
+   - `.agents/handoffs/YYYY-MM-DD-HHMMSS-[slug].md`
+   - Example: `.agents/handoffs/2026-10-17-185500-feedback-17-10-extra-completed.md`
+3. **Antigravity Brain Artifact**:
+   - `<appDataDir>/brain/<conversation-id>/session_handoff.md`
 
 ## Resources
 

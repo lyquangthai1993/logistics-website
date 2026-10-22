@@ -1,0 +1,12 @@
+{
+  "name": "github-submodule-ops",
+  "displayName": "GitHub Submodule & PR Ops",
+  "version": "1.0.0",
+  "description": "Manages the 3-repository Git Submodule architecture (root, backend, frontend), 4-stage GitHub PR lifecycle into dev, pre-commit security auditing, and GitHub Actions CI/CD workflows.",
+  "logo": "assets/logo.svg",
+  "suggestedPrompts": [
+    "Check git status and branch tracking alignment across root, backend, and frontend",
+    "Start a new feature branch from dev across submodules for a task",
+    "Audit staged changes, create a GitHub PR into dev, and verify CI status"
+  ]
+}

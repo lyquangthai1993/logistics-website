@@ -19,6 +19,7 @@
 
 ## Canonical Environments & Deployment Domains ("domain dev" & "domain pro" Mandate)
 **Hạ Tầng Ưu Tiên Hàng Đầu (Primary Cloud: Railway Cloud)**:
+- **Railway Token & Environment Authority (`.env.railway` Mandate)**: Tệp [`.env.railway`](file:///d:/Projects/logistics-website/.env.railway) tại thư mục gốc là nơi lưu trữ DUY NHẤT và CHUẨN MỰC của Railway project tokens (`RAILWAY_DEV_TOKEN` cho dev, `RAILWAY_PROD_TOKEN` cho pro, `RAILWAY_AUTO_DEPLOY`). Mọi thao tác deploy, tra cứu môi trường, chạy script hay tương tác Railway Cloud bắt buộc phải kiểm tra `.env.railway` đầu tiên để xác định đúng môi trường và token của dự án.
 Whenever the user refers to, asks for, or mentions **"domain dev"** (hoặc "domain môi trường dev", "môi trường dev"), all agents MUST immediately recognize and prioritize:
 - **Frontend Dev Domain (Primary - Railway)**: `https://frontend-tms-core-dev.up.railway.app` (Branch `dev`)
 - **Backend Dev Domain (Primary - Railway)**: `https://backend-tms-core-dev.up.railway.app` (Branch `dev`)

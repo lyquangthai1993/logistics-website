@@ -1,0 +1,12 @@
+{
+  "name": "n8n-telegram-automation",
+  "displayName": "n8n & Telegram Task Orchestrator",
+  "version": "1.0.0",
+  "description": "Manages n8n automation workflows, webhook event routers, daily RBAC audits, and the Telegram Bot FIFO task runner queue for Spider Express Logistics TMS.",
+  "logo": "assets/logo.svg",
+  "suggestedPrompts": [
+    "Inspect active n8n workflows and check the Daily RBAC Audit schedule",
+    "Check the Telegram task queue status in n8n_automation database",
+    "Sync local n8n workflow definitions to the Railway n8n instance"
+  ]
+}

@@ -25,6 +25,7 @@ playwright-report/
 __pycache__/
 *.pyc
 *.xlsx
+scripts/check-railway.mjs
 
 # MCP (Model Context Protocol) config files – may contain API keys
 mcp.json

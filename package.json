@@ -37,7 +37,10 @@
     "deploy:railway:backend": "node scripts/railway-deploy.mjs backend",
     "deploy:railway:frontend": "node scripts/railway-deploy.mjs frontend",
     "hooks:railway": "node scripts/install-railway-hooks.mjs",
-    "exec:timeout": "node scripts/hooks/timeout-runner.mjs 300"
+    "exec:timeout": "node scripts/hooks/timeout-runner.mjs 300",
+    "db:sync:prod-to-dev": "node scripts/railway-db-sync.mjs",
+    "db:dump:prod": "node scripts/railway-db-sync.mjs --dump-only",
+    "order:audit": "node scripts/order-audit-agent.mjs"
   },
   "dependencies": {
     "dotenv": "^16.4.7",

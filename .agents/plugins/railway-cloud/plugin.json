@@ -1,0 +1,12 @@
+{
+  "name": "railway-cloud",
+  "displayName": "Railway Cloud Infrastructure (TMS)",
+  "version": "1.0.0",
+  "description": "Primary Railway Cloud deployment, service monitoring, health check verification, and GraphQL/CLI management for Spider Express Logistics TMS (Dev & Production).",
+  "logo": "assets/logo.svg",
+  "suggestedPrompts": [
+    "Check health status of all Railway Dev and Production services",
+    "Deploy backend and frontend to Railway Dev and verify Gate 2 readiness",
+    "Inspect Railway environment variables and PostgreSQL proxy endpoints"
+  ]
+}
