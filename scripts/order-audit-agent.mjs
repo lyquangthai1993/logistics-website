@@ -17,36 +17,50 @@
  *   npm run order:audit NDA2610-0213
  */
 
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { createRequire } from 'node:module';
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const rootDir = path.resolve(__dirname, '..');
+const rootDir = path.resolve(__dirname, "..");
 const require = createRequire(import.meta.url);
 
 const hardTimeout = setTimeout(() => {
-  console.error('\n🚨 [TIMEOUT] order-audit-agent.mjs vượt quá giới hạn 15s. Tự động thoát.');
+  console.error(
+    "\n🚨 [TIMEOUT] order-audit-agent.mjs vượt quá giới hạn 15s. Tự động thoát.",
+  );
   process.exit(1);
 }, 15000);
 hardTimeout.unref();
 
 let Client;
 try {
-  Client = require('pg').Client;
+  Client = require("pg").Client;
 } catch {
-  const pgToolsPath = path.resolve(rootDir, 'tools/telegram-task-runner/node_modules/pg');
+  const pgToolsPath = path.resolve(
+    rootDir,
+    "tools/telegram-task-runner/node_modules/pg",
+  );
   Client = require(pgToolsPath).Client;
+}
+
+// Tự động nạp backend/.env nếu có
+try {
+  const dotenv = require("dotenv");
+  dotenv.config({ path: path.resolve(rootDir, "backend/.env") });
+} catch {
+  // dotenv không bắt buộc
 }
 
 const DEV_DB_URL =
   process.env.DEV_DATABASE_URL ||
-  'postgresql://postgres:logistics_tms_2026_pwd@junction.proxy.rlwy.net:31094/logistics_tms_core';
+  process.env.DATABASE_URL ||
+  "postgresql://postgres:9bf10998b2516e72673719f0f65d9639@junction.proxy.rlwy.net:31094/logistics_tms_core";
 
 const args = process.argv.slice(2);
-const orderCode = args.find((a) => !a.startsWith('--'))?.trim();
-const shouldFix = args.includes('--fix');
+const orderCode = args.find((a) => !a.startsWith("--"))?.trim();
+const shouldFix = args.includes("--fix");
 
 if (!orderCode) {
   console.log(`
@@ -63,15 +77,15 @@ Ví dụ:
 }
 
 function fmtDate(d) {
-  if (!d) return '--';
+  if (!d) return "--";
   const dt = new Date(d);
-  return dt.toLocaleString('vi-VN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
+  return dt.toLocaleString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
   });
 }
 
@@ -84,7 +98,9 @@ async function run() {
   try {
     await client.connect();
 
-    console.log(`\n🔍 [AGENT] Đang điều tra mã vận đơn: "${orderCode}" trên Database Dev...`);
+    console.log(
+      `\n🔍 [AGENT] Đang điều tra mã vận đơn: "${orderCode}" trên Database Dev...`,
+    );
 
     // 1. Quét thông tin đơn hàng
     const resOrders = await client.query(
@@ -94,7 +110,7 @@ async function run() {
        FROM "order"
        WHERE "orderCode" ILIKE $1
        ORDER BY id ASC`,
-      [`%${orderCode}%`]
+      [`%${orderCode}%`],
     );
 
     if (resOrders.rows.length === 0) {
@@ -102,7 +118,8 @@ async function run() {
       return;
     }
 
-    const activeOrder = resOrders.rows.find((r) => r.deletedAt === null) || resOrders.rows[0];
+    const activeOrder =
+      resOrders.rows.find((r) => r.deletedAt === null) || resOrders.rows[0];
     const orderIds = resOrders.rows.map((r) => r.id);
 
     // 2. Quét toàn bộ giao dịch biến động kho
@@ -113,29 +130,31 @@ async function run() {
        FROM order_inventory_transaction
        WHERE "orderId" = ANY($1::int[])
        ORDER BY "createdAt" ASC`,
-      [orderIds]
+      [orderIds],
     );
 
     // 3. Quét nhật ký thao tác người dùng (Audit Logs)
-    const resLogs = await client.query(
-      `SELECT id, "orderId", "orderCode", action, "actorUserId", "actorEmail", "actorRole",
+    const resLogs = await client
+      .query(
+        `SELECT id, "orderId", "orderCode", action, "actorUserId", "actorEmail", "actorRole",
               "hubName", "tripCode", quantity, reason, "oldValues", "newValues", metadata, "createdAt"
        FROM order_activity_log
        WHERE "orderCode" ILIKE $1 OR "orderId" = ANY($2::int[])
        ORDER BY "createdAt" ASC`,
-      [`%${orderCode}%`, orderIds]
-    ).catch(() => ({ rows: [] }));
+        [`%${orderCode}%`, orderIds],
+      )
+      .catch(() => ({ rows: [] }));
 
     // 4. Tính toán Sổ Cái Thực Tế
     const activeTxs = resTxs.rows.filter((t) => t.deletedAt === null);
     const deletedTxs = resTxs.rows.filter((t) => t.deletedAt !== null);
 
     const activeInbound = activeTxs
-      .filter((t) => t.type === 'INBOUND')
+      .filter((t) => t.type === "INBOUND")
       .reduce((s, t) => s + (Number(t.quantity) || 0), 0);
 
     const activeOutbound = activeTxs
-      .filter((t) => t.type === 'OUTBOUND' || t.type === 'TRANSFER')
+      .filter((t) => t.type === "OUTBOUND" || t.type === "TRANSFER")
       .reduce((s, t) => s + (Number(t.quantity) || 0), 0);
 
     const ledgerStock = Math.max(0, activeInbound - activeOutbound);
@@ -157,9 +176,9 @@ async function run() {
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
 📌 THÔNG TIN ĐƠN HÀNG HIỆN TẠI (ID: ${activeOrder.id}):
-  • Tên hàng          : ${activeOrder.goodsDescription || 'N/A'}
+  • Tên hàng          : ${activeOrder.goodsDescription || "N/A"}
   • Trạng thái        : ${activeOrder.status}
-  • Điểm đến          : ${activeOrder.destinationHub || 'N/A'}
+  • Điểm đến          : ${activeOrder.destinationHub || "N/A"}
   • Thời gian tạo     : ${fmtDate(activeOrder.createdAt)}
   • Cập nhật lần cuối : ${fmtDate(activeOrder.updatedAt)}
 
@@ -167,34 +186,38 @@ async function run() {
   ┌───────────────────────┬──────────────┬──────────────────┬──────────────┐
   │ Chỉ Số                │ Bảng Order   │ Sổ Cái Thực Tế   │ Trạng Thái   │
   ├───────────────────────┼──────────────┼──────────────────┼──────────────┤
-  │ Tổng Nhập (Kiện)      │ ${String(dbInbound).padEnd(12)} │ ${String(activeInbound).padEnd(16)} │ ${dbInbound === activeInbound ? '✅ KHỚP' : '❌ LỆCH'}       │
-  │ Tổng Xuất (Kiện)      │ ${String(dbOutbound).padEnd(12)} │ ${String(activeOutbound).padEnd(16)} │ ${dbOutbound === activeOutbound ? '✅ KHỚP' : '❌ LỆCH'}       │
-  │ Tồn Khả Dụng (Kiện)   │ ${String(dbRemaining).padEnd(12)} │ ${String(ledgerStock).padEnd(16)} │ ${dbRemaining === ledgerStock ? '✅ KHỚP' : '❌ LỆCH'}       │
-  │ Tổng Hợp Đồng (Kiện)  │ ${String(dbTotal).padEnd(12)} │ ${String(activeInbound).padEnd(16)} │ ${dbTotal === activeInbound ? '✅ CHUẨN' : '⚠️ LỆCH'}       │
+  │ Tổng Nhập (Kiện)      │ ${String(dbInbound).padEnd(12)} │ ${String(activeInbound).padEnd(16)} │ ${dbInbound === activeInbound ? "✅ KHỚP" : "❌ LỆCH"}       │
+  │ Tổng Xuất (Kiện)      │ ${String(dbOutbound).padEnd(12)} │ ${String(activeOutbound).padEnd(16)} │ ${dbOutbound === activeOutbound ? "✅ KHỚP" : "❌ LỆCH"}       │
+  │ Tồn Khả Dụng (Kiện)   │ ${String(dbRemaining).padEnd(12)} │ ${String(ledgerStock).padEnd(16)} │ ${dbRemaining === ledgerStock ? "✅ KHỚP" : "❌ LỆCH"}       │
+  │ Tổng Hợp Đồng (Kiện)  │ ${String(dbTotal).padEnd(12)} │ ${String(activeInbound).padEnd(16)} │ ${dbTotal === activeInbound ? "✅ CHUẨN" : "⚠️ LỆCH"}       │
   └───────────────────────┴──────────────┴──────────────────┴──────────────┘
     `);
 
     // 6. Timeline Biến Động Kho & Nhật Ký Thao Tác
-    console.log(`📑 LỊCH SỬ BIẾN ĐỘNG KHO (TỔNG ${resTxs.rows.length} GIAO DỊCH):`);
+    console.log(
+      `📑 LỊCH SỬ BIẾN ĐỘNG KHO (TỔNG ${resTxs.rows.length} GIAO DỊCH):`,
+    );
     let runningBalance = 0;
     resTxs.rows.forEach((tx, idx) => {
       const isDel = tx.deletedAt !== null;
-      const isIn = tx.type === 'INBOUND';
+      const isIn = tx.type === "INBOUND";
       const qtyChange = isIn ? Number(tx.quantity) : -Number(tx.quantity);
       if (!isDel) {
         runningBalance += qtyChange;
       }
       const tag = isDel
-        ? '❌ [ĐÃ HỦY / ROLLBACK]'
+        ? "❌ [ĐÃ HỦY / ROLLBACK]"
         : isIn
-          ? '📥 [NHẬP KHO]'
-          : '📤 [XUẤT KHO]';
+          ? "📥 [NHẬP KHO]"
+          : "📤 [XUẤT KHO]";
 
       console.log(
-        `  ${String(idx + 1).padStart(2, '0')}. ${tag.padEnd(24)} | Mã phiếu: ${(tx.invoiceCode || '--').padEnd(18)} | Chuyến: ${(tx.tripCode || '--').padEnd(8)} | Biển số: ${(tx.licensePlate || '--').padEnd(12)} | Số lượng: ${(isIn ? '+' : '-') + tx.quantity} kiện | Tồn luỹ kế: ${isDel ? '(Đã hủy)' : runningBalance + ' kiện'} | Thời gian: ${fmtDate(tx.createdAt)}`
+        `  ${String(idx + 1).padStart(2, "0")}. ${tag.padEnd(24)} | Mã phiếu: ${(tx.invoiceCode || "--").padEnd(18)} | Chuyến: ${(tx.tripCode || "--").padEnd(8)} | Biển số: ${(tx.licensePlate || "--").padEnd(12)} | Số lượng: ${(isIn ? "+" : "-") + tx.quantity} kiện | Tồn luỹ kế: ${isDel ? "(Đã hủy)" : runningBalance + " kiện"} | Thời gian: ${fmtDate(tx.createdAt)}`,
       );
       if (isDel) {
-        console.log(`      ↳ ⚠️ Giao dịch này đã bị hủy/rollback lúc: ${fmtDate(tx.deletedAt)}`);
+        console.log(
+          `      ↳ ⚠️ Giao dịch này đã bị hủy/rollback lúc: ${fmtDate(tx.deletedAt)}`,
+        );
       }
       if (tx.notes) {
         console.log(`      ↳ Ghi chú: ${tx.notes}`);
@@ -202,32 +225,44 @@ async function run() {
     });
 
     if (resLogs.rows.length > 0) {
-      console.log(`\n🛡️ NHẬT KÝ THAO TÁC CỦA NGƯỜI DÙNG (AUDIT LOGS - ${resLogs.rows.length} BẢN GHI):`);
+      console.log(
+        `\n🛡️ NHẬT KÝ THAO TÁC CỦA NGƯỜI DÙNG (AUDIT LOGS - ${resLogs.rows.length} BẢN GHI):`,
+      );
       resLogs.rows.forEach((log, idx) => {
         console.log(
-          `  ${String(idx + 1).padStart(2, '0')}. [${log.action}] | Người thực hiện: ${log.actorEmail || 'Hệ thống'} (${log.actorRole || 'N/A'}) | Thời gian: ${fmtDate(log.createdAt)}`
+          `  ${String(idx + 1).padStart(2, "0")}. [${log.action}] | Người thực hiện: ${log.actorEmail || "Hệ thống"} (${log.actorRole || "N/A"}) | Thời gian: ${fmtDate(log.createdAt)}`,
         );
         if (log.reason) {
           console.log(`      ↳ Lý do: ${log.reason}`);
         }
         if (log.oldValues && log.newValues) {
           console.log(
-            `      ↳ Biến động số liệu: Nhập ${log.oldValues.inboundQuantity ?? '--'} → ${log.newValues.inboundQuantity ?? '--'} | Tồn ${log.oldValues.remainingQuantity ?? '--'} → ${log.newValues.remainingQuantity ?? '--'}`
+            `      ↳ Biến động số liệu: Nhập ${log.oldValues.inboundQuantity ?? "--"} → ${log.newValues.inboundQuantity ?? "--"} | Tồn ${log.oldValues.remainingQuantity ?? "--"} → ${log.newValues.remainingQuantity ?? "--"}`,
           );
         }
       });
     }
 
     // 7. Kết luận & Đề xuất
-    console.log(`\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    console.log(
+      `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    );
     if (isMatch) {
-      console.log(`🎯 KẾT LUẬN: Số liệu tồn kho hiện tại trên hệ thống HOÀN TOÀN CHUẨN XÁC.`);
-      console.log(`   Tồn kho thực tế sẵn sàng giao nhận: ${ledgerStock} kiện.`);
+      console.log(
+        `🎯 KẾT LUẬN: Số liệu tồn kho hiện tại trên hệ thống HOÀN TOÀN CHUẨN XÁC.`,
+      );
+      console.log(
+        `   Tồn kho thực tế sẵn sàng giao nhận: ${ledgerStock} kiện.`,
+      );
     } else {
       console.log(`⚠️ PHÁT HIỆN SAI LỆCH:`);
-      console.log(`   Bảng Order đang lưu tồn: ${dbRemaining} kiện, nhưng thực tế sổ cái chỉ còn: ${ledgerStock} kiện.`);
+      console.log(
+        `   Bảng Order đang lưu tồn: ${dbRemaining} kiện, nhưng thực tế sổ cái chỉ còn: ${ledgerStock} kiện.`,
+      );
       if (shouldFix) {
-        console.log(`\n🔧 [TỰ ĐỘNG SỬA] Đang hiệu chỉnh bản ghi Order ID ${activeOrder.id}...`);
+        console.log(
+          `\n🔧 [TỰ ĐỘNG SỬA] Đang hiệu chỉnh bản ghi Order ID ${activeOrder.id}...`,
+        );
         await client.query(
           `UPDATE "order"
            SET "totalQuantity" = $1,
@@ -237,7 +272,13 @@ async function run() {
                "status" = 'INBOUND',
                "updatedAt" = NOW()
            WHERE id = $5`,
-          [activeInbound, activeInbound, activeOutbound, ledgerStock, activeOrder.id]
+          [
+            activeInbound,
+            activeInbound,
+            activeOutbound,
+            ledgerStock,
+            activeOrder.id,
+          ],
         );
         await client.query(
           `INSERT INTO "order_activity_log"
@@ -246,27 +287,43 @@ async function run() {
           [
             activeOrder.id,
             activeOrder.orderCode,
-            'DATA_RECONCILED',
+            "DATA_RECONCILED",
             Number(activeOrder.creatorUserId || 1),
-            'order-audit-agent@spider-express.vn',
-            'CLI_AGENT',
+            "order-audit-agent@spider-express.vn",
+            "CLI_AGENT",
             Number(activeOrder.currentHubId || activeOrder.originHubId),
-            activeOrder.currentHubEntity?.name || activeOrder.originHub || 'N/A Hub',
-            JSON.stringify({ totalQuantity: dbTotal, inboundQuantity: dbInbound, remainingQuantity: dbRemaining }),
-            JSON.stringify({ totalQuantity: activeInbound, inboundQuantity: activeInbound, remainingQuantity: ledgerStock }),
+            activeOrder.currentHubEntity?.name ||
+              activeOrder.originHub ||
+              "N/A Hub",
+            JSON.stringify({
+              totalQuantity: dbTotal,
+              inboundQuantity: dbInbound,
+              remainingQuantity: dbRemaining,
+            }),
+            JSON.stringify({
+              totalQuantity: activeInbound,
+              inboundQuantity: activeInbound,
+              remainingQuantity: ledgerStock,
+            }),
             ledgerStock,
-            'Agent tự động tái đồng bộ số liệu theo sổ cái giao dịch hợp lệ'
-          ]
+            "Agent tự động tái đồng bộ số liệu theo sổ cái giao dịch hợp lệ",
+          ],
         );
-        console.log(`✅ ĐÃ ĐỒNG BỘ THÀNH CÔNG! Chạy lại lệnh không có cờ --fix để kiểm tra kết quả.`);
+        console.log(
+          `✅ ĐÃ ĐỒNG BỘ THÀNH CÔNG! Chạy lại lệnh không có cờ --fix để kiểm tra kết quả.`,
+        );
       } else {
         console.log(`   👉 Chạy lệnh với cờ --fix để tự động đồng bộ lại:`);
-        console.log(`      node scripts/order-audit-agent.mjs ${orderCode} --fix`);
+        console.log(
+          `      node scripts/order-audit-agent.mjs ${orderCode} --fix`,
+        );
       }
     }
-    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
+    console.log(
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`,
+    );
   } catch (err) {
-    console.error('Lỗi khi điều tra đơn hàng:', err);
+    console.error("Lỗi khi điều tra đơn hàng:", err);
   } finally {
     await client.end();
   }
