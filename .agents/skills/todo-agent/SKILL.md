@@ -157,7 +157,7 @@ When given a feedback task, Stage 1 acts as the **Technical Product Manager (`PM
      3. Technical Root Cause Analysis (RCA)
      4. Atomic Task Checklist (`- [ ]`)
      5. **`## 🧪 Kịch bản Kiểm thử E2E Chuẩn xác & Ma trận Edge Cases`**:
-        - **Part 1**: Step-by-Step E2E Action Sequence (Login account, Pre-conditions, Non-Empty Visual Evidence Gate `expect(count).toBeGreaterThan(0)`, UI interactions, API interception, Post-conditions, Screenshot path).
+        - **Part 1**: Step-by-Step E2E Action Sequence (Login account, Pre-conditions, Fast Pagination-Aware Trip Lookup via `findTripFast` / `openTripFromPaginatedTable` / `readTablePagination` checking `Trang X / Y` at bottom of table + pressing `Enter` on search inputs, Non-Empty Visual Evidence Gate `expect(count).toBeGreaterThan(0)`, UI interactions, API interception, Post-conditions, Screenshot path).
         - **Part 2**: Comprehensive 5-to-10 Edge Cases Matrix (`EC-01` Zero-state, `EC-02` Boundary = 0, `EC-03` Hub Isolation, `EC-04` Trip/Order Idempotency, `EC-05` Missing Optional Fields, `EC-06` Live Filters, `EC-07` Partial Actions, `EC-08` Admin Override, `EC-09` Concurrency, `EC-10` Cache Invalidation on Re-open).
         - **Part 3**: Target Playwright spec path (`frontend/e2e/<spec_file_name>.spec.ts`).
 
