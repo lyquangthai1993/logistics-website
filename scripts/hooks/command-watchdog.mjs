@@ -46,9 +46,15 @@ process.stdin.on("end", () => {
       try {
         const transcriptContent = fs.readFileSync(transcriptPath, "utf8");
         const finishedMatches = transcriptContent.matchAll(
-          /(task-\d+)[\s\S]{1,30}?(?:finished|canceled|cancelled) with result/g,
+          /(task-\d+)[\s\S]{1,50}?(?:finished|canceled|cancelled|was canceled)/g,
         );
         for (const match of finishedMatches) {
+          completedTasks.add(match[1]);
+        }
+        const timerMatches = transcriptContent.matchAll(
+          /sender=[^\s]*?(task-\d+)/g,
+        );
+        for (const match of timerMatches) {
           completedTasks.add(match[1]);
         }
       } catch {}
