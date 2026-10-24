@@ -5,6 +5,7 @@ description: >-
   Runs 4 core suites (Runtime Tracer, Console Health, Login Flow, RBAC) plus
   an automated Viewport & Table UX suite (testing horizontal scrollability, column
   pinning, and zero body overflow across common breakpoints and sidebar states).
+  Includes the Fast Pagination-Aware Trip/Order Lookup Protocol (findTripFast / readTablePagination).
 ---
 
 # E2E Test Runner – Orchestration Skill
@@ -88,6 +89,49 @@ Playwright's `locator.evaluate()` waits for elements to be visible before execut
 
 ---
 
+## ⚡ Fast Trip & Order Lookup in Paginated Tables (Zero-Stuck Pagination Protocol)
+
+### Why `/e2e-gate` & E2E Tests Get Stuck Looking for a `TRIP` Code (`SD...` / `TRIP-...`)
+1. **All operational list views are paginated**: `/dashboard/warehouse/inbound` (`15/page`), `/dashboard/warehouse/outbound` (`20/page`), `/dashboard/warehouse/orders` (`15/page`), and `/dashboard/trips` (`10/page`).
+2. **`PENDING` trips sort ahead of `COMPLETED` trips**: Completed trips (e.g., `SD365`, `SD328`, `SD49`) are frequently pushed to **Page 2, 3, or 4**. Calling `await page.locator('text=SD365').click()` blindly on Page 1 will hang until timeout (15s–30s).
+3. **Search inputs require `Enter` or clicking the Search button**: Calling `await searchInput.fill('SD365')` alone only updates local state; `appliedSearch` is only sent to the backend when pressing `Enter` (`await searchInput.press('Enter')`) or clicking `button[title="Nhấn để tìm kiếm"]`.
+
+### Mandatory Fast Lookup Helpers (`e2e/helpers/auth.ts` & `e2e/helpers/pagination.ts`)
+Whenever a test needs to locate or click a `TRIP` code (`SD...`) or `Order` code (`NMT...`), **NEVER** write a raw Page-1-only locator wait. Always use the built-in fast pagination helpers:
+
+```typescript
+import {
+  loginAs,
+  findTripFast,
+  findTripInPaginatedTable,
+  openTripFromPaginatedTable,
+  findOrderInPaginatedTable,
+  readTablePagination
+} from './helpers/auth';
+
+// 1. Find a TRIP fast (< 1s) and click it:
+const tripLoc = await findTripFast(page, 'SD365');
+await tripLoc.click();
+
+// 2. Or find + click + wait for the Trip Detail Modal in one call:
+const dialog = await openTripFromPaginatedTable(page, 'SD365');
+
+// 3. Inspect current pagination bar ("Trang X / Y", total items) directly:
+const pag = await readTablePagination(page);
+console.log(`Current page: ${pag.currentPage}/${pag.totalPages} (total=${pag.totalItems})`);
+```
+
+### How `findTripFast` / `findTripInPaginatedTable` Works Under the Hood (4-Step Fast Path)
+1. **Step 1 — Instant Page 1 Check (0ms overhead)**: Waits for table load (`waitForTableLoaded`) and checks if `tripCode` is already visible on the current page.
+2. **Step 2 — Read Bottom Pagination Bar (`Trang X / Y`)**: Calls `readTablePagination(page)` to parse `Trang X / Y` (or `Page X of Y`) and total item count (`1–15 / N chuyến xe`) at the bottom of the table.
+3. **Step 3 — Fast Path A ($O(1)$ Search + `Enter`)**: Fills `input[placeholder*="Tìm"]` with `tripCode`, presses `Enter`, and clicks `button[title="Nhấn để tìm kiếm"]` to bring the target trip directly to Page 1 Row 1 in a single request.
+4. **Step 4 — Fast Path B (Pagination Walk `Trang 1 -> Trang Y`) & Date Filter Expansion**:
+   - If searching for a second trip after a previous search, automatically clears stale search (`button[title="Xóa tìm kiếm"]`) and resets to Page 1 (`button[title="Trang đầu"]`).
+   - Reads `totalPages` (`Y`) from `Trang X / Y` at the bottom of the table and steps through `Trang 1 .. min(totalPages, 10)` via `button[title="Trang sau"]` (`›`).
+   - If still not found, clicks the `Tất cả` date filter button to include older trips.
+
+---
+
 ## 📁 Test File Structure
 
 ```
@@ -95,7 +139,8 @@ frontend/
 ├── playwright.config.ts
 ├── e2e/
 │   ├── helpers/
-│   │   ├── auth.ts                   # loginAs(), TEST_USERS, collectConsoleLogs()
+│   │   ├── auth.ts                   # loginAs(), TEST_USERS, collectConsoleLogs(), re-exports pagination helpers
+│   │   ├── pagination.ts             # findTripFast(), findTripInPaginatedTable(), openTripFromPaginatedTable(), readTablePagination()
 │   │   └── runtime-logs.ts           # captureRuntimeLogs(), checkBackendHealth()
 │   ├── 00-runtime-log-tracer.spec.ts # Sub-Agent D (API 4xx/5xx, SSR crashes, latency)
 │   ├── 01-console-health.spec.ts    # Sub-Agent A (Console errors, JS exceptions)

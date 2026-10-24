@@ -102,6 +102,7 @@ Every E2E test file is evaluated across 5 objective dimensions:
 | Blind arbitrary sleep: `page.waitForTimeout(>2000)` without an accompanying assertion or locator wait | -3 per occurrence | No |
 | Fragile CSS chaining: Selectors relying on volatile utility classes (e.g. `div > div.flex.p-2 > button`) instead of roles, `data-slot`, or accessible text | -2 per selector | No |
 | Triggering actions on `tr` table rows directly when click handlers are bound to inner action buttons/links | -3 | No |
+| **Page-1-Only Blind Trip/Order Lookup**: Calling `page.locator('text=SD...').click()` or `searchInput.fill(tripCode)` without pressing `Enter` or without using `findTripFast` / `openTripFromPaginatedTable` / checking `Trang X / Y` bottom pagination | -3 | No |
 | Missing unhandled rejection / error boundary handling in test setup | -2 | No |
 
 **Score**: 10 = Perfect, 8-9 = PASS, 5-7 = WARN, <5 or Auto-FAIL = FAIL.
