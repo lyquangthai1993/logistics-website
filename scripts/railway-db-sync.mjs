@@ -49,15 +49,38 @@ try {
   Client = require(pgToolsPath).Client;
 }
 
-import fs from "node:fs";
-
 // Tự động nạp backend/.env nếu có (không phụ thuộc dotenv bên ngoài)
 try {
   const envPath = path.resolve(rootDir, "backend/.env");
   if (fs.existsSync(envPath)) {
     const content = fs.readFileSync(envPath, "utf-8");
-    for (const line of content.split(/\r?\n/)) {
-      const trimmed = line.trim();
+    const lines = content.split(/\r?\n/);
+    for (let i = 0; i < lines.length; i++) {
+      const trimmed = lines[i].trim();
+      if (
+        !process.env.PROD_DATABASE_URL &&
+        trimmed.includes("DATABASE PRODUCTION - RAILWAY")
+      ) {
+        const nextLine = lines[i + 1]?.trim() || "";
+        const m = nextLine.match(/^(?:#\s*)?DATABASE_URL\s*=\s*(.+)$/);
+        if (m) {
+          process.env.PROD_DATABASE_URL = m[1]
+            .trim()
+            .replace(/^["']|["']$/g, "");
+        }
+      }
+      if (
+        !process.env.DEV_DATABASE_URL &&
+        trimmed.includes("DATABASE DEV - RAILWAY")
+      ) {
+        const nextLine = lines[i + 1]?.trim() || "";
+        const m = nextLine.match(/^(?:#\s*)?DATABASE_URL\s*=\s*(.+)$/);
+        if (m) {
+          process.env.DEV_DATABASE_URL = m[1]
+            .trim()
+            .replace(/^["']|["']$/g, "");
+        }
+      }
       if (!trimmed || trimmed.startsWith("#")) continue;
       const eqIdx = trimmed.indexOf("=");
       if (eqIdx > 0) {
