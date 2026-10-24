@@ -106,6 +106,7 @@ const ALL_TABLES = [
   "trip",
   "trip_stop",
   "order_inventory_transaction",
+  "order_activity_log",
   "notification",
   "migrations",
 ];
@@ -123,6 +124,7 @@ const SEQUENCE_NAMES = [
   "hub_id_seq",
   "order_code_counter_id_seq",
   "order_inventory_transaction_id_seq",
+  "order_activity_log_id_seq",
   "trip_stop_id_seq",
   "trip_code_sd_seq",
 ];
