@@ -45,18 +45,41 @@ try {
   Client = require(pgToolsPath).Client;
 }
 
-// Tự động nạp backend/.env nếu có
+import fs from "node:fs";
+
+// Tự động nạp backend/.env nếu có (không phụ thuộc dotenv bên ngoài)
 try {
-  const dotenv = require("dotenv");
-  dotenv.config({ path: path.resolve(rootDir, "backend/.env") });
+  const envPath = path.resolve(rootDir, "backend/.env");
+  if (fs.existsSync(envPath)) {
+    const content = fs.readFileSync(envPath, "utf-8");
+    for (const line of content.split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eqIdx = trimmed.indexOf("=");
+      if (eqIdx > 0) {
+        const key = trimmed.slice(0, eqIdx).trim();
+        const val = trimmed
+          .slice(eqIdx + 1)
+          .trim()
+          .replace(/^["']|["']$/g, "");
+        if (!process.env[key]) {
+          process.env[key] = val;
+        }
+      }
+    }
+  }
 } catch {
-  // dotenv không bắt buộc
+  // ignore
 }
 
-const DEV_DB_URL =
-  process.env.DEV_DATABASE_URL ||
-  process.env.DATABASE_URL ||
-  "postgresql://postgres:9bf10998b2516e72673719f0f65d9639@junction.proxy.rlwy.net:31094/logistics_tms_core";
+const DEV_DB_URL = process.env.DEV_DATABASE_URL || process.env.DATABASE_URL;
+
+if (!DEV_DB_URL) {
+  console.error(
+    "🚨 [ERROR] Không tìm thấy biến môi trường DATABASE_URL hoặc DEV_DATABASE_URL. Vui lòng cấu hình trong backend/.env",
+  );
+  process.exit(1);
+}
 
 const args = process.argv.slice(2);
 const orderCode = args.find((a) => !a.startsWith("--"))?.trim();

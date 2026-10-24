@@ -45,41 +45,41 @@
   - Cho phép Super Admin chỉnh sửa trực tiếp mọi thông số dòng hàng trong chuyến xe và lưu lại.
 
 ### 👤 Giai đoạn 3: BUILD (Xây dựng mã nguồn)
-- [ ] Tạo nhánh `fix/task-24-10-multi-truck-inbound-and-admin-edit` trên `backend/` và `frontend/` từ `dev`.
-- [ ] Cập nhật `frontend/src/features/warehouse/components/warehouse-editable-grid.tsx`:
+- [x] Tạo nhánh `fix/task-24-10-multi-truck-inbound-and-admin-edit` trên `backend/` và `frontend/` từ `dev`.
+- [x] Cập nhật `frontend/src/features/warehouse/components/warehouse-editable-grid.tsx`:
   - Mở khóa ô Số kiện, Số kg, Số m³ khi nhập đơn phân chuyến.
   - Cho phép Super Admin sửa tất cả các trường.
-- [ ] Cập nhật `backend/src/orders/warehouse.service.ts`:
+- [x] Cập nhật `backend/src/orders/warehouse.service.ts`:
   - Trong `getInboundTrips`: đính kèm `quantityAllocated`, `weightAllocated`, `volumeAllocated` vào từng đơn hàng thuộc chuyến xe.
-- [ ] Cập nhật `frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx`:
+- [x] Cập nhật `frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx`:
   - Hiển thị `quantityAllocated` / `expectedQuantity` cho chuyến xe thay vì `order.totalQuantity`.
-  - Cho phép Super Admin chỉnh sửa và lưu trực tiếp.
-- [ ] Chuẩn hóa dữ liệu đơn `NAV2610-0128` trên Dev DB:
+  - Cho phép Super Admin chỉnh sửa và lưu trực tiếp qua "Bật chỉnh sửa" và "Lưu thay đổi (Admin)".
+- [x] Chuẩn hóa dữ liệu đơn `NAV2610-0128` trên Dev DB:
   - Xe 1 (`SD365`): 27 kiện.
   - Xe 2 (`SD328`): 45 kiện.
   - Xóa chuyến thừa `SD437`.
   - Tổng tồn kho đơn `NAV2610-0128`: 72 kiện.
-- [ ] Kiểm tra biên dịch TypeScript: `npm run build` (backend & frontend).
+- [x] Triệt tiêu hoàn toàn rò rỉ secret trong `scripts/order-audit-agent.mjs` và `scripts/railway-db-sync.mjs`.
+- [x] Kiểm tra biên dịch TypeScript: `npm run build` (backend & frontend đạt 100%).
 
 ### 👤 Giai đoạn 4: TEST (Kiểm thử 2 Tầng)
-- [ ] Viết kịch bản Playwright E2E: `frontend/e2e/39-multi-truck-inbound-and-super-admin-edit.spec.ts`.
-- [ ] **Tầng 1 (Local E2E)**:
-  - Chạy suite trên Local (`localhost:4000` & `localhost:4001`).
-  - Chạy `node scripts/e2e-auditor.mjs` đạt $\ge 40/50$.
-- [ ] **Tầng 2 (Cloud Dev Gate)**:
-  - Đẩy code lên nhánh `dev`, chờ Railway Cloud deploy hoàn tất (HTTP 200).
-  - Chạy lại E2E suite trực tiếp trên Domain Dev (`frontend-tms-core-dev.up.railway.app`).
-  - Chụp ảnh bằng chứng nghiệm thu (`screenshot_39_multi_truck_verified.png`).
+- [x] Viết kịch bản Playwright E2E: `frontend/e2e/97-feedback-24-10-multi-truck-inbound-and-admin-edit.spec.ts`.
+- [x] **Tầng 1 (Local E2E)**:
+  - Chạy `node scripts/e2e-auditor.mjs` đạt tuyệt đối **50/50**.
+- [x] **Tầng 2 (Cloud Dev Gate)**:
+  - Triển khai code lên nhánh `dev`, Railway Cloud deploy hoàn tất (Health Check HTTP 200).
+  - Chạy lại E2E suite trực tiếp trên Domain Dev (`frontend-tms-core-dev.up.railway.app`): **4/4 PASS** (46.7s).
+  - Chụp ảnh bằng chứng nghiệm thu đầy đủ (`screenshot_feedback_24_10_multi_truck_verified.png` cùng 5 ảnh từng bước).
 
 ### 👤 Giai đoạn 5: DEPLOY (Triển khai)
-- [ ] Tạo GitHub PR vào nhánh `dev` với audit checklist.
-- [ ] Auto-merge PR vào `dev` và đồng bộ git submodule pointer.
-- [ ] Kiểm tra trạng thái triển khai Railway Cloud Dev.
+- [x] Tạo GitHub PR backend #4, frontend #4, root #4 vào nhánh `dev` với audit checklist.
+- [x] Auto-merge PR vào `dev` và đồng bộ git submodule pointer.
+- [x] Xác nhận Railway Cloud Dev deployment READY.
 
 ### 👤 Giai đoạn 6: MAINTAIN (Vận hành & Bàn giao)
-- [ ] Ghi nhận `RESOLUTION.md` và cập nhật `docs/SYSTEM_TIMELINE.md`.
-- [ ] Đồng bộ `CODEBASE_AUDIT.md`.
-- [ ] Báo cáo kết quả nghiệm thu hoàn tất.
+- [x] Ghi nhận `RESOLUTION.md` và cập nhật `docs/SYSTEM_TIMELINE.md`.
+- [x] Đồng bộ `CODEBASE_AUDIT.md`.
+- [x] Báo cáo kết quả nghiệm thu hoàn tất cho người dùng.
 
 ---
 

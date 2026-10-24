@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 24/10/2026 | `feedbacks/feedback_24_10_multi_truck_inbound_and_admin_edit` | 📋 TODO: Khắc Phục Lỗi Nhập Hàng Nhiều Xe (Multi-Tru... | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_24_10_multi_truck_inbound_and_admin_edit/RESOLUTION.md) |
 | 21/10/2026 | `issues/issue_21_10` | Task #93: Quản trị Giao dịch Kho ACID, Khóa Âm Kho, Phân quyền RBAC & Chuẩn hóa Hub Fallback ('N/A Hub') | 8/8 | ✅ DONE (100%) | [RESOLUTION.md](../issues/issue_21_10/RESOLUTION.md) |
 | 20/10/2026 | `feedbacks/feedback_19_10_task_92` | Feedback 19/10 (Task #92) — Xử Lý Toàn Diện 6 Edge C... | 6/6 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_19_10_task_92/RESOLUTION.md) |
 | 19/10/2026 | `feedbacks/feedback_19_10_task_91` | Feedback 19/10 (Task #91) — Gom 1 Dòng Duy Nhất Cho ... | 6/6 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_19_10_task_91/RESOLUTION.md) |
@@ -81,6 +82,16 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_24_10_MULTI_TRUCK_INBOUND_AND_ADMIN_EDIT] — 📋 TODO: Khắc Phục Lỗi Nhập Hàng Nhiều Xe (Multi-Truck Inbound), Mở Rộng Quyền Chỉnh Sửa Super Admin & Chuẩn Hóa Đơn NAV2610-0128 (24/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (22/22 việc)
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Cập nhật `backend/src/orders/warehouse.service.ts`; Kiểm tra biên dịch TypeScript: `npm run build` (backend & frontend đạt 100%).
+  * **Frontend**: Cập nhật `frontend/src/features/warehouse/components/warehouse-editable-grid.tsx`; Cập nhật `frontend/src/features/warehouse/components/warehouse-trip-detail-modal.tsx`
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_feedback_24_10_multi_truck_verified.png, step_01_sd365_27_packages.png, step_02_sd328_45_packages.png, step_03_order_72_packages_ledger.png, step_04_multi_truck_quantity_input_enabled.png, step_05_super_admin_edit_saved.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_24_10_multi_truck_inbound_and_admin_edit/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_24_10_multi_truck_inbound_and_admin_edit/TODO.md)
 
 ### 🚀 [FEEDBACK_19_10_TASK_92] — Feedback 19/10 (Task #92) — Xử Lý Toàn Diện 6 Edge Cases Khi Lấy & Xuất Kho Đơn Hàng Nhập Nhiều Lần (Multi-Inbound Consolidation & Outbound Dispatch Edge Cases) (20/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (6/6 việc)

@@ -49,23 +49,43 @@ try {
   Client = require(pgToolsPath).Client;
 }
 
-// Tự động nạp backend/.env nếu có
+import fs from "node:fs";
+
+// Tự động nạp backend/.env nếu có (không phụ thuộc dotenv bên ngoài)
 try {
-  const dotenv = require("dotenv");
-  dotenv.config({ path: path.resolve(rootDir, "backend/.env") });
+  const envPath = path.resolve(rootDir, "backend/.env");
+  if (fs.existsSync(envPath)) {
+    const content = fs.readFileSync(envPath, "utf-8");
+    for (const line of content.split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eqIdx = trimmed.indexOf("=");
+      if (eqIdx > 0) {
+        const key = trimmed.slice(0, eqIdx).trim();
+        const val = trimmed
+          .slice(eqIdx + 1)
+          .trim()
+          .replace(/^["']|["']$/g, "");
+        if (!process.env[key]) {
+          process.env[key] = val;
+        }
+      }
+    }
+  }
 } catch {
-  // dotenv không bắt buộc
+  // ignore
 }
 
-// Cấu hình Database Endpoints (Đọc từ ENV hoặc mặc định Railway TCP Proxy)
-const PROD_DB_URL =
-  process.env.PROD_DATABASE_URL ||
-  "postgresql://postgres:6d1f13c4c6d639eda7a5fd1e978bd161@caboose.proxy.rlwy.net:59375/logistics_tms_core";
+// Cấu hình Database Endpoints (Đọc từ ENV, tuyệt đối không hardcode credentials)
+const PROD_DB_URL = process.env.PROD_DATABASE_URL;
+const DEV_DB_URL = process.env.DEV_DATABASE_URL || process.env.DATABASE_URL;
 
-const DEV_DB_URL =
-  process.env.DEV_DATABASE_URL ||
-  process.env.DATABASE_URL ||
-  "postgresql://postgres:9bf10998b2516e72673719f0f65d9639@junction.proxy.rlwy.net:31094/logistics_tms_core";
+if (!PROD_DB_URL || !DEV_DB_URL) {
+  console.error(
+    "🚨 [ERROR] Vui lòng cấu hình PROD_DATABASE_URL và DEV_DATABASE_URL trong environment variables hoặc backend/.env",
+  );
+  process.exit(1);
+}
 
 const DEV_HEALTH_URL =
   process.env.DEV_HEALTH_URL ||
