@@ -81,15 +81,17 @@ Whenever the user refers to, asks for, or mentions **"domain pro"** (hoặc "dom
     2. **Lệnh Git**: Tuyệt đối không tự ý chạy `git push` khi không có yêu cầu rõ ràng. Không gộp chuỗi lệnh dài vượt quá thời gian đồng bộ. Khi cần chạy lệnh remote Git, bắt buộc đặt `$env:GIT_TERMINAL_PROMPT=0`.
     3. **Active Task Hygiene**: Nếu một tác vụ bất đắc dĩ bị rơi vào Background Task, Agent phải kiểm tra và chủ động hủy ngay bằng `manage_task(kill)` nếu sau 15 giây không có tiến triển, không để người dùng phải bấm hủy tay `[X]`.
   - Quy chuẩn chi tiết xem tại [`.agents/rules/anti-hang-execution.md`](file:///d:/Projects/logistics-website/.agents/rules/anti-hang-execution.md).
-- **Zero Premature Telegram Reporting Mandate (Quy chuẩn Chống Báo Cáo Nghiệm Thu Non & Cưỡng Chế 2-Tier Quality Gate: Test Local First -> Cloud Dev Gate)**:
-  - Operating agents and background daemons (`neon-worker.mjs`) are STRICTLY FORBIDDEN from reporting task completion to Telegram or claiming "ĐÃ TEST DEV XONG" immediately upon Git push or local compile exit.
+- **Zero Premature Telegram Reporting Mandate (Quy chuẩn Chống Báo Cáo Nghiệm Thu Non & Cưỡng Chế 2-Tier Quality Gate: Mandatory Local Auto-Start -> Cloud Dev Gate)**:
+  - Operating agents and background daemons (`neon-worker.mjs`) are STRICTLY FORBIDDEN from reporting task completion to Telegram, pushing submodule branches, or claiming "ĐÃ TEST DEV XONG" before starting local servers (`port 4000` & `port 4001`) and passing Local E2E.
   - A completion notification is ONLY permitted after fulfilling the closed 2-Tier Verification Pipeline:
-    1. **Tầng 1: Test Local First (Chốt chặn máy trạm 0s chờ Cloud)**:
-       - Nếu máy chủ local đang chạy (`http://localhost:4000` & `http://localhost:4001`), bắt buộc kích hoạt Playwright E2E chạy trên Local trước (`PLAYWRIGHT_BASE_URL=http://localhost:4000`, `API_URL=http://localhost:4001/api/v1`).
+    1. **Tầng 1: Mandatory Local-First Auto-Start & E2E Gate (Chốt chặn máy trạm bắt buộc — NGHIÊM CẤM BỎ QUA)**:
+       - **Bắt buộc bật Local Servers (`port 4000` & `4001`)**: Trước khi chạy test (hoặc ngay khi bắt đầu task), BẮT BUỘC chạy `npm run dev:ensure` (`node scripts/ensure-local-servers.mjs`) để tự động kiểm tra và khởi chạy ngầm cả Backend (`http://localhost:4001`) lẫn Frontend (`http://localhost:4000`). **TUYỆT ĐỐI CẤM** lấy lý do "local servers offline" để bỏ qua Tầng 1.
+       - **Chốt chặn Hook kỹ thuật (`scripts/hooks/pre-command-guard.mjs`)**: Hệ thống tự động **BLOCK (`deny`)** mọi lệnh `git push` trong submodule (`backend`/`frontend`), `gh pr create`, hoặc `npm run task:pr` nếu phát hiện port `4000` hoặc `4001` chưa được bật (`DOWN`).
+       - Bắt buộc kích hoạt Playwright E2E chạy trên Local trước (`PLAYWRIGHT_BASE_URL=http://localhost:4000`, `API_URL=http://localhost:4001/api/v1`).
        - Cơ chế **Autonomous Local Self-Healing (Tối đa 3 lần retry)**: Khi test local thất bại, AI tự động phân tích root cause (RCA) và sửa code tại chỗ mà KHÔNG push git hoặc tốn thời gian chờ cloud deploy.
        - Nếu sau 3 lần retry local vẫn thất bại: Dừng toàn bộ pipeline, KHÔNG commit/push code lỗi lên cloud, gửi cảnh báo `LOCAL_E2E_FAILED` về Telegram.
     2. **Tầng 2: Cloud Dev Quality Gate (Railway Cloud Primary)**:
-       - Chỉ khi Tầng 1 PASS 100% (hoặc local servers offline), Worker mới thực hiện commit trực tiếp bên trong submodules (`backend/`, `frontend/`, `root`) và push lên nhánh `dev`.
+       - **CHỈ KHI TẦNG 1 LOCAL PASS 100%** (tuyệt đối không có ngoại lệ offline bypass), AI / Worker mới được phép thực hiện commit, push bên trong submodules (`backend/`, `frontend/`) và tạo/merge PR lên nhánh `dev`.
        - Chờ Railway Cloud build & deploy hoàn tất (Health check `backend-tms-core-dev.up.railway.app` & `frontend-tms-core-dev.up.railway.app`).
        - Chạy Playwright E2E suite trực tiếp trên Domain Dev của Railway Cloud (hỗ trợ tối đa 3 lần retry cloud nếu có race condition môi trường mạng).
     3. **Cross-Evaluation Audit**: Chạy đánh giá chéo qua `node scripts/e2e-auditor.mjs` (điểm đạt yêu cầu $\ge$ 40/50, 0 lỗi Auto-FAIL).

@@ -2,17 +2,17 @@
 
 /**
  * git-task-workflow.mjs
- * 
+ *
  * CLI Helper enforcing the GitHub Task Lifecycle Workflow (RULE-GIT-TASK-WORKFLOW-01):
- * 1. start <task_id> [slug] : Pull latest dev & create feature/task-<id>-<slug> in submodules
- * 2. pr <task_id> [slug]    : Push branch, create PR into dev, auto-merge into dev
+ * 1. start <task_id> [slug] : Pull latest dev, create feature/task-<id>-<slug> in submodules, & AUTO-START Local Servers (:4000 & :4001)
+ * 2. pr <task_id> [slug]    : Verify Local Servers (:4000 & :4001) are UP, push branch, create PR into dev, auto-merge into dev
  * 3. status                 : Check branch alignment across root, backend, frontend
  */
 
 import { execSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import fs from 'node:fs';
+import { ensureLocalServers, checkLocalServers } from './ensure-local-servers.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -49,7 +49,7 @@ export function getCurrentBranches() {
   return {
     root: runOutput('git branch --show-current', ROOT_DIR),
     backend: runOutput('git branch --show-current', BACKEND_DIR),
-    frontend: runOutput('git branch --show-current', FRONTEND_DIR)
+    frontend: runOutput('git branch --show-current', FRONTEND_DIR),
   };
 }
 
@@ -64,7 +64,7 @@ export function buildBranchName(taskId, slugOrModule = 'work', action = '', type
   return `${cleanType}/task-${taskId}-${cleanSlug}`;
 }
 
-export function startTask(taskId, slugOrModule = 'work', action = '', type = 'feat', scope = 'fullstack') {
+export async function startTask(taskId, slugOrModule = 'work', action = '', type = 'feat', scope = 'fullstack') {
   if (!taskId) {
     console.error('❌ Missing task ID. Usage: node scripts/git-task-workflow.mjs start <task_id> [slug/module] [action] [type] [scope]');
     process.exit(1);
@@ -102,12 +102,27 @@ export function startTask(taskId, slugOrModule = 'work', action = '', type = 'fe
   const branches = getCurrentBranches();
   console.log(`- Backend : ${branches.backend}`);
   console.log(`- Frontend: ${branches.frontend}`);
-  console.log(`\n💡 Tiếp theo: Thực hiện code, build local và chạy Playwright E2E test local.`);
+
+  // 3. Tự động khởi động Local Dev Servers (port 4001 & 4000) ngay từ đầu task
+  console.log(`\n⚡ [Local-First Mandate] Đang kiểm tra & tự động bật Local Servers (port 4001 & 4000)...`);
+  await ensureLocalServers({ maxWaitSec: 90 });
+
+  console.log(`\n💡 Tiếp theo: Thực hiện code, build local và chạy Playwright E2E test local trên http://localhost:4000.`);
 }
 
-export function createAndMergePr(taskId, slugOrModule = 'work', action = '', type = 'feat', scope = 'fullstack') {
+export async function createAndMergePr(taskId, slugOrModule = 'work', action = '', type = 'feat', scope = 'fullstack') {
   if (!taskId) {
     console.error('❌ Missing task ID. Usage: node scripts/git-task-workflow.mjs pr <task_id> [slug/module] [action] [type] [scope]');
+    process.exit(1);
+  }
+
+  // Chốt chặn bắt buộc: Kiểm tra Local Servers (4000 & 4001) phải đang bật
+  const localStatus = await checkLocalServers(2500);
+  if (!localStatus.isRunning) {
+    console.error(`\n🚨 [LOCAL-FIRST GATE BLOCKED] Không thể tạo PR khi Local Servers chưa bật!`);
+    console.error(`- Backend  (:4001): ${localStatus.beOk ? 'UP' : 'DOWN'}`);
+    console.error(`- Frontend (:4000): ${localStatus.feOk ? 'UP' : 'DOWN'}`);
+    console.error(`💡 Bắt buộc chạy 'npm run dev:ensure' và pass Playwright E2E Local trước khi chạy lệnh PR.\n`);
     process.exit(1);
   }
 
@@ -142,7 +157,7 @@ export function createAndMergePr(taskId, slugOrModule = 'work', action = '', typ
         const title = `${type}(task-${taskId}): ${slugOrModule}${action ? '-' + action : ''}`;
         const body = `## Task #${taskId}\\n\\n- Branch: ${branchName}\\n- Local E2E Gate: PASS 100%\\n- Target: dev`;
         run(`gh pr create --repo ${repo.ghRepo} --base dev --head ${branchName} --title "${title}" --body "${body}"`, repo.dir);
-        
+
         console.log(`[${repo.name}] Tự động merge PR vào dev...`);
         run(`gh pr merge --repo ${repo.ghRepo} ${branchName} --merge`, repo.dir);
         console.log(`✅ [${repo.name}] PR đã được merge vào dev thành công!`);
@@ -172,38 +187,41 @@ function gitFallbackMerge(cwd, branchName) {
 }
 
 // CLI entry point
-const args = process.argv.slice(2);
-const command = args[0];
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename);
+if (isMain) {
+  const args = process.argv.slice(2);
+  const command = args[0];
 
-switch (command) {
-  case 'start': {
-    const taskId = args[1];
-    const moduleOrSlug = args[2] || 'work';
-    const action = args[3] || '';
-    const type = args[4] || 'feat';
-    const scope = args[5] || 'fullstack';
-    startTask(taskId, moduleOrSlug, action, type, scope);
-    break;
-  }
-  case 'pr': {
-    const taskId = args[1];
-    const moduleOrSlug = args[2] || 'work';
-    const action = args[3] || '';
-    const type = args[4] || 'feat';
-    const scope = args[5] || 'fullstack';
-    createAndMergePr(taskId, moduleOrSlug, action, type, scope);
-    break;
-  }
-  case 'status': {
-    const branches = getCurrentBranches();
-    console.log('\n📊 TRẠNG THÁI BRANCH HIỆN TẠI:');
-    console.log(`- Root    : ${branches.root || 'detached'}`);
-    console.log(`- Backend : ${branches.backend || 'detached'}`);
-    console.log(`- Frontend: ${branches.frontend || 'detached'}\n`);
-    break;
-  }
-  default: {
-    console.log(`
+  (async () => {
+    switch (command) {
+      case 'start': {
+        const taskId = args[1];
+        const moduleOrSlug = args[2] || 'work';
+        const action = args[3] || '';
+        const type = args[4] || 'feat';
+        const scope = args[5] || 'fullstack';
+        await startTask(taskId, moduleOrSlug, action, type, scope);
+        break;
+      }
+      case 'pr': {
+        const taskId = args[1];
+        const moduleOrSlug = args[2] || 'work';
+        const action = args[3] || '';
+        const type = args[4] || 'feat';
+        const scope = args[5] || 'fullstack';
+        await createAndMergePr(taskId, moduleOrSlug, action, type, scope);
+        break;
+      }
+      case 'status': {
+        const branches = getCurrentBranches();
+        console.log('\n📊 TRẠNG THÁI BRANCH HIỆN TẠI:');
+        console.log(`- Root    : ${branches.root || 'detached'}`);
+        console.log(`- Backend : ${branches.backend || 'detached'}`);
+        console.log(`- Frontend: ${branches.frontend || 'detached'}\n`);
+        break;
+      }
+      default: {
+        console.log(`
 Quy Trình Chuẩn GitHub Task Workflow CLI (RULE-GIT-TASK-WORKFLOW-01)
 ===================================================================
 Quy chuẩn tên nhánh: <type>/task-<id>-<module>-<action>
@@ -211,19 +229,16 @@ Ví dụ: feat/task-81-warehouse-outbound-pallet
 
 Sử dụng:
   node scripts/git-task-workflow.mjs start <task_id> [module/slug] [action] [type] [scope]
-    -> Kéo dev mới nhất & tạo nhánh <type>/task-<id>-<module>-<action> trong submodule
+    -> Kéo dev mới nhất, tạo nhánh trong submodule & tự động bật Local Servers (4000 & 4001)
 
   node scripts/git-task-workflow.mjs pr <task_id> [module/slug] [action] [type] [scope]
-    -> Push nhánh, tạo PR vào dev làm bằng chứng, và tự động merge PR vào dev
+    -> Kiểm tra Local Servers đang chạy, push nhánh, tạo PR vào dev & tự động merge
 
   node scripts/git-task-workflow.mjs status
     -> Kiểm tra nhánh hiện tại trên cả 3 repos
-
-Tham số:
-  - type  : feat (mặc định), fix, refactor, perf
-  - module: warehouse, trip, order, fleet, hub, auth, report, core
-  - scope : fullstack (mặc định), backend, frontend
 `);
-    break;
-  }
+        break;
+      }
+    }
+  })();
 }

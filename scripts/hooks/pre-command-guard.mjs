@@ -4,13 +4,16 @@
  *
  * Antigravity PreToolUse Hook:
  * 1. Chặn các lệnh rủi ro cao (git push --no-verify, force push, hard reset, DROP/TRUNCATE DB).
- * 2. Tự động gắn Hard Timeout 5 phút (300s) chống treo cho tất cả lệnh terminal không phải daemon.
+ * 2. Chốt chặn Cưỡng chế Local-First (Tier-1 Gate): Chặn mọi lệnh git push submodule (backend/frontend),
+ *    gh pr create, hoặc task:pr nếu máy chủ Local (port 4000 & 4001) chưa được bật!
+ * 3. Tự động gắn Hard Timeout 5 phút (300s) chống treo cho tất cả lệnh terminal không phải daemon.
  *
  * Tuân thủ RULE-ANTI-HANG-EXEC-01 và AGENTS.md.
  */
 
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { checkLocalServers } from "../ensure-local-servers.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -77,13 +80,34 @@ const RISKY_PATTERNS = [
 
 // Danh sách các lệnh nền / daemon không áp dụng timeout 5 phút (được phép chạy liên tục)
 const DAEMON_PATTERNS = [
-  /\b(npm|bun|pnpm)\s+run\s+(dev|start|backend|frontend|telegram:bot|telegram:worker)/i,
+  /\b(npm|bun|pnpm)\s+run\s+(dev|dev:ensure|dev:status|dev:stop|start|backend|frontend|telegram:bot|telegram:worker)/i,
   /\bnext\s+(dev|start)\b/i,
   /\bnest\s+(start|start:dev)\b/i,
-  /\bnode\s+.*start-dev\.js\b/i,
+  /\bnode\s+.*(start-dev\.js|ensure-local-servers\.mjs)\b/i,
   /\b(bot\.mjs|neon-worker\.mjs)\b/i,
   /timeout-runner\.mjs/i, // Tránh wrap đệ quy 2 lần
 ];
+
+/**
+ * Kiểm tra xem lệnh có phải là thao tác đẩy code submodule hoặc tạo PR lên GitHub hay không.
+ * Nếu phải, bắt buộc Local Servers (port 4000 & 4001) phải đang bật (chứng minh đã bật Local để test Tầng 1).
+ */
+function requiresLocalServersGate(commandLine) {
+  if (/--skip-local-gate\b/i.test(commandLine)) return false;
+  // Cho phép đồng bộ dev -> master (chore sync)
+  if (/git\s+push\s+origin\s+master\b/i.test(commandLine)) return false;
+
+  // Chặn nếu tạo PR hoặc chạy workflow PR
+  if (/\bgh\s+pr\s+(create|merge)\b/i.test(commandLine)) return true;
+  if (/\bgit-task-workflow\.mjs\s+pr\b/i.test(commandLine)) return true;
+  if (/\bnpm\s+run\s+task:pr\b/i.test(commandLine)) return true;
+
+  // Chặn nếu git push trong submodule backend hoặc frontend
+  if (/\bgit\s+-C\s+(backend|frontend)\s+push\b/i.test(commandLine)) return true;
+  if (/\bcd\s+(backend|frontend)\b[\s\S]*?\bgit\s+push\b/i.test(commandLine)) return true;
+
+  return false;
+}
 
 let inputData = "";
 process.stdin.setEncoding("utf8");
@@ -92,7 +116,7 @@ process.stdin.on("data", (chunk) => {
   inputData += chunk;
 });
 
-process.stdin.on("end", () => {
+process.stdin.on("end", async () => {
   clearTimeout(hardTimeout);
 
   try {
@@ -122,7 +146,27 @@ process.stdin.on("end", () => {
       }
     }
 
-    // 2. Kiểm tra nếu là daemon (dev server, background worker) -> Cho phép chạy bình thường, không bọc timeout
+    // 2. Chốt chặn Cưỡng chế Local-First (Tier-1 Gate):
+    // Không cho phép push code submodule hoặc tạo PR nếu port 4000 & 4001 chưa bật!
+    if (requiresLocalServersGate(commandLine)) {
+      const localStatus = await checkLocalServers(2000);
+      if (!localStatus.isRunning) {
+        const result = {
+          decision: "deny",
+          reason:
+            `🛡️ [LOCAL-FIRST GATE BLOCKED] Máy chủ Local chưa được khởi động ` +
+            `(Backend port 4001: ${localStatus.beOk ? "UP" : "DOWN"}, Frontend port 4000: ${localStatus.feOk ? "UP" : "DOWN"})! ` +
+            `Theo quy chuẩn Bắt buộc Test Local Trước (Tier-1 Quality Gate), bạn BẮT BUỘC phải:\n` +
+            `1. Chạy 'npm run dev:ensure' (hoặc 'node scripts/ensure-local-servers.mjs') để bật cả port 4001 & 4000.\n` +
+            `2. Chạy Playwright E2E test trên Local (http://localhost:4000 & http://localhost:4001/api/v1) đạt PASS 100%.\n` +
+            `3. Sau khi Local PASS mới được phép git push hoặc tạo PR lên nhánh dev!`,
+        };
+        console.log(JSON.stringify(result));
+        process.exit(0);
+      }
+    }
+
+    // 3. Kiểm tra nếu là daemon (dev server, background worker) -> Cho phép chạy bình thường, không bọc timeout
     const isDaemonCommand =
       isDaemonArg || DAEMON_PATTERNS.some((p) => p.test(commandLine));
     if (isDaemonCommand) {
@@ -130,7 +174,7 @@ process.stdin.on("end", () => {
       process.exit(0);
     }
 
-    // 3. Tự động bọc lệnh với Hard Timeout 5 phút (300 giây) chống treo
+    // 4. Tự động bọc lệnh với Hard Timeout 5 phút (300 giây) chống treo
     const b64Cmd = Buffer.from(commandLine).toString("base64");
     const wrappedCommandLine = `node "${TIMEOUT_RUNNER_PATH}" --b64 ${b64Cmd} 300`;
 

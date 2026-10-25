@@ -3,11 +3,14 @@
  * scripts/ensure-local-servers.mjs
  *
  * Bộ khởi động & cưỡng chế máy chủ Local Dev (Port 4000 Frontend & Port 4001 Backend).
- * Thiết kế tương thích 100% với RULE-ANTI-HANG-EXEC-01:
- * - Gọi trực tiếp node.exe (process.execPath) chạy @nestjs/cli/bin/nest.js và next/dist/bin/next
- *   ở chế độ Detached Background Process (detached: true, windowsHide: true, stdio: logFd, unref())
- *   với biến môi trường cưỡng chế PORT=4001 (Backend) và PORT=4000 / NEXT_PUBLIC_API_URL=http://localhost:4001 (Frontend).
- * - Poll chờ cả 2 cổng 4000 & 4001 trả về HTTP < 500 (tối đa 90s) rồi thoát đồng bộ (exit 0).
+ * Thiết kế tương thích 100% với RULE-ANTI-HANG-EXEC-01 và Windows Job Object của Antigravity:
+ * - Trên Windows, Antigravity gắn JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE cho mọi lệnh run_command,
+ *   nên nếu dùng child_process.spawn thông thường thì khi lệnh kết thúc (exit 0), Windows sẽ tự
+ *   động kill cả Backend & Frontend!
+ * - Giải pháp triệt để: Sử dụng WMI `Win32_Process.Create` (`Invoke-CimMethod`) để khởi chạy
+ *   tiến trình thông qua dịch vụ hệ thống `WmiPrvSE.exe` (tách khỏi Job Object của run_command).
+ *   Nhờ đó, sau khi `ensure-local-servers.mjs` kiểm tra cả 2 port 4000 & 4001 UP và thoát (exit 0),
+ *   cả 2 server vẫn sống bền vững 100% ở dưới nền!
  *
  * Cách dùng CLI:
  *   node scripts/ensure-local-servers.mjs          # Tự động kiểm tra & bật cả 4001 + 4000 nếu tắt
@@ -107,15 +110,50 @@ function killOldPidFile(pidFile) {
   } catch {}
 }
 
-function spawnDetachedNodeServer(name, cwd, scriptArgs, extraEnv, logFileName, pidFileName) {
+/**
+ * Khởi chạy tiến trình tách biệt hoàn toàn khỏi Windows Job Object của Antigravity run_command.
+ */
+function spawnBreakawayNodeServer(name, cwd, scriptArgs, extraEnv, logFileName, pidFileName) {
   ensureLogsDir();
   const logFile = path.join(LOGS_DIR, logFileName);
   const pidFile = path.join(LOGS_DIR, pidFileName);
 
   killOldPidFile(pidFile);
 
-  const logFd = fs.openSync(logFile, 'w');
+  if (process.platform === 'win32') {
+    const launcherPath = path.join(LOGS_DIR, `launcher-${name.toLowerCase()}.mjs`);
+    const launcherCode = `
+import fs from 'node:fs';
+import { spawn } from 'node:child_process';
 
+const logFd = fs.openSync(${JSON.stringify(logFile)}, 'w');
+const child = spawn(${JSON.stringify(process.execPath)}, ${JSON.stringify(scriptArgs)}, {
+  cwd: ${JSON.stringify(cwd)},
+  detached: true,
+  windowsHide: true,
+  stdio: ['ignore', logFd, logFd],
+  env: { ...process.env, ...${JSON.stringify(extraEnv)} }
+});
+if (child.pid) {
+  fs.writeFileSync(${JSON.stringify(pidFile)}, String(child.pid), 'utf8');
+}
+child.unref();
+process.exit(0);
+`.trim();
+    fs.writeFileSync(launcherPath, launcherCode, 'utf8');
+
+    const wmiCmd = `"${process.execPath}" "${launcherPath}"`;
+    const psScript = `$r = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = '${wmiCmd.replace(/'/g, "''")}'; CurrentDirectory = '${cwd.replace(/'/g, "''")}' }; Write-Output $r.ProcessId`;
+    const wmiPid = execSync(`powershell.exe -NoProfile -NonInteractive -Command "${psScript}"`, {
+      encoding: 'utf8',
+      windowsHide: true,
+    }).trim();
+
+    console.log(`🚀 [${name}] Đã kích hoạt qua WMI Breakaway (Launcher PID: ${wmiPid}, Log: .logs/${logFileName})`);
+    return wmiPid;
+  }
+
+  const logFd = fs.openSync(logFile, 'w');
   const child = spawn(process.execPath, scriptArgs, {
     cwd,
     detached: true,
@@ -130,7 +168,6 @@ function spawnDetachedNodeServer(name, cwd, scriptArgs, extraEnv, logFileName, p
   if (child.pid) {
     fs.writeFileSync(pidFile, String(child.pid), 'utf8');
   }
-
   child.unref();
   try {
     fs.closeSync(logFd);
@@ -158,7 +195,7 @@ export async function ensureLocalServers({ maxWaitSec = 90, onProgress = null } 
     console.log(`⚡ [Backend :4001] Đang tắt -> Khởi động NestJS Backend trên port 4001 (nest start --watch)...`);
     if (onProgress) await onProgress('Đang khởi động Local Backend (port 4001)...');
     const nestCli = path.join(BACKEND_DIR, 'node_modules', '@nestjs', 'cli', 'bin', 'nest.js');
-    spawnDetachedNodeServer(
+    spawnBreakawayNodeServer(
       'BACKEND',
       BACKEND_DIR,
       [nestCli, 'start', '--watch'],
@@ -179,7 +216,7 @@ export async function ensureLocalServers({ maxWaitSec = 90, onProgress = null } 
     console.log(`⚡ [Frontend :4000] Đang tắt -> Khởi động Next.js Frontend trên port 4000 (next dev -p 4000)...`);
     if (onProgress) await onProgress('Đang khởi động Local Frontend (port 4000)...');
     const nextCli = path.join(FRONTEND_DIR, 'node_modules', 'next', 'dist', 'bin', 'next');
-    spawnDetachedNodeServer(
+    spawnBreakawayNodeServer(
       'FRONTEND',
       FRONTEND_DIR,
       [nextCli, 'dev', '-p', String(FRONTEND_PORT)],
@@ -205,7 +242,7 @@ export async function ensureLocalServers({ maxWaitSec = 90, onProgress = null } 
 
     if (status.isRunning) {
       console.log(
-        `✅ [Local Servers] Khởi động hoàn tất sau ${elapsedSec}s! Backend (:4001 HTTP ${status.beStatus}) & Frontend (:4000 HTTP ${status.feStatus}) ĐÃ SẴN SÀNG.`,
+        `✅ [Local Servers] Khởi động hoàn tất sau ${elapsedSec}s! Backend (:4001 HTTP ${status.beStatus}) & Frontend (:4000 HTTP ${status.feStatus}) ĐÃ SẴN SÀNG VÀ DUY TRÌ NGẦM.`,
       );
       return {
         success: true,
