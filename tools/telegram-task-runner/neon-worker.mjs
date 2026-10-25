@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { spawn, execSync } from 'node:child_process';
 import pg from 'pg';
 import { getTodayTasksSummary } from '../../scripts/todo-agent.mjs';
+import { ensureLocalServers } from '../../scripts/ensure-local-servers.mjs';
 import { splitTelegramHtml } from './split-html.mjs';
 
 const { Pool } = pg;
@@ -527,28 +528,32 @@ BẮT BUỘC KÍCH HOẠT SKILL TODO-AGENT ĐỂ QUÉT VÀ THỰC THI TASK NGÀY
 1. Bạn BẮT BUỘC đọc và tuân thủ file AGENTS.md và skill .agents/skills/todo-agent/SKILL.md tại workspace D:\\Projects\\logistics-website.
 ${targetSection}
 
-5. QUY TRÌNH THỰC THI BẮT BUỘC (EXECUTION & DEV E2E PIPELINE):
-   - BƯỚC 1: Sửa đổi mã nguồn TRỰC TIẾP trong các Git submodules (backend/ và/hoặc frontend/). TUYỆT ĐỐI không chỉ sửa ở root.
-     Tuân thủ nghiêm ngặt UI Compact Density (.agents/rules/ui-compact-density.md):
-     * Card padding: p-1; Modal body: p-2; Spacing: gap-1.5 đến gap-2; Bảng: font text-[10px]; Zero Redundant Icons.
-     * Zero Mock Data: Kết nối trực tiếp PostgreSQL REST APIs.
+5. QUY TRÌNH THỰC THI BẮT BUỘC (2-TIER LOCAL-FIRST -> CLOUD DEV E2E PIPELINE):
+   - BƯỚC 1 (KHỞI ĐỘNG LOCAL SERVERS 4000 & 4001 BẮT BUỘC):
+     * Chạy ngay 'npm run dev:ensure' (hoặc 'node scripts/ensure-local-servers.mjs') để đảm bảo cả Backend (port 4001) và Frontend (port 4000) ĐANG CHẠY trên máy trạm.
+     * Sửa đổi mã nguồn TRỰC TIẾP trong các Git submodules (backend/ và/hoặc frontend/). TUYỆT ĐỐI không chỉ sửa ở root.
+     * Tuân thủ nghiêm ngặt UI Compact Density (.agents/rules/ui-compact-density.md):
+       + Card padding: p-1; Modal body: p-2; Spacing: gap-1.5 đến gap-2; Bảng: font text-[10px]; Zero Redundant Icons.
+       + Zero Mock Data: Kết nối trực tiếp PostgreSQL REST APIs.
      * Kiểm tra biên dịch local:
        + Backend: npm run build --prefix backend
        + Frontend: npx --prefix frontend tsc --noEmit
-   - BƯỚC 2: Commit và push các submodules lên branch dev:
+   - BƯỚC 2 (TẠO SPEC & KIỂM THỬ LOCAL E2E TẦNG 1 BẮT BUỘC TRƯỚC KHI PUSH):
+     * Tạo hoặc cập nhật file Playwright E2E spec trong frontend/e2e/<spec_file>.spec.ts (ghi rõ đường dẫn vào TODO.md).
+     * BẮT BUỘC chạy Playwright E2E trực tiếp trên LOCAL TRƯỚC (http://localhost:4000 & http://localhost:4001/api/v1):
+       + $env:PLAYWRIGHT_BASE_URL="http://localhost:4000"; $env:API_URL="http://localhost:4001/api/v1"; npx --prefix frontend playwright test e2e/<spec_file>.spec.ts
+     * Kiểm định mã test: node scripts/e2e-auditor.mjs frontend/e2e/<spec_file>.spec.ts (Đạt >= 40/50, 0 Auto-FAIL).
+     * CHỐT CHẶN CỨNG: Hook hệ thống SẼ CHẶN lệnh git push/gh pr create nếu port 4000 & 4001 chưa bật. Chỉ khi Local E2E PASS 100% mới sang Bước 3!
+   - BƯỚC 3 (COMMIT & PUSH SUBMODULES LÊN DEV SAU KHI PASS LOCAL):
+     * Commit và push các submodules lên branch dev:
        + git -C backend push origin dev
        + git -C frontend push origin dev
-   - BƯỚC 3: TẠO HOẶC CẬP NHẬT FILE PLAYWRIGHT E2E SPEC TRONG frontend/e2e/<spec_file>.spec.ts:
-       + BẮT BUỘC ghi rõ đường dẫn file spec vào TODO.md (ví dụ: frontend/e2e/36-feedback-07-10-task-21.spec.ts).
-       + BẮT BUỘC thiết kế test có lưu ảnh screenshot nghiệm thu: screenshot_*_verified.png vào thư mục feedback.
-       + Test trên Real Database, Zero Mock, có assertions chặt chẽ.
    - BƯỚC 4: CẬP NHẬT CHECKLIST & BIÊN BẢN KỸ THUẬT:
-       + Chuyển các mục - [ ] thành - [x] trong các file TODO.md tương ứng.
-       + Ghi nhận RESOLUTION.md và timeline nếu hoàn tất milestone: npm run todo:record <folder_name>.
-   - BƯỚC 5: ⚠️ LƯU Ý TỐI QUAN TRỌNG VỀ DEV E2E QUALITY GATE CỦA NEON WORKER:
-       + Sau khi bạn hoàn tất, Neon Worker sẽ TỰ ĐỘNG chờ Vercel & Render build deploy (45-60s) và TỰ ĐỘNG CHẠY LẠI bộ Playwright E2E suite của bạn trực tiếp trên Domain Dev!
-       + NẾU BẠN CHƯA TẠO FILE SPEC HOẶC TEST KHÔNG PASS TRÊN DEV, WORKER SẼ TỰ ĐỘNG ĐÁNH DẤU TASK THẤT BẠI (FAILED) VÀ BẮN CẢNH BÁO LỖI LÊN TELEGRAM.
-       + TUYỆT ĐỐI KHÔNG tự tuyên bố nghiệm thu hoàn tất nếu chưa đảm bảo file test E2E hoạt động chính xác.
+     * Chuyển các mục - [ ] thành - [x] trong các file TODO.md tương ứng.
+     * Ghi nhận RESOLUTION.md và timeline nếu hoàn tất milestone: npm run todo:record <folder_name>.
+   - BƯỚC 5: ⚠️ LƯU Ý TỐI QUAN TRỌNG VỀ 2-TIER QUALITY GATE CỦA NEON WORKER:
+     * Sau khi bạn hoàn tất, Neon Worker sẽ TỰ ĐỘNG kiểm tra lại Tầng 1 (Local port 4000 & 4001) và Tầng 2 (Railway Cloud Dev)!
+     * NẾU BẠN CHƯA TẠO FILE SPEC HOẶC TEST KHÔNG PASS, WORKER SẼ ĐÁNH DẤU TASK THẤT BẠI (FAILED) VÀ BẮN CẢNH BÁO LÊN TELEGRAM.
 
 6. BÁO CÁO KẾT QUẢ VỀ TELEGRAM (BẮT BUỘC FORMAT NÀY):
    - Báo cáo chi tiết:
@@ -1161,6 +1166,12 @@ async function executeAgyTask(task) {
   const startRes = await sendTelegramMessage(chatId, startMsg, 'HTML', TASK_ACTIONS_KEYBOARD);
   const progressMsgId = startRes?.result?.message_id || null;
 
+  // 3.5. NẾU LÀ TODO-AGENT MODE: Tự động khởi chạy trước Local Dev Servers (port 4001 & 4000) ngay khi bắt đầu task!
+  if (isTodoAgentMode) {
+    console.log(`[Task #${taskId}] ⚡ [Local-First Mandate] Tự động kiểm tra & bật Local Servers (port 4001 & 4000) trước khi chạy AI...`);
+    await ensureLocalServers({ maxWaitSec: 90 });
+  }
+
   // 4. Chuẩn bị prompt và đối số agy
   const finalPrompt = buildTaskPrompt(rawPrompt, feedbackDir, savedImagePaths, senderName);
   const args = [
@@ -1331,8 +1342,13 @@ async function executeAgyTask(task) {
           const specFile = detectTaskE2ESpec(feedbackDir, taskId);
           console.log(`[Task #${taskId}] Detected E2E Spec: ${specFile || 'NONE'}`);
 
-          // 2. TẦNG 1: LOCAL-FIRST QUALITY GATE (Nếu Local Dev Servers đang bật trên laptop)
-          const localServers = await checkLocalServers();
+          // 2. TẦNG 1: LOCAL-FIRST QUALITY GATE (BẮT BUỘC KHỞI ĐỘNG NẾU ĐANG TẮT - KHÔNG BAO GIỜ BỎ QUA)
+          let localServers = await checkLocalServers();
+          if (specFile && !localServers.isRunning) {
+            console.log(`[Task #${taskId}] ⚡ Local Dev Servers (4000/4001) chưa bật đủ -> Tự động khởi động ngay để chạy Tầng 1 Local Gate...`);
+            await ensureLocalServers({ maxWaitSec: 90 });
+            localServers = await checkLocalServers();
+          }
           let localPassed = false;
 
           if (specFile && localServers.isRunning) {
@@ -1442,7 +1458,17 @@ async function executeAgyTask(task) {
               return;
             }
           } else if (specFile && !localServers.isRunning) {
-            console.log(`[Task #${taskId}] ℹ️ Local Dev Servers offline (localhost:4000/4001). Bỏ qua Tầng 1, chuyển thẳng sang Tầng 2 (Railway Cloud)...`);
+            const startErr = 'Không thể khởi động Local Dev Servers (port 4000 & 4001) sau 90s. Vui lòng kiểm tra .logs/backend-local.log và .logs/frontend-local.log.';
+            console.error(`[Task #${taskId}] ❌ [TẦNG 1] ${startErr}`);
+            await sendTelegramMessage(
+              chatId,
+              `🔴 <b>[Task #${taskId}] CHẶN BỞI LOCAL-FIRST GATE</b>\n\n❌ <code>${escapeHtml(startErr)}</code>\n🛑 <i>Hệ thống dừng pipeline và KHÔNG push code chưa test Local lên Cloud.</i>`,
+              'HTML',
+              TASK_ACTIONS_KEYBOARD,
+            );
+            await pool.query(`UPDATE telegram_tasks SET status = 'DEV_E2E_FAILED', error = $1 WHERE id = $2;`, [startErr, dbRowId]);
+            resolve({ success: false, taskId, reason: 'LOCAL_SERVER_START_FAILED', error: startErr });
+            return;
           }
 
           // 3. TẦNG 2: CLOUD DEV QUALITY GATE

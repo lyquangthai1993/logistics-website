@@ -14,6 +14,7 @@
 
 import { spawn, execSync } from "node:child_process";
 
+const isWindows = process.platform === "win32";
 const args = process.argv.slice(2);
 
 if (args.length === 0) {
@@ -50,11 +51,20 @@ if (!fullCommand.trim()) {
 }
 
 const startTime = Date.now();
-const child = spawn(fullCommand, {
-  shell: true,
-  stdio: "inherit",
-  windowsHide: true,
-});
+const child = isWindows
+  ? spawn(
+      "powershell.exe",
+      ["-NoProfile", "-NonInteractive", "-Command", fullCommand],
+      {
+        stdio: "inherit",
+        windowsHide: true,
+      },
+    )
+  : spawn(fullCommand, {
+      shell: true,
+      stdio: "inherit",
+      windowsHide: true,
+    });
 
 let timedOut = false;
 

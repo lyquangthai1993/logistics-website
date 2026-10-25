@@ -225,10 +225,12 @@ flowchart TD
    # Frontend typecheck & build:
    npx --prefix frontend tsc --noEmit
    ```
-3. **Kích hoạt kiểm thử Playwright E2E trên Local (Tầng 1)**:
-   - Đảm bảo local dev servers đang chạy (`http://localhost:4000` & `http://localhost:4001`).
+3. **Kích hoạt kiểm thử Playwright E2E trên Local (Tầng 1 — BẮT BUỘC BẬT PORT 4000 & 4001)**:
+   - **Bắt buộc khởi động Local Dev Servers**: Chạy lệnh `npm run dev:ensure` (tự động kiểm tra và bật ngầm Backend port `4001` + Frontend port `4000` không gây treo phiên). **Nghiêm cấm** bỏ qua bước test Local với lý do server đang tắt.
+   - **Chốt chặn Hook (`pre-command-guard.mjs`)**: Nếu port `4000` hoặc `4001` chưa bật (`DOWN`), hệ thống sẽ tự động chặn (`BLOCK`) mọi lệnh `git push` submodule và `gh pr create`.
    - Chạy test suite tương ứng của task:
      ```powershell
+     npm run dev:ensure
      $env:PLAYWRIGHT_BASE_URL="http://localhost:4000"
      $env:API_URL="http://localhost:4001/api/v1"
      npx --prefix frontend playwright test e2e/<test_spec>.spec.ts

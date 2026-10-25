@@ -18,6 +18,7 @@ build/
 *.log
 
 # Temp / Scratch / Test Output
+.logs/
 scratch/
 test-results/
 playwright-report/

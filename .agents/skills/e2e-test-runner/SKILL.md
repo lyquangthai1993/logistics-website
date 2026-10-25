@@ -22,7 +22,7 @@ The frontend is architected on top of the **[next-shadcn-dashboard-starter](http
 ```
 Orchestrator Agent (this skill)
 ├── Sub-Agent D: Runtime Log Tracer          → e2e/00-runtime-log-tracer.spec.ts  ← RUN FIRST
-├── Sub-Agent A: Console Health Inspector    → e2e/01-console-health.spec.ts
+├── Sub-Agent A: Console & Next.js Error Guard → e2e/01-console-health.spec.ts (Next.js Dev Overlay & Telemetry Guard)
 ├── Sub-Agent B: Login Flow Tester           → e2e/02-login-flow.spec.ts (Auth & Error Sanitization)
 ├── Sub-Agent C: RBAC Route Guard Validator  → e2e/03-rbac-routing.spec.ts
 ├── Sub-Agent E: Viewport & Table UX Suite   → e2e/11-*-no-hscroll.spec.ts (or responsive specs)
@@ -30,6 +30,7 @@ Orchestrator Agent (this skill)
 ```
 
 > **Sub-Agent D runs first** — surfaces backend/network issues early to prevent cascading timeouts in B, C, and E.
+> **Sub-Agent A strictly validates Next.js Dev Health** — intercepts Next.js `<nextjs-portal>` dev error overlays, Turbopack redbox dialogs, and dehydrated query rejections (see [`nextjs-error-auditor`](../nextjs-error-auditor/SKILL.md)).
 > **Sub-Agent B strictly validates Error Sanitization** — asserts localized Vietnamese error messages and verifies that raw technical keys/codes (e.g. `incorrectEmailOrPassword`, `notFound`, `emailNotExists`, `email:`, `password:`) are NEVER rendered in the UI.
 > **Sub-Agent F strictly validates Visual & Design Pen Matching** — captures screenshots of all screens/modals and cross-checks them against vector design specs in `pencil-workspace/pens/*.pen` (evaluating width constraints, #0F3D62 Navy headers, column layouts, dynamic counter pills, and zero redundant icons). Read [`visual-pen-matcher`](../visual-pen-matcher/SKILL.md) for the 5-dimension rubric.
 
