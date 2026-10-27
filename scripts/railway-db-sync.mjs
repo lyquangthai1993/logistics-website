@@ -99,13 +99,54 @@ try {
   // ignore
 }
 
-// Cấu hình Database Endpoints (Đọc từ ENV, tuyệt đối không hardcode credentials)
-const PROD_DB_URL = process.env.PROD_DATABASE_URL;
-const DEV_DB_URL = process.env.DEV_DATABASE_URL || process.env.DATABASE_URL;
+// Phân tích tham số dòng lệnh CLI
+const cliArgs = process.argv.slice(2);
+const isHelp = cliArgs.includes("--help") || cliArgs.includes("-h");
+const isDumpOnly = cliArgs.includes("--dump-only");
+const isSkipBackup = cliArgs.includes("--skip-backup");
+const tablesArg = cliArgs.find((a) => a.startsWith("--tables="));
+const prodUrlArg = cliArgs
+  .find((a) => a.startsWith("--prod-url="))
+  ?.replace("--prod-url=", "");
+const devUrlArg = cliArgs
+  .find((a) => a.startsWith("--dev-url="))
+  ?.replace("--dev-url=", "");
 
-if (!PROD_DB_URL || !DEV_DB_URL) {
+if (isHelp) {
+  console.log(`
+Tiện ích đồng bộ Database Production về Dev (Zero-Lock Snapshot)
+================================================================
+Cú pháp:
+  node scripts/railway-db-sync.mjs [tùy chọn]
+
+Các tùy chọn:
+  --dump-only       Chỉ trích xuất dump Prod và lưu vào backups/, không ghi đè Dev
+  --skip-backup     Bỏ qua bước sao lưu Dev trước khi ghi đè (tăng tốc độ)
+  --tables=a,b      Chỉ áp dụng cho danh sách bảng chỉ định (phân cách bằng dấu phẩy)
+  --prod-url=<url>  Chỉ định trực tiếp Postgres Connection URL của Production
+  --dev-url=<url>   Chỉ định trực tiếp Postgres Connection URL của Dev
+  --help, -h        Hiển thị hướng dẫn sử dụng
+
+Cơ chế Non-Locking:
+  - Khởi tạo transaction REPEATABLE READ READ ONLY trên Production.
+  - Sử dụng ACCESS SHARE lock (cho phép đọc/ghi đồng thời trên Prod, 0% lock contention).
+  - Khóa bảo vệ lock_timeout = 4s & statement_timeout = 60s ngăn ngừa kẹt hàng đợi.
+
+Lệnh tắt Npm:
+  npm run db:sync:prod-to-dev
+  npm run db:dump:prod
+`);
+  process.exit(0);
+}
+
+// Cấu hình Database Endpoints (Đọc từ ENV hoặc tham số CLI, tuyệt đối không hardcode credentials)
+const PROD_DB_URL = prodUrlArg || process.env.PROD_DATABASE_URL;
+const DEV_DB_URL =
+  devUrlArg || process.env.DEV_DATABASE_URL || process.env.DATABASE_URL;
+
+if (!PROD_DB_URL || (!isDumpOnly && !DEV_DB_URL)) {
   console.error(
-    "🚨 [ERROR] Vui lòng cấu hình PROD_DATABASE_URL và DEV_DATABASE_URL trong environment variables hoặc backend/.env",
+    "🚨 [ERROR] Vui lòng cấu hình PROD_DATABASE_URL và DEV_DATABASE_URL trong environment variables, backend/.env hoặc truyền --prod-url= và --dev-url=",
   );
   process.exit(1);
 }
@@ -151,33 +192,6 @@ const SEQUENCE_NAMES = [
   "trip_stop_id_seq",
   "trip_code_sd_seq",
 ];
-
-// Phân tích tham số dòng lệnh CLI
-const cliArgs = process.argv.slice(2);
-const isHelp = cliArgs.includes("--help") || cliArgs.includes("-h");
-const isDumpOnly = cliArgs.includes("--dump-only");
-const isSkipBackup = cliArgs.includes("--skip-backup");
-const tablesArg = cliArgs.find((a) => a.startsWith("--tables="));
-
-if (isHelp) {
-  console.log(`
-Tiện ích đồng bộ Database Production về Dev (Railway Cloud)
-==========================================================
-Cú pháp:
-  node scripts/railway-db-sync.mjs [tùy chọn]
-
-Các tùy chọn:
-  --dump-only     Chỉ trích xuất dump Prod và lưu vào backups/, không ghi đè Dev
-  --skip-backup   Bỏ qua bước sao lưu Dev trước khi ghi đè (tăng tốc độ)
-  --tables=a,b    Chỉ áp dụng cho danh sách bảng chỉ định (phân cách bằng dấu phẩy)
-  --help, -h      Hiển thị hướng dẫn sử dụng
-
-Lệnh tắt Npm:
-  npm run db:sync:prod-to-dev
-  npm run db:dump:prod
-`);
-  process.exit(0);
-}
 
 const targetTables = tablesArg
   ? tablesArg
@@ -346,7 +360,15 @@ async function main() {
 
     // Bước 2: Sao lưu Dev DB
     if (!isDumpOnly && !isSkipBackup) {
-      console.log("\n[2/5] 💾 Sao lưu dữ liệu hiện tại của Dev DB...");
+      console.log(
+        "\n[2/5] 💾 Sao lưu dữ liệu hiện tại của Dev DB (Non-locking snapshot)...",
+      );
+      await devClient.query("SET statement_timeout = '60000';");
+      await devClient.query("SET lock_timeout = '4000';");
+      await devClient.query(
+        "BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY;",
+      );
+
       const devDump = {
         timestamp: new Date().toISOString(),
         environment: "development",
@@ -358,6 +380,7 @@ async function main() {
         devDump.tables[table] = await fetchTableData(devClient, table);
       }
       devDump.sequences = await fetchSequences(devClient);
+      await devClient.query("COMMIT;");
 
       const devJsonPath = path.join(backupsDir, `dev_backup_${ts}.json`);
       const devSqlPath = path.join(backupsDir, `dev_backup_${ts}.sql`);
@@ -374,8 +397,16 @@ async function main() {
       console.log("\n[2/5] ⏭️ Bỏ qua thao tác với Dev DB (Chế độ Dump Only)");
     }
 
-    // Bước 3: Dump Production DB
-    console.log("\n[3/5] 📦 Trích xuất dữ liệu từ Production DB...");
+    // Bước 3: Dump Production DB (Zero-Lock Snapshot)
+    console.log(
+      "\n[3/5] 📦 Trích xuất dữ liệu từ Production DB (Non-locking REPEATABLE READ snapshot)...",
+    );
+    await prodClient.query("SET statement_timeout = '60000';");
+    await prodClient.query("SET lock_timeout = '4000';");
+    await prodClient.query(
+      "BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY;",
+    );
+
     const prodDump = {
       timestamp: new Date().toISOString(),
       environment: "production",
@@ -393,6 +424,10 @@ async function main() {
       );
     }
     prodDump.sequences = await fetchSequences(prodClient);
+    await prodClient.query("COMMIT;");
+    console.log(
+      "  🔓 Giao dịch đọc Production DB đã giải phóng an toàn (Zero Lock Duration)",
+    );
 
     const prodJsonPath = path.join(backupsDir, `prod_backup_${ts}.json`);
     const prodSqlPath = path.join(backupsDir, `prod_backup_${ts}.sql`);
@@ -412,8 +447,25 @@ async function main() {
 
     // Bước 4: Đồng bộ vào Dev DB
     console.log("\n[4/5] 🔄 Nạp dữ liệu Production vào Dev DB...");
-    await devClient.query("BEGIN");
+    await devClient.query("BEGIN;");
     await devClient.query("SET session_replication_role = 'replica';");
+
+    // Lưu và tạm drop các secondary index (B-Tree, GIN) để tối ưu bulk insert và triệt tiêu lỗi posting list split (nbtdedup.c)
+    const secondaryIndexesRes = await devClient.query(
+      `SELECT tablename, indexname, indexdef 
+       FROM pg_indexes 
+       WHERE schemaname = 'public' 
+         AND tablename = ANY($1)
+         AND indexname NOT LIKE '%_pkey'
+         AND indexname NOT IN (
+           SELECT conname FROM pg_constraint WHERE contype IN ('p', 'u')
+         )`,
+      [targetTables],
+    );
+    const secondaryIndexes = secondaryIndexesRes.rows;
+    for (const idx of secondaryIndexes) {
+      await devClient.query(`DROP INDEX IF EXISTS "${idx.indexname}" CASCADE;`);
+    }
 
     // Xóa theo thứ tự ngược
     const reverseTables = [...targetTables].reverse();
@@ -448,6 +500,16 @@ async function main() {
         await devClient.query(
           `SELECT setval('${seq}', ${meta.last_value}, ${meta.is_called ? "true" : "false"});`,
         );
+      }
+    }
+
+    // Tái tạo lại toàn bộ secondary index sau khi đã chèn xong dữ liệu
+    if (secondaryIndexes.length > 0) {
+      console.log(
+        `  ⚡ Tái tạo lại ${secondaryIndexes.length} chỉ mục (B-Tree / GIN)...`,
+      );
+      for (const idx of secondaryIndexes) {
+        await devClient.query(idx.indexdef);
       }
     }
 
@@ -500,6 +562,11 @@ async function main() {
     }
   } catch (err) {
     console.error("\n❌ LỖI TRONG QUÁ TRÌNH THỰC THI:", err.message);
+    if (prodClient) {
+      try {
+        await prodClient.query("ROLLBACK");
+      } catch {}
+    }
     if (devClient) {
       try {
         await devClient.query("ROLLBACK");

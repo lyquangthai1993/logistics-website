@@ -42,6 +42,7 @@
     "hooks:railway": "node scripts/install-railway-hooks.mjs",
     "exec:timeout": "node scripts/hooks/timeout-runner.mjs 300",
     "db:sync:prod-to-dev": "node scripts/railway-db-sync.mjs",
+    "db:sync:fast": "node scripts/railway-db-sync.mjs --skip-backup",
     "db:dump:prod": "node scripts/railway-db-sync.mjs --dump-only",
     "order:audit": "node scripts/order-audit-agent.mjs"
   },

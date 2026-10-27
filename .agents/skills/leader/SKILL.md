@@ -36,11 +36,11 @@ flowchart LR
 | Stage | Role | Active Skills / Agents | Mandatory Gate & Deliverable |
 | :--- | :--- | :--- | :--- |
 | **1. PLAN**<br>*(Lên kế hoạch)* | **PM** | [`/todo-agent`](../todo-agent/SKILL.md) + [`/leader`](SKILL.md) | Scan feedback, run Multimodal OCR (extract Hub & Test User), analyze RCA, and output **`📄 Tài liệu` (`TODO.md`)** with Step-by-Step E2E Spec & 10 Edge Cases Matrix. |
-| **2. DESIGN**<br>*(Thiết kế)* | **Architect** | [`/leader`](SKILL.md) + [`/ui-ux-flow-designer`](../ui-ux-flow-designer/SKILL.md) + [`/pencil-ui-designer`](../pencil-ui-designer/SKILL.md) + [`/nestjs-best-practices`](../nestjs-best-practices/SKILL.md) + [`/nextjs-best-practices`](../nextjs-best-practices/SKILL.md) | Verify 3-layer [`rbac-matrix.md`](../../rules/rbac-matrix.md), DB schema/migration safety, API contract, 5-Level Modal Width Taxonomy, and Compact Density (`p-1`, `p-2`, `text-[10px]`). |
+| **2. DESIGN**<br>*(Thiết kế)* | **Architect** | [`/leader`](SKILL.md) + [`/ui-ux-flow-designer`](../ui-ux-flow-designer/SKILL.md) + [`/pencil-ui-designer`](../pencil-ui-designer/SKILL.md) + [`/nestjs-best-practices`](../nestjs-best-practices/SKILL.md) + [`/nextjs-best-practices`](../nextjs-best-practices/SKILL.md) + [`/db-sync-prod-to-dev`](../db-sync-prod-to-dev/SKILL.md) | Verify 3-layer [`rbac-matrix.md`](../../rules/rbac-matrix.md), DB schema/migration safety, API contract, 5-Level Modal Width Taxonomy, Compact Density (`p-1`, `p-2`, `text-[10px]`). **Khi thêm/xóa/sửa table model**: Bắt buộc đăng ký cấu trúc mới vào `ALL_TABLES` và `SEQUENCE_NAMES` của [`/db-sync-prod-to-dev`](../db-sync-prod-to-dev/SKILL.md). |
 | **3. BUILD**<br>*(Xây dựng)* | **Engineer** | [`/todo-agent`](../todo-agent/SKILL.md) + [`/feature-branch-advisor`](../feature-branch-advisor/SKILL.md) + [`/ui-spacing-guard`](../ui-spacing-guard/SKILL.md) | Run `npm run repo:status` & `npm run repo:tracking`, branch `<type>/task-<id>-<module>-<action>` from `dev` inside target submodules (`backend/`, `frontend/`), implement code, pass `tsc --noEmit` & `npm run build`. |
 | **4. TEST (2 Tầng)**<br>*(Kiểm thử 2 Tầng)* | **QA** | [`/e2e-test-runner`](../e2e-test-runner/SKILL.md) + [`/e2e-code-auditor`](../e2e-code-auditor/SKILL.md) | **Bắt buộc 2 Tầng Test**:<br>• **Tầng 1 (Test Local)**: Chạy Playwright E2E trên Local (`localhost:4000` & `4001`, Self-Healing $\le 3$ lần) + `e2e-auditor.mjs` ($\ge 40/50$). Pass 100% mới đưa lên Dev.<br>• **Tầng 2 (Test trên Môi trường Development)**: Sau khi đưa lên môi trường Dev (`frontend-tms-core-dev.up.railway.app`), **chạy lại E2E + Auditor lần 2 trên Dev**, chụp ảnh thực tế (`screenshot_*_verified.png`) để **bàn giao chuẩn xác**. |
 | **5. DEPLOY**<br>*(Triển khai)* | **Release** | [`/git-commit-reviewer`](../git-commit-reviewer/SKILL.md) + [`/github-workflow`](../github-workflow/SKILL.md) | Khi Tầng 1 Local Test PASS ➔ Push submodule branch, tạo GitHub PR vào `dev` (`gh pr create`), auto-merge (`gh pr merge --merge`), đợi Railway Cloud Dev HTTP 200 để bàn giao cho QA chạy **Test Tầng 2 trên môi trường Development**. |
-| **6. MAINTAIN**<br>*(Vận hành)* | **Vận hành** | [`/tms-ops-maintainer`](../tms-ops-maintainer/SKILL.md) + [`/codebase-auditor`](../codebase-auditor/SKILL.md) + [`/telegram-task-responder`](../telegram-task-responder/SKILL.md) | Chỉ nhận bàn giao khi **CẢ 2 TẦNG TEST (Local + Development) ĐỀU PASS 100%**: Kiểm tra sức khỏe sau deploy, check `[x]` `TODO.md`, chạy `npm run todo:record <folder>` (`RESOLUTION.md` + `docs/SYSTEM_TIMELINE.md`), đồng bộ `CODEBASE_AUDIT.md` & `rbac-matrix.md`, gửi báo cáo Telegram. |
+| **6. MAINTAIN**<br>*(Vận hành)* | **Vận hành** | [`/tms-ops-maintainer`](../tms-ops-maintainer/SKILL.md) + [`/codebase-auditor`](../codebase-auditor/SKILL.md) + [`/db-sync-prod-to-dev`](../db-sync-prod-to-dev/SKILL.md) + [`/telegram-task-responder`](../telegram-task-responder/SKILL.md) | Chỉ nhận bàn giao khi **CẢ 2 TẦNG TEST (Local + Development) ĐỀU PASS 100%**: Kiểm tra sức khỏe sau deploy, check `[x]` `TODO.md`, chạy `npm run todo:record <folder>` (`RESOLUTION.md` + `docs/SYSTEM_TIMELINE.md`), đồng bộ `CODEBASE_AUDIT.md` & `rbac-matrix.md`, cập nhật `scripts/railway-db-sync.mjs` nếu có migration mới, gửi báo cáo Telegram. |
 
 ---
 
@@ -196,6 +196,7 @@ Before writing or modifying any backend endpoint, frontend page, or data model, 
 4. **Master Contract & Stop Ledger Guards**: Preserved post-DRAFT contract immutability, first-entry waybill field lock (`id: 'ASC'`), and `COMPLETED` trip stop read-only lock?
 5. **Dynamic Counter & Real DB Integrity**: Zero mock data, `?? 0` nullish coalescing, and 1:1 tab counter parity?
 6. **UI Compact Density & 5-Level Modal Width**: Enforced `p-1` cards, `p-2` modals, `gap-1.5`/`gap-2`, `text-[10px]` tables, wide modal containers (`sm:max-w-5xl xl:max-w-6xl` for tables), and zero banned classes (`p-4`, `space-y-3`, `gap-4`)?
+7. **DB Schema & Model Sync Check (`/db-sync-prod-to-dev`)**: Có thêm, xóa hoặc sửa table entity / migration mới không? Nếu có, đã cập nhật `scripts/railway-db-sync.mjs` (`ALL_TABLES` theo thứ tự quan hệ khóa ngoại, `SEQUENCE_NAMES`) và skill [`/db-sync-prod-to-dev`](../db-sync-prod-to-dev/SKILL.md) để đảm bảo đồng bộ Prod -> Dev an toàn không lỗi?
 
 ---
 
@@ -225,6 +226,7 @@ Before writing or modifying any backend endpoint, frontend page, or data model, 
   └── [6. MAINTAIN - Vận hành]
       ├── tms-ops-maintainer ──► Live health checks, RESOLUTION.md, SYSTEM_TIMELINE.md, rollback playbooks
       ├── codebase-auditor ──► Living CODEBASE_AUDIT.md synchronization
+      ├── db-sync-prod-to-dev ──► Zero-lock PostgreSQL dump & sync (16 tables, sequence & index realignment)
       ├── n8n-expert ──► Scheduled RBAC audit workflows & webhook automation
       └── telegram-task-responder ──► Mobile-first acceptance reporting with visual proof
 ```
