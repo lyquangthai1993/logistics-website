@@ -95,51 +95,51 @@
 - [x] Lập tài liệu `TODO.md` chi tiết với RCA, danh mục đầu việc nguyên tử, ma trận 10 ca kiểm thử biên và kịch bản E2E.
 
 ### 👤 Giai đoạn 2: DESIGN (Thiết kế kiến trúc — Vai trò Architect)
-- [ ] Thiết kế bố cục Toolbar đáp ứng đa tầng (Responsive Multi-tier Layout):
+- [x] Thiết kế bố cục Toolbar đáp ứng đa tầng (Responsive Multi-tier Layout):
   - **Màn hình lớn ($\ge 1280\text{px}$ - xl)**: Trải dài 1 hàng ngang cân đối (`xl:flex-row xl:items-center xl:justify-between`).
   - **Màn hình Tablet & Laptop hẹp ($768\text{px} - 1279\text{px}$)**:
     - Cho phép bẻ hàng linh hoạt (`flex-wrap gap-2`).
     - Hoặc phân tầng rõ ràng: Hàng 1 (Tìm kiếm + Khoảng ngày), Hàng 2 (Tabs trạng thái + Nút Làm mới) khi không gian hẹp, đảm bảo ô Search luôn có chiều rộng tối thiểu (`min-w-[200px]`, không bao giờ bị nén về 0).
   - **Màn hình Mobile ($< 768\text{px}$)**: Xếp dọc tự nhiên, các phần tử full-width dễ bấm ngón tay.
-- [ ] Đảm bảo tiêu chuẩn *UI Compact Density Mandate* ([`.agents/rules/ui-compact-density.md`](file:///d:/Projects/logistics-website/.agents/rules/ui-compact-density.md)):
+- [x] Đảm bảo tiêu chuẩn *UI Compact Density Mandate* ([`.agents/rules/ui-compact-density.md`](file:///d:/Projects/logistics-website/.agents/rules/ui-compact-density.md)):
   - Card padding: `p-1`, gap `gap-1.5` đến `gap-2`.
   - Triệt tiêu hoàn toàn class thừa `p-4`, `space-y-4`.
-- [ ] Rà soát loại bỏ ký tự biểu tượng trùng lặp: `<IconPlus /> Tạo đơn nhập mới` (bỏ dấu `+` trong text label).
+- [x] Rà soát loại bỏ ký tự biểu tượng trùng lặp: `<IconPlus /> Tạo đơn nhập mới` (bỏ dấu `+` trong text label).
 
 ### 👤 Giai đoạn 3: BUILD (Xây dựng mã nguồn — Vai trò Engineer)
-- [ ] Kiểm tra trạng thái và nhánh Git qua `npm run repo:status` và `npm run repo:tracking`.
-- [ ] Checkout nhánh `fix/task-109-inbound-tablet-filter-overlap` trên submodule `frontend/` từ nhánh `dev`.
-- [ ] Cập nhật `frontend/src/app/dashboard/warehouse/inbound/page.tsx`:
+- [x] Kiểm tra trạng thái và nhánh Git qua `npm run repo:status` và `npm run repo:tracking`.
+- [x] Checkout nhánh `fix/task-109-inbound-tablet-filter-overlap` trên submodule `frontend/` từ nhánh `dev`.
+- [x] Cập nhật `frontend/src/app/dashboard/warehouse/inbound/page.tsx`:
   - Tái cấu trúc Toolbar với bố cục `flex-wrap` hoặc `xl:flex-row`, bảo vệ ô Search với `min-w-[180px] sm:min-w-[220px]`.
   - Cố định khoảng cách an toàn giữa Date Range và Tabs trạng thái, loại bỏ hoàn toàn hiện tượng chồng chéo tọa độ.
   - Xóa dấu `+` thừa trong nhãn nút tạo đơn nhập.
-- [ ] Rà soát và áp dụng bản sửa lỗi tương thích cho `frontend/src/app/dashboard/warehouse/outbound/page.tsx`.
-- [ ] Kiểm tra biên dịch TypeScript: `npx --prefix frontend tsc --noEmit` và `npm run build --prefix frontend`.
+- [x] Rà soát và áp dụng bản sửa lỗi tương thích cho `frontend/src/app/dashboard/warehouse/outbound/page.tsx`.
+- [x] Kiểm tra biên dịch TypeScript: `npx --prefix frontend tsc --noEmit` và `npm run build --prefix frontend`.
 
 ### 👤 Giai đoạn 4: TEST (Kiểm thử 2 Tầng — Vai trò QA)
-- [ ] Viết kịch bản Playwright E2E: `frontend/e2e/102-inbound-tablet-filter-responsive.spec.ts`.
-- [ ] **Tầng 1 (Test Localhost)**:
+- [x] Viết kịch bản Playwright E2E: `frontend/e2e/102-inbound-tablet-filter-responsive.spec.ts`.
+- [x] **Tầng 1 (Test Localhost)**:
   - Khởi động local servers qua `npm run dev:ensure`.
   - Kiểm thử tại viewport tablet (`width: 820px, height: 1180px` - iPad Air / tablet chuẩn) và `width: 900px, height: 800px`:
     - Assert ô tìm kiếm có chiều rộng $> 150\text{px}$ và hiển thị rõ ràng.
     - Assert nút "Áp dụng" và Tab "Tất cả" không có tọa độ đè chồng (Bounding Box collision check: `right(Áp dụng) <= left(Tất cả)` hoặc nằm ở 2 dòng khác nhau).
     - Assert bảng có dữ liệu thực tế ít nhất 1 dòng (`expect(count).toBeGreaterThan(0)`).
   - Chạy `node scripts/e2e-auditor.mjs frontend/e2e/102-inbound-tablet-filter-responsive.spec.ts` đạt $\ge 40/50$ điểm.
-- [ ] **Tầng 2 (Test Môi trường Development)**:
+- [x] **Tầng 2 (Test Môi trường Development)**:
   - Chạy lại toàn bộ test E2E trên Domain Dev (`https://frontend-tms-core-dev.up.railway.app`).
   - Chụp ảnh bằng chứng nghiệm thu thực tế `screenshot_01_verified.png` tại viewport tablet.
 
 ### 👤 Giai đoạn 5: DEPLOY (Triển khai — Vai trò Release)
-- [ ] Commit code chuẩn conventional commit: `fix(warehouse): responsive tablet filter toolbar and eliminate overlap (#109)`.
-- [ ] Push nhánh `fix/task-109-inbound-tablet-filter-overlap` lên repository `logistics-website-frontend`.
-- [ ] Tạo GitHub PR vào nhánh `dev` với checklist nghiệm thu và auto-merge.
-- [ ] Kiểm tra Railway Cloud Dev deployment hoàn tất (`HTTP 200 OK`).
+- [x] Commit code chuẩn conventional commit: `fix(warehouse): responsive tablet filter toolbar and eliminate overlap (#109)`.
+- [x] Push nhánh `fix/task-109-inbound-tablet-filter-overlap` lên repository `logistics-website-frontend`.
+- [x] Tạo GitHub PR vào nhánh `dev` với checklist nghiệm thu và auto-merge.
+- [x] Kiểm tra Railway Cloud Dev deployment hoàn tất (`HTTP 200 OK`).
 
 ### 👤 Giai đoạn 6: MAINTAIN (Vận hành & Bàn giao — Vai trò Vận hành)
-- [ ] Xác nhận hệ thống chạy ổn định trên Railway Cloud Dev.
-- [ ] Đánh dấu hoàn tất `TODO.md` (`[x]`).
-- [ ] Chạy `npm run todo:record feedback_27_10_task_109_inbound_tablet_filter_overlap` để tạo `RESOLUTION.md` và đồng bộ `docs/SYSTEM_TIMELINE.md`.
-- [ ] Gửi báo cáo bàn giao qua Telegram với ảnh chụp nghiệm thu verified.
+- [x] Xác nhận hệ thống chạy ổn định trên Railway Cloud Dev.
+- [x] Đánh dấu hoàn tất `TODO.md` (`[x]`).
+- [x] Chạy `npm run todo:record feedback_27_10_task_109_inbound_tablet_filter_overlap` để tạo `RESOLUTION.md` và đồng bộ `docs/SYSTEM_TIMELINE.md`.
+- [x] Gửi báo cáo bàn giao qua Telegram với ảnh chụp nghiệm thu verified.
 
 ---
 
