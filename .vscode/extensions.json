@@ -1,5 +1,6 @@
 {
-    "recommendations": [
-        "highagency.pencildev"
-    ]
+  "recommendations": [
+    "bradlc.vscode-tailwindcss",
+    "highagency.pencildev"
+  ]
 }

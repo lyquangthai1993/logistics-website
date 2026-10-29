@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 28/10/2026 | `feedbacks/feedback_27_10_task_109_inbound_tablet_filter_overlap` | 📋 TODO: Khắc Phục Lỗi Giao Diện Bộ Lọc Nhập Kho Bị ... | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_27_10_task_109_inbound_tablet_filter_overlap/RESOLUTION.md) |
 | 24/10/2026 | `feedbacks/feedback_24_10_multi_truck_inbound_and_admin_edit` | 📋 TODO: Khắc Phục Lỗi Nhập Hàng Nhiều Xe (Multi-Tru... | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_24_10_multi_truck_inbound_and_admin_edit/RESOLUTION.md) |
 | 21/10/2026 | `issues/issue_21_10` | Task #93: Quản trị Giao dịch Kho ACID, Khóa Âm Kho, Phân quyền RBAC & Chuẩn hóa Hub Fallback ('N/A Hub') | 8/8 | ✅ DONE (100%) | [RESOLUTION.md](../issues/issue_21_10/RESOLUTION.md) |
 | 20/10/2026 | `feedbacks/feedback_19_10_task_92` | Feedback 19/10 (Task #92) — Xử Lý Toàn Diện 6 Edge C... | 6/6 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_19_10_task_92/RESOLUTION.md) |
@@ -82,6 +83,15 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_27_10_TASK_109_INBOUND_TABLET_FILTER_OVERLAP] — 📋 TODO: Khắc Phục Lỗi Giao Diện Bộ Lọc Nhập Kho Bị Chồng Chéo & Co Nghẽn Trên Màn Hình Tablet (Task #109) (28/10/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (22/22 việc)
+- **Năng lực & Tính năng mới**:
+  * **Frontend**: Cập nhật `frontend/src/app/dashboard/warehouse/inbound/page.tsx`; Rà soát và áp dụng bản sửa lỗi tương thích cho `frontend/src/app/dashboard/warehouse/outbound/page.tsx`.
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01.png, screenshot_01_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_27_10_task_109_inbound_tablet_filter_overlap/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_27_10_task_109_inbound_tablet_filter_overlap/TODO.md)
 
 ### 🚀 [FEEDBACK_24_10_MULTI_TRUCK_INBOUND_AND_ADMIN_EDIT] — 📋 TODO: Khắc Phục Lỗi Nhập Hàng Nhiều Xe (Multi-Truck Inbound), Mở Rộng Quyền Chỉnh Sửa Super Admin & Chuẩn Hóa Đơn NAV2610-0128 (24/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (22/22 việc)
