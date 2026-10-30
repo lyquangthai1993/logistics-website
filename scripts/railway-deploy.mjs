@@ -82,7 +82,7 @@ let token = envVars.RAILWAY_DEV_TOKEN;
 
 if (branch === 'master' || branch === 'main') {
   envName = 'production';
-  token = envVars.RAILWAY_PROD_TOKEN;
+  token = envVars.RAILWAY_PROD_TOKEN || envVars.RAILWAY_TOKEN_PRO;
 } else if (branch === 'dev') {
   envName = 'dev';
   token = envVars.RAILWAY_DEV_TOKEN;

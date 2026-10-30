@@ -46,7 +46,9 @@
     "db:dump:prod": "node scripts/railway-db-sync.mjs --dump-only",
     "order:audit": "node scripts/order-audit-agent.mjs",
     "lint:tw": "node scripts/lint-tailwind-rules.mjs frontend/src",
-    "test:tw": "node scripts/lint-tailwind-rules.mjs frontend/src"
+    "test:tw": "node scripts/lint-tailwind-rules.mjs frontend/src",
+    "railway": "node scripts/railway-cli.mjs",
+    "usage": "node scripts/check-usage.mjs"
   },
   "dependencies": {
     "dotenv": "^16.4.7",
