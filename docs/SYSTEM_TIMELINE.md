@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 01/11/2026 | `feedbacks/feedback_01_11_task_111_super_admin_login_as` | 📋 TODO: Tính Năng Super Admin "Login As" — Đóng Vai... | 10/10 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_01_11_task_111_super_admin_login_as/RESOLUTION.md) |
 | 01/11/2026 | `feedbacks/feedback_01_11_task_110_date_filter_dropdown_7days` | 📋 TODO: Chuẩn Hóa Bộ Lọc Ngày Nhập Kho & Xuất Kho T... | 10/10 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_01_11_task_110_date_filter_dropdown_7days/RESOLUTION.md) |
 | 28/10/2026 | `feedbacks/feedback_27_10_task_109_inbound_tablet_filter_overlap` | 📋 TODO: Khắc Phục Lỗi Giao Diện Bộ Lọc Nhập Kho Bị ... | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_27_10_task_109_inbound_tablet_filter_overlap/RESOLUTION.md) |
 | 24/10/2026 | `feedbacks/feedback_24_10_multi_truck_inbound_and_admin_edit` | 📋 TODO: Khắc Phục Lỗi Nhập Hàng Nhiều Xe (Multi-Tru... | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_24_10_multi_truck_inbound_and_admin_edit/RESOLUTION.md) |
@@ -84,6 +85,16 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_01_11_TASK_111_SUPER_ADMIN_LOGIN_AS] — 📋 TODO: Tính Năng Super Admin "Login As" — Đóng Vai Tài Khoản Người Dùng Tại Thanh Navbar & Bảng Người Dùng (Task #111) (01/11/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (10/10 việc)
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Task 4 (Engineer - Triển khai Backend API `login-as`)**: Bổ sung `loginAs` trong `backend/src/auth/auth.service.ts` và endpoint `POST /api/v1/auth/login-as/:userId` + `POST /api/v1/auth/login-as` trong `backend/src/auth/auth.controller.ts` với `@Roles(RoleEnum.SUPER_ADMIN)` và `@UseGuards(AuthGuard('jwt'), RolesGuard)`.
+  * **Frontend**: Task 5 (Engineer - Nâng cấp `useAuthStore` & `tokenManager` hỗ trợ Impersonation)**: Lưu và khôi phục phiên `impersonator` trong `frontend/src/stores/use-auth-store.ts` và `frontend/src/lib/token-manager.ts`, bổ sung API helper `loginAsUser(userId)` trong `frontend/src/features/users/api/service.ts` và hỗ trợ `Authorization` header override trong `frontend/src/lib/api-client.ts`.
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_01_11_task_111_super_admin_login_as/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_01_11_task_111_super_admin_login_as/TODO.md)
 
 ### 🚀 [FEEDBACK_01_11_TASK_110_DATE_FILTER_DROPDOWN_7DAYS] — 📋 TODO: Chuẩn Hóa Bộ Lọc Ngày Nhập Kho & Xuất Kho Thành Dropdown Thu Gọn & Mặc Định 7 Ngày Gần Nhất (Task #110) (01/11/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (10/10 việc)
