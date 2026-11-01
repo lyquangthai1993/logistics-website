@@ -10,8 +10,8 @@
 
 | Trường | Giá trị |
 |---|---|
-| **Phiên bản** | v1.8 |
-| **Cập nhật lần cuối** | 2026-10-15 |
+| **Phiên bản** | v1.9 |
+| **Cập nhật lần cuối** | 2026-11-01 |
 | **Cập nhật bởi** | Antigravity (Daily RBAC Audit Auto-Sync) |
 
 ---
@@ -179,6 +179,17 @@
 
 ---
 
+### Auth Controller (Super Admin Impersonation)
+> **File**: `backend/src/auth/auth.controller.ts`
+> Nghiệp vụ: Đặc quyền đóng vai (Login As / Impersonation) dành riêng cho SUPER_ADMIN (Task #111).
+
+| Endpoint | Method | SUPER_ADMIN | Các role khác |
+|---|---|:-----------:|:-------------:|
+| `/v1/auth/login-as/:userId` | POST | ✅ | ❌ |
+| `/v1/auth/login-as` | POST | ✅ | ❌ |
+
+---
+
 ### Users Controller
 > **File**: `backend/src/users/users.controller.ts`
 > Nghiệp vụ: Quản lý user chỉ dành cho SUPER_ADMIN.
@@ -303,6 +314,11 @@ Khi không chắc → tham chiếu skill `tms-domain-lead` trước khi implemen
 ---
 
 ## Changelog
+
+### v1.9 — 2026-11-01
+**Feature: Super Admin "Login As" (Đóng vai người dùng — Task #111)**:
+- Thêm `POST /v1/auth/login-as/:userId` và `POST /v1/auth/login-as` (`@Roles(RoleEnum.SUPER_ADMIN)` + `AuthGuard('jwt'), RolesGuard`).
+- Frontend: Tích hợp bộ chuyển đổi `Đóng vai (Login As)` và nút `Thoát đóng vai` ngay trong `SidebarFooter` của thanh Navbar bên trái (`app-sidebar.tsx`), cùng nút `Đóng vai` trên bảng `/dashboard/users`.
 
 ### v1.7 — 2026-10-05
 **Fix: Phiếu xuất nháp thật (feedback người dùng 05/10)**:
