@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 01/11/2026 | `feedbacks/feedback_01_11_task_110_date_filter_dropdown_7days` | 📋 TODO: Chuẩn Hóa Bộ Lọc Ngày Nhập Kho & Xuất Kho T... | 10/10 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_01_11_task_110_date_filter_dropdown_7days/RESOLUTION.md) |
 | 28/10/2026 | `feedbacks/feedback_27_10_task_109_inbound_tablet_filter_overlap` | 📋 TODO: Khắc Phục Lỗi Giao Diện Bộ Lọc Nhập Kho Bị ... | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_27_10_task_109_inbound_tablet_filter_overlap/RESOLUTION.md) |
 | 24/10/2026 | `feedbacks/feedback_24_10_multi_truck_inbound_and_admin_edit` | 📋 TODO: Khắc Phục Lỗi Nhập Hàng Nhiều Xe (Multi-Tru... | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_24_10_multi_truck_inbound_and_admin_edit/RESOLUTION.md) |
 | 21/10/2026 | `issues/issue_21_10` | Task #93: Quản trị Giao dịch Kho ACID, Khóa Âm Kho, Phân quyền RBAC & Chuẩn hóa Hub Fallback ('N/A Hub') | 8/8 | ✅ DONE (100%) | [RESOLUTION.md](../issues/issue_21_10/RESOLUTION.md) |
@@ -83,6 +84,15 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_01_11_TASK_110_DATE_FILTER_DROPDOWN_7DAYS] — 📋 TODO: Chuẩn Hóa Bộ Lọc Ngày Nhập Kho & Xuất Kho Thành Dropdown Thu Gọn & Mặc Định 7 Ngày Gần Nhất (Task #110) (01/11/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (10/10 việc)
+- **Năng lực & Tính năng mới**:
+  * **Frontend**: Task 4 (Engineer - Cập nhật Màn hình Nhập kho `frontend/src/app/dashboard/warehouse/inbound/page.tsx`)**: Cập nhật `getDefaultFromDate()` và `handleResetDateRange()` về **7 ngày gần nhất (bao gồm ngày hôm nay)**: `today - 6 days` đến `today` (ưu tiên `URLSearchParams` nếu có) và chuyển đổi cụm lọc ngày trên Toolbar sang `Popover` dropdown thu gọn.; Task 5 (Engineer - Cập nhật Màn hình Xuất kho `frontend/src/app/dashboard/warehouse/outbound/page.tsx`)**: Cập nhật `getDefaultFromDate()` và `handleResetDateRange()` về **7 ngày gần nhất (bao gồm ngày hôm nay)**: `today - 6 days` đến `today` (ưu tiên `URLSearchParams` nếu có) và chuyển đổi cụm lọc ngày trên Toolbar sang `Popover` dropdown đồng bộ 100% với màn hình Nhập kho.; Task 6 (Engineer - Đồng bộ các bài test E2E liên quan & Kiểm tra biên dịch)**: Cập nhật `frontend/e2e/101-mobile-responsive-warehouse-boards.spec.ts` và `frontend/e2e/102-inbound-tablet-filter-responsive.spec.ts` tương thích với nút Dropdown lọc ngày mới; chạy `npx --prefix frontend tsc --noEmit` và `npm run build --prefix frontend` đảm bảo 0 lỗi biên dịch....
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_01_11_task_110_date_filter_dropdown_7days/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_01_11_task_110_date_filter_dropdown_7days/TODO.md)
 
 ### 🚀 [FEEDBACK_27_10_TASK_109_INBOUND_TABLET_FILTER_OVERLAP] — 📋 TODO: Khắc Phục Lỗi Giao Diện Bộ Lọc Nhập Kho Bị Chồng Chéo & Co Nghẽn Trên Màn Hình Tablet (Task #109) (28/10/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (22/22 việc)
