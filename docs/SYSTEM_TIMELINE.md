@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 03/11/2026 | `feedbacks/feedback_03_11_task_112_railway_hub_name_log` | 📋 TODO: Ghi Rõ Tên Chi Nhánh Kho (Hub Name) Trong L... | 5/5 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_03_11_task_112_railway_hub_name_log/RESOLUTION.md) |
 | 01/11/2026 | `feedbacks/feedback_01_11_task_111_super_admin_login_as` | 📋 TODO: Tính Năng Super Admin "Login As" — Đóng Vai... | 10/10 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_01_11_task_111_super_admin_login_as/RESOLUTION.md) |
 | 01/11/2026 | `feedbacks/feedback_01_11_task_110_date_filter_dropdown_7days` | 📋 TODO: Chuẩn Hóa Bộ Lọc Ngày Nhập Kho & Xuất Kho T... | 10/10 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_01_11_task_110_date_filter_dropdown_7days/RESOLUTION.md) |
 | 28/10/2026 | `feedbacks/feedback_27_10_task_109_inbound_tablet_filter_overlap` | 📋 TODO: Khắc Phục Lỗi Giao Diện Bộ Lọc Nhập Kho Bị ... | 22/22 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_27_10_task_109_inbound_tablet_filter_overlap/RESOLUTION.md) |
@@ -85,6 +86,16 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_03_11_TASK_112_RAILWAY_HUB_NAME_LOG] — 📋 TODO: Ghi Rõ Tên Chi Nhánh Kho (Hub Name) Trong Log Vận Hành Kho Bãi Trên Railway (Task #112) (03/11/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (5/5 việc)
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Task 1**: Bổ sung hàm tiện ích `formatHubLogLabel(hubRepo, hubId, fallbackHubName)` trong `backend/src/orders/warehouse.service.ts` để chuẩn hóa định dạng hiển thị `<hubId> (<hubName>)` (ví dụ: `1 (Andromeda Hub - HCM)`).; Task 2**: Cập nhật `confirmOutbound` trong `backend/src/orders/warehouse.service.ts` để phân giải chính xác tên Hub xuất kho từ `originHubId`, ghi vào cả `safeLogActivity.hubName` và log `[OUTBOUND CONFIRMED] ... tại Hub <id> (<name>): ...`.; Task 3**: Cập nhật đồng bộ các log `[INBOUND CREATED]`, `[INBOUND BATCH CREATED]`, và `[INBOUND CONFIRMED]` trong `backend/src/orders/warehouse.service.ts` để hiển thị rõ `tại Hub <id> (<name>)`....
+  * **Frontend**: Task 5**: Viết và chạy bộ kiểm thử Playwright E2E `frontend/e2e/112-warehouse-hub-name-logs.spec.ts` kết hợp thẩm định `scripts/e2e-auditor.mjs` ($\ge 40/50$), triển khai lên Railway (`dev` & `master`) và ghi nhận biên niên sử `RESOLUTION.md`.
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_03_11_task_112_railway_hub_name_log/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_03_11_task_112_railway_hub_name_log/TODO.md)
 
 ### 🚀 [FEEDBACK_01_11_TASK_111_SUPER_ADMIN_LOGIN_AS] — 📋 TODO: Tính Năng Super Admin "Login As" — Đóng Vai Tài Khoản Người Dùng Tại Thanh Navbar & Bảng Người Dùng (Task #111) (01/11/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (10/10 việc)
