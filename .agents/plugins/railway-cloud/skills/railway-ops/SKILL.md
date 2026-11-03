@@ -30,9 +30,37 @@ This skill governs operations on the **Railway Cloud** infrastructure for Spider
 | `postgres-tms-core` | PostgreSQL 16 (`logistics_tms_core`, `n8n_automation`) | `junction.proxy.rlwy.net:31094` | `caboose.proxy.rlwy.net:59375` |
 | `redis-tms-core` | Redis 7 Alpine (BullMQ/Cache) | Internal Mesh | Internal Mesh |
 
-## 3. Fast Health Check Runbook (Bounded Timeout)
+## 3. Tier-2 Build, Commit SHA & Cutover Gate (`verify-railway-deployment.mjs`)
 
-Always verify both Frontend and Backend endpoints using bounded 15-second timeouts (`WaitMsBeforeAsync: 10000`):
+> [!CAUTION]
+> **Why HTTP 200 Alone is Insufficient**:
+> Railway uses Blue-Green zero-downtime deployment. While a newly pushed commit is in `QUEUED` / `INITIALIZING` / `BUILDING` / `DEPLOYING` state (taking 60–120s), the **old container** stays in `activeDeployments` and continues returning `HTTP 200 OK` on `/api/v1/health`. Running Playwright E2E before checking the build status tests the **old code**!
+
+Before running Tier-2 Playwright E2E tests on Railway (or after merging a PR into `dev` / `master`), **ALWAYS** run [`scripts/verify-railway-deployment.mjs`](file:///d:/Projects/logistics-website/scripts/verify-railway-deployment.mjs) to verify all **4 Strict Readiness Invariants**:
+1. **Commit SHA Alignment**: `latestDeployment.meta.commitHash` matches `git -C <submodule> rev-parse origin/<branch>`.
+2. **Build Status === `SUCCESS`**: `latestDeployment.status === 'SUCCESS'` (or woken from Serverless `SLEEPING`). Fails fast (`exit 1`) if `FAILED` / `CRASHED`.
+3. **Active Container Cutover**: `activeDeployments[0].id === latestDeployment.id` (confirming traffic is routed to the newly built container).
+4. **Live HTTP Health 200 OK**: Both Backend (`/api/v1/health`) and Frontend (`/`) respond with HTTP 200/307.
+
+```powershell
+# 1. Single-shot verification on Dev (< 8s)
+npm run railway:verify
+# or: node scripts/verify-railway-deployment.mjs
+
+# 2. Bounded wait until new Dev build reaches SUCCESS & Cutover (up to 5 attempts x 15s)
+npm run railway:wait
+# or: node scripts/verify-railway-deployment.mjs --wait
+
+# 3. Verify Production environment (master branch)
+npm run railway:verify:prod
+npm run railway:wait:prod
+```
+
+*Note*: The PreToolUse hook ([`scripts/hooks/pre-command-guard.mjs`](file:///d:/Projects/logistics-website/scripts/hooks/pre-command-guard.mjs)) automatically executes `checkRailwayDeploymentReady` and **BLOCKS (`deny`)** any `playwright test` command targeting `*.up.railway.app` if the new deployment on Railway is still building or has not cut over!
+
+## 4. Fast HTTP Health Check Runbook (Bounded Timeout)
+
+When probing HTTP endpoints directly, always use bounded 15-second timeouts (`WaitMsBeforeAsync: 10000`):
 
 ```powershell
 # Check Dev Environment Health
@@ -44,7 +72,7 @@ curl.exe -m 15 -sS -i https://backend-tms-core-production.up.railway.app/api/v1/
 curl.exe -m 15 -sS -I https://frontend-tms-core-production.up.railway.app/vi/login
 ```
 
-## 4. Triggering Railway Deployments
+## 5. Triggering Railway Deployments
 
 Use the repository's automated deployment script [`scripts/railway-deploy.mjs`](file:///d:/Projects/logistics-website/scripts/railway-deploy.mjs):
 
@@ -57,7 +85,7 @@ node scripts/railway-deploy.mjs backend --force
 node scripts/railway-deploy.mjs frontend --force
 ```
 
-## 5. Inspecting Variables, Proxies & Service State
+## 6. Inspecting Variables, Proxies & Service State
 
 Use the existing Python management scripts in `scripts/` for GraphQL API inspection:
 - Inspect Dev environment configuration: `python scripts/inspect_dev_env.py`
@@ -65,8 +93,7 @@ Use the existing Python management scripts in `scripts/` for GraphQL API inspect
 - Sync/Update application variables: `python scripts/set_dev_variables.py` or `python scripts/set_app_variables.py`
 - Full reference memory: [`docs/railway_guide/RAILWAY_DEPLOYMENT_MEMORY.md`](file:///d:/Projects/logistics-website/docs/railway_guide/RAILWAY_DEPLOYMENT_MEMORY.md)
 
-
-## 6. Database Synchronization (Production -> Dev)
+## 7. Database Synchronization (Production -> Dev)
 
 Use the dedicated synchronization script [`scripts/railway-db-sync.mjs`](file:///d:/Projects/logistics-website/scripts/railway-db-sync.mjs):
 

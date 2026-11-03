@@ -6,6 +6,7 @@ import { spawn, execSync } from 'node:child_process';
 import pg from 'pg';
 import { getTodayTasksSummary } from '../../scripts/todo-agent.mjs';
 import { ensureLocalServers } from '../../scripts/ensure-local-servers.mjs';
+import { waitForRailwayDeploymentReady } from '../../scripts/verify-railway-deployment.mjs';
 import { splitTelegramHtml } from './split-html.mjs';
 
 const { Pool } = pg;
@@ -544,10 +545,11 @@ ${targetSection}
        + $env:PLAYWRIGHT_BASE_URL="http://localhost:4000"; $env:API_URL="http://localhost:4001/api/v1"; npx --prefix frontend playwright test e2e/<spec_file>.spec.ts
      * Kiểm định mã test: node scripts/e2e-auditor.mjs frontend/e2e/<spec_file>.spec.ts (Đạt >= 40/50, 0 Auto-FAIL).
      * CHỐT CHẶN CỨNG: Hook hệ thống SẼ CHẶN lệnh git push/gh pr create nếu port 4000 & 4001 chưa bật. Chỉ khi Local E2E PASS 100% mới sang Bước 3!
-   - BƯỚC 3 (COMMIT & PUSH SUBMODULES LÊN DEV SAU KHI PASS LOCAL):
+   - BƯỚC 3 (COMMIT & PUSH SUBMODULES LÊN DEV & XÁC NHẬN RAILWAY BUILD SUCCESS):
      * Commit và push các submodules lên branch dev:
        + git -C backend push origin dev
        + git -C frontend push origin dev
+     * Nếu tự chạy kiểm thử Tầng 2 trên Railway Cloud Dev, BẮT BUỘC chạy 'npm run railway:wait' (hoặc 'node scripts/verify-railway-deployment.mjs --wait') để xác nhận deployment mới trên Railway đã build xong (status === SUCCESS), khớp Commit SHA và đã cutover sang active container trước khi chạy Playwright E2E trên Railway.
    - BƯỚC 4: CẬP NHẬT CHECKLIST & BIÊN BẢN KỸ THUẬT:
      * Chuyển các mục - [ ] thành - [x] trong các file TODO.md tương ứng.
      * Ghi nhận RESOLUTION.md và timeline nếu hoàn tất milestone: npm run todo:record <folder_name>.
@@ -732,37 +734,43 @@ function findVerificationEvidence(feedbackDir) {
   return null;
 }
 
-// Chờ Vercel và Railway hoàn tất build deploy trên môi trường Dev (anti-hang timeout)
-async function waitForDevDeployment(timeoutSec = 150, onProgress = null) {
-  const backendHealthUrl = 'https://backend-tms-core-dev.up.railway.app/api/v1/health';
-  const frontendUrl = 'https://frontend-tms-core-dev.up.railway.app';
+// Chờ Railway Cloud hoàn tất build deployment mới (SUCCESS), khớp Commit SHA, cutover sang Active Container & HTTP 200 OK
+async function waitForDevDeployment(timeoutSec = 210, onProgress = null) {
+  const maxAttempts = Math.max(10, Math.ceil(timeoutSec / 15));
+  const railwayWait = await waitForRailwayDeploymentReady({
+    envName: 'dev',
+    initialDelaySec: 15,
+    pollIntervalSec: 15,
+    maxAttempts,
+    maxWaitSec: timeoutSec,
+    onProgress: async (summaryMsg) => {
+      if (onProgress) await onProgress(summaryMsg);
+    },
+  });
 
-  // Chờ 40s ban đầu cho GitHub webhook kích hoạt Cloud build
-  if (onProgress) await onProgress('Đang chờ GitHub webhook kích hoạt Railway Cloud build (40s)...');
-  await new Promise(r => setTimeout(r, 40000));
-
-  const startTime = Date.now();
-  let attempt = 0;
-
-  while ((Date.now() - startTime) < timeoutSec * 1000) {
-    attempt++;
-    if (onProgress) await onProgress(`Đang kiểm tra kết nối Domain Dev (Lần ${attempt})...`);
-    try {
-      const [backendRes, frontendRes] = await Promise.all([
-        fetch(backendHealthUrl, { signal: AbortSignal.timeout(15000) }),
-        fetch(frontendUrl, { signal: AbortSignal.timeout(15000) })
-      ]);
-
-      if (backendRes.ok && (frontendRes.ok || frontendRes.status === 307)) {
-        return { success: true, attempts: attempt };
-      }
-    } catch (err) {
-      console.warn(`[Dev Health Polling] Lần ${attempt} chưa sẵn sàng:`, err.message);
-    }
-    await new Promise(r => setTimeout(r, 12000));
+  if (railwayWait.success) {
+    return {
+      success: true,
+      attempts: railwayWait.attempts,
+      report: railwayWait.report,
+    };
   }
 
-  return { success: false, error: `Hết thời gian chờ Dev Deployment (${timeoutSec}s).` };
+  if (railwayWait.abortedOnBuildFailure) {
+    return {
+      success: false,
+      abortedOnBuildFailure: true,
+      error: railwayWait.error,
+      report: railwayWait.report,
+    };
+  }
+
+  return {
+    success: false,
+    abortedOnBuildFailure: false,
+    error: railwayWait.error || `Hết thời gian chờ Railway Dev Deployment build hoàn tất (${timeoutSec}s).`,
+    report: railwayWait.report,
+  };
 }
 
 // Kiểm tra trạng thái máy chủ Local Dev (localhost:4000 & localhost:4001)
@@ -1499,7 +1507,7 @@ async function executeAgyTask(task) {
           }
 
           // Chờ Dev Deployment sẵn sàng (khoảng 40s - 90s)
-          const deployRes = await waitForDevDeployment(150, async (msg) => {
+          const deployRes = await waitForDevDeployment(210, async (msg) => {
             if (progressMsgId) {
               await editTelegramMessage(
                 chatId,
@@ -1516,13 +1524,17 @@ async function executeAgyTask(task) {
 
           if (!deployRes.success) {
             console.error(`[Task #${taskId}] Dev Deployment wait failed:`, deployRes.error);
+            const failTitle = deployRes.abortedOnBuildFailure
+              ? `🚨 <b>[Task #${taskId}] CẢNH BÁO: RAILWAY DEV BUILD THẤT BẠI (BUILD FAILED)</b>`
+              : `⚠️ <b>[Task #${taskId}] CẢNH BÁO: DEV DEPLOYMENT CHƯA HOÀN TẤT BUILD</b>`;
+            const failStatus = deployRes.abortedOnBuildFailure ? 'DEV_BUILD_FAILED' : 'DEV_DEPLOY_TIMEOUT';
             const deployFailMsg =
-              `⚠️ <b>[Task #${taskId}] CẢNH BÁO: DEV DEPLOYMENT TIMEOUT</b>\n\n` +
-              `Mã nguồn đã được push lên nhánh <code>dev</code>, nhưng server Dev (Railway Cloud) chưa phản hồi trạng thái sẵn sàng trong thời gian quy định.\n` +
-              `Lỗi: <code>${escapeHtml(deployRes.error)}</code>`;
+              `${failTitle}\n\n` +
+              `Mã nguồn đã được push lên nhánh <code>dev</code>, nhưng bản deployment mới trên Railway Cloud chưa đạt trạng thái <code>SUCCESS</code> + Cutover.\n` +
+              `Chi tiết: <code>${escapeHtml(deployRes.error)}</code>`;
             await sendTelegramMessage(chatId, deployFailMsg, 'HTML', TASK_ACTIONS_KEYBOARD);
-            await pool.query(`UPDATE telegram_tasks SET status = 'DEV_DEPLOY_TIMEOUT', error = $1 WHERE id = $2;`, [deployRes.error, dbRowId]);
-            resolve({ success: false, taskId, reason: 'DEPLOY_TIMEOUT' });
+            await pool.query(`UPDATE telegram_tasks SET status = $1, error = $2 WHERE id = $3;`, [failStatus, deployRes.error, dbRowId]);
+            resolve({ success: false, taskId, reason: failStatus });
             return;
           }
 
@@ -1596,15 +1608,15 @@ async function executeAgyTask(task) {
 
               console.log(`[Task #${taskId}] Auto-Fix Vòng ${e2eAttempt} hoàn tất (success: ${fixSessionRes.success}). Chờ deploy lại...`);
 
-              // Đợi Vercel & Render redeploy sau khi AI đã push code fix lên nhánh dev
-              const redeployRes = await waitForDevDeployment(150, async (msg) => {
+              // Đợi Railway Cloud build xong bản fix mới (SUCCESS + khớp Commit SHA + Cutover) trước khi chạy lại Playwright E2E
+              const redeployRes = await waitForDevDeployment(210, async (msg) => {
                 if (progressMsgId) {
                   await editTelegramMessage(
                     chatId,
                     progressMsgId,
-                    `⏳ <b>[Task #${taskId}] DEV RETRY ${e2eAttempt}/${MAX_E2E_RETRIES} DEPLOYING...</b>\n\n` +
+                    `⏳ <b>[Task #${taskId}] DEV RETRY ${e2eAttempt}/${MAX_E2E_RETRIES} BUILDING ON RAILWAY...</b>\n\n` +
                     `🔄 <i>${escapeHtml(msg)}</i>\n` +
-                    `🌐 Đang chuẩn bị chạy lại Playwright E2E...`,
+                    `🌐 Đang chờ bản build mới đạt SUCCESS & Cutover trước khi chạy lại Playwright E2E...`,
                     'HTML',
                     TASK_ACTIONS_KEYBOARD
                   );
@@ -1612,17 +1624,26 @@ async function executeAgyTask(task) {
               });
 
               if (!redeployRes.success) {
-                console.warn(`[Task #${taskId}] Redeploy timeout ở vòng retry ${e2eAttempt}:`, redeployRes.error);
+                console.warn(`[Task #${taskId}] Railway build chưa sẵn sàng ở vòng retry ${e2eAttempt}:`, redeployRes.error);
+                if (redeployRes.abortedOnBuildFailure) {
+                  e2eResult = {
+                    success: false,
+                    exitCode: 1,
+                    stdout: '',
+                    stderr: `[RAILWAY BUILD FAILED] ${redeployRes.error}`,
+                  };
+                  continue;
+                }
               }
 
-              // Chạy lại Playwright E2E verification trên Domain Dev
+              // Chạy lại Playwright E2E verification trên Domain Dev sau khi build mới đã hoàn tất
               if (progressMsgId) {
                 await editTelegramMessage(
                   chatId,
                   progressMsgId,
                   `⏳ <b>[Task #${taskId}] Đang chạy lại Playwright E2E (Vòng ${e2eAttempt}/${MAX_E2E_RETRIES})...</b>\n\n` +
                   `🧪 <b>Suite:</b> <code>frontend/${escapeHtml(specFile)}</code>\n` +
-                  `🎯 <b>Target:</b> <code>Railway Cloud Dev</code>`,
+                  `🎯 <b>Target:</b> <code>Railway Cloud Dev (Build SUCCESS Verified)</code>`,
                   'HTML',
                   TASK_ACTIONS_KEYBOARD
                 );

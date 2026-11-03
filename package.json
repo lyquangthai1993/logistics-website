@@ -1,6 +1,6 @@
 {
   "name": "logistics-website",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Logistics TMS - monorepo root scripts (backend + frontend)",
   "private": true,
   "scripts": {
@@ -39,6 +39,10 @@
     "deploy:railway": "node scripts/railway-deploy.mjs",
     "deploy:railway:backend": "node scripts/railway-deploy.mjs backend",
     "deploy:railway:frontend": "node scripts/railway-deploy.mjs frontend",
+    "railway:verify": "node scripts/verify-railway-deployment.mjs",
+    "railway:verify:prod": "node scripts/verify-railway-deployment.mjs --env=production",
+    "railway:wait": "node scripts/verify-railway-deployment.mjs --wait",
+    "railway:wait:prod": "node scripts/verify-railway-deployment.mjs --env=production --wait",
     "hooks:railway": "node scripts/install-railway-hooks.mjs",
     "exec:timeout": "node scripts/hooks/timeout-runner.mjs 300",
     "db:sync:prod-to-dev": "node scripts/railway-db-sync.mjs",
