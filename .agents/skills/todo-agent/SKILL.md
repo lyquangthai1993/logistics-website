@@ -247,7 +247,13 @@ flowchart TD
    - **Chốt chặn**: Chỉ khi Tầng 1 Local PASS 100% mới chuyển sang `Stage 5: DEPLOY` để đưa code lên môi trường Development.
 
 ### 🔸 Tầng 2: Kiểm thử lại trên Môi trường Development (Cloud Dev E2E Gate — Trước khi bàn giao)
-Sau khi `Stage 5: DEPLOY` đã merge PR vào `dev` và môi trường Development (`Railway Cloud Dev`) đã cập nhật bản mới (`HTTP 200 OK`):
+Sau khi `Stage 5: DEPLOY` đã merge PR vào `dev`, **BẮT BUỘC xác nhận bản deployment mới trên Railway Cloud đã build xong (`SUCCESS`), khớp Commit SHA với `origin/dev` và đã cutover sang `activeDeployments`** (tuyệt đối không chỉ check `HTTP 200 OK` vì container cũ vẫn trả về 200 trong lúc container mới đang `BUILDING`):
+0. **Xác nhận Build & Cutover Deployment mới trên Railway (`verify-railway-deployment.mjs`)**:
+   ```bash
+   npm run railway:wait
+   # hoặc kiểm tra nhanh: npm run railway:verify
+   ```
+   - Chốt chặn kỹ thuật (`scripts/hooks/pre-command-guard.mjs`) sẽ **TỰ ĐỘNG CHẶN (`deny`)** lệnh `playwright test` trên Railway nếu bản build mới đang `BUILDING`/`DEPLOYING`/`QUEUED`, chưa khớp Commit SHA, hoặc bị `FAILED`.
 1. **Chạy lại Playwright E2E trực tiếp trên Môi trường Development ([`/e2e-test-runner`](../e2e-test-runner/SKILL.md))**:
    ```bash
    $env:PLAYWRIGHT_BASE_URL="https://frontend-tms-core-dev.up.railway.app"
@@ -280,12 +286,13 @@ Stage 5 đóng vai trò cầu nối đưa code đã vượt qua **Test Tầng 1 
      ```bash
      gh pr merge --repo <submodule_repo> <branch> --merge --delete-branch
      ```
-3. **Chờ Môi trường Development Deploy hoàn tất & Kích hoạt Test Tầng 2**:
-   - Kiểm tra sức khỏe môi trường Development trên Railway Cloud (timeout giới hạn 15s, tối đa 5 lần poll):
+3. **Chờ Môi trường Development Build & Cutover hoàn tất (4 Strict Invariants) & Kích hoạt Test Tầng 2**:
+   - Kiểm tra trạng thái Build (`latestDeployment.status === 'SUCCESS'`), khớp Git Commit SHA (`origin/dev`), Active Container Cutover (`activeDeployments[0].id === latestDeployment.id`) và HTTP Health 200 OK trên Railway Cloud:
      ```bash
-     curl.exe -m 15 -i https://backend-tms-core-dev.up.railway.app/api/v1/health
+     npm run railway:wait
+     # hoặc: node scripts/verify-railway-deployment.mjs --wait
      ```
-   - Ngay khi môi trường Development trả về `HTTP 200 OK`, bàn giao ngay cho **QA (`Stage 4 - Tầng 2`)** chạy lại toàn bộ bộ test E2E trên `https://frontend-tms-core-dev.up.railway.app` để kiểm chứng và bàn giao.
+   - Chỉ khi `npm run railway:verify` báo `VERDICT: READY FOR TIER-2 E2E TESTING!` (exit code 0), mới bàn giao cho **QA (`Stage 4 - Tầng 2`)** chạy lại toàn bộ bộ test E2E trên `https://frontend-tms-core-dev.up.railway.app`.
 
 ---
 

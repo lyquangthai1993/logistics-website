@@ -28,15 +28,27 @@ if (fs.existsSync(envPath)) {
 
 const token = envVars.RAILWAY_TOKEN_PRO || envVars.RAILWAY_PROD_TOKEN || envVars.RAILWAY_DEV_TOKEN;
 const args = process.argv.slice(2);
+const subcommand = (args[0] || '').toLowerCase();
+
+// Project tokens trong .env.railway dùng cho `railway up` / CI deploy.
+// Các lệnh truy vấn như `status`, `environment`, `logs`, `whoami`, `domain` ưu tiên OAuth session trong ~/.railway/config.json.
+const homeConfigPath = path.join(process.env.USERPROFILE || process.env.HOME || '', '.railway', 'config.json');
+const hasCliLoginSession = fs.existsSync(homeConfigPath);
+const needsProjectToken = subcommand === 'up' || !hasCliLoginSession;
+
+const childEnv = { ...process.env };
+if (needsProjectToken && token) {
+  childEnv.RAILWAY_TOKEN = token;
+} else if (hasCliLoginSession) {
+  delete childEnv.RAILWAY_TOKEN;
+  delete childEnv.RAILWAY_API_TOKEN;
+}
 
 const proc = spawnSync('railway', args, {
   cwd: process.cwd(),
   stdio: 'inherit',
   shell: true,
-  env: {
-    ...process.env,
-    ...(token ? { RAILWAY_TOKEN: token } : {}),
-  },
+  env: childEnv,
 });
 
 process.exit(proc.status ?? 0);

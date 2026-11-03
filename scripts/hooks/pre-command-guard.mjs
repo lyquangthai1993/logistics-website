@@ -6,7 +6,11 @@
  * 1. Chặn các lệnh rủi ro cao (git push --no-verify, force push, hard reset, DROP/TRUNCATE DB).
  * 2. Chốt chặn Cưỡng chế Local-First (Tier-1 Gate): Chặn mọi lệnh git push submodule (backend/frontend),
  *    gh pr create, hoặc task:pr nếu máy chủ Local (port 4000 & 4001) chưa được bật!
- * 3. Tự động gắn Hard Timeout 5 phút (300s) chống treo cho tất cả lệnh terminal không phải daemon.
+ * 3. Chốt chặn Cưỡng chế Railway Build & Cutover (Tier-2 Gate): Chặn mọi lệnh chạy Playwright E2E
+ *    nhắm vào Railway Cloud (`*.up.railway.app`) nếu bản deployment mới nhất trên Railway đang
+ *    BUILDING / DEPLOYING / QUEUED, chưa khớp Commit SHA với nhánh git, chưa cutover sang active container,
+ *    hoặc bị BUILD FAILED!
+ * 4. Tự động gắn Hard Timeout 5 phút (300s) chống treo cho tất cả lệnh terminal không phải daemon.
  *
  * Tuân thủ RULE-ANTI-HANG-EXEC-01 và AGENTS.md.
  */
@@ -14,6 +18,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { checkLocalServers } from "../ensure-local-servers.mjs";
+import { checkRailwayDeploymentReady } from "../verify-railway-deployment.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,7 +30,7 @@ const TIMEOUT_RUNNER_PATH = path
 const hardTimeout = setTimeout(() => {
   console.log(JSON.stringify({ decision: "allow" }));
   process.exit(0);
-}, 8000);
+}, 8500);
 hardTimeout.unref();
 
 // Danh sách các mẫu lệnh rủi ro cao bị cấm hoặc cần ngăn chặn
@@ -109,6 +114,29 @@ function requiresLocalServersGate(commandLine) {
   return false;
 }
 
+/**
+ * Kiểm tra xem lệnh có phải là chạy Playwright E2E trên môi trường Railway Cloud (Tầng 2) hay không.
+ * Trả về tên môi trường ('dev' hoặc 'production') nếu cần kiểm tra, hoặc null nếu không.
+ */
+function detectRailwayE2ETargetEnv(commandLine) {
+  if (/--skip-railway-gate\b/i.test(commandLine)) return null;
+
+  const isPlaywrightCmd =
+    /\bplaywright\s+test\b/i.test(commandLine) ||
+    /\bnpm\s+run\s+(test:)?e2e\b/i.test(commandLine);
+
+  if (!isPlaywrightCmd) return null;
+
+  if (/(frontend|backend)-tms-core-production\.up\.railway\.app/i.test(commandLine)) {
+    return "production";
+  }
+  if (/(frontend|backend)-tms-core-dev\.up\.railway\.app/i.test(commandLine)) {
+    return "dev";
+  }
+
+  return null;
+}
+
 let inputData = "";
 process.stdin.setEncoding("utf8");
 
@@ -166,7 +194,38 @@ process.stdin.on("end", async () => {
       }
     }
 
-    // 3. Kiểm tra nếu là daemon (dev server, background worker) -> Cho phép chạy bình thường, không bọc timeout
+    // 3. Chốt chặn Cưỡng chế Railway Build & Cutover (Tier-2 Gate):
+    // Không cho phép chạy Playwright E2E trên Railway nếu bản deployment mới chưa build xong (SUCCESS) hoặc chưa khớp Commit SHA!
+    const railwayTargetEnv = detectRailwayE2ETargetEnv(commandLine);
+    if (railwayTargetEnv) {
+      const railwayCheck = await checkRailwayDeploymentReady({
+        envName: railwayTargetEnv,
+        timeoutMs: 5500,
+      });
+
+      if (!railwayCheck.cliError && railwayCheck.services.length > 0 && !railwayCheck.ready) {
+        const detailsText = railwayCheck.services
+          .map(
+            (s) =>
+              `- ${s.serviceName}: [${s.state}] build=${s.buildStatus}, git=${(s.latestCommit || "N/A").slice(0, 7)}/${(s.expectedCommit || "N/A").slice(0, 7)}, cutover=${s.isCutoverActive ? "YES" : "NO"} -> ${s.reason}`,
+          )
+          .join("\n");
+
+        const result = {
+          decision: "deny",
+          reason:
+            `🛡️ [RAILWAY TIER-2 BUILD GATE BLOCKED] Không thể chạy Playwright E2E trên Railway (${railwayTargetEnv.toUpperCase()}) vì bản deployment mới chưa hoàn tất build hoặc chưa cutover!\n` +
+            `Chi tiết trạng thái hiện tại trên Railway:\n${detailsText}\n\n` +
+            `Hành động bắt buộc:\n` +
+            `1. Chạy 'npm run railway:wait' (hoặc 'node scripts/verify-railway-deployment.mjs --wait') để chờ bản build mới đạt trạng thái SUCCESS & cutover sang container mới.\n` +
+            `2. Nếu trạng thái là BUILD_FAILED / CRASHED, kiểm tra log lỗi build và sửa code trước khi test lại.`,
+        };
+        console.log(JSON.stringify(result));
+        process.exit(0);
+      }
+    }
+
+    // 4. Kiểm tra nếu là daemon (dev server, background worker) -> Cho phép chạy bình thường, không bọc timeout
     const isDaemonCommand =
       isDaemonArg || DAEMON_PATTERNS.some((p) => p.test(commandLine));
     if (isDaemonCommand) {
@@ -174,7 +233,7 @@ process.stdin.on("end", async () => {
       process.exit(0);
     }
 
-    // 4. Tự động bọc lệnh với Hard Timeout 5 phút (300 giây) chống treo
+    // 5. Tự động bọc lệnh với Hard Timeout 5 phút (300 giây) chống treo
     const b64Cmd = Buffer.from(commandLine).toString("base64");
     const wrappedCommandLine = `node "${TIMEOUT_RUNNER_PATH}" --b64 ${b64Cmd} 300`;
 

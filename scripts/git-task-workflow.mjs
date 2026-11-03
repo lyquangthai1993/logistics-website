@@ -5,7 +5,7 @@
  *
  * CLI Helper enforcing the GitHub Task Lifecycle Workflow (RULE-GIT-TASK-WORKFLOW-01):
  * 1. start <task_id> [slug] : Pull latest dev, create feature/task-<id>-<slug> in submodules, & AUTO-START Local Servers (:4000 & :4001)
- * 2. pr <task_id> [slug]    : Verify Local Servers (:4000 & :4001) are UP, push branch, create PR into dev, auto-merge into dev
+ * 2. pr <task_id> [slug]    : Verify Local Servers (:4000 & :4001) are UP, push branch, create PR into dev, auto-merge into dev, & sync origin/dev
  * 3. status                 : Check branch alignment across root, backend, frontend
  */
 
@@ -160,7 +160,9 @@ export async function createAndMergePr(taskId, slugOrModule = 'work', action = '
 
         console.log(`[${repo.name}] Tự động merge PR vào dev...`);
         run(`gh pr merge --repo ${repo.ghRepo} ${branchName} --merge`, repo.dir);
-        console.log(`✅ [${repo.name}] PR đã được merge vào dev thành công!`);
+        run('git checkout dev', repo.dir);
+        run('git pull origin dev', repo.dir);
+        console.log(`✅ [${repo.name}] PR đã được merge vào dev & đồng bộ origin/dev thành công!`);
       } catch (err) {
         console.warn(`⚠️ gh CLI gặp lỗi khi tạo/merge PR trong ${repo.name}. Tiến hành merge qua Git fallback.`);
         gitFallbackMerge(repo.dir, branchName);
@@ -174,7 +176,7 @@ export async function createAndMergePr(taskId, slugOrModule = 'work', action = '
   console.log(`\n======================================================`);
   console.log(`🎉 HOÀN THÀNH MERGE VÀO DEV CHO TASK #${taskId}`);
   console.log(`- Mã nguồn đã được cập nhật trên origin/dev.`);
-  console.log(`- Hãy chờ Cloud Dev deploy hoàn tất để chạy E2E nghiệm thu Tầng 2.`);
+  console.log(`- Bắt buộc chạy 'npm run railway:wait' (hoặc 'npm run railway:verify') để xác nhận Railway build SUCCESS & cutover hoàn tất trước khi chạy E2E Tầng 2!`);
   console.log(`======================================================\n`);
 }
 
