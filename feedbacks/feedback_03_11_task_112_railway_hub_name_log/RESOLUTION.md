@@ -12,9 +12,16 @@
 ## 1. 📌 Bối Cảnh Nghiệp Vụ & Phân Tích Nguyên Nhân Gốc Rễ (RCA)
 
 ### Phản hồi thực tế từ người dùng:
-> *"*Ngày tiếp nhận"*
+> *"Hub 1 => text này là gì? bro luôn cho rồi, đảm bảo phải chính xác theo hubId trong database"*
+> *"Hub 1 có lúc in là Spider Polaris Tân Tiến, Văn Giang, Hưng Yên... lúc Hub1 lại là Kho Magellan... lúc lại là HUB LINH TRUNG... lúc Andromeda Hub - HCM"*
 
-Nhiệm vụ này giải quyết phản hồi thực tế từ vận hành hiện trường tại các Hub và trung tâm điều phối của Spider Express, đảm bảo tính toàn vẹn dữ liệu, giao diện compact density và luồng vận hành chính xác.
+**Nguyên nhân gốc rễ (Root Cause)**:
+- Cột `order.originHub` (VARCHAR) trong bảng `orders` là trường địa chỉ tự do lưu vết lúc tạo đơn (chứa text địa chỉ chi tiết, SĐT, hoặc tên kho người gửi gõ tay).
+- Logic cũ ưu tiên nhận `fallbackHubName` từ `orders[0]?.originHub` hoặc `dto.hubName`, dẫn tới việc bỏ qua truy vấn bảng `hub`. Do đó, cùng là thao tác tại Hub 1, nhưng khi xuất/hủy đơn hàng nào thì lại in chuỗi rác `order.originHub` của đơn hàng đó.
+
+**Giải pháp triệt để**:
+- Đảo ngược thứ tự ưu tiên: Trong cả `WarehouseService.formatHubLogLabel` và `OrderActivityLogService.logActivity`, **luôn truy vấn trực tiếp từ bảng `hub` theo `hubId` trước**.
+- Chỉ khi `hubId` không tìm thấy trong database mới dùng đến fallback text. Loại bỏ hoàn toàn việc truyền chuỗi tự do `order.originHub` làm tên đại diện của Hub thao tác kho.
 
 ---
 
