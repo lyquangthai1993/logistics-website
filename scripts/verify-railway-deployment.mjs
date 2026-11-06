@@ -89,30 +89,144 @@ export function getExpectedSubmoduleCommit(submoduleDir, branch = "dev") {
 }
 
 /**
- * Gọi `railway status --json` an toàn với timeout chống treo, ưu tiên OAuth session trong ~/.railway/config.json.
+ * Gọi Railway GraphQL API (`https://backboard.railway.com/graphql/v2`) trực tiếp qua HTTPS fetch
+ * hoặc fallback từ `railway status --json` (chống lỗi spawnSync railway.exe UNKNOWN trên Windows).
  */
-export function fetchRailwayProjectStatusJson(timeoutMs = 7000) {
+export async function fetchRailwayProjectStatusJson(timeoutMs = 7000) {
   const homeConfigPath = path.join(
     process.env.USERPROFILE || process.env.HOME || "",
     ".railway",
     "config.json",
   );
-  const hasCliLoginSession = fs.existsSync(homeConfigPath);
+  let oauthToken = null;
+  let projectId = "32cad4c1-ce12-473c-9a5d-5b3c136d0ecb";
+
+  if (fs.existsSync(homeConfigPath)) {
+    try {
+      const cfg = JSON.parse(fs.readFileSync(homeConfigPath, "utf8"));
+      const nowSec = Math.floor(Date.now() / 1000);
+      const expiresAt = Number(cfg?.user?.tokenExpiresAt) || 0;
+      const refreshToken = cfg?.user?.refreshToken;
+
+      // Tự động làm mới OAuth accessToken nếu đã hết hạn (hoặc sắp hết hạn trong 60s)
+      if (refreshToken && (!cfg?.user?.accessToken || expiresAt <= nowSec + 60)) {
+        try {
+          const refreshRes = await fetch(
+            "https://backboard.railway.com/oauth/token",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: new URLSearchParams({
+                grant_type: "refresh_token",
+                refresh_token: refreshToken,
+                client_id: "rlwy_oaci_onEklvmksh1hRUiCo7E2zX12",
+              }),
+              signal: AbortSignal.timeout(5000),
+            },
+          );
+          if (refreshRes.ok) {
+            const refreshBody = await refreshRes.json();
+            if (refreshBody?.access_token) {
+              cfg.user.accessToken = refreshBody.access_token;
+              if (refreshBody.refresh_token) {
+                cfg.user.refreshToken = refreshBody.refresh_token;
+              }
+              if (refreshBody.expires_in) {
+                cfg.user.tokenExpiresAt =
+                  Math.floor(Date.now() / 1000) + Number(refreshBody.expires_in);
+              }
+              fs.writeFileSync(homeConfigPath, JSON.stringify(cfg, null, 2));
+            }
+          }
+        } catch {}
+      }
+
+      oauthToken = cfg?.user?.accessToken || cfg?.user?.token || null;
+      const firstProj = Object.values(cfg?.projects || {})[0];
+      if (firstProj?.project) projectId = firstProj.project;
+    } catch {}
+  }
+
+  // Ưu tiên gọi trực tiếp Railway GraphQL v2 qua Node.js fetch (nhanh < 500ms, không phụ thuộc railway.exe binary)
+  if (oauthToken) {
+    try {
+      const query = `
+        query GetProjectDeployments($projectId: String!) {
+          project(id: $projectId) {
+            id
+            name
+            environments {
+              edges {
+                node {
+                  id
+                  name
+                  serviceInstances {
+                    edges {
+                      node {
+                        id
+                        serviceId
+                        serviceName
+                        activeDeployments {
+                          id
+                          status
+                          createdAt
+                          updatedAt
+                          meta
+                        }
+                        latestDeployment {
+                          id
+                          status
+                          createdAt
+                          updatedAt
+                          meta
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `;
+      const res = await fetch("https://backboard.railway.com/graphql/v2", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${oauthToken}`,
+        },
+        body: JSON.stringify({
+          query,
+          variables: { projectId },
+        }),
+        signal: AbortSignal.timeout(timeoutMs),
+      });
+      if (res.ok) {
+        const body = await res.json();
+        if (body?.data?.project) {
+          return body.data.project;
+        }
+      }
+    } catch {}
+  }
 
   const childEnv = {
     ...process.env,
     CI: "true",
   };
 
-  // Nếu máy trạm đã login Railway CLI (có user.accessToken trong ~/.railway/config.json),
-  // xóa RAILWAY_TOKEN (vốn là Project Token chỉ dùng cho `railway up`) để `railway status --json` hoạt động chuẩn xác.
-  if (hasCliLoginSession) {
+  if (oauthToken) {
     delete childEnv.RAILWAY_TOKEN;
     delete childEnv.RAILWAY_API_TOKEN;
   }
 
+  const normalizedRootDir =
+    process.platform === "win32" && /^[a-z]:/.test(ROOT_DIR)
+      ? ROOT_DIR[0].toUpperCase() + ROOT_DIR.slice(1)
+      : ROOT_DIR;
+
   const proc = spawnSync("railway", ["status", "--json"], {
-    cwd: ROOT_DIR,
+    cwd: normalizedRootDir,
     encoding: "utf8",
     shell: true,
     timeout: timeoutMs,
@@ -174,7 +288,7 @@ export async function checkRailwayDeploymentReady({
 
   let projectData;
   try {
-    projectData = fetchRailwayProjectStatusJson(timeoutMs);
+    projectData = await fetchRailwayProjectStatusJson(timeoutMs);
   } catch (err) {
     return {
       ready: false,
