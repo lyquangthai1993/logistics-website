@@ -535,11 +535,7 @@ async function main() {
       }
     }
 
-    await devClient.query("SET session_replication_role = 'origin';");
-    await devClient.query("COMMIT");
-    console.log("  ✅ Giao dịch nạp dữ liệu vào Dev DB đã COMMIT thành công!");
-
-    // Bước 5: Nghiệm thu đối soát
+    // Bước 5: Nghiệm thu đối soát (thực hiện ngay trước COMMIT để đảm bảo cô lập tuyệt đối với background workers)
     console.log("\n[5/5] 🔎 Đối soát số lượng bản ghi giữa Prod và Dev...");
     let mismatchCount = 0;
 
@@ -566,6 +562,10 @@ async function main() {
       );
     }
     console.log("-".repeat(60));
+
+    await devClient.query("SET session_replication_role = 'origin';");
+    await devClient.query("COMMIT");
+    console.log("  ✅ Giao dịch nạp dữ liệu vào Dev DB đã COMMIT thành công!");
 
     // Health check Dev Backend
     console.log("\n🩺 Kiểm tra trạng thái sức khỏe Dev Backend API...");
