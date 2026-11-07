@@ -9,14 +9,24 @@
 
 | Trường | Giá trị |
 |---|---|
-| **Phiên bản** | v1.0.0 |
-| **Ngày audit** | 2026-10-08 |
+| **Phiên bản** | v1.1.0 |
+| **Ngày audit** | 2026-11-07 |
 | **Người thực hiện** | Antigravity Multi-Agent Teamwork System |
-| **Môi trường** | Development / Staging / Production (Vercel + Render) |
+| **Môi trường** | Development / Staging / Production (Railway Cloud Primary + Vercel/Render) |
 
 ---
 
 ## 🗂️ CHANGELOG PHIÊN BẢN
+
+### v1.1.0 — 2026-11-07 (Super Admin Operational Reports, Daily TRIP Tracker & Cronjob Administration)
+- ✅ **Báo Cáo Kết Quả Hoạt Động Vận Hành Hub & Cronjob Chốt Sổ (`18:00 D-1 → 18:00 D`)**:
+  - **Database & Migration (`1779200000000-CreateDailyHubOperationalReport`)**: Bổ sung 3 bảng `daily_hub_operational_report`, `cron_job_config`, `cron_job_execution_log` và cập nhật đồng bộ Zero-Lock DB Sync (`scripts/railway-db-sync.mjs` — 19 bảng).
+  - **Backend (`AdminReportsService` & `AdminReportsController`)**: 6 endpoints dành riêng cho `SUPER_ADMIN` (`/v1/admin/reports/operational`, `/v1/admin/reports/operational/sync`, `/v1/admin/reports/operational/daily-trips`, `/v1/admin/reports/cronjobs`, `/v1/admin/reports/cronjobs/config`, `/v1/admin/reports/cronjobs/rerun`), tổng hợp chuyến xe theo đúng thời điểm xác nhận thực tế (`order_inventory_transaction.createdAt`) trong khung `18:00 ngày D-1 → 18:00 ngày D` (`GMT+7`).
+  - **Frontend (`/dashboard/admin/reports`, `/dashboard/admin/reports/trips`, `/dashboard/admin/cronjobs`)**:
+    - `/dashboard/admin/reports`: Kiến trúc Next.js **Parallel Routes** (`@daily_stats`, `@monthly_trends`, `@drilldown_table`) với 1 Bộ lọc Global duy nhất trên cùng, biểu đồ Slide 2 (CBM theo ngày) & Slide 3 (Xu hướng tháng SỐ KHỐI / SỐ TẤN), tích hợp Widget Theo dõi mã TRIP.
+    - `/dashboard/admin/reports/trips`: Trang chuyên biệt theo dõi 1 ngày cụ thể có bao nhiêu xe nhập kho / xe xuất kho và danh sách vận đơn trong từng mã `TRIP`.
+    - `/dashboard/admin/cronjobs`: Trang Quản trị Cronjob thuần túy (Cấu hình lịch chạy tự động, Chạy lại 1 ngày cụ thể, Nhật ký thực thi).
+  - **Tài liệu kiến trúc**: [`docs/SUPER_ADMIN_OPERATIONAL_REPORTS_AND_CRONJOB.md`](file:///d:/Projects/logistics-website/docs/SUPER_ADMIN_OPERATIONAL_REPORTS_AND_CRONJOB.md).
 
 ### v1.0.0 — 2026-10-08 (Milestone Release — Production-Ready Logistics TMS)
 - ✅ **Chuẩn Hóa & Hoàn Thiện Toàn Diện 7 Flow Nghiệp Vụ Vận Hành Cốt Lõi**:

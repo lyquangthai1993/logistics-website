@@ -40,6 +40,9 @@
 | **Vận hành TMS** | Nhập kho | `/dashboard/warehouse/inbound` | ✅ | ❌ | ❌ | ✅ |
 | **Vận hành TMS** | Xuất kho | `/dashboard/warehouse/outbound` | ✅ | ❌ | ❌ | ✅ |
 | **Vận hành TMS** | Đơn hàng kho | `/dashboard/warehouse/orders` | ✅ | ❌ | ❌ | ✅ |
+| **Quản trị hệ thống** | Báo cáo vận hành | `/dashboard/admin/reports` | ✅ | ❌ | ❌ | ❌ |
+| **Quản trị hệ thống** | Theo dõi TRIP theo ngày | `/dashboard/admin/reports/trips` | ✅ | ❌ | ❌ | ❌ |
+| **Quản trị hệ thống** | Quản trị Cronjob | `/dashboard/admin/cronjobs` | ✅ | ❌ | ❌ | ❌ |
 | **Quản trị hệ thống** | Chi Nhánh Kho (Hubs) | `/dashboard/admin/hubs` | ✅ | ❌ | ❌ | ❌ |
 | **Quản trị hệ thống** | Người dùng | `/dashboard/users` | ✅ | ❌ | ❌ | ❌ |
 
@@ -201,6 +204,21 @@
 | `/v1/users` | POST | ✅ | ❌ |
 | `/v1/users/:id` | PATCH | ✅ | ❌ |
 | `/v1/users/:id` | DELETE | ✅ | ❌ |
+
+---
+
+### Admin Reports Controller
+> **File**: `backend/src/orders/admin-reports.controller.ts`
+> Nghiệp vụ: Báo cáo kết quả hoạt động vận hành Hub theo ngày (Cronjob 18:00 D-1 → 18:00 D) và xu hướng tháng dành riêng cho SUPER_ADMIN.
+
+| Endpoint | Method | SUPER_ADMIN | DISPATCHER | FLEET_MANAGER | WAREHOUSE_MANAGER |
+|---|---|:-----------:|:----------:|:-------------:|:-----------------:|
+| `/v1/admin/reports/operational` | GET | ✅ | ❌ | ❌ | ❌ |
+| `/v1/admin/reports/operational/sync` | POST | ✅ | ❌ | ❌ | ❌ |
+| `/v1/admin/reports/operational/daily-trips` | GET | ✅ | ❌ | ❌ | ❌ |
+| `/v1/admin/reports/cronjobs` | GET | ✅ | ❌ | ❌ | ❌ |
+| `/v1/admin/reports/cronjobs/config` | PATCH | ✅ | ❌ | ❌ | ❌ |
+| `/v1/admin/reports/cronjobs/rerun` | POST | ✅ | ❌ | ❌ | ❌ |
 
 ---
 

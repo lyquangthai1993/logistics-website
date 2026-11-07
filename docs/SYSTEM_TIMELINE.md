@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 07/11/2026 | `docs/SUPER_ADMIN_OPERATIONAL_REPORTS_AND_CRONJOB.md` | 📊 Báo Cáo Vận Hành Hub (Slide 2 & 3), Theo Dõi Mã TRIP Theo Ngày & Quản Trị Cronjob (18:00 D-1 → 18:00 D) | 6/6 | ✅ DONE (100%) | [SUPER_ADMIN_OPERATIONAL_REPORTS_AND_CRONJOB.md](SUPER_ADMIN_OPERATIONAL_REPORTS_AND_CRONJOB.md) |
 | 03/11/2026 | `feedbacks/feedback_03_11_task_112_railway_hub_name_log` | 📋 TODO: Ghi Rõ Tên Chi Nhánh Kho (Hub Name) Trong L... | 5/5 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_03_11_task_112_railway_hub_name_log/RESOLUTION.md) |
 | 01/11/2026 | `feedbacks/feedback_01_11_task_111_super_admin_login_as` | 📋 TODO: Tính Năng Super Admin "Login As" — Đóng Vai... | 10/10 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_01_11_task_111_super_admin_login_as/RESOLUTION.md) |
 | 01/11/2026 | `feedbacks/feedback_01_11_task_110_date_filter_dropdown_7days` | 📋 TODO: Chuẩn Hóa Bộ Lọc Ngày Nhập Kho & Xuất Kho T... | 10/10 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_01_11_task_110_date_filter_dropdown_7days/RESOLUTION.md) |
@@ -86,6 +87,22 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [SUPER_ADMIN_OPERATIONAL_REPORTS_CRONJOB] — 📊 Hệ Thống Báo Cáo Vận Hành Hub (Slide 2 & Slide 3), Theo Dõi Chi Tiết Mã TRIP Theo Ngày & Quản Trị Cronjob (`18:00 D-1 → 18:00 D`) (07/11/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (6/6 hạng mục)
+- **Năng lực & Tính năng mới**:
+  * **Backend (`backend/src/orders/`)**:
+    - Khởi tạo 3 bảng dữ liệu mới (`daily_hub_operational_report`, `cron_job_config`, `cron_job_execution_log`) trong migration `1779200000000-CreateDailyHubOperationalReport.ts` và tích hợp vào `scripts/railway-db-sync.mjs`.
+    - Triển khai `AdminReportsService` & `AdminReportsController` với 6 endpoints bảo vệ bởi `@Roles(RoleEnum.SUPER_ADMIN)`: tổng hợp sản lượng theo khung giờ chốt sổ `18:00:00 (6:00 PM) ngày D-1 → 18:00:00 (6:00 PM) ngày D` (`GMT+7`) tính theo thời điểm xác nhận chuyến xe thực tế (`order_inventory_transaction.createdAt`), loại trừ chuyến nháp và giao dịch đã hoàn tác.
+  * **Frontend (`frontend/src/`)**:
+    - **Trang Báo cáo Kết quả Hoạt động Vận hành (`/dashboard/admin/reports`)**: Áp dụng Next.js **Parallel Routes** (`@daily_stats`, `@monthly_trends`, `@drilldown_table`) với **1 Bộ lọc Chung Global duy nhất trên cùng**, biểu đồ cột CBM theo ngày (Slide 2), biểu đồ đường xu hướng tháng SỐ KHỐI & SỐ TẤN (Slide 3), và **Widget Theo dõi chi tiết mã TRIP**.
+    - **Trang Theo dõi Chi tiết Mã TRIP Nhập/Xuất Theo Ngày (`/dashboard/admin/reports/trips`)**: Chọn 1 ngày cụ thể `D`, dải 14 ngày chọn nhanh (`N:x • X:y xe`), 4 thẻ KPI số lượng Xe Nhập Kho / Xe Xuất Kho, bảng phân bổ theo Chi nhánh Kho và danh sách mã `TRIP` có thể mở rộng xem toàn bộ vận đơn bên trong.
+    - **Trang Quản trị Cronjob Thuần túy (`/dashboard/admin/cronjobs`)**: Tinh gọn tập trung vào 3 khối cốt lõi: Cấu hình lịch chạy tự động hàng ngày (`GMT+7`), Chạy lại Cronjob cho 1 ngày cụ thể và Bảng Nhật ký lịch sử thực thi Cronjob.
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E (`frontend/e2e/admin-operational-reports.spec.ts`): `4/4 tests PASS (100%)`
+  * E2E Code Auditor (`scripts/e2e-auditor.mjs`): `50/50 điểm (🟢 PASS, 83 assertions)`
+  * Minh chứng hình ảnh: `screenshot_super_admin_operational_report_verified.png`, `screenshot_super_admin_daily_trips_verified.png`, `screenshot_super_admin_cronjobs_verified.png`
+- **Tài liệu tham chiếu**: [`docs/SUPER_ADMIN_OPERATIONAL_REPORTS_AND_CRONJOB.md`](SUPER_ADMIN_OPERATIONAL_REPORTS_AND_CRONJOB.md)
 
 ### 🚀 [FEEDBACK_03_11_TASK_112_RAILWAY_HUB_NAME_LOG] — 📋 TODO: Ghi Rõ Tên Chi Nhánh Kho (Hub Name) Trong Log Vận Hành Kho Bãi Trên Railway (Task #112) (03/11/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (5/5 việc)

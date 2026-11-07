@@ -171,6 +171,9 @@ const ALL_TABLES = [
   "trip_stop",
   "order_inventory_transaction",
   "order_activity_log",
+  "daily_hub_operational_report",
+  "cron_job_config",
+  "cron_job_execution_log",
   "notification",
   "migrations",
 ];
@@ -189,6 +192,9 @@ const SEQUENCE_NAMES = [
   "order_code_counter_id_seq",
   "order_inventory_transaction_id_seq",
   "order_activity_log_id_seq",
+  "daily_hub_operational_report_id_seq",
+  "cron_job_config_id_seq",
+  "cron_job_execution_log_id_seq",
   "trip_stop_id_seq",
   "trip_code_sd_seq",
 ];
@@ -207,23 +213,33 @@ function getTimestamp() {
   return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
 }
 
+async function relationExists(client, relName) {
+  const res = await client.query(
+    `SELECT to_regclass($1) IS NOT NULL AS exists`,
+    [`public."${relName}"`],
+  );
+  return Boolean(res.rows[0]?.exists);
+}
+
 async function fetchTableData(client, tableName) {
+  if (!(await relationExists(client, tableName))) {
+    return { rows: [], columns: [], missingOnSource: true };
+  }
   const res = await client.query(`SELECT * FROM "${tableName}"`);
   const columns = res.fields.map((f) => f.name);
-  return { rows: res.rows, columns };
+  return { rows: res.rows, columns, missingOnSource: false };
 }
 
 async function fetchSequences(client) {
   const seqs = {};
   for (const seq of SEQUENCE_NAMES) {
-    try {
-      const res = await client.query(
-        `SELECT last_value, is_called FROM "${seq}"`,
-      );
-      seqs[seq] = res.rows[0];
-    } catch {
-      // bỏ qua sequence nếu không tồn tại
+    if (!(await relationExists(client, seq))) {
+      continue;
     }
+    const res = await client.query(
+      `SELECT last_value, is_called FROM "${seq}"`,
+    );
+    seqs[seq] = res.rows[0];
   }
   return seqs;
 }
@@ -467,15 +483,21 @@ async function main() {
       await devClient.query(`DROP INDEX IF EXISTS "${idx.indexname}" CASCADE;`);
     }
 
-    // Xóa theo thứ tự ngược
+    // Xóa theo thứ tự ngược (chỉ xóa các bảng tồn tại trên Dev DB và không phải bảng mới chưa có trên Prod nếu muốn giữ, hoặc xóa đồng bộ)
     const reverseTables = [...targetTables].reverse();
     for (const table of reverseTables) {
-      await devClient.query(`DELETE FROM "${table}";`);
+      if (await relationExists(devClient, table)) {
+        await devClient.query(`DELETE FROM "${table}";`);
+      }
     }
     console.log("  🧹 Đã xóa sạch dữ liệu cũ trong bảng mục tiêu trên Dev DB");
 
     // Chèn dữ liệu theo thứ tự xuôi
     for (const table of targetTables) {
+      if (!(await relationExists(devClient, table))) {
+        console.log(`  ⚪ Bảng "${table.padEnd(28)}": Chưa tồn tại trên Dev DB`);
+        continue;
+      }
       const { rows, columns } = prodDump.tables[table];
       if (rows && rows.length > 0) {
         const count = await insertRowsInChunks(
@@ -496,7 +518,7 @@ async function main() {
     // Cập nhật lại sequences
     console.log("  🔢 Cập nhật lại toàn bộ sequences...");
     for (const [seq, meta] of Object.entries(prodDump.sequences)) {
-      if (meta && meta.last_value) {
+      if (meta && meta.last_value && (await relationExists(devClient, seq))) {
         await devClient.query(
           `SELECT setval('${seq}', ${meta.last_value}, ${meta.is_called ? "true" : "false"});`,
         );
@@ -528,10 +550,13 @@ async function main() {
     console.log("-".repeat(60));
 
     for (const table of targetTables) {
-      const res = await devClient.query(
-        `SELECT count(*)::int as count FROM "${table}"`,
-      );
-      const devCount = res.rows[0].count;
+      let devCount = 0;
+      if (await relationExists(devClient, table)) {
+        const res = await devClient.query(
+          `SELECT count(*)::int as count FROM "${table}"`,
+        );
+        devCount = res.rows[0].count;
+      }
       const prodCount = prodCounts[table];
       const match = devCount === prodCount;
       if (!match) mismatchCount++;
