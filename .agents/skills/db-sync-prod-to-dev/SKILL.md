@@ -125,6 +125,9 @@ Before any target data is touched on Dev:
   12. `trip_stop`
   13. `order_inventory_transaction`
   14. `order_activity_log`
+  15. `daily_hub_operational_report`
+  16. `cron_job_config`
+  17. `cron_job_execution_log`
   15. `notification`
   16. `migrations`
 - Reads 13 PostgreSQL sequence states (`last_value`, `is_called`).
