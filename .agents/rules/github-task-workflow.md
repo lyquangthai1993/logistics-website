@@ -1,7 +1,7 @@
 # Quy Chuẩn & Checklist Quy Trình GitHub Cho Tác Vụ (GitHub Task Lifecycle Workflow Rule)
 
-> **Mã quy chuẩn**: `RULE-GIT-TASK-WORKFLOW-01`  
-> **Trạng thái**: BẮT BUỘC (MANDATORY INVARIANT) CHO TOÀN BỘ AGENT (`/todo-agent`, `/telegram-task-responder`, `/leader`) VÀ KỸ SƯ  
+> **Mã quy chuẩn**: `RULE-GIT-TASK-WORKFLOW-01` & `RULE-GIT-HISTORY-RESUME-01`  
+> **Trạng thái**: BẮT BUỘC (MANDATORY INVARIANT) CHO TOÀN BỘ AGENT (`/leader`, Default Agent, `/todo-agent`, `/telegram-task-responder`) VÀ KỸ SƯ Ở MỖI PHIÊN SESSION CHAT VỚI ANTIGRAVITY  
 > **Áp dụng cho**: Monorepo Root (`logistics-website`), Backend Submodule (`logistics-website-backend`), Frontend Submodule (`logistics-website-frontend`)
 
 ---
@@ -9,11 +9,14 @@
 ## 1. Mục Đích & Triết Lý Vận Hành
 
 Quy trình này thiết lập **chuẩn mực bất biến** cho toàn bộ vòng đời xử lý một nhiệm vụ (Task / Feedback / Bugfix) trên GitHub:
-1. **Tuyệt đối không code trực tiếp trên `dev` hoặc `master`**: Mọi task đều phải được cô lập trên một Feature/Fix Branch riêng biệt, được tách nhánh từ bản mới nhất của `dev`.
+1. **Tuyệt đối không code, commit hay push thẳng lên `dev` hoặc `master` (`RULE-GIT-HISTORY-RESUME-01`)**:
+   - Mọi task và mọi chỉnh sửa trong các phiên chat đều phải thực hiện trên **Feature/Fix Branch** (`feat/...`, `feature/...`, `fix/...`).
+   - **Điều kiện bắt buộc ở MỖI phiên session chat với Antigravity**: Khi bắt đầu phiên chat hoặc trước khi thao tác với Git, `/leader` và Default Agent BẮT BUỘC chạy `npm run repo:status` và `npm run repo:tracking`. Nếu phát hiện bất kỳ repo nào (`root`, `backend/`, `frontend/`) đang đứng ở `dev` hoặc `master`, BẮT BUỘC truy ngược Git History (`git reflog`, `git for-each-ref --sort=-committerdate`) để tìm ra branch feature chính trước đó đã push/làm việc và **quay về branch feature đó ngay lập tức** bằng lệnh `npm run repo:resume` (`node scripts/git-task-workflow.mjs resume`).
+   - Chốt chặn kỹ thuật [`scripts/hooks/pre-command-guard.mjs`](file:///d:/Projects/logistics-website/scripts/hooks/pre-command-guard.mjs) tự động **BLOCK (`deny`)** mọi lệnh `git commit` hoặc `git push` trực tiếp trên `dev` và `master`.
 2. **Quy trình Kiểm định 2 Tầng (2-Tier Quality Gate)**:
    - **Tầng 1 (Local Gate)**: Kiểm thử E2E Playwright trên Local trước khi tạo PR.
    - **Tầng 2 (Cloud Dev Gate)**: Sau khi merge PR vào `dev` và deploy lên Cloud, kiểm thử E2E Playwright lần thứ 2 trực tiếp trên Domain Dev.
-3. **Bằng Chứng Pháp Lý & Minh Bạch (PR Audit Trail)**: Mỗi task hoàn thành bắt buộc phải có một Pull Request / Merge Request (PR/MR) trỏ vào `dev` trên GitHub để lưu vết lịch sử, danh sách thay đổi và biên bản kiểm thử, sau đó tự động merge vào `dev`.
+3. **Bằng Chứng Pháp Lý & Minh Bạch (PR Audit Trail)**: Mỗi task hoàn thành bắt buộc phải có một Pull Request / Merge Request (PR/MR) trỏ vào `dev` trên GitHub để lưu vết lịch sử, danh sách thay đổi và biên bản kiểm thử, sau đó tự động merge vào `dev` và **chuyển workspace quay lại branch feature chính** (`npm run repo:resume`).
 4. **Biên Niên Sử & Báo Cáo**: Tự động ghi chép `RESOLUTION.md`, cập nhật `docs/SYSTEM_TIMELINE.md` và gửi báo cáo chuẩn mobile-first qua Telegram kèm link PR và ảnh bằng chứng.
 
 ---
@@ -28,7 +31,7 @@ Hệ thống Logistics TMS gồm **3 Git repository độc lập**:
 > ⚠️ **NGUYÊN TẮC CỐT LÕI**:
 > - Tạo branch, commit và push **BẮT BUỘC thực hiện TRỰC TIẾP bên trong thư mục submodule tương ứng** (`backend/` và/hoặc `frontend/`).
 > - Tạo branch ở root **KHÔNG** làm thay đổi branch trong `backend/` hay `frontend/`.
-> - Nếu task tác động cả Fullstack, bắt buộc tạo nhánh cùng tên trên cả hai submodule.
+> - Nếu task tác động cả Fullstack, bắt buộc tạo nhánh cùng tên trên cả hai submodule và root.
 
 ---
 
@@ -90,47 +93,13 @@ Mọi branch tạo mới BẮT BUỘC tuân thủ công thức sau:
 
 ---
 
-### 3.4. So Sánh Các Phương Án Đặt Tên (Comparative Analysis)
-
-| Phương án | Mẫu ví dụ | Ưu điểm | Nhược điểm | Đánh giá |
-|---|---|---|---|:---:|
-| **Phương án 1 (Chuẩn áp dụng)** | `feat/task-81-warehouse-outbound-pallet` | Truy vết tức thì theo ID; có phân hệ; phân loại rõ ràng; không xung đột Git ref. | Cần tuân thủ quy tắc 4 phần. | **CHỌN (CHUẨN)** |
-| **Phương án 2 (Đa cấp thư mục)** | `feat/warehouse/task-81-pallet` | Gom nhóm thư mục trực quan trên UI Git. | Dễ lỗi `cannot lock ref` khi xóa/nhập branch; gõ lệnh dài. | ❌ Loại |
-| **Phương án 3 (Chỉ có Task ID)** | `task/81` | Ngắn gọn. | Mù thông tin: không biết sửa gì, phân hệ nào, tính năng hay bug. | ❌ Loại |
-| **Phương án 4 (Chỉ có mô tả)** | `feature/warehouse-pallet` | Dễ đọc tiếng Anh. | Mất liên kết với `task_id` Telegram, không đối chiếu được với `TODO.md`. | ❌ Loại |
-
----
-
-### 3.5. Ví Dụ Đặt Tên Thực Tế Theo Từng Tình Huống
-
-```bash
-# 1. Tính năng mới / hoàn thiện màn hình theo spec:
-feat/task-81-warehouse-outbound-pallet      # Hoàn thiện xuất kho pallet cho thủ kho
-feat/task-82-trip-multi-stop-route         # Bổ sung lộ trình đa điểm cho chuyến xe
-feat/task-83-order-cbm-auto-calc           # Tự động tính CBM theo kích thước kiện hàng
-
-# 2. Sửa lỗi logic / crash / giao diện sai:
-fix/task-80-trip-driver-assignment         # Sửa lỗi crash khi gán tài xế vào chuyến
-fix/task-78-warehouse-stock-deduction      # Sửa lỗi không trừ tồn kho khi xuất hàng
-fix/task-77-auth-token-refresh-loop        # Sửa vòng lặp refresh token trên Safari
-
-# 3. Tối ưu hóa UI Compact Density & tái cấu trúc:
-refactor/task-79-order-table-density       # Thu gọn bảng đơn hàng đạt chuẩn Compact Density
-refactor/task-75-rbac-guard-cleanup        # Dọn dẹp logic kiểm tra quyền tại route guard
-
-# 4. Tối ưu hiệu năng / truy vấn database:
-perf/task-74-warehouse-stock-query         # Tối ưu N+1 query tại trang tồn kho
-```
-
----
-
-### 3.6. Các Điều Cấm Kỵ Tuyệt Đối (Anti-Patterns)
+### 3.4. Các Điều Cấm Kỵ Tuyệt Đối (Anti-Patterns)
 
 - 🚫 **CẤM tiếng Việt có dấu hoặc khoảng trắng**: `feat/task-81-xuat-kho-pallet` (phải dùng tiếng Anh không dấu).
 - 🚫 **CẤM bỏ quên `task-<id>`**: `feat/warehouse-outbound` (mất dấu vết nghiệm thu).
 - 🚫 **CẤM đặt tên quá dài vượt quá 50 ký tự**: Không viết cả câu văn vào tên branch.
 - 🚫 **CẤM dùng ký tự đặc biệt**: `@`, `#`, `$`, `%`, `&`, `*`, `(`, `)`.
-- 🚫 **CẤM code trực tiếp trên `dev` hoặc `master` mà không tạo branch**.
+- 🚫 **CẤM tự ý commit hoặc push thẳng code lên `dev` hoặc `master`**: Nếu repo đang đứng ở `dev`/`master`, bắt buộc truy ngược Git history (`npm run repo:resume`) để quay về branch feature chính làm việc.
 
 ---
 
@@ -138,23 +107,24 @@ perf/task-74-warehouse-stock-query         # Tối ưu N+1 query tại trang t�
 
 ```mermaid
 flowchart TD
-    subgraph S1["Giai đoạn 1: Nhận Task & Tạo Nhánh"]
-        A1["Nhận Task ID & Phân tích TODO.md"] --> A2["Đồng bộ Dev mới nhất<br>(git pull origin dev)"]
-        A2 --> A3["Tạo nhánh feature/task-ID-...<br>(Trực tiếp trong Submodule)"]
+    subgraph S1["Giai đoạn 1: Khởi Đầu Phiên Chat & Nhánh Feature"]
+        A0["Kiểm tra trạng thái & Git History<br>(npm run repo:status)"] --> A1{"Tiếp tục task cũ hay<br>Làm task mới?"}
+        A1 -->|Tiếp tục / Đang ở dev| A2R["Truy ngược Git History & Quay về Feature<br>(npm run repo:resume)"]
+        A1 -->|Task mới hoàn toàn| A2["Đồng bộ Dev & Tạo nhánh feat/task-ID-...<br>(npm run task:branch)"]
     end
 
     subgraph S2["Giai đoạn 2: Code & Local E2E Gate"]
-        B1["Thực thi Code theo Checklist<br>(Compact density, no mock data)"] --> B2["Build & TypeCheck Local<br>(tsc --noEmit, npm run build)"]
+        B1["Thực thi Code trên Feature Branch<br>(Compact density, no mock data)"] --> B2["Build & TypeCheck Local<br>(tsc --noEmit, npm run build)"]
         B2 --> B3["Playwright E2E Test Local (Tầng 1)<br>(Autonomous Self-Healing max 3 retries)"]
     end
 
-    subgraph S3["Giai đoạn 3: Tạo PR & Tự Động Merge vào Dev"]
+    subgraph S3["Giai đoạn 3: Tạo PR, Merge vào Dev & Quay về Feature Branch"]
         C1["Commit & Push Feature Branch"] --> C2["Tạo PR vào dev trên GitHub<br>(Lưu vết Audit Evidence)"]
-        C2 --> C3["Tự Động Merge PR vào dev<br>(gh pr merge --merge)"]
+        C2 --> C3["Tự Động Merge PR vào dev &<br>Quay lại Feature Branch (npm run repo:resume)"]
     end
 
     subgraph S4["Giai đoạn 4: Chờ Deploy & Cloud Dev E2E Gate"]
-        D1["Chờ Cloud Railway Deploy Dev<br>(Health Check HTTP 200)"] --> D2["Playwright E2E Test Dev (Tầng 2)<br>(Nghiệm thu thực tế trên Cloud)"]
+        D1["Chờ Cloud Railway Deploy Dev<br>(npm run railway:wait)"] --> D2["Playwright E2E Test Dev (Tầng 2)<br>(Nghiệm thu thực tế trên Cloud)"]
         D2 --> D3["Đánh giá chéo E2E Auditor<br>(scripts/e2e-auditor.mjs >= 40/50)"]
     end
 
@@ -168,44 +138,25 @@ flowchart TD
 
 ---
 
-### Giai Đoạn 0: Phân Tích Feedback & Commit Hồ Sơ Trực Tiếp Lên Branch `dev` (Root Monorepo)
+### Giai Đoạn 1: Bắt Đầu Phiên Session Chat — Truy Ngược Git History Hoặc Khởi Tạo Nhánh Mới
 
-> 📌 **Nguyên tắc bất biến (Feedback Baseline Checkpoint)**:  
-> Khi tiếp nhận feedback từ người dùng hoặc Telegram Bot, hệ thống kích hoạt luồng **`🧠 [PHÂN TÍCH FEEDBACK]`** (skill `/leader`).  
-> 1. **Chỉ tác động Root Repository**: Giai đoạn này chỉ tải ảnh chụp màn hình từ Telegram (`screenshot_*.jpg`) và khởi tạo tài liệu khảo sát nghiệp vụ (`feedbacks/feedback_DD_MM_task_<id>/TODO.md`). Hoàn toàn **chưa can thiệp hoặc sửa đổi mã nguồn** trong các submodule [`backend/`](file:///d:/Projects/logistics-website/backend) hay [`frontend/`](file:///d:/Projects/logistics-website/frontend).
-> 2. **Bắt buộc commit & push thẳng lên `dev`**: Toàn bộ thư mục `feedbacks/feedback_DD_MM_task_<id>/` **BẮT BUỘC ĐƯỢC COMMIT VÀ PUSH TRỰC TIẾP LÊN BRANCH `dev`** của Root Repository với commit message: `docs(feedback): analyze feedback task #<id> and generate TODO.md`.
-> 3. **Tuyệt đối không tạo Feature Branch ở Giai đoạn 0**: Không sinh các nhánh tạm rác cho tài liệu phân tích.
-> 4. **Bảo toàn tính toàn vẹn cho Giai đoạn 1**: Nhờ việc commit thẳng lên `dev`, khi chuyển sang Giai đoạn 1 ("Thực sự làm task todo"), bất kỳ agent ([`/todo-agent`](file:///d:/Projects/logistics-website/.agents/skills/todo-agent/SKILL.md)) hoặc kỹ sư nào chạy lệnh `git checkout dev && git pull origin dev` đều đã có sẵn đầy đủ hồ sơ task, hình ảnh đối chiếu và checklist `TODO.md` ngay trên nền `dev`. Nhờ đó, việc tạo nhánh feature `<type>/task-<id>-<module>-<action>` sẽ xuất phát từ một branch `dev` hoàn chỉnh, không bao giờ bị lỗi thiếu file và không vi phạm quy tắc rẽ nhánh.
-
----
-
-### Giai Đoạn 1: Nhận Task & Khởi Tạo Branch từ `dev`
-
-1. **Kiểm tra trạng thái kho lưu trữ**:
+1. **Kiểm tra trạng thái kho lưu trữ & truy vết nhánh feature gần nhất (BẮT BUỘC MỖI PHIÊN CHAT)**:
    ```bash
    npm run repo:status
    npm run repo:tracking
    ```
-2. **Chuyển về `dev` và kéo mã nguồn mới nhất**:
-   ```powershell
-   # Đối với Backend (nếu sửa backend):
-   git -C backend checkout dev
-   git -C backend pull origin dev
-
-   # Đối với Frontend (nếu sửa frontend):
-   git -C frontend checkout dev
-   git -C frontend pull origin dev
-
-   # Đối với Root (nếu có cập nhật docs/scripts):
-   git checkout dev
-   git pull origin dev
-   ```
-3. **Tạo và chuyển sang nhánh làm việc mới**:
-   ```powershell
-   # Ví dụ với Task ID 81:
-   git -C backend checkout -b feature/task-81-warehouse-outbound-pallet
-   git -C frontend checkout -b feature/task-81-warehouse-outbound-pallet
-   ```
+2. **Trường hợp A — Tiếp tục phiên làm việc hoặc phát hiện repo đang đứng ở `dev` / `master`**:
+   - Tuyệt đối KHÔNG làm việc hay push thẳng lên `dev`/`master`.
+   - Chạy lệnh tự động truy ngược Git History (`git reflog` + `git for-each-ref`) để quay về đúng branch feature chính trước đó đã push:
+     ```bash
+     npm run repo:resume
+     # (Hoặc: node scripts/git-task-workflow.mjs resume)
+     ```
+3. **Trường hợp B — Nhận một Task hoàn toàn mới**:
+   - Sử dụng script chuẩn để kéo `dev` mới nhất và tạo nhánh `<type>/task-<id>-<module>-<action>` trên cả `backend/`, `frontend/` và `root`:
+     ```bash
+     node scripts/git-task-workflow.mjs start <task_id> <module> <action> <type> fullstack
+     ```
 4. **Ghi nhận thông tin nhánh vào `feedbacks/feedback_DD_MM_task_<id>/TODO.md`**:
    - Ghi rõ branch name ở đầu file `TODO.md` để mọi agent đều nhận biết.
 
@@ -250,58 +201,33 @@ flowchart TD
 
 ---
 
-### Giai Đoạn 3: Đẩy Branch, Tạo PR vào `dev` & Tự Động Merge (PR Evidence Gate)
+### Giai Đoạn 3: Đẩy Feature Branch, Tạo PR vào `dev`, Merge & Quay Về Feature Branch
 
-1. **Commit code bên trong submodule tương ứng**:
+1. **Đảm bảo đang đứng trên nhánh Feature (KHÔNG đứng trên `dev` hay `master`)**:
+   ```powershell
+   npm run repo:resume
+   ```
+2. **Commit code bên trong submodule tương ứng**:
    ```powershell
    # Quy tắc Conventional Commits có gắn task_id:
    git -C backend commit -am "feat(task-81): implement outbound pallet logic for warehouse"
    git -C frontend commit -am "feat(task-81): add pallet inspection modal and action flow"
    ```
-2. **Đẩy nhánh tính năng lên remote GitHub**:
+3. **Đẩy nhánh tính năng lên remote GitHub (TUYỆT ĐỐI KHÔNG push thẳng vào `dev`/`master`)**:
    ```powershell
-   git -C backend push -u origin feature/task-81-warehouse-outbound-pallet
-   git -C frontend push -u origin feature/task-81-warehouse-outbound-pallet
+   git -C backend push -u origin feat/task-81-warehouse-outbound-pallet
+   git -C frontend push -u origin feat/task-81-warehouse-outbound-pallet
    ```
-3. **Tạo Pull Request (PR) trỏ vào nhánh `dev` để lưu bằng chứng**:
-   - Dùng GitHub CLI (`gh pr create`):
+4. **Tạo Pull Request (PR) trỏ vào nhánh `dev`, Tự động Merge & Quay về Feature Branch**:
+   - Sử dụng script chuẩn (tự động push, tạo PR, merge vào `dev`, và checkout quay lại nhánh feature):
      ```powershell
-     # Tạo PR cho Backend:
-     gh pr create --repo lyquangthai1993/logistics-website-backend `
-       --base dev `
-       --head feature/task-81-warehouse-outbound-pallet `
-       --title "feat(task-81): outbound pallet management" `
-       --body "## Task #81`n`n- Checklist TODO: feedbacks/feedback_14_10_task_81/TODO.md`n- Local E2E Gate: PASS 100%`n- Target Branch: dev"
-
-     # Tạo PR cho Frontend:
-     gh pr create --repo lyquangthai1993/logistics-website-frontend `
-       --base dev `
-       --head feature/task-81-warehouse-outbound-pallet `
-       --title "feat(task-81): outbound pallet modal and table" `
-       --body "## Task #81`n`n- Checklist TODO: feedbacks/feedback_14_10_task_81/TODO.md`n- Local E2E Gate: PASS 100%`n- Target Branch: dev"
+     node scripts/git-task-workflow.mjs pr 81 warehouse outbound-pallet feat fullstack
      ```
-   - Lấy URL của PR được tạo (ví dụ: `https://github.com/lyquangthai1993/logistics-website-frontend/pull/12`) để lưu vào hồ sơ nghiệm thu.
-4. **Tự động Merge PR vào `dev`**:
-   - Sử dụng GitHub CLI merge ngay lập tức:
+   - Hoặc dùng GitHub CLI (`gh pr create` & `gh pr merge` **KHÔNG dùng `--delete-branch`** để giữ nhánh feature làm việc tiếp):
      ```powershell
-     # Tự động merge PR cho Backend:
-     gh pr merge --repo lyquangthai1993/logistics-website-backend feature/task-81-warehouse-outbound-pallet --merge --delete-branch
-
-     # Tự động merge PR cho Frontend:
-     gh pr merge --repo lyquangthai1993/logistics-website-frontend feature/task-81-warehouse-outbound-pallet --merge --delete-branch
-     ```
-   - *Phương án dự phòng (Fallback nếu GitHub CLI chưa login)*:
-     Thực hiện merge git an toàn và đẩy lên remote `dev`:
-     ```powershell
-     git -C backend checkout dev
-     git -C backend pull origin dev
-     git -C backend merge --no-ff feature/task-81-warehouse-outbound-pallet -m "merge(task-81): merge feature/task-81-warehouse-outbound-pallet into dev"
-     git -C backend push origin dev
-
-     git -C frontend checkout dev
-     git -C frontend pull origin dev
-     git -C frontend merge --no-ff feature/task-81-warehouse-outbound-pallet -m "merge(task-81): merge feature/task-81-warehouse-outbound-pallet into dev"
-     git -C frontend push origin dev
+     gh pr create --repo lyquangthai1993/logistics-website-backend --base dev --head feat/task-81-warehouse-outbound-pallet --title "feat(task-81): outbound pallet management" --body "..."
+     gh pr merge --repo lyquangthai1993/logistics-website-backend feat/task-81-warehouse-outbound-pallet --merge
+     npm run repo:resume
      ```
 
 ---
@@ -311,11 +237,10 @@ flowchart TD
 1. **Theo dõi trạng thái triển khai của Cloud Dev (Railway Cloud)**:
    - Frontend Dev: `https://frontend-tms-core-dev.up.railway.app`
    - Backend Dev: `https://backend-tms-core-dev.up.railway.app`
-   - Thực hiện kiểm tra sẵn sàng (Health Check) với cờ timeout (chống treo terminal):
+   - Xác nhận bản build mới đạt `SUCCESS` & cutover:
      ```powershell
-     curl.exe -m 15 -i https://backend-tms-core-dev.up.railway.app/api/v1/health
+     npm run railway:wait
      ```
-   - Đảm bảo trả về HTTP `200 OK`.
 2. **Kích hoạt Playwright E2E nghiệm thu lần thứ 2 trên Cloud Dev**:
    ```powershell
    $env:PLAYWRIGHT_BASE_URL="https://frontend-tms-core-dev.up.railway.app"
@@ -342,26 +267,7 @@ flowchart TD
    - Sinh file `RESOLUTION.md` với đầy đủ 6 cấu phần bắt buộc.
    - Tự động ghi chép mốc son mới vào đỉnh file [`docs/SYSTEM_TIMELINE.md`](file:///d:/Projects/logistics-website/docs/SYSTEM_TIMELINE.md).
 3. **Phát Báo Cáo Nghiệm Thu Hoàn Tất qua Telegram Bot**:
-   - Tuân thủ quy chuẩn `telegram-task-responder` (Mobile-First, Card layout, không nói thừa, không kết thúc bằng câu hỏi/slogan):
-   - Mẫu chuẩn:
-     ```markdown
-     🟢 HOÀN THÀNH (DEV VERIFIED): [Mô tả ngắn gọn kết quả nghiệm thu]
-
-     ### 1. Thông Tin Nhánh & Bằng Chứng GitHub
-     • Nhánh công việc: feature/task-81-warehouse-outbound-pallet
-     • Pull Request đã merge: [Backend PR #12](https://github.com/lyquangthai1993/logistics-website-backend/pull/12) | [Frontend PR #15](https://github.com/lyquangthai1993/logistics-website-frontend/pull/15)
-     • Nhánh đích: dev (Đã merge tự động)
-
-     ### 2. Nghiệm Thu 2 Tầng (2-Tier Quality Gate)
-     ▫️ Tầng 1 (Local E2E Gate): PASS 100% (Local Build & Playwright OK)
-     ▫️ Tầng 2 (Cloud Dev Gate): PASS 100% (Railway Cloud Dev Verified)
-     ▫️ E2E Cross-Audit: 46/50 điểm (Tuân thủ Real DB, 0 Mock)
-
-     ### 3. Hồ Sơ Kỹ Thuật & Biên Niên Sử
-     ▫️ Biên bản kỹ thuật: feedbacks/feedback_14_10_task_81/RESOLUTION.md
-     ▫️ Biên niên sử hệ thống: docs/SYSTEM_TIMELINE.md
-     ```
-   - Tải ảnh `screenshot_*_verified.png` trực tiếp qua Telegram `sendPhoto`.
+   - Tuân thủ quy chuẩn `telegram-task-responder` (Mobile-First, Card layout, không nói thừa, không kết thúc bằng câu hỏi/slogan).
 
 ---
 
@@ -371,13 +277,14 @@ Bảng này là danh mục bắt buộc kiểm tra. Agent KHÔNG ĐƯỢC BÁO H
 
 | STT | Hạng mục kiểm tra | Tiêu chuẩn đạt yêu cầu | Trạng thái |
 |:---:|---|---|:---:|
-| 1 | **Tách nhánh từ `dev` mới nhất** | Đã `git pull origin dev` và tạo `feature/task-<id>-*` trong submodule. | `[ ]` |
+| 0 | **Truy ngược Git History mỗi phiên chat** | Đã chạy `npm run repo:status` & `npm run repo:resume` để quay về branch feature chính (không đứng ở `dev`/`master`). | `[ ]` |
+| 1 | **Tách nhánh từ `dev` mới nhất** | Đã `git pull origin dev` và làm việc trên `feat/task-<id>-*` trong submodule. | `[ ]` |
 | 2 | **Quy chuẩn mã nguồn** | Compact density (`p-1`, `p-2`), 0 jargon tiếng Anh trong UI, 0 mock data. | `[ ]` |
 | 3 | **Local Build & TypeCheck** | `npm run build --prefix backend` & `tsc --noEmit` pass 0 lỗi. | `[ ]` |
 | 4 | **Nghiệm thu Tầng 1 (Local E2E)** | Playwright E2E chạy trên Local pass 100%. | `[ ]` |
-| 5 | **Tạo PR làm bằng chứng** | Đã push feature branch và tạo PR trỏ vào `dev` trên GitHub. | `[ ]` |
-| 6 | **Tự động merge PR vào `dev`** | Đã merge PR thành công vào nhánh `dev` trên remote. | `[ ]` |
-| 7 | **Cloud Dev Deploy Ready** | Domain Dev Railway build xong, Health Check HTTP 200. | `[ ]` |
+| 5 | **Tạo PR làm bằng chứng** | Đã push feature branch (KHÔNG push thẳng `dev`/`master`) và tạo PR trỏ vào `dev`. | `[ ]` |
+| 6 | **Merge PR & Quay về Feature Branch** | Đã merge PR vào `dev` và chạy `npm run repo:resume` để giữ workspace ở nhánh feature. | `[ ]` |
+| 7 | **Cloud Dev Deploy Ready** | Domain Dev Railway build xong (`npm run railway:wait`), Health Check HTTP 200. | `[ ]` |
 | 8 | **Nghiệm thu Tầng 2 (Cloud Dev E2E)**| Playwright E2E chạy trên Cloud Dev domain pass 100%. | `[ ]` |
 | 9 | **Ảnh bằng chứng không rỗng** | Đã chụp `screenshot_*_verified.png` (bảng có dữ liệu, không chụp trắng). | `[ ]` |
 | 10| **Biên niên sử kỹ thuật** | Đã chạy `npm run todo:record` cập nhật `RESOLUTION.md` & `SYSTEM_TIMELINE.md`. | `[ ]` |
@@ -388,26 +295,25 @@ Bảng này là danh mục bắt buộc kiểm tra. Agent KHÔNG ĐƯỢC BÁO H
 ## 6. Lệnh Vận Hành Tóm Tắt (CLI Quick Reference)
 
 ```powershell
-# 1. Bắt đầu task (Tạo nhánh từ dev):
-git -C backend checkout dev; git -C backend pull origin dev; git -C backend checkout -b feature/task-<ID>-<name>
-git -C frontend checkout dev; git -C frontend pull origin dev; git -C frontend checkout -b feature/task-<ID>-<name>
+# 0. Bắt buộc ở đầu mỗi phiên chat (Kiểm tra & quay về branch feature chính từ Git History):
+npm run repo:status
+npm run repo:tracking
+npm run repo:resume
+
+# 1. Bắt đầu task mới hoàn toàn (Tạo nhánh từ dev):
+node scripts/git-task-workflow.mjs start <ID> <module> <action> feat fullstack
 
 # 2. Kiểm thử Tầng 1 (Local):
+npm run dev:ensure
 $env:PLAYWRIGHT_BASE_URL="http://localhost:4000"
 $env:API_URL="http://localhost:4001/api/v1"
 npx --prefix frontend playwright test e2e/<test_spec>.spec.ts
 
-# 3. Đẩy nhánh, tạo PR và Merge tự động:
-git -C backend push -u origin feature/task-<ID>-<name>
-gh pr create --repo lyquangthai1993/logistics-website-backend --base dev --head feature/task-<ID>-<name> --title "feat(task-<ID>): ..." --body "..."
-gh pr merge --repo lyquangthai1993/logistics-website-backend feature/task-<ID>-<name> --merge --delete-branch
-
-git -C frontend push -u origin feature/task-<ID>-<name>
-gh pr create --repo lyquangthai1993/logistics-website-frontend --base dev --head feature/task-<ID>-<name> --title "feat(task-<ID>): ..." --body "..."
-gh pr merge --repo lyquangthai1993/logistics-website-frontend feature/task-<ID>-<name> --merge --delete-branch
+# 3. Đẩy nhánh feature, tạo PR, Merge vào dev & Quay lại nhánh feature:
+node scripts/git-task-workflow.mjs pr <ID> <module> <action> feat fullstack
 
 # 4. Kiểm thử Tầng 2 (Cloud Dev):
-curl.exe -m 15 -i https://backend-tms-core-dev.up.railway.app/api/v1/health
+npm run railway:wait
 $env:PLAYWRIGHT_BASE_URL="https://frontend-tms-core-dev.up.railway.app"
 $env:API_URL="https://backend-tms-core-dev.up.railway.app/api/v1"
 npx --prefix frontend playwright test e2e/<test_spec>.spec.ts

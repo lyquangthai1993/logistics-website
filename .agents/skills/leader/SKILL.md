@@ -9,7 +9,7 @@ description: >-
   RBAC, or new business features. Triggers on: "leader", "/leader", "business logic", "workflow",
   "notifications", "dispatch", "vehicle assignment", "order", "trip", "warehouse", "fleet",
   "inbound", "outbound", "architect".
-version: 2.0.0
+version: 2.1.0
 ---
 
 # TMS Domain Lead — Logistics TMS Business & Operational Architecture
@@ -37,9 +37,9 @@ flowchart LR
 | :--- | :--- | :--- | :--- |
 | **1. PLAN**<br>*(Lên kế hoạch)* | **PM** | [`/todo-agent`](../todo-agent/SKILL.md) + [`/leader`](SKILL.md) | Scan feedback, run Multimodal OCR (extract Hub & Test User), analyze RCA, and output **`📄 Tài liệu` (`TODO.md`)** with Step-by-Step E2E Spec & 10 Edge Cases Matrix. |
 | **2. DESIGN**<br>*(Thiết kế)* | **Architect** | [`/leader`](SKILL.md) + [`/ui-ux-flow-designer`](../ui-ux-flow-designer/SKILL.md) + [`/pencil-ui-designer`](../pencil-ui-designer/SKILL.md) + [`/nestjs-best-practices`](../nestjs-best-practices/SKILL.md) + [`/nextjs-best-practices`](../nextjs-best-practices/SKILL.md) + [`/db-sync-prod-to-dev`](../db-sync-prod-to-dev/SKILL.md) | Verify 3-layer [`rbac-matrix.md`](../../rules/rbac-matrix.md), DB schema/migration safety, API contract, 5-Level Modal Width Taxonomy, Compact Density (`p-1`, `p-2`, `text-[10px]`). **Khi thêm/xóa/sửa table model**: Bắt buộc đăng ký cấu trúc mới vào `ALL_TABLES` và `SEQUENCE_NAMES` của [`/db-sync-prod-to-dev`](../db-sync-prod-to-dev/SKILL.md). |
-| **3. BUILD**<br>*(Xây dựng)* | **Engineer** | [`/todo-agent`](../todo-agent/SKILL.md) + [`/feature-branch-advisor`](../feature-branch-advisor/SKILL.md) + [`/ui-spacing-guard`](../ui-spacing-guard/SKILL.md) | Run `npm run repo:status` & `npm run repo:tracking`, branch `<type>/task-<id>-<module>-<action>` from `dev` inside target submodules (`backend/`, `frontend/`), implement code, pass `tsc --noEmit` & `npm run build`. |
+| **3. BUILD**<br>*(Xây dựng)* | **Engineer** | [`/todo-agent`](../todo-agent/SKILL.md) + [`/feature-branch-advisor`](../feature-branch-advisor/SKILL.md) + [`/ui-spacing-guard`](../ui-spacing-guard/SKILL.md) | Run `npm run repo:status` & `npm run repo:tracking`. **If any repo is on `dev`/`master`, trace Git history (`npm run repo:resume`) to return to the active feature branch** (or create `<type>/task-<id>-<module>-<action>` from `dev` for a brand-new task) inside target submodules (`backend/`, `frontend/`), implement code, pass `tsc --noEmit` & `npm run build`. |
 | **4. TEST (2 Tầng)**<br>*(Kiểm thử 2 Tầng)* | **QA** | [`/e2e-test-runner`](../e2e-test-runner/SKILL.md) + [`/e2e-code-auditor`](../e2e-code-auditor/SKILL.md) | **Bắt buộc 2 Tầng Test**:<br>• **Tầng 1 (Test Local)**: Chạy Playwright E2E trên Local (`localhost:4000` & `4001`, Self-Healing $\le 3$ lần) + `e2e-auditor.mjs` ($\ge 40/50$). Pass 100% mới đưa lên Dev.<br>• **Tầng 2 (Test trên Môi trường Development)**: Sau khi đưa lên môi trường Dev (`frontend-tms-core-dev.up.railway.app`), **chạy lại E2E + Auditor lần 2 trên Dev**, chụp ảnh thực tế (`screenshot_*_verified.png`) để **bàn giao chuẩn xác**. |
-| **5. DEPLOY**<br>*(Triển khai)* | **Release** | [`/git-commit-reviewer`](../git-commit-reviewer/SKILL.md) + [`/github-workflow`](../github-workflow/SKILL.md) | Khi Tầng 1 Local Test PASS ➔ Push submodule branch, tạo GitHub PR vào `dev` (`gh pr create`), auto-merge (`gh pr merge --merge`), đợi Railway Cloud Dev HTTP 200 để bàn giao cho QA chạy **Test Tầng 2 trên môi trường Development**. |
+| **5. DEPLOY**<br>*(Triển khai)* | **Release** | [`/git-commit-reviewer`](../git-commit-reviewer/SKILL.md) + [`/github-workflow`](../github-workflow/SKILL.md) | Khi Tầng 1 Local Test PASS ➔ Push submodule feature branch (`git push origin <feature-branch>`, **NEVER push directly to `dev`/`master`**), tạo GitHub PR vào `dev` (`gh pr create`), auto-merge (`gh pr merge --merge`), quay về feature branch (`npm run repo:resume`), đợi Railway Cloud Dev HTTP 200 để bàn giao cho QA chạy **Test Tầng 2 trên môi trường Development**. |
 | **6. MAINTAIN**<br>*(Vận hành)* | **Vận hành** | [`/tms-ops-maintainer`](../tms-ops-maintainer/SKILL.md) + [`/codebase-auditor`](../codebase-auditor/SKILL.md) + [`/db-sync-prod-to-dev`](../db-sync-prod-to-dev/SKILL.md) + [`/telegram-task-responder`](../telegram-task-responder/SKILL.md) | Chỉ nhận bàn giao khi **CẢ 2 TẦNG TEST (Local + Development) ĐỀU PASS 100%**: Kiểm tra sức khỏe sau deploy, check `[x]` `TODO.md`, chạy `npm run todo:record <folder>` (`RESOLUTION.md` + `docs/SYSTEM_TIMELINE.md`), đồng bộ `CODEBASE_AUDIT.md` & `rbac-matrix.md`, cập nhật `scripts/railway-db-sync.mjs` nếu có migration mới, gửi báo cáo Telegram. |
 
 ---
@@ -47,13 +47,19 @@ flowchart LR
 ## 🌐 Canonical Environments & Git Submodule Governance
 
 > [!IMPORTANT]
-> **1. Mandatory Project Repo Tracking on Start:**
-> Before planning, designing, or modifying code, ALWAYS run:
+> **1. Mandatory Session-Start Repo Tracking & Feature Branch History Recovery (`RULE-GIT-HISTORY-RESUME-01`):**
+> At the start of **EVERY Antigravity chat session** (before planning, designing, modifying, committing, or pushing code), `/leader` and the default agent MUST ALWAYS run:
 > ```bash
 > npm run repo:status
 > npm run repo:tracking
 > ```
-> All 3 repositories (`root`, `backend/`, `frontend/`) are independent Git repos. Always branch and commit **directly inside the target submodule (`backend/` and/or `frontend/`)** off `dev` (`git checkout dev && git pull origin dev`).
+> - **Strictly Forbidden**: NEVER arbitrarily commit or push code directly onto `dev` or `master` (`git push origin dev` / `git push origin master`).
+> - **Mandatory Git History Trace**: If any of the 3 independent repositories (`root`, `backend/`, `frontend/`) is currently sitting on `dev` or `master` (e.g., after a previous PR merge or pull), you MUST trace back Git history (`git reflog`, `git for-each-ref --sort=-committerdate`) to identify which feature/fix branch (`feat/...`, `feature/...`, `fix/...`) was most recently worked on and pushed prior to `dev`/`master`, and **switch back to that primary feature branch** immediately:
+> ```bash
+> npm run repo:resume
+> # (Executes: node scripts/git-task-workflow.mjs resume)
+> ```
+> - Only when starting a brand-new, separate task do you create a new feature branch off `dev` (`node scripts/git-task-workflow.mjs start <id> <module> <action>`).
 >
 > **2. Primary Cloud Environments (Railway Cloud Primary):**
 > - **Domain Dev (`dev` branch)**:
@@ -189,7 +195,7 @@ DELIVERED / COMPLETED
 
 Before writing or modifying any backend endpoint, frontend page, or data model, verify:
 
-0. **Project Repo Tracking Check**: Executed `npm run repo:status` and `npm run repo:tracking` across all 3 repos (`root`, `backend/`, `frontend/`)?
+0. **Project Repo Tracking & Active Feature Branch Recovery (`RULE-GIT-HISTORY-RESUME-01`)**: Executed `npm run repo:status` and `npm run repo:tracking` across all 3 repos (`root`, `backend/`, `frontend/`)? If any repo was on `dev` or `master`, did you trace Git history and run `npm run repo:resume` to return to the primary feature branch?
 1. **System Timeline & Invariant Check**: Reviewed [`docs/SYSTEM_TIMELINE.md`](../../../docs/SYSTEM_TIMELINE.md) to ensure zero regression against Tasks #37–#91 invariants?
 2. **Multimodal OCR & Hub Account Parity**: Extracted exact Hub from screenshot and mapped to `USER_WAREHOUSE_HCM`, `USER_WAREHOUSE_HYN`, `USER_WAREHOUSE_DAD`, `USER_DISPATCHER`, `USER_FLEET`, or `USER_ADMIN`?
 3. **3-Layer RBAC Enforcement**: Checked [`rbac-matrix.md`](../../rules/rbac-matrix.md) across Sidebar (`nav-config.ts`), Route Guard (`proxy.ts`), and Controller (`@Roles()`)?

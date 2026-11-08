@@ -1,15 +1,16 @@
 import { execSync } from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
+import { traceLastFeatureBranch, PROTECTED_BRANCHES } from './git-task-workflow.mjs';
 
 const rootDir = process.cwd();
 const repos = [
-  { name: 'Root Repository', dir: '.' },
   { name: 'Backend Submodule', dir: 'backend' },
   { name: 'Frontend Submodule', dir: 'frontend' },
+  { name: 'Root Repository', dir: '.' },
 ];
 
-console.log('🔄 Đang đồng bộ toàn bộ 3 repository (Root, Backend, Frontend) theo chuẩn Stash & Rebase...\n');
+console.log('🔄 Đang đồng bộ toàn bộ 3 repository (Backend, Frontend, Root) và khôi phục về nhánh Feature chính...\n');
 
 for (const repo of repos) {
   const fullPath = path.resolve(rootDir, repo.dir);
@@ -24,6 +25,13 @@ for (const repo of repos) {
   };
 
   try {
+    // 0. Xác định nhánh hiện tại & truy ngược Git History tìm nhánh feature gần nhất
+    const currentBefore = exec('git branch --show-current');
+    const targetFeatureBranch =
+      currentBefore && !PROTECTED_BRANCHES.has(currentBefore)
+        ? currentBefore
+        : traceLastFeatureBranch(fullPath);
+
     // 1. Kiểm tra trạng thái dirty
     const status = exec('git status --porcelain');
     let hasStash = false;
@@ -34,17 +42,30 @@ for (const repo of repos) {
       hasStash = true;
     }
 
-    // 2. Chuyển sang nhánh dev
-    console.log('  🌿 Đang chuyển sang nhánh dev...');
+    // 2. Cập nhật nhánh dev từ origin/dev
+    console.log('  ⬇️ Đang cập nhật nhánh dev từ origin/dev...');
     try {
       exec('git checkout dev');
     } catch {
       exec('git checkout -B dev origin/dev');
     }
-
-    // 3. Pull rebase từ origin/dev
-    console.log('  ⬇️ Đang kéo code mới từ origin/dev (Rebase)...');
     exec('git pull --rebase origin dev');
+
+    // 3. Quay trở lại nhánh feature chính (KHÔNG đứng lại ở dev)
+    if (targetFeatureBranch && !PROTECTED_BRANCHES.has(targetFeatureBranch)) {
+      console.log(`  🌿 Quay về nhánh feature chính: ${targetFeatureBranch}...`);
+      try {
+        exec(`git checkout ${targetFeatureBranch}`);
+      } catch {
+        exec(`git checkout -b ${targetFeatureBranch} origin/${targetFeatureBranch}`);
+      }
+      try {
+        exec('git merge --ff-only dev');
+        console.log(`  🔄 Đã fast-forward '${targetFeatureBranch}' đồng bộ với 'dev' mới nhất.`);
+      } catch {
+        // Nhánh feature có commit riêng, giữ nguyên
+      }
+    }
 
     // 4. Khôi phục stash nếu có
     if (hasStash) {
@@ -65,4 +86,4 @@ for (const repo of repos) {
   }
 }
 
-console.log('🏁 Hoàn tất đồng bộ toàn bộ repository!');
+console.log('🏁 Hoàn tất đồng bộ toàn bộ repository và đảm bảo đứng trên nhánh Feature chính!');
