@@ -38,15 +38,22 @@ const hardTimeout = setTimeout(() => {
 hardTimeout.unref();
 
 // Load pg module từ root hoặc tools/telegram-task-runner
-let Client;
+let pgModule;
 try {
-  Client = require("pg").Client;
+  pgModule = require("pg");
 } catch {
   const pgToolsPath = path.resolve(
     rootDir,
     "tools/telegram-task-runner/node_modules/pg",
   );
-  Client = require(pgToolsPath).Client;
+  pgModule = require(pgToolsPath);
+}
+const Client = pgModule.Client;
+// Giữ nguyên chuỗi TIMESTAMP WITHOUT TIME ZONE (1114) và DATE (1082) nguyên bản từ DB,
+// tránh bị pg chuyển đổi sang múi giờ local (UTC+7) rồi .toISOString() làm lệch +7 tiếng mỗi lần sync.
+if (pgModule.types && typeof pgModule.types.setTypeParser === "function") {
+  pgModule.types.setTypeParser(1114, (val) => val);
+  pgModule.types.setTypeParser(1082, (val) => val);
 }
 
 // Tự động nạp backend/.env nếu có (không phụ thuộc dotenv bên ngoài)
@@ -500,6 +507,24 @@ async function main() {
         await devClient.query(
           `SELECT setval('${seq}', ${meta.last_value}, ${meta.is_called ? "true" : "false"});`,
         );
+      }
+    }
+    // Bảo đảm mọi serial/identity sequence trên các bảng đều >= MAX(id) thực tế để triệt tiêu lỗi trùng PK
+    for (const table of ALL_TABLES) {
+      try {
+        const seqRes = await devClient.query(
+          `SELECT pg_get_serial_sequence($1, 'id') AS seq_name`,
+          [`"${table}"`],
+        );
+        const seqName = seqRes.rows?.[0]?.seq_name;
+        if (seqName) {
+          await devClient.query(
+            `SELECT setval($1, GREATEST(COALESCE((SELECT MAX(id) FROM "${table}"), 1), (SELECT last_value FROM ${seqName})), true)`,
+            [seqName],
+          );
+        }
+      } catch {
+        // Bỏ qua nếu bảng không có cột id kiểu số nguyên hoặc không có sequence
       }
     }
 

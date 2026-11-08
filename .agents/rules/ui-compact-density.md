@@ -96,7 +96,20 @@ Mọi agent (Claude, Gemini, subagents) khi tạo mới hoặc sửa code trong 
 
 ---
 
-## 6. Pre-Handoff Checklist (Kiểm Tra Trước Khi Bàn Giao)
+## 6. Quy Chuẩn Nhãn & Màu Sắc Phân Cấp Kho (`Cấp 1 • Hub Chính` vs `Cấp 2 • Trạm Xe Bo`)
+
+Mọi màn hình, bảng dữ liệu, bộ lọc, modal (`Chọn Đích Xuất Kho`, `HubFormDialog`, `WarehouseWaybillDetailModal`, `WarehouseHubFilterSelect`), và thẻ thông tin kho đích (`DestinationHubInfoCard`) **BẮT BUỘC** dùng thống nhất tuyệt đối 2 nhãn và bộ màu sau (nghiêm cấm tự chế biến thể chữ hoặc dùng màu `amber`/`orange` cho kho cấp 2):
+
+| Phân cấp (`level`) | Nhãn chuẩn duy nhất (Mandatory Label) | Màu chủ đạo | Token CSS / Tailwind chuẩn |
+|---|---|---|---|
+| **`level = 1`** | **`Cấp 1 • Hub Chính`** | **Blue (`blue`)** | • **Badge**: `bg-blue-500/15 text-blue-700 border-blue-500/25 dark:text-blue-300`<br>• **Pill Mã Hub**: `bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/60 dark:text-blue-300`<br>• **Icon**: `<Icons.warehouse className="text-blue-600 dark:text-blue-400" />` |
+| **`level = 2`** | **`Cấp 2 • Trạm Xe Bo`** | **Purple (`purple`)** | • **Badge**: `bg-purple-500/15 text-purple-700 border-purple-500/25 dark:text-purple-300`<br>• **Pill Mã Trạm**: `bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/60 dark:text-purple-300`<br>• **Icon**: `<Icons.truck className="text-purple-600 dark:text-purple-400" />` |
+
+- ❌ **Các biến thể chữ bị cấm tuyệt đối**: `Hub Cấp 1 - Trung chuyển`, `Trung tâm trung chuyển (Hub Cấp 1)`, `Tuyến Xe Bo - Vệ tinh`, `Tuyến Xe Bo Vệ Tinh (Cấp 2)`, `Cấp 1 - Hub chính`, `Tuyến Xe Bo`, `Hub Cấp 1`.
+
+---
+
+## 7. Pre-Handoff Checklist (Kiểm Tra Trước Khi Bàn Giao)
 
 Mọi agent và lập trình viên trước khi hoàn tất tính năng UI bắt buộc phải rà soát:
 - [ ] Không còn bất kỳ class nào trong Banned List (`p-4`, `p-5`, `p-6`, `space-y-3`, `space-y-4`, `gap-3`, `gap-4`)?
