@@ -3,7 +3,7 @@ name: git-commit-reviewer
 description: >-
   Smart Git commit and push agent that audits staged changes before committing and safely manages remote pushes.
   Runs 2 parallel sub-agents: (1) Security & Rule Auditor – scans diffs for secrets, AGENTS.md violations, DB destructive ops, and code convention issues; (2) Commit Message Crafter – writes a Conventional Commits message.
-  Handles Git Submodules (backend, frontend, root), enforces strict push safety rules (no force push, push only on explicit request, correct submodule-first push sequence). Use whenever staging, reviewing, committing, or pushing code.
+  Handles Git Submodules (backend, frontend, root), enforces strict push safety rules (no force push, zero direct commit/push to dev or master, mandatory Git history trace & feature branch recovery via npm run repo:resume, push only on explicit request, correct submodule-first push sequence). Use whenever staging, reviewing, committing, or pushing code.
   Triggers on mentions of "commit", "push", "git commit", "git push", "commit code", "push to git", "commit and push", "stage and commit", "save changes to git", or any Git version control actions.
 ---
 
@@ -12,7 +12,7 @@ description: >-
 ## Overview
 
 This skill orchestrates a **safe, audited Git commit and push workflow** across the multi-repository Git Submodule architecture.
-No commit is executed until the **Security & Rule Auditor** passes, and no push is performed without explicit user instruction and verified submodule push sequence.
+No commit is executed until the **Active Feature Branch Guard (`RULE-GIT-HISTORY-RESUME-01`)** and **Security & Rule Auditor** pass, and no push is performed without explicit user instruction, verified feature branch alignment (NEVER directly to `dev` or `master`), and submodule-first push sequence.
 
 ---
 
@@ -30,14 +30,15 @@ Activate this skill automatically whenever the user mentions or requests:
 
 ```
 Git Orchestrator (this skill)
+├── Step 0: Active Feature Branch Guard    ← Traces Git history & switches from dev/master back to feature branch
 ├── Sub-Agent A: Security & Rule Auditor   ← Audits diffs, blocks commits on critical violations
 ├── Sub-Agent B: Commit Message Crafter    ← Generates Conventional Commits message
-└── Push Safety Guard                     ← Enforces submodule-first push sequence & safety rules
+└── Push Safety Guard                     ← Blocks direct push to dev/master & enforces submodule-first push sequence
 ```
 
 ---
 
-## ⚠️ Core Invariant: Git Submodules Architecture
+## ⚠️ Core Invariant: Git Submodules & Protected Branch Governance (`RULE-GIT-HISTORY-RESUME-01`)
 
 The workspace contains **3 independent Git Repositories**:
 
@@ -45,10 +46,12 @@ The workspace contains **3 independent Git Repositories**:
 2. **Frontend Submodule** (`frontend/`): Repository `logistics-website-frontend`
 3. **Root Repository** (`logistics-website`): Submodule pointers, documentation, `.agents/`, global configs
 
-> 🚨 **CRITICAL SUBMODULE RULES**:
-> 1. **Commit where the changes are**: Always `cd` into `backend/` or `frontend/` to stage and commit changes. Committing only at root does **NOT** record code changes in submodules.
-> 2. **Submodule-first Push Order**: When pushing commits, **submodules MUST be pushed before the root repository**. Otherwise, remote root pointers will point to nonexistent commits on remote submodules.
-> 3. **Never Force Push**: Never use `git push --force` or `git push -f`.
+> 🚨 **CRITICAL SUBMODULE & FEATURE BRANCH RULES**:
+> 1. **Zero Direct Commit/Push to `dev` or `master` (`RULE-GIT-HISTORY-RESUME-01`)**: NEVER arbitrarily commit or push code directly onto `dev` or `master` (`git push origin dev`, `git push origin master`).
+> 2. **Mandatory Session-Start Git History Trace & Feature Branch Recovery**: Before staging, committing, or pushing in ANY Antigravity chat session, ALWAYS inspect current branches and trace Git history (`git reflog`, `git for-each-ref --sort=-committerdate`) via `npm run repo:status`. If any repo (`root`, `backend/`, `frontend/`) is sitting on `dev` or `master`, you MUST immediately run `npm run repo:resume` (`node scripts/git-task-workflow.mjs resume`) to switch back to the primary feature branch worked on previously.
+> 3. **Commit where the changes are**: Always `cd` into `backend/` or `frontend/` to stage and commit changes on the feature branch. Committing only at root does **NOT** record code changes in submodules.
+> 4. **Submodule-first Push Order**: When pushing commits to the feature branch, **submodules MUST be pushed before the root repository**. Otherwise, remote root pointers will point to nonexistent commits on remote submodules.
+> 5. **Never Force Push**: Never use `git push --force` or `git push -f`.
 
 ---
 
@@ -67,22 +70,22 @@ On every `git commit`, Husky and `lint-staged` run automatically before the agen
 
 ## 🚀 Step-by-Step Commit & Push Workflow
 
-### Phase 1: Pre-Commit Identification & Staging
+### Phase 1: Pre-Commit Identification, Feature Branch Recovery & Staging
 
-#### Step 1.1 – Identify Target Repositories
-Check status across all 3 repositories:
+#### Step 1.1 – Identify Target Repositories & Recover Active Feature Branch
+Check status and trace Git history across all 3 repositories:
 ```powershell
-# Root repository
-git status
-
-# Backend submodule
-cd backend; git status; cd ..
-
-# Frontend submodule
-cd frontend; git status; cd ..
+$env:GIT_TERMINAL_PROMPT=0
+npm run repo:status
+npm run repo:tracking
+```
+If `root`, `backend/`, or `frontend/` is currently on `dev` or `master`, **IMMEDIATELY switch back to the previous active feature branch** before staging or committing:
+```powershell
+npm run repo:resume
+# Equivalent to: node scripts/git-task-workflow.mjs resume
 ```
 
-#### Step 1.2 – Stage Changes in Appropriate Repository
+#### Step 1.2 – Stage Changes in Appropriate Repository (On the Active Feature Branch)
 - If changes belong to Backend:
   ```powershell
   cd backend
@@ -114,7 +117,7 @@ If nothing is staged → ask the user which files to stage.
 #### Step 2.1 – Spawn Sub-Agents Concurrently
 
 - **Sub-Agent A: Security & Rule Auditor**
-  > Prompt: "Audit the following `git diff --staged` output against all checklists in SKILL.md (Secrets, MCP configs, DB safety, Git safety, Code conventions). Return a structured report with: PASSED items, FAILED items (with file:line), and WARNINGS. Be concise and precise."
+  > Prompt: "Audit the following `git diff --staged` output against all checklists in SKILL.md (Active Feature Branch check — NOT on dev/master, Secrets, MCP configs, DB safety, Git safety, Code conventions). Return a structured report with: PASSED items, FAILED items (with file:line), and WARNINGS. Be concise and precise."
 
 - **Sub-Agent B: Commit Message Crafter**
   > Prompt: "Read the `git diff --staged --stat` and diff context. Craft a Conventional Commits message adhering to `<type>(<scope>): <subject>` with optional body. Types: feat|fix|refactor|chore|docs|test|style|perf|ci|db|security. Max subject 72 chars. Return the exact commit message string."
@@ -134,8 +137,8 @@ If nothing is staged → ask the user which files to stage.
 └─────────────────────────┴────────────────────────────────────────────────────────┘
 ```
 
-#### Step 2.3 – Execute Commit
-Inside the target repository directory:
+#### Step 2.3 – Execute Commit (Strictly on Active Feature Branch)
+Inside the target repository directory (after verifying `git branch --show-current` is NOT `dev` or `master`):
 ```powershell
 git commit -m "<message from Sub-Agent B>"
 ```
@@ -145,6 +148,7 @@ Display the commit confirmation:
 ┌─────────────────────────────────────────────────────┐
 │  ✅ Commit successful: <commit-hash>                 │
 │  📁 Repository: [backend | frontend | root]          │
+│  🌿 Branch: <feature-branch>                         │
 │  📋 Audit: N passed | N warnings | 0 failed         │
 │  📝 Message: <type>(<scope>): <subject>              │
 └─────────────────────────────────────────────────────┘
@@ -154,17 +158,23 @@ Display the commit confirmation:
 
 ### Phase 3: Git Push Workflow (When Requested)
 
-> 🛡️ **Push Governance Rule**: NEVER push code to remote unless:
-> 1. The user explicitly requested to push (e.g. "push to git", "commit and push"), OR
-> 2. The user explicitly approved a push prompt.
+> 🛡️ **Push Governance & Protected Branch Rule (`RULE-GIT-HISTORY-RESUME-01`)**:
+> 1. NEVER push code to remote unless the user explicitly requested to push (e.g. "push to git", "commit and push") OR explicitly approved a push prompt.
+> 2. **NEVER push directly to `dev` or `master`** (`git push origin dev` / `git push origin master` is strictly blocked by `scripts/hooks/pre-command-guard.mjs`). Always ensure all repos are on the active feature branch (`npm run repo:resume`) and push to `origin <feature-branch>`.
 
-#### Step 3.1 – Submodule-First Push Sequence
+#### Step 3.1 – Submodule-First Push Sequence (To Active Feature Branch)
 When a push is requested, follow this strict sequence:
+
+0. **Verify all repositories are on the active feature branch (NOT `dev` or `master`)**:
+   ```powershell
+   npm run repo:resume
+   ```
 
 1. **Push Backend submodule** (if it has new commits):
    ```powershell
    cd backend
    $branch = (git branch --show-current)
+   if ($branch -in @('dev', 'master', 'main')) { throw "BLOCKED: Cannot push directly to $branch! Run npm run repo:resume first." }
    git push origin $branch
    cd ..
    ```
@@ -173,6 +183,7 @@ When a push is requested, follow this strict sequence:
    ```powershell
    cd frontend
    $branch = (git branch --show-current)
+   if ($branch -in @('dev', 'master', 'main')) { throw "BLOCKED: Cannot push directly to $branch! Run npm run repo:resume first." }
    git push origin $branch
    cd ..
    ```
@@ -184,9 +195,10 @@ When a push is requested, follow this strict sequence:
    git commit -m "chore(submodules): update submodule pointers to latest commits"
    ```
 
-4. **Push Root repository**:
+4. **Push Root repository** (to the active feature branch):
    ```powershell
    $branch = (git branch --show-current)
+   if ($branch -in @('dev', 'master', 'main')) { throw "BLOCKED: Cannot push directly to $branch! Run npm run repo:resume first." }
    git push origin $branch
    ```
 
@@ -197,9 +209,9 @@ After push completes, present the remote tracking status box and **a concise sum
 ┌─────────────────────────────────────────────────────┐
 │  🚀 Git Push Completed Successfully                 │
 ├─────────────────────────────────────────────────────┤
-│  📦 Backend  : origin/<branch> [Up-to-date]          │
-│  🎨 Frontend : origin/<branch> [Up-to-date]          │
-│  🌐 Root     : origin/<branch> [Up-to-date]          │
+│  📦 Backend  : origin/<feature-branch> [Up-to-date]  │
+│  🎨 Frontend : origin/<feature-branch> [Up-to-date]  │
+│  🌐 Root     : origin/<feature-branch> [Up-to-date]  │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -208,6 +220,7 @@ The agent MUST include a concise summary written in Vietnamese detailing what wa
 
 ```markdown
 ### 🚀 Tóm tắt các thay đổi vừa đẩy lên Git:
+- **Nhánh Feature**: `<feature-branch>`
 - **Backend**: [Tóm tắt ngắn gọn các API, Entities, Migrations, hoặc Business Logic vừa đẩy]
 - **Frontend**: [Tóm tắt ngắn gọn UI, Components, Pages, Hooks hoặc tối ưu hóa vừa đẩy]
 - **Root / Config**: [Cập nhật con trỏ submodule, tài liệu, rules/skills nếu có]
@@ -215,7 +228,7 @@ The agent MUST include a concise summary written in Vietnamese detailing what wa
 
 #### Step 3.3 – Post-Push Deployment & Health Verification Rule (Max 5 Attempts)
 
-When instructed to check remote deployments (e.g. Render, Vercel) or ping service health after pushing:
+When instructed to check remote deployments (e.g. Railway, Render, Vercel) or ping service health after pushing:
 
 1. **Strict 5-Attempt Maximum Cap**:
    - Polling checks MUST NEVER exceed **5 attempts** (e.g. intervals of 15–20s, total duration ≤ 1.5–2 minutes).
@@ -234,13 +247,16 @@ When instructed to check remote deployments (e.g. Render, Vercel) or ping servic
 
 3. **Early Exit on Terminal State**:
    - If deploy status reaches `live`, `ready`, or `failed`, terminate polling immediately.
-   - In case of failure, fetch the failure logs (e.g. via Render MCP `list_logs`), display the exact error snippet, and report it to the user.
+   - In case of failure, fetch the failure logs, display the exact error snippet, and report it to the user.
 
 ---
 
 ## 🔍 Security & Convention Checklist (Auditor Reference)
 
 ### 🔴 CRITICAL – Auto-block commit (FAILED)
+
+#### 0. Protected Branch Guard (`RULE-GIT-HISTORY-RESUME-01`)
+- [ ] Target repository (`backend`, `frontend`, `root`) is on an active feature/fix branch (`feat/...`, `feature/...`, `fix/...`), NEVER directly on `dev`, `master`, or `main`.
 
 #### 1. Secrets & Credentials
 - [ ] No `.env` files staged (`.env`, `.env.*`, `.env.local`, `.env.production`)
@@ -261,6 +277,7 @@ When instructed to check remote deployments (e.g. Render, Vercel) or ping servic
 
 #### 4. Git Operations Safety
 - [ ] No `--force` or `-f` flags in scripts or commands
+- [ ] No direct push to `dev` or `master` (`git push origin dev` / `git push origin master`)
 - [ ] No committed git credentials or personal access tokens in git remotes/configs
 
 #### 5. Canonical Domain & Portable Link Integrity (from [`.agents/rules/environments.md`](file:///d:/Projects/logistics-website/.agents/rules/environments.md))
@@ -327,7 +344,11 @@ Use the [Conventional Commits](https://www.conventionalcommits.org/) v1.0 specif
 ## ⚡ CLI Quick Reference (PowerShell & Bash)
 
 ```powershell
-# --- SUBMODULE COMMITS ---
+# --- STEP 0: RECOVER ACTIVE FEATURE BRANCH FROM GIT HISTORY ---
+npm run repo:status
+npm run repo:resume
+
+# --- SUBMODULE COMMITS (ON FEATURE BRANCH) ---
 # Backend
 cd backend
 git status
@@ -348,7 +369,7 @@ cd ..
 git add backend frontend docs/
 git commit -m "chore(submodules): update backend and frontend pointers"
 
-# --- SAFE PUSH SEQUENCE ---
+# --- SAFE PUSH SEQUENCE (TO FEATURE BRANCH ONLY) ---
 # 1. Push Submodules First
 cd backend; git push origin (git branch --show-current); cd ..
 cd frontend; git push origin (git branch --show-current); cd ..

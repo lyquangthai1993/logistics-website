@@ -110,7 +110,7 @@ Before any target data is touched on Dev:
 ### Phase 3: Zero-Lock Production Dump
 - Connects to Production DB.
 - Sets `lock_timeout = 4000` and starts `REPEATABLE READ READ ONLY` transaction.
-- Reads 16 core domain tables in topological order:
+- Reads 19 core domain tables in topological order:
   1. `role`
   2. `status`
   3. `file`
@@ -125,27 +125,35 @@ Before any target data is touched on Dev:
   12. `trip_stop`
   13. `order_inventory_transaction`
   14. `order_activity_log`
-  15. `notification`
-  16. `migrations`
-- Reads 13 PostgreSQL sequence states (`last_value`, `is_called`).
+  15. `daily_hub_operational_report`
+  16. `cron_job_config`
+  17. `cron_job_execution_log`
+  18. `notification`
+  19. `migrations`
+- Reads 17 PostgreSQL sequence states (`last_value`, `is_called`).
 - Commits and releases production connection immediately (`COMMIT`).
 
-### Phase 4: Atomic Restoration on Dev
-To prevent foreign key constraint violations and circular cascade deadlocks on Dev:
+### Phase 4: Atomic Restoration & Cronjob Reconciliation on Dev
+To prevent foreign key constraint violations, circular cascade deadlocks, and loss of Dev-ahead Cronjob data on Dev:
 1. `BEGIN;`
 2. `SET session_replication_role = 'replica';` (temporarily disables trigger cascades).
-3. **Secondary Index Auto-Bypass**: Queries and temporarily drops all non-primary secondary indexes (B-Tree deduplication & GIN trigram) across target tables, eliminating PostgreSQL posting list page split errors (`nbtdedup.c` / GIN) and accelerating bulk load by 10x.
-4. Deletes existing data in **reverse topological order** (from `migrations` and `notification` back to `role`).
-5. Inserts new rows in **forward topological order** using parameterized chunks (`chunkSize = 100`).
-6. Realigns all sequences using `SELECT setval('seq_name', last_value, is_called)`.
-7. **Secondary Index Auto-Recreation**: Rebuilds all saved secondary indexes across all tables in a single optimized pass.
-8. Re-enables standard trigger validation: `SET session_replication_role = 'origin';`.
-9. `COMMIT;` (Transaction rolls back completely if any table chunk fails).
+3. **Dev-Only & Cronjob Table Protection (`CRON_PRESERVE_TABLES`)**:
+   - Tables that do not yet exist on Production (`missingOnSource: true`) or Cronjob tables (`daily_hub_operational_report`, `cron_job_config`, `cron_job_execution_log`) that are empty on Production are **preserved (`KEEP 🛡️`)** on Dev and excluded from destructive `DELETE` operations.
+   - If a preserved table on Dev is currently empty, the engine automatically restores it from the most recent non-empty `backups/dev_backup_*.json` snapshot.
+   - Dev-ahead `migrations` records (migrations already applied on `dev` but not yet promoted to `master`) are automatically merged with Production `migrations`.
+4. **Secondary Index Auto-Bypass**: Queries and temporarily drops all non-primary secondary indexes (B-Tree deduplication & GIN trigram) across overwritten tables, eliminating PostgreSQL posting list page split errors (`nbtdedup.c` / GIN) and accelerating bulk load by 10x.
+5. Deletes existing data in **reverse topological order** for overwritten tables only.
+6. Inserts new rows in **forward topological order** using parameterized chunks (`chunkSize = 100`).
+7. **Automatic Cronjob Report Reconciliation (`reconcileCronReportsOnDev`)**: Immediately recalculates `daily_hub_operational_report` and `cron_job_execution_log` daily aggregates on Dev against the newly synced `order_inventory_transaction` rows (`18:00 D-1 -> 18:00 D GMT+7` cutoff) so Admin Operational Reports and Cronjob logs stay 100% consistent with Production transactions.
+8. Realigns all sequences using `SELECT setval('seq_name', last_value, is_called)`.
+9. **Secondary Index Auto-Recreation**: Rebuilds all saved secondary indexes across all tables in a single optimized pass.
+10. Re-enables standard trigger validation: `SET session_replication_role = 'origin';`.
+11. `COMMIT;` (Transaction rolls back completely if any table chunk fails).
 
 ### Phase 5: Verification & Parity Audit
-- Performs instant row count parity checks between Prod and Dev across all 16 tables.
+- Performs instant row count parity checks between Prod and Dev across all 19 tables (`PASS ✅` for synced tables, `KEEP 🛡️` for preserved Dev-only/Cronjob tables).
 - Issues bounded HTTP health probe to Dev Backend API (`https://backend-tms-core-dev.up.railway.app/api/v1/health`).
-- Produces a tabular scorecard with `PASS ✅` or `FAIL ❌`.
+- Produces a tabular scorecard with `PASS ✅`, `KEEP 🛡️`, or `FAIL ❌`.
 
 ---
 

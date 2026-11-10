@@ -4,21 +4,30 @@
  *
  * Antigravity PreToolUse Hook:
  * 1. Chặn các lệnh rủi ro cao (git push --no-verify, force push, hard reset, DROP/TRUNCATE DB).
- * 2. Chốt chặn Cưỡng chế Local-First (Tier-1 Gate): Chặn mọi lệnh git push submodule (backend/frontend),
+ * 2. Chốt chặn Cưỡng chế Nhánh Bảo Vệ (Protected Branch Guard — dev / master):
+ *    - CẤM tự ý commit hoặc push thẳng code lên branch `dev`, `master`, hoặc `main`.
+ *    - Khi phát hiện thao tác commit/push lên `dev`/`master` (hoặc khi repo đang đứng ở `dev`/`master`),
+ *      tự động truy ngược Git History (`traceLastFeatureBranch`) và yêu cầu quay về branch feature chính (`npm run repo:resume`).
+ * 3. Chốt chặn Cưỡng chế Local-First (Tier-1 Gate): Chặn mọi lệnh git push submodule (backend/frontend),
  *    gh pr create, hoặc task:pr nếu máy chủ Local (port 4000 & 4001) chưa được bật!
- * 3. Chốt chặn Cưỡng chế Railway Build & Cutover (Tier-2 Gate): Chặn mọi lệnh chạy Playwright E2E
+ * 4. Chốt chặn Cưỡng chế Railway Build & Cutover (Tier-2 Gate): Chặn mọi lệnh chạy Playwright E2E
  *    nhắm vào Railway Cloud (`*.up.railway.app`) nếu bản deployment mới nhất trên Railway đang
  *    BUILDING / DEPLOYING / QUEUED, chưa khớp Commit SHA với nhánh git, chưa cutover sang active container,
  *    hoặc bị BUILD FAILED!
- * 4. Tự động gắn Hard Timeout 5 phút (300s) chống treo cho tất cả lệnh terminal không phải daemon.
+ * 5. Tự động gắn Hard Timeout 5 phút (300s) chống treo cho tất cả lệnh terminal không phải daemon.
  *
- * Tuân thủ RULE-ANTI-HANG-EXEC-01 và AGENTS.md.
+ * Tuân thủ RULE-ANTI-HANG-EXEC-01, RULE-GIT-TASK-WORKFLOW-01 và AGENTS.md.
  */
 
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { checkLocalServers } from "../ensure-local-servers.mjs";
 import { checkRailwayDeploymentReady } from "../verify-railway-deployment.mjs";
+import {
+  PROTECTED_BRANCHES,
+  getCurrentBranches,
+  getTracedFeatureBranches,
+} from "../git-task-workflow.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -94,13 +103,92 @@ const DAEMON_PATTERNS = [
 ];
 
 /**
+ * Kiểm tra xem lệnh Git có tự ý commit hoặc push thẳng lên nhánh bảo vệ (`dev`, `master`, `main`) hay không.
+ * Ngoại lệ duy nhất:
+ * - Có cờ `--allow-protected-push` hoặc `--allow-protected-branch` (dành cho script PR merge fallback hoặc khi User yêu cầu rõ ràng).
+ * - Giai đoạn 0 Feedback Baseline (`docs(feedback):` trên Root repo).
+ */
+function checkProtectedBranchGitViolation(commandLine) {
+  if (/--allow-protected-(push|branch)\b/i.test(commandLine)) {
+    return null;
+  }
+
+  // Cho phép các lệnh chạy qua script workflow chuẩn
+  if (/\bgit-task-workflow\.mjs\b/i.test(commandLine)) {
+    return null;
+  }
+
+  const hasGitPush = /\bgit\b[^\n;|&]*\bpush\b/i.test(commandLine);
+  const hasGitCommit =
+    /\bgit\b[^\n;|&]*\bcommit\b/i.test(commandLine) &&
+    !/docs\(feedback\):/i.test(commandLine);
+
+  if (!hasGitPush && !hasGitCommit) {
+    return null;
+  }
+
+  const branches = getCurrentBranches();
+  const traced = getTracedFeatureBranches();
+
+  const buildHistoryReport = () =>
+    `🔍 Kết quả truy ngược Git History (Last Active Feature Branch):\n` +
+    `  • Backend : hiện tại='${branches.backend || "detached"}' -> feature trước đó='${traced.backend || "N/A"}'\n` +
+    `  • Frontend: hiện tại='${branches.frontend || "detached"}' -> feature trước đó='${traced.frontend || "N/A"}'\n` +
+    `  • Root    : hiện tại='${branches.root || "detached"}' -> feature trước đó='${traced.root || "N/A"}'\n\n` +
+    `👉 HÀNH ĐỘNG BẮT BUỘC (Mỗi phiên chat với Antigravity):\n` +
+    `  1. Chạy 'npm run repo:resume' (hoặc 'node scripts/git-task-workflow.mjs resume') để tự động quay về branch feature chính trước đó.\n` +
+    `  2. Thực hiện commit & push trên branch feature ('${traced.backend || traced.frontend || "<feature-branch>"}'), TUYỆT ĐỐI KHÔNG push thẳng lên 'dev' hoặc 'master'!`;
+
+  // 1. Chặn lệnh chỉ định push thẳng lên dev / master / main (VD: git push origin dev, git push origin master)
+  if (
+    hasGitPush &&
+    /\bgit\b[^\n;|&]*\bpush\b[^\n;|&]*\b(origin\s+)?(HEAD:)?(dev|master|main)\b/i.test(
+      commandLine,
+    )
+  ) {
+    return (
+      `🛡️ [PROTECTED BRANCH PUSH BLOCKED] Nghiêm cấm tự ý push thẳng code lên nhánh bảo vệ ('dev' / 'master')!\n` +
+      buildHistoryReport()
+    );
+  }
+
+  // 2. Xác định repo mục tiêu của lệnh git commit / git push và kiểm tra xem repo đó có đang đứng ở dev / master không
+  const targetsBackend =
+    /\bgit\s+-C\s+["']?backend["']?\s+(commit|push)\b/i.test(commandLine) ||
+    /\bcd\s+["']?backend["']?\b[\s\S]*?\bgit\s+(commit|push)\b/i.test(commandLine);
+  const targetsFrontend =
+    /\bgit\s+-C\s+["']?frontend["']?\s+(commit|push)\b/i.test(commandLine) ||
+    /\bcd\s+["']?frontend["']?\b[\s\S]*?\bgit\s+(commit|push)\b/i.test(commandLine);
+  const targetsRoot = !targetsBackend && !targetsFrontend;
+
+  const violatedRepos = [];
+  if (targetsBackend && (!branches.backend || PROTECTED_BRANCHES.has(branches.backend))) {
+    violatedRepos.push(`Backend (đang ở '${branches.backend || "detached"}', cần về '${traced.backend}')`);
+  }
+  if (targetsFrontend && (!branches.frontend || PROTECTED_BRANCHES.has(branches.frontend))) {
+    violatedRepos.push(`Frontend (đang ở '${branches.frontend || "detached"}', cần về '${traced.frontend}')`);
+  }
+  if (targetsRoot && (!branches.root || PROTECTED_BRANCHES.has(branches.root))) {
+    violatedRepos.push(`Root (đang ở '${branches.root || "detached"}', cần về '${traced.root}')`);
+  }
+
+  if (violatedRepos.length > 0) {
+    const actionLabel = hasGitPush ? "git push" : "git commit";
+    return (
+      `🛡️ [PROTECTED BRANCH ${actionLabel.toUpperCase()} BLOCKED] Không được thực hiện '${actionLabel}' khi đang đứng trên nhánh bảo vệ ('dev'/'master'): ${violatedRepos.join(", ")}!\n` +
+      buildHistoryReport()
+    );
+  }
+
+  return null;
+}
+
+/**
  * Kiểm tra xem lệnh có phải là thao tác đẩy code submodule hoặc tạo PR lên GitHub hay không.
  * Nếu phải, bắt buộc Local Servers (port 4000 & 4001) phải đang bật (chứng minh đã bật Local để test Tầng 1).
  */
 function requiresLocalServersGate(commandLine) {
   if (/--skip-local-gate\b/i.test(commandLine)) return false;
-  // Cho phép đồng bộ dev -> master (chore sync)
-  if (/git\s+push\s+origin\s+master\b/i.test(commandLine)) return false;
 
   // Chặn nếu tạo PR hoặc chạy workflow PR
   if (/\bgh\s+pr\s+(create|merge)\b/i.test(commandLine)) return true;
@@ -174,7 +262,18 @@ process.stdin.on("end", async () => {
       }
     }
 
-    // 2. Chốt chặn Cưỡng chế Local-First (Tier-1 Gate):
+    // 2. Chốt chặn Cưỡng chế Nhánh Bảo Vệ (Protected Branch Guard — dev / master)
+    const protectedBranchViolation = checkProtectedBranchGitViolation(commandLine);
+    if (protectedBranchViolation) {
+      const result = {
+        decision: "deny",
+        reason: protectedBranchViolation,
+      };
+      console.log(JSON.stringify(result));
+      process.exit(0);
+    }
+
+    // 3. Chốt chặn Cưỡng chế Local-First (Tier-1 Gate):
     // Không cho phép push code submodule hoặc tạo PR nếu port 4000 & 4001 chưa bật!
     if (requiresLocalServersGate(commandLine)) {
       const localStatus = await checkLocalServers(2000);
@@ -194,7 +293,7 @@ process.stdin.on("end", async () => {
       }
     }
 
-    // 3. Chốt chặn Cưỡng chế Railway Build & Cutover (Tier-2 Gate):
+    // 4. Chốt chặn Cưỡng chế Railway Build & Cutover (Tier-2 Gate):
     // Không cho phép chạy Playwright E2E trên Railway nếu bản deployment mới chưa build xong (SUCCESS) hoặc chưa khớp Commit SHA!
     const railwayTargetEnv = detectRailwayE2ETargetEnv(commandLine);
     if (railwayTargetEnv) {
@@ -225,7 +324,7 @@ process.stdin.on("end", async () => {
       }
     }
 
-    // 4. Kiểm tra nếu là daemon (dev server, background worker) -> Cho phép chạy bình thường, không bọc timeout
+    // 5. Kiểm tra nếu là daemon (dev server, background worker) -> Cho phép chạy bình thường, không bọc timeout
     const isDaemonCommand =
       isDaemonArg || DAEMON_PATTERNS.some((p) => p.test(commandLine));
     if (isDaemonCommand) {
@@ -233,7 +332,7 @@ process.stdin.on("end", async () => {
       process.exit(0);
     }
 
-    // 5. Tự động bọc lệnh với Hard Timeout 5 phút (300 giây) chống treo
+    // 6. Tự động bọc lệnh với Hard Timeout 5 phút (300 giây) chống treo
     const b64Cmd = Buffer.from(commandLine).toString("base64");
     const wrappedCommandLine = `node "${TIMEOUT_RUNNER_PATH}" --b64 ${b64Cmd} 300`;
 
