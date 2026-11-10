@@ -115,8 +115,24 @@ export function traceLastFeatureBranch(cwd = ROOT_DIR) {
 }
 
 function checkGhAuth() {
+  if (!process.env.GH_TOKEN && !process.env.GITHUB_TOKEN) {
+    try {
+      const cred = execSync('git credential fill', {
+        cwd: ROOT_DIR,
+        input: 'protocol=https\nhost=github.com\n\n',
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      const m = cred.match(/^password=(.+)$/m);
+      if (m && m[1].trim()) {
+        process.env.GH_TOKEN = m[1].trim();
+      }
+    } catch {
+      // ignore
+    }
+  }
   const status = runOutput('gh auth status', ROOT_DIR);
-  return !status.includes('not logged into');
+  return Boolean(process.env.GH_TOKEN) || !status.includes('not logged into');
 }
 
 export function getCurrentBranches() {
@@ -294,6 +310,9 @@ export async function createAndMergePr(taskId, slugOrModule = 'work', action = '
   }
   if (scope === 'frontend' || scope === 'fullstack') {
     repos.push({ name: 'Frontend', dir: FRONTEND_DIR, ghRepo: 'lyquangthai1993/logistics-website-frontend' });
+  }
+  if (scope === 'root') {
+    repos.push({ name: 'Root', dir: ROOT_DIR, ghRepo: 'lyquangthai1993/logistics-website' });
   }
 
   const isGhAuthed = checkGhAuth();

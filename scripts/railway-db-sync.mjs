@@ -199,6 +199,13 @@ const SEQUENCE_NAMES = [
   "trip_code_sd_seq",
 ];
 
+// Các bảng cấu hình/báo cáo Cronjob cần bảo toàn dữ liệu trên Dev nếu Prod chưa có bảng hoặc đang trống (0 bản ghi)
+const CRON_PRESERVE_TABLES = [
+  "daily_hub_operational_report",
+  "cron_job_config",
+  "cron_job_execution_log",
+];
+
 const targetTables = tablesArg
   ? tablesArg
       .replace("--tables=", "")
@@ -206,6 +213,37 @@ const targetTables = tablesArg
       .map((t) => t.trim())
       .filter((t) => ALL_TABLES.includes(t))
   : ALL_TABLES;
+
+function findLatestDevBackupForTable(backupsDir, tableName) {
+  try {
+    if (!fs.existsSync(backupsDir)) return null;
+    const files = fs
+      .readdirSync(backupsDir)
+      .filter((f) => /^dev_backup_\d{8}_\d{6}\.json$/.test(f))
+      .sort()
+      .reverse();
+    for (const file of files) {
+      try {
+        const fullPath = path.join(backupsDir, file);
+        const parsed = JSON.parse(fs.readFileSync(fullPath, "utf8"));
+        const tbl = parsed?.tables?.[tableName];
+        if (tbl && Array.isArray(tbl.rows) && tbl.rows.length > 0) {
+          return {
+            file,
+            tableData: tbl,
+            sequences: parsed.sequences || {},
+            migrations: parsed?.tables?.migrations || null,
+          };
+        }
+      } catch {
+        // skip corrupted backup file
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+}
 
 function getTimestamp() {
   const d = new Date();
@@ -466,6 +504,51 @@ async function main() {
     await devClient.query("BEGIN;");
     await devClient.query("SET session_replication_role = 'replica';");
 
+    // Xác định các bảng cần bảo toàn trên Dev (do Prod chưa có bảng hoặc các bảng Cronjob trên Prod đang trống 0 bản ghi)
+    const preservedTables = new Set();
+    for (const table of targetTables) {
+      const prodTable = prodDump.tables[table];
+      const isMissingOnProd = Boolean(prodTable?.missingOnSource);
+      const isEmptyCronTableOnProd =
+        CRON_PRESERVE_TABLES.includes(table) &&
+        (prodTable?.rows?.length || 0) === 0;
+      if (isMissingOnProd || isEmptyCronTableOnProd) {
+        preservedTables.add(table);
+      }
+    }
+
+    // Lưu lại các bản ghi migrations trên Dev (và từ bản backup gần nhất) để không làm mất các migration mới trên nhánh dev
+    let devAheadMigrations = [];
+    if (await relationExists(devClient, "migrations")) {
+      const devMigRes = await devClient.query(`SELECT * FROM "migrations"`);
+      const prodMigNames = new Set(
+        (prodDump.tables.migrations?.rows || []).map((r) => r.name),
+      );
+      const seenExtraNames = new Set();
+      for (const r of devMigRes.rows) {
+        if (!prodMigNames.has(r.name) && !seenExtraNames.has(r.name)) {
+          devAheadMigrations.push(r);
+          seenExtraNames.add(r.name);
+        }
+      }
+      const backupWithExtraMigs = findLatestDevBackupForTable(
+        backupsDir,
+        "cron_job_config",
+      );
+      if (backupWithExtraMigs?.migrations?.rows) {
+        for (const r of backupWithExtraMigs.migrations.rows) {
+          if (!prodMigNames.has(r.name) && !seenExtraNames.has(r.name)) {
+            devAheadMigrations.push(r);
+            seenExtraNames.add(r.name);
+          }
+        }
+      }
+    }
+
+    const tablesToOverwrite = targetTables.filter(
+      (t) => !preservedTables.has(t),
+    );
+
     // Lưu và tạm drop các secondary index (B-Tree, GIN) để tối ưu bulk insert và triệt tiêu lỗi posting list split (nbtdedup.c)
     const secondaryIndexesRes = await devClient.query(
       `SELECT tablename, indexname, indexdef 
@@ -476,28 +559,61 @@ async function main() {
          AND indexname NOT IN (
            SELECT conname FROM pg_constraint WHERE contype IN ('p', 'u')
          )`,
-      [targetTables],
+      [tablesToOverwrite],
     );
     const secondaryIndexes = secondaryIndexesRes.rows;
     for (const idx of secondaryIndexes) {
       await devClient.query(`DROP INDEX IF EXISTS "${idx.indexname}" CASCADE;`);
     }
 
-    // Xóa theo thứ tự ngược (chỉ xóa các bảng tồn tại trên Dev DB và không phải bảng mới chưa có trên Prod nếu muốn giữ, hoặc xóa đồng bộ)
-    const reverseTables = [...targetTables].reverse();
+    // Xóa theo thứ tự ngược (TUYỆT ĐỐI KHÔNG xóa các bảng nằm trong preservedTables)
+    const reverseTables = [...tablesToOverwrite].reverse();
     for (const table of reverseTables) {
       if (await relationExists(devClient, table)) {
         await devClient.query(`DELETE FROM "${table}";`);
       }
     }
-    console.log("  🧹 Đã xóa sạch dữ liệu cũ trong bảng mục tiêu trên Dev DB");
+    console.log(
+      `  🧹 Đã làm sạch dữ liệu cũ trong ${tablesToOverwrite.length} bảng mục tiêu trên Dev DB (Bảo toàn ${preservedTables.size} bảng Dev-only/Cronjob)`,
+    );
 
     // Chèn dữ liệu theo thứ tự xuôi
+    const restoredSequencesFromBackup = {};
     for (const table of targetTables) {
       if (!(await relationExists(devClient, table))) {
         console.log(`  ⚪ Bảng "${table.padEnd(28)}": Chưa tồn tại trên Dev DB`);
         continue;
       }
+
+      if (preservedTables.has(table)) {
+        const countRes = await devClient.query(
+          `SELECT count(*)::int as count FROM "${table}"`,
+        );
+        let currentDevCount = countRes.rows[0].count;
+        if (currentDevCount === 0) {
+          // Tự động phục hồi từ bản backup Dev gần nhất nếu bảng bị trống do lần sync trước
+          const backupHit = findLatestDevBackupForTable(backupsDir, table);
+          if (backupHit && backupHit.tableData.rows.length > 0) {
+            currentDevCount = await insertRowsInChunks(
+              devClient,
+              table,
+              backupHit.tableData.columns,
+              backupHit.tableData.rows,
+              100,
+            );
+            Object.assign(restoredSequencesFromBackup, backupHit.sequences);
+            console.log(
+              `  🛡️ Bảng "${table.padEnd(28)}": Đã khôi phục ${String(currentDevCount).padStart(4)} bản ghi từ ${backupHit.file}`,
+            );
+            continue;
+          }
+        }
+        console.log(
+          `  🛡️ Bảng "${table.padEnd(28)}": Bảo toàn ${String(currentDevCount).padStart(4)} bản ghi trên Dev`,
+        );
+        continue;
+      }
+
       const { rows, columns } = prodDump.tables[table];
       if (rows && rows.length > 0) {
         const count = await insertRowsInChunks(
@@ -507,9 +623,22 @@ async function main() {
           rows,
           100,
         );
-        console.log(
-          `  📥 Bảng "${table.padEnd(28)}": Đã chèn ${String(count).padStart(4)} bản ghi`,
-        );
+        if (table === "migrations" && devAheadMigrations.length > 0) {
+          await insertRowsInChunks(
+            devClient,
+            "migrations",
+            columns,
+            devAheadMigrations,
+            100,
+          );
+          console.log(
+            `  📥 Bảng "${table.padEnd(28)}": Đã chèn ${String(count).padStart(4)} bản ghi Prod + giữ ${devAheadMigrations.length} migration mới của Dev`,
+          );
+        } else {
+          console.log(
+            `  📥 Bảng "${table.padEnd(28)}": Đã chèn ${String(count).padStart(4)} bản ghi`,
+          );
+        }
       } else {
         console.log(`  ⚪ Bảng "${table.padEnd(28)}":    0 bản ghi`);
       }
@@ -517,12 +646,24 @@ async function main() {
 
     // Cập nhật lại sequences
     console.log("  🔢 Cập nhật lại toàn bộ sequences...");
-    for (const [seq, meta] of Object.entries(prodDump.sequences)) {
+    const mergedSequences = {
+      ...restoredSequencesFromBackup,
+      ...prodDump.sequences,
+    };
+    for (const [seq, meta] of Object.entries(mergedSequences)) {
       if (meta && meta.last_value && (await relationExists(devClient, seq))) {
         await devClient.query(
           `SELECT setval('${seq}', ${meta.last_value}, ${meta.is_called ? "true" : "false"});`,
         );
       }
+    }
+    if (
+      devAheadMigrations.length > 0 &&
+      (await relationExists(devClient, "migrations_id_seq"))
+    ) {
+      await devClient.query(
+        `SELECT setval('migrations_id_seq', (SELECT COALESCE(MAX(id), 1) FROM "migrations"), true);`,
+      );
     }
 
     // Tái tạo lại toàn bộ secondary index sau khi đã chèn xong dữ liệu
@@ -554,11 +695,22 @@ async function main() {
         devCount = res.rows[0].count;
       }
       const prodCount = prodCounts[table];
-      const match = devCount === prodCount;
+      const isPreserved = preservedTables.has(table);
+      const isDevAheadMigration =
+        table === "migrations" &&
+        devCount === prodCount + devAheadMigrations.length;
+      const match =
+        isPreserved || isDevAheadMigration || devCount === prodCount;
       if (!match) mismatchCount++;
 
+      const statusLabel = isPreserved
+        ? "KEEP 🛡️"
+        : match
+          ? "PASS ✅"
+          : "FAIL ❌";
+
       console.log(
-        `| ${table.padEnd(30)} | ${String(prodCount).padStart(8)} | ${String(devCount).padStart(8)} | ${(match ? "PASS ✅" : "FAIL ❌").padStart(8)} |`,
+        `| ${table.padEnd(30)} | ${String(prodCount).padStart(8)} | ${String(devCount).padStart(8)} | ${statusLabel.padStart(8)} |`,
       );
     }
     console.log("-".repeat(60));
