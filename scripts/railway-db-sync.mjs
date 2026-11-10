@@ -38,15 +38,22 @@ const hardTimeout = setTimeout(() => {
 hardTimeout.unref();
 
 // Load pg module từ root hoặc tools/telegram-task-runner
-let Client;
+let pgModule;
 try {
-  Client = require("pg").Client;
+  pgModule = require("pg");
 } catch {
   const pgToolsPath = path.resolve(
     rootDir,
     "tools/telegram-task-runner/node_modules/pg",
   );
-  Client = require(pgToolsPath).Client;
+  pgModule = require(pgToolsPath);
+}
+const Client = pgModule.Client;
+// Giữ nguyên chuỗi TIMESTAMP WITHOUT TIME ZONE (1114) và DATE (1082) nguyên bản từ DB,
+// tránh bị pg chuyển đổi sang múi giờ local (UTC+7) rồi .toISOString() làm lệch +7 tiếng mỗi lần sync.
+if (pgModule.types && typeof pgModule.types.setTypeParser === "function") {
+  pgModule.types.setTypeParser(1114, (val) => val);
+  pgModule.types.setTypeParser(1082, (val) => val);
 }
 
 // Tự động nạp backend/.env nếu có (không phụ thuộc dotenv bên ngoài)
