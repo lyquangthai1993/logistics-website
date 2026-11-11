@@ -1,0 +1,351 @@
+﻿<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Phiếu Khảo Sát & Chốt Nghiệp Vụ Vận Hành S-Hub - Kho TMS</title>
+<style>
+  @page { size: 21cm 29.7cm; margin: 1.8cm; }
+  body { font-family: "Times New Roman", serif; font-size: 11.5pt; line-height: 1.45; color: #1E293B; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+  th { background: #0F3D62; color: #FFFFFF; padding: 7px 10px; border: 1px solid #CBD5E1; text-align: left; font-size: 10.5pt; }
+  td { padding: 7px 10px; border: 1px solid #CBD5E1; font-size: 10.5pt; vertical-align: top; }
+</style>
+</head>
+<body>
+  <h1 style="text-align:center;color:#0F3D62;font-size:16pt;margin-bottom:4px;">PHIẾU KHẢO SÁT &amp; CHỐT NGHIỆP VỤ VẬN HÀNH</h1>
+  <p style="text-align:center;font-style:italic;color:#334155;border-bottom:2px solid #0F3D62;padding-bottom:10px;margin-top:0;">
+    Về việc: Đồng bộ dữ liệu tự động 2 chiều giữa Phần mềm S-Hub (spiderexpress.id.vn) và Phần mềm Kho TMS
+  </p>
+  <p><b>1. Mục tiêu kết nối:</b> Cứ mỗi 10 phút, hệ thống tự động kéo Chuyến xe, Đơn hàng và Kế hoạch Nhập/Xuất kho từ S-Hub về Phần mềm Kho TMS. Ngược lại, khi Thủ kho bấm xác nhận Nhập kho / Xuất kho trên Phần mềm Kho TMS, kết quả sẽ tự động đẩy ngược về S-Hub.</p>
+  <p><b>2. Hướng dẫn điền phiếu:</b> Anh/Chị thuộc Bộ phận Vận hành / Điều hành / Kho bãi vui lòng xem 18 câu hỏi tình huống thực tế dưới đây, đánh dấu <b>(X)</b> vào ô phương án phù hợp nhất và ghi ý kiến chốt vào dòng bên dưới mỗi câu.</p>
+  
+  <h2 style="background:#0F3D62;color:#ffffff;padding:8px 12px;font-size:12.5pt;margin-top:20px;margin-bottom:10px;">PHẦN 1: PHẠM VI KHO ĐỒNG BỘ, MỐC THỜI GIAN &amp; NGUỒN ĐƠN HÀNG</h2>
+  
+    <div style="margin-bottom:14px;page-break-inside:avoid;">
+      <h3 style="color:#0F3D62;font-size:11.5pt;border-left:4px solid #0284C7;padding-left:8px;margin-bottom:6px;">Câu 1.1: Phạm vi 3 Kho và xử lý các phiếu tồn đọng cũ (&quot;Quá ngày&quot;) trên S-Hub</h3>
+      <p style="margin:4px 0 6px 12px;"><b>Thực tế giữa 2 phần mềm:</b> Hiện tại trên S-Hub có 3 kho (Kho HCM, Kho Đà Nẵng, Kho Hưng Yên) khớp với 3 Kho chính trên phần mềm Kho TMS. Tuy nhiên, mục &quot;Quá ngày&quot; trên S-Hub đang còn tồn đọng 68 phiếu chờ nhập và 162 phiếu chờ xuất từ các ngày trước chưa bấm xác nhận trên S-Hub (trong khi thực tế nhiều đơn này Kho đã nhập/xuất xong trên phần mềm Kho TMS rồi).</p>
+      
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án A (Đề xuất):</b> Đồng bộ cả 3 kho (HCM, Đà Nẵng, Hưng Yên), nhưng CHỈ kéo các kế hoạch từ ngày bắt đầu áp dụng (Go-Live) trở đi. Các phiếu cũ trước ngày đó sẽ không tự động đổ về làm rối màn hình Kho.
+        </p>
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án B:</b> Kéo thêm các phiếu tồn đọng trong mục &quot;Quá ngày&quot; của 3 đến 7 ngày gần nhất về phần mềm Kho TMS để Thủ kho rà soát xử lý nốt.
+        </p>
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án C:</b> Giai đoạn đầu chỉ bật thử nghiệm trước cho 1 kho (Kho HCM), sau 3–5 ngày ổn định mới bật tiếp Kho Đà Nẵng và Kho Hưng Yên.
+        </p>
+      <p style="margin:6px 0 10px 12px;background:#F8FAFC;padding:6px 10px;border:1px dashed #CBD5E1;">
+        <b style="color:#0F3D62;">👉 Chốt phương án &amp; Ngày bắt đầu cắt mốc kéo dữ liệu:</b> .....................................................................................................................
+      </p>
+    </div>
+    <div style="margin-bottom:14px;page-break-inside:avoid;">
+      <h3 style="color:#0F3D62;font-size:11.5pt;border-left:4px solid #0284C7;padding-left:8px;margin-bottom:6px;">Câu 1.2: Xử lý đơn &quot;Khách tự mang tới kho gửi lưu kho — chưa có điểm giao&quot;</h3>
+      <p style="margin:4px 0 6px 12px;"><b>Thực tế giữa 2 phần mềm:</b> Trên S-Hub có những phiếu khách tự mang hàng ra kho gửi lưu tạm (ví dụ phiếu KN-2611-642 ghi: &quot;Khách gửi LƯU KHO — chưa có điểm giao, chờ khách báo&quot; và chưa có mã đơn hàng chính thức). Trong khi trên phần mềm Kho TMS, mỗi đơn hàng thường cần có Mã đơn và Kho đích / Tỉnh giao.</p>
+      
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án A (Đề xuất):</b> Vẫn kéo cả các phiếu khách gửi lưu kho này về phần mềm Kho TMS (lấy tạm mã phiếu KN-2611-642 làm Mã đơn hàng, phần điểm giao ghi &quot;Chờ khách báo điểm giao&quot;). Khi nào Điều hành cập nhật mã đơn và điểm giao mới trên S-Hub thì tự động cập nhật sang phần mềm Kho TMS.
+        </p>
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án B:</b> Chưa kéo về vội; chỉ khi nào Điều hành trên S-Hub đã lên mã đơn hàng chính thức và có điểm giao rõ ràng thì mới kéo về phần mềm Kho TMS.
+        </p>
+      <p style="margin:6px 0 10px 12px;background:#F8FAFC;padding:6px 10px;border:1px dashed #CBD5E1;">
+        <b style="color:#0F3D62;">👉 Ý kiến chốt của Vận hành:</b> .....................................................................................................................
+      </p>
+    </div>
+  <h2 style="background:#0F3D62;color:#ffffff;padding:8px 12px;font-size:12.5pt;margin-top:20px;margin-bottom:10px;">PHẦN 2: QUY TRÌNH &quot;DUYỆT -&gt; XÁC NHẬN&quot; &amp; TRƯỜNG HỢP TÀI XẾ CHƯA BẤM APP</h2>
+  
+    <div style="margin-bottom:14px;page-break-inside:avoid;">
+      <h3 style="color:#0F3D62;font-size:11.5pt;border-left:4px solid #0284C7;padding-left:8px;margin-bottom:6px;">Câu 2.1: Quy trình 2 bước (&quot;Duyệt kế hoạch&quot; rồi mới &quot;Xác nhận nhập/xuất&quot;) của S-Hub</h3>
+      <p style="margin:4px 0 6px 12px;"><b>Thực tế giữa 2 phần mềm:</b> Trên S-Hub, Thủ kho phải bấm 2 bước: (Bước 1) Bấm &quot;Duyệt&quot; khi mới thấy kế hoạch (chưa cộng tồn kho), sau đó khi xe tới kho mới (Bước 2) Bấm &quot;Xác nhận nhập/xuất&quot;. Trong khi trên phần mềm Kho TMS hiện tại, Thủ kho chỉ cần bấm 1 lần duy nhất &quot;Xác nhận nhập kho&quot; tại màn hình Kiểm đếm chuyến xe.</p>
+      
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án A (Đề xuất 1 — Thao tác 1 lần khi xe về):</b> Kéo cả phiếu &quot;Chờ kho duyệt&quot; lẫn &quot;Đã duyệt&quot; về phần mềm Kho TMS. Khi xe tới kho, Thủ kho chỉ cần bấm 1 nút &quot;Xác nhận nhập/xuất&quot; trên phần mềm Kho TMS, hệ thống sẽ tự động báo sang S-Hub cả 2 bước (vừa Duyệt vừa Xác nhận hoàn tất luôn).
+        </p>
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án B (Đề xuất 2 — Tự động Duyệt ngay khi nhận kế hoạch):</b> Ngay khi hệ thống kéo phiếu kế hoạch từ S-Hub về phần mềm Kho TMS (mỗi 10 phút), hệ thống tự động chuyển trạng thái phiếu đó trên S-Hub sang &quot;Đã duyệt — chờ hàng về&quot; (để Điều hành biết Kho đã nhận lịch). Khi xe về kho, Thủ kho bấm &quot;Xác nhận nhập kho&quot; trên TMS thì chốt tồn kho luôn.
+        </p>
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án C (Làm 2 nút tách rời giống S-Hub):</b> Thêm nút &quot;Duyệt kế hoạch&quot; riêng trên phần mềm Kho TMS để Thủ kho phải bấm Duyệt tay trước, khi xe tới mới bấm Xác nhận nhập/xuất sau.
+        </p>
+      <p style="margin:6px 0 10px 12px;background:#F8FAFC;padding:6px 10px;border:1px dashed #CBD5E1;">
+        <b style="color:#0F3D62;">👉 Ý kiến chốt của Vận hành:</b> .....................................................................................................................
+      </p>
+    </div>
+    <div style="margin-bottom:14px;page-break-inside:avoid;">
+      <h3 style="color:#0F3D62;font-size:11.5pt;border-left:4px solid #0284C7;padding-left:8px;margin-bottom:6px;">Câu 2.2: Trường hợp Xe công ty đã về tới kho nhưng Tài xế quên/chưa bấm &quot;Hoàn thành&quot; trên App điện thoại</h3>
+      <p style="margin:4px 0 6px 12px;"><b>Thực tế giữa 2 phần mềm:</b> Trên S-Hub, nếu chuyến xe do xe công ty chạy mà tài xế chưa bấm nút &quot;Hoàn thành chặng&quot; trên App điện thoại, S-Hub sẽ khóa cứng không cho Thủ kho bấm Xác nhận nhập kho. Nhưng thực tế tại bãi, xe đã đổ hàng xuống sàn và Thủ kho cần nhập kho ngay trên phần mềm Kho TMS để lấy hàng ghép lên xe xuất đi tiếp.</p>
+      
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án A (Đề xuất — Không khóa cứng thao tác của Kho):</b> Thủ kho vẫn được bấm &quot;Xác nhận nhập kho&quot; ngay trên phần mềm Kho TMS để có tồn kho xuất đi tiếp ngay lập tức. Hệ thống sẽ tự động ghi nhận số lượng thực đếm gửi sang S-Hub trước và chờ ngay khi tài xế bấm hoàn thành trên App thì tự động chốt nốt trên S-Hub.
+        </p>
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án B:</b> Khóa nút Xác nhận nhập kho trên phần mềm Kho TMS giống hệt S-Hub, bắt buộc Thủ kho phải gọi điện nhắc tài xế bấm App xong mới được nhập kho.
+        </p>
+      <p style="margin:6px 0 10px 12px;background:#F8FAFC;padding:6px 10px;border:1px dashed #CBD5E1;">
+        <b style="color:#0F3D62;">👉 Ý kiến chốt của Vận hành:</b> .....................................................................................................................
+      </p>
+    </div>
+  <h2 style="background:#0F3D62;color:#ffffff;padding:8px 12px;font-size:12.5pt;margin-top:20px;margin-bottom:10px;">PHẦN 3: SỐ LƯỢNG HÀNG HÓA, ĐƠN &quot;CHỜ ĐẾM&quot; &amp; CHÊNH LỆCH KIỂM ĐẾM THỰC TẾ</h2>
+  
+    <div style="margin-bottom:14px;page-break-inside:avoid;">
+      <h3 style="color:#0F3D62;font-size:11.5pt;border-left:4px solid #0284C7;padding-left:8px;margin-bottom:6px;">Câu 3.1: Đơn hàng trên S-Hub khai báo nhiều dòng mặt hàng trong cùng 1 phiếu</h3>
+      <p style="margin:4px 0 6px 12px;"><b>Thực tế giữa 2 phần mềm:</b> Trên S-Hub, 1 mã đơn hàng (ví dụ NKT2611-0587) có thể kê 2–3 dòng mặt hàng bên trong (ví dụ: Dòng 1 là 10 thùng Sữa, Dòng 2 là 5 thùng Bánh). Trong khi trên phần mềm Kho TMS, mỗi mã đơn hàng quản lý trên 1 dòng tổng số lượng, tổng số kg và tổng số khối (m³).</p>
+      
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án A (Đề xuất):</b> Cộng tổng số lượng, tổng kg, tổng m³ của các mặt hàng vào chung 1 mã đơn hàng gốc (NKT2611-0587) trên phần mềm Kho TMS, và ghi chi tiết từng mặt hàng vào cột &quot;Tên hàng / Mô tả hàng hóa&quot; (ví dụ: &quot;Sữa (10 thùng); Bánh (5 thùng)&quot;).
+        </p>
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án B:</b> Tách mỗi dòng mặt hàng thành 1 mã đơn con riêng trên phần mềm Kho TMS (ví dụ: NKT2611-0587-1 và NKT2611-0587-2).
+        </p>
+      <p style="margin:6px 0 10px 12px;background:#F8FAFC;padding:6px 10px;border:1px dashed #CBD5E1;">
+        <b style="color:#0F3D62;">👉 Ý kiến chốt của Vận hành:</b> .....................................................................................................................
+      </p>
+    </div>
+    <div style="margin-bottom:14px;page-break-inside:avoid;">
+      <h3 style="color:#0F3D62;font-size:11.5pt;border-left:4px solid #0284C7;padding-left:8px;margin-bottom:6px;">Câu 3.2: Xử lý các đơn hàng &quot;Chờ đếm&quot; (trên S-Hub bỏ trống số lượng)</h3>
+      <p style="margin:4px 0 6px 12px;"><b>Thực tế giữa 2 phần mềm:</b> Nhiều phiếu kế hoạch khi Điều hành tạo trên S-Hub chưa biết số lượng kiện nên để trống (hiển thị chữ đỏ &quot;chờ đếm&quot; trên S-Hub).</p>
+      
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án A (Đề xuất):</b> Kéo về phần mềm Kho TMS với nhãn cảnh báo &quot;[Chờ đếm]&quot;. Khi xe về kho, phần mềm Kho TMS bắt buộc Thủ kho phải điền số lượng thực tế đếm được (lớn hơn 0) mới cho xác nhận nhập kho, sau đó tự động cập nhật con số thực đếm đó ngược về S-Hub.
+        </p>
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án B:</b> Không kéo các đơn &quot;chờ đếm&quot; về Kho TMS cho đến khi Điều hành điền đủ số lượng dự kiến trên S-Hub.
+        </p>
+      <p style="margin:6px 0 10px 12px;background:#F8FAFC;padding:6px 10px;border:1px dashed #CBD5E1;">
+        <b style="color:#0F3D62;">👉 Ý kiến chốt của Vận hành:</b> .....................................................................................................................
+      </p>
+    </div>
+    <div style="margin-bottom:14px;page-break-inside:avoid;">
+      <h3 style="color:#0F3D62;font-size:11.5pt;border-left:4px solid #0284C7;padding-left:8px;margin-bottom:6px;">Câu 3.3: Xử lý khi Số lượng thực nhận tại Kho bị LỆCH (Thiếu hoặc Dư) so với Kế hoạch S-Hub</h3>
+      <p style="margin:4px 0 6px 12px;"><b>Thực tế giữa 2 phần mềm:</b> Ví dụ: Kế hoạch trên S-Hub ghi giao về kho 53 thùng, nhưng khi xe cập bến Thủ kho đếm thực tế chỉ có 50 thùng (Thiếu 3 thùng) hoặc 55 thùng (Dư 2 thùng).</p>
+      
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án A (Đề xuất):</b> Khi Thủ kho xác nhận thực nhận 50 thùng trên phần mềm Kho TMS, hệ thống tự động cập nhật số lượng trên S-Hub thành 50 thùng (để tồn kho thực tế 2 bên khớp đúng 50 thùng), đồng thời tự động ghi vào phần Ghi chú trên S-Hub: &quot;[Kho đối soát]: Kế hoạch 53, Thực nhận 50 (Lệch -3) - Lý do: ...&quot;.
+        </p>
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án B:</b> Nếu lệch số lượng thì chỉ lưu trên phần mềm Kho TMS và báo cảnh báo, không tự động chốt phiếu trên S-Hub mà để Thủ kho/Điều hành tự vào S-Hub xử lý tay.
+        </p>
+      <p style="margin:6px 0 10px 12px;background:#F8FAFC;padding:6px 10px;border:1px dashed #CBD5E1;">
+        <b style="color:#0F3D62;">👉 Ý kiến chốt của Vận hành:</b> .....................................................................................................................
+      </p>
+    </div>
+    <div style="margin-bottom:14px;page-break-inside:avoid;">
+      <h3 style="color:#0F3D62;font-size:11.5pt;border-left:4px solid #0284C7;padding-left:8px;margin-bottom:6px;">Câu 3.4: Hiển thị Đơn vị tính (Pallet, Thùng, Kiện, Cây, Cuộn, Bao)</h3>
+      <p style="margin:4px 0 6px 12px;"><b>Thực tế giữa 2 phần mềm:</b> Trên S-Hub chia đơn vị tính theo từng lô (pallet, thùng, kiện, cây, cuộn), trong khi phần mềm Kho TMS hiện đang gọi chung là &quot;kiện&quot;.</p>
+      
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án A (Đề xuất):</b> Bổ sung hiển thị đúng đơn vị gốc của S-Hub (ví dụ: 6 pallet, 66 cây, 53 thùng) trên bảng Kiểm đếm và Phiếu in của phần mềm Kho TMS.
+        </p>
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án B:</b> Giữ nguyên tên gọi chung là &quot;kiện&quot; trên các cột số lượng của TMS, còn đơn vị gốc (pallet, cây, thùng) thì ghi kèm trong tên hàng hóa.
+        </p>
+      <p style="margin:6px 0 10px 12px;background:#F8FAFC;padding:6px 10px;border:1px dashed #CBD5E1;">
+        <b style="color:#0F3D62;">👉 Ý kiến chốt của Vận hành:</b> .....................................................................................................................
+      </p>
+    </div>
+  <h2 style="background:#0F3D62;color:#ffffff;padding:8px 12px;font-size:12.5pt;margin-top:20px;margin-bottom:10px;">PHẦN 4: MÃ CHUYẾN XE, ĐƠN LẺ KHÔNG GẮN CHUYẾN &amp; GỘP PHIẾU</h2>
+  
+    <div style="margin-bottom:14px;page-break-inside:avoid;">
+      <h3 style="color:#0F3D62;font-size:11.5pt;border-left:4px solid #0284C7;padding-left:8px;margin-bottom:6px;">Câu 4.1: Cách hiển thị Mã Chuyến Xe giữa S-Hub (CXBN_...) và Kho TMS (SD...)</h3>
+      <p style="margin:4px 0 6px 12px;"><b>Thực tế giữa 2 phần mềm:</b> Trên S-Hub, chuyến xe có mã theo định dạng: CXBN_061126_43H21203 (Loại chuyến_Ngày_Biển số xe). Trong khi trên phần mềm Kho TMS hiện đang đánh mã tự tăng là SD1, SD2, SD3...</p>
+      
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án A (Đề xuất):</b> Với các chuyến xe kéo từ S-Hub về, giữ nguyên mã chuyến của S-Hub (ví dụ: CXBN_061126_43H21203) hiển thị trên phần mềm Kho TMS để Thủ kho và Điều hành nhìn khớp 100% giữa 2 bên.
+        </p>
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án B:</b> Vẫn đánh mã SD... (ví dụ SD105) trên phần mềm Kho TMS, còn mã CXBN_061126_43H21203 chỉ hiển thị phụ trong ngoặc đơn.
+        </p>
+      <p style="margin:6px 0 10px 12px;background:#F8FAFC;padding:6px 10px;border:1px dashed #CBD5E1;">
+        <b style="color:#0F3D62;">👉 Ý kiến chốt của Vận hành:</b> .....................................................................................................................
+      </p>
+    </div>
+    <div style="margin-bottom:14px;page-break-inside:avoid;">
+      <h3 style="color:#0F3D62;font-size:11.5pt;border-left:4px solid #0284C7;padding-left:8px;margin-bottom:6px;">Câu 4.2: Cách gom nhóm các đơn lẻ nằm ở mục &quot;Không gắn chuyến&quot; trên S-Hub</h3>
+      <p style="margin:4px 0 6px 12px;"><b>Thực tế giữa 2 phần mềm:</b> Trên S-Hub có nhiều phiếu kế hoạch lẻ không gắn vào chuyến xe lớn (ví dụ: xe tải nhỏ giao lẻ chỉ có biển số xe, hoặc khách tự chở hàng ra kho không có biển số xe).</p>
+      
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án A (Đề xuất):</b> Nếu các phiếu lẻ có cùng Biển số xe và cùng Ngày dự kiến về kho thì tự động gom chung vào 1 chuyến theo Biển số xe đó trên màn hình Kiểm đếm; nếu không có biển số xe (khách tự mang tới) thì hiển thị theo từng mã phiếu kế hoạch (KN-2611-643).
+        </p>
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án B:</b> Mọi phiếu trong mục &quot;Không gắn chuyến&quot; đều để tách rời từng phiếu độc lập, không tự gom theo biển số xe.
+        </p>
+      <p style="margin:6px 0 10px 12px;background:#F8FAFC;padding:6px 10px;border:1px dashed #CBD5E1;">
+        <b style="color:#0F3D62;">👉 Ý kiến chốt của Vận hành:</b> .....................................................................................................................
+      </p>
+    </div>
+    <div style="margin-bottom:14px;page-break-inside:avoid;">
+      <h3 style="color:#0F3D62;font-size:11.5pt;border-left:4px solid #0284C7;padding-left:8px;margin-bottom:6px;">Câu 4.3: Trường hợp trên S-Hub sử dụng nút &quot;Gộp phiếu&quot; (Gộp nhiều phiếu cùng đơn vào 1 phiếu)</h3>
+      <p style="margin:4px 0 6px 12px;"><b>Thực tế giữa 2 phần mềm:</b> Trên S-Hub có nút &quot;Gộp&quot; để gộp 2–3 phiếu kế hoạch của cùng 1 đơn hàng vào 1 phiếu duy nhất (các phiếu phụ sẽ chuyển sang trạng thái Đã huỷ).</p>
+      
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án A (Đề xuất):</b> Khi S-Hub gộp phiếu, phần mềm Kho TMS sẽ tự động cập nhật lại tổng số lượng mới vào phiếu chính và tự động thu hồi các phiếu phụ đã huỷ để không bị tính trùng.
+        </p>
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án B:</b> Thống nhất quy trình không bấm nút Gộp phiếu trên S-Hub nữa mà thực hiện kiểm đếm theo từng chuyến thực tế trên phần mềm Kho TMS.
+        </p>
+      <p style="margin:6px 0 10px 12px;background:#F8FAFC;padding:6px 10px;border:1px dashed #CBD5E1;">
+        <b style="color:#0F3D62;">👉 Ý kiến chốt của Vận hành:</b> .....................................................................................................................
+      </p>
+    </div>
+  <h2 style="background:#0F3D62;color:#ffffff;padding:8px 12px;font-size:12.5pt;margin-top:20px;margin-bottom:10px;">PHẦN 5: CHIỀU ĐẨY NGƯỢC KHI KHO XUẤT HÀNG / TRUNG CHUYỂN / NHẬP MỚI TRÊN TMS</h2>
+  
+    <div style="margin-bottom:14px;page-break-inside:avoid;">
+      <h3 style="color:#0F3D62;font-size:11.5pt;border-left:4px solid #0284C7;padding-left:8px;margin-bottom:6px;">Câu 5.1: Khi Kho xác nhận Xuất kho hoặc Trung chuyển trên TMS (Đã có vs. Chưa có phiếu Kế hoạch xuất KX-... trên S-Hub)</h3>
+      <p style="margin:4px 0 6px 12px;"><b>Thực tế giữa 2 phần mềm:</b> Khi Thủ kho tạo bảng kê Xuất kho / Trung chuyển trên phần mềm Kho TMS, sẽ có 2 trường hợp: (1) Đơn hàng đó Điều hành đã tạo sẵn phiếu Kế hoạch xuất (KX-...) trên S-Hub; hoặc (2) Hàng đang nằm tồn trong kho, Thủ kho chủ động ghép xe xuất đi trên TMS trước khi S-Hub có phiếu KX-...</p>
+      
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án A (Đề xuất — Đồng bộ tự động cả 2 trường hợp):</b> Nếu trên S-Hub đã có sẵn phiếu KX-... thì tự động chốt xuất vào đúng phiếu KX-... đó; nếu trên S-Hub chưa có phiếu KX-... thì phần mềm Kho TMS tự động tạo phiếu xuất và trừ tồn kho tương ứng trên S-Hub để tồn kho 2 bên luôn khớp 100%.
+        </p>
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án B:</b> Chỉ tự động chốt xuất sang S-Hub đối với những đơn đã có sẵn phiếu KX-... do Điều hành tạo; các đơn chưa có phiếu KX-... thì chờ Điều hành tạo trên S-Hub.
+        </p>
+      <p style="margin:6px 0 10px 12px;background:#F8FAFC;padding:6px 10px;border:1px dashed #CBD5E1;">
+        <b style="color:#0F3D62;">👉 Ý kiến chốt của Vận hành:</b> .....................................................................................................................
+      </p>
+    </div>
+    <div style="margin-bottom:14px;page-break-inside:avoid;">
+      <h3 style="color:#0F3D62;font-size:11.5pt;border-left:4px solid #0284C7;padding-left:8px;margin-bottom:6px;">Câu 5.2: Xử lý khi Kho xuất hàng làm nhiều đợt (Xuất từng phần / Chia nhiều xe)</h3>
+      <p style="margin:4px 0 6px 12px;"><b>Thực tế giữa 2 phần mềm:</b> Ví dụ: Đơn hàng tồn kho 10 pallet và trên S-Hub có 1 phiếu Kế hoạch xuất KX-2611-268 cho cả 10 pallet. Nhưng vì xe đầy nên hôm nay Kho TMS chỉ bốc lên Xe 1 được 6 pallet (còn 4 pallet mai mới đi Xe 2).</p>
+      
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án A (Đề xuất):</b> Khi Xe 1 xuất 6 pallet trên TMS: Cập nhật số thực xuất = 6 pallet và chốt xuất 6 pallet trên S-Hub (trên S-Hub vẫn còn tồn 4 pallet). Hôm sau khi Xe 2 xuất nốt 4 pallet còn lại trên TMS: Tự động đẩy lệnh xuất nốt 4 pallet còn lại trên S-Hub.
+        </p>
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án B:</b> Khi mới xuất 1 phần (6/10 pallet) thì chỉ ghi chú lên phiếu S-Hub là &quot;Đã xuất đợt 1: 6/10 pallet&quot;, chờ khi nào xuất hết đủ 10/10 pallet mới bấm chốt hoàn tất phiếu xuất trên S-Hub.
+        </p>
+      <p style="margin:6px 0 10px 12px;background:#F8FAFC;padding:6px 10px;border:1px dashed #CBD5E1;">
+        <b style="color:#0F3D62;">👉 Ý kiến chốt của Vận hành:</b> .....................................................................................................................
+      </p>
+    </div>
+    <div style="margin-bottom:14px;page-break-inside:avoid;">
+      <h3 style="color:#0F3D62;font-size:11.5pt;border-left:4px solid #0284C7;padding-left:8px;margin-bottom:6px;">Câu 5.3: Khi Thủ kho tạo &quot;Đơn mới hoàn toàn&quot; trực tiếp tại Kho TMS (Chưa có trên S-Hub)</h3>
+      <p style="margin:4px 0 6px 12px;"><b>Thực tế giữa 2 phần mềm:</b> Khi khách mang hàng đột xuất ra kho gửi mà Điều hành chưa kịp tạo đơn trên S-Hub, Thủ kho vào phần mềm Kho TMS bấm &quot;Tạo đơn mới&quot; và nhập kho luôn.</p>
+      
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án A (Đề xuất):</b> Ngay khi Thủ kho xác nhận nhập kho đơn mới trên TMS, hệ thống tự động tạo Kế hoạch nhập thủ công (KN-...) và xác nhận nhập luôn trên S-Hub để lô hàng đó hiện ngay trong danh sách Tồn kho của S-Hub cho Điều hành nắm và điều xe.
+        </p>
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án B:</b> Đẩy sang S-Hub vào mục &quot;+ Nhập hàng khách gửi&quot; trên màn hình Tồn kho S-Hub.
+        </p>
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án C:</b> Đơn do Kho tự tạo trên TMS thì chỉ quản lý trên TMS, không đẩy ngược sang S-Hub.
+        </p>
+      <p style="margin:6px 0 10px 12px;background:#F8FAFC;padding:6px 10px;border:1px dashed #CBD5E1;">
+        <b style="color:#0F3D62;">👉 Ý kiến chốt của Vận hành:</b> .....................................................................................................................
+      </p>
+    </div>
+    <div style="margin-bottom:14px;page-break-inside:avoid;">
+      <h3 style="color:#0F3D62;font-size:11.5pt;border-left:4px solid #0284C7;padding-left:8px;margin-bottom:6px;">Câu 5.4: Xử lý khi 1 Mã đơn hàng lớn được tách làm nhiều chuyến xe về kho nhiều đợt</h3>
+      <p style="margin:4px 0 6px 12px;"><b>Thực tế giữa 2 phần mềm:</b> Ví dụ: Đơn hàng lớn DTT2611-0004 (100 kiện) được chia lên 2 xe về kho (Xe 1 chở 60 kiện — phiếu KN-01; Xe 2 chở 40 kiện — phiếu KN-02).</p>
+      
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án A (Đề xuất):</b> Trên phần mềm Kho TMS, cả 2 chuyến xe đều gom chung vào 1 Mã đơn hàng gốc DTT2611-0004 (không tạo thành 2 mã đơn trùng nhau), nhưng hiển thị ở 2 chuyến xe riêng. Xe nào về kho xác nhận trước thì cộng dồn số lượng vào tồn kho của đơn đó và chốt đúng phiếu KN tương ứng trên S-Hub.
+        </p>
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án B:</b> Tách thành 2 mã đơn hàng riêng trên phần mềm Kho TMS theo từng chặng xe (DTT2611-0004.1 và DTT2611-0004.2).
+        </p>
+      <p style="margin:6px 0 10px 12px;background:#F8FAFC;padding:6px 10px;border:1px dashed #CBD5E1;">
+        <b style="color:#0F3D62;">👉 Ý kiến chốt của Vận hành:</b> .....................................................................................................................
+      </p>
+    </div>
+  <h2 style="background:#0F3D62;color:#ffffff;padding:8px 12px;font-size:12.5pt;margin-top:20px;margin-bottom:10px;">PHẦN 6: KHI ĐIỀU HÀNH SỬA / HUỶ ĐƠN, HOÀN TÁC (ROLLBACK) &amp; PHẠM VI GIAI ĐOẠN 1</h2>
+  
+    <div style="margin-bottom:14px;page-break-inside:avoid;">
+      <h3 style="color:#0F3D62;font-size:11.5pt;border-left:4px solid #0284C7;padding-left:8px;margin-bottom:6px;">Câu 6.1: Khi Điều hành trên S-Hub sửa thông tin đơn, Đổi điểm kho, Lùi lịch kho hoặc Huỷ phiếu</h3>
+      <p style="margin:4px 0 6px 12px;"><b>Thực tế giữa 2 phần mềm:</b> Sau khi kế hoạch đã kéo về phần mềm Kho TMS, Điều hành bên S-Hub có thể sửa lại số kiện, đổi điểm giao sang kho khác, lùi ngày về kho hoặc bấm Huỷ phiếu.</p>
+      
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án A (Đề xuất):</b> Nếu chuyến hàng đó trên TMS VẪN ĐANG CHỜ (Thủ kho chưa xác nhận nhập): Tự động cập nhật theo thông tin mới nhất của S-Hub (hoặc tự động gỡ khỏi danh sách chờ nếu S-Hub huỷ/đổi kho). Nếu Thủ kho ĐÃ XÁC NHẬN NHẬP KHO RỒI: Giữ nguyên tồn kho thực tế tại TMS và chỉ hiện thông báo cảnh báo cho Thủ kho kiểm tra.
+        </p>
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án B:</b> Mọi thay đổi từ S-Hub sau khi đã kéo về TMS đều chỉ hiện cảnh báo để Thủ kho bấm đồng ý thủ công chứ không tự cập nhật.
+        </p>
+      <p style="margin:6px 0 10px 12px;background:#F8FAFC;padding:6px 10px;border:1px dashed #CBD5E1;">
+        <b style="color:#0F3D62;">👉 Ý kiến chốt của Vận hành:</b> .....................................................................................................................
+      </p>
+    </div>
+    <div style="margin-bottom:14px;page-break-inside:avoid;">
+      <h3 style="color:#0F3D62;font-size:11.5pt;border-left:4px solid #0284C7;padding-left:8px;margin-bottom:6px;">Câu 6.2: Khi Thủ kho lỡ bấm xác nhận bên web S-Hub trước, hoặc khi Admin bấm Hoàn tác (Rollback) chuyến xe</h3>
+      <p style="margin:4px 0 6px 12px;"><b>Thực tế giữa 2 phần mềm:</b> Trong quá trình vận hành, có thể có lúc Thủ kho bấm xác nhận trực tiếp trên S-Hub, hoặc Admin thực hiện &quot;Hoàn tác chuyến xe&quot; (mở khóa lại phiếu đã nhập/xuất để sửa sai sót).</p>
+      
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án A (Đề xuất — Đồng bộ gương 2 chiều):</b> Nếu bấm xác nhận bên S-Hub trước thì 10 phút sau phần mềm Kho TMS cũng tự động chuyển sang Đã hoàn tất (Thủ kho không phải bấm lại lần 2). Ngược lại, nếu Admin bấm Hoàn tác chuyến xe trên TMS thì hệ thống cũng tự động gọi lệnh &quot;Bỏ xác nhận nhập/xuất&quot; kèm lý do sang S-Hub để 2 bên khớp nhau.
+        </p>
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án B:</b> Việc Hoàn tác (mở lại phiếu) chỉ xử lý nội bộ trên từng phần mềm, không tự động mở lại phiếu bên kia.
+        </p>
+      <p style="margin:6px 0 10px 12px;background:#F8FAFC;padding:6px 10px;border:1px dashed #CBD5E1;">
+        <b style="color:#0F3D62;">👉 Ý kiến chốt của Vận hành:</b> .....................................................................................................................
+      </p>
+    </div>
+    <div style="margin-bottom:14px;page-break-inside:avoid;">
+      <h3 style="color:#0F3D62;font-size:11.5pt;border-left:4px solid #0284C7;padding-left:8px;margin-bottom:6px;">Câu 6.3: Phạm vi đồng bộ mục &quot;Hàng hư hỏng&quot; và &quot;Chứng từ POD&quot; trên S-Hub</h3>
+      <p style="margin:4px 0 6px 12px;"><b>Thực tế giữa 2 phần mềm:</b> Ngoài Kế hoạch Nhập/Xuất và Tồn kho, trên S-Hub còn có mục &quot;Hàng hư hỏng&quot; và &quot;Chứng từ POD&quot;.</p>
+      
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án A (Đề xuất):</b> Giai đoạn 1 tập trung hoàn thiện 100% việc đồng bộ Chuyến xe, Đơn hàng, Kế hoạch Nhập kho, Kế hoạch Xuất kho và Tồn kho giữa 2 bên. Mục Hàng hư hỏng và Chứng từ POD sẽ triển khai tiếp ở Giai đoạn 2.
+        </p>
+        <p style="margin:4px 0 4px 24px;">
+          <span style="font-size:13pt;color:#1E293B;font-weight:bold;">☐</span>
+          <b style="color:#1E293B;">Phương án B:</b> Cần đồng bộ luôn mục Hàng hư hỏng ngay trong Giai đoạn 1.
+        </p>
+      <p style="margin:6px 0 10px 12px;background:#F8FAFC;padding:6px 10px;border:1px dashed #CBD5E1;">
+        <b style="color:#0F3D62;">👉 Ý kiến chốt của Vận hành:</b> .....................................................................................................................
+      </p>
+    </div>
+  <h2 style="background:#0F3D62;color:#ffffff;padding:8px 12px;font-size:12.5pt;margin-top:20px;">XÁC NHẬN PHÊ DUYỆT CỦA BỘ PHẬN VẬN HÀNH / ĐIỀU HÀNH</h2>
+  <table>
+    <tr>
+      <th style="width:28%;">Họ và tên người xác nhận</th>
+      <th style="width:25%;">Chức vụ / Bộ phận</th>
+      <th style="width:18%;">Ngày xác nhận</th>
+      <th style="width:29%;">Chữ ký / Ý kiến thêm</th>
+    </tr>
+    <tr>
+      <td style="height:60px;">&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>....../....../2026</td>
+      <td>&nbsp;</td>
+    </tr>
+  </table>
+</body>
+</html>
