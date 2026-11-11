@@ -126,10 +126,11 @@ Before any target data is touched on Dev:
   13. `order_inventory_transaction`
   14. `order_activity_log`
   15. `daily_hub_operational_report`
-  16. `cron_job_config`
-  17. `cron_job_execution_log`
-  18. `notification`
-  19. `migrations`
+  16. `daily_regional_dispatch_report`
+  17. `cron_job_config`
+  18. `cron_job_execution_log`
+  19. `notification`
+  20. `migrations`
 - Reads 17 PostgreSQL sequence states (`last_value`, `is_called`).
 - Commits and releases production connection immediately (`COMMIT`).
 
