@@ -369,6 +369,45 @@ function gitFallbackMerge(cwd, branchName) {
   console.log(`✅ Đã merge ${branchName} vào dev và quay về nhánh feature '${branchName}'!`);
 }
 
+export async function promoteDevToMaster(note = 'promote dev to production master') {
+  checkGhAuth();
+  const repos = [
+    { name: 'Backend', dir: BACKEND_DIR, ghRepo: 'lyquangthai1993/logistics-website-backend' },
+    { name: 'Frontend', dir: FRONTEND_DIR, ghRepo: 'lyquangthai1993/logistics-website-frontend' },
+    { name: 'Root', dir: ROOT_DIR, ghRepo: 'lyquangthai1993/logistics-website' },
+  ];
+
+  console.log(`\n======================================================`);
+  console.log(`🚀 PROMOTE DEV -> PRODUCTION MASTER`);
+  console.log(`======================================================\n`);
+
+  for (const repo of repos) {
+    run('git fetch origin dev master', repo.dir, true);
+    const diffLog = runOutput('git log origin/master..origin/dev --oneline', repo.dir);
+    if (!diffLog) {
+      console.log(`✅ [${repo.name}] origin/master đã đồng bộ 100% với origin/dev.`);
+      continue;
+    }
+    console.log(`\n📦 [${repo.name}] Phát hiện commit mới trên dev cần đưa lên master:\n${diffLog}`);
+    try {
+      const title = `release: ${note}`;
+      const body = `Promote latest verified \`dev\` commits to production \`master\`:\n\n\`\`\`\n${diffLog}\n\`\`\``;
+      try {
+        run(`gh pr create --repo ${repo.ghRepo} --base master --head dev --title "${title}" --body "${body.replace(/"/g, '\\"')}"`, repo.dir);
+      } catch {
+        // PR might already exist
+      }
+      run(`gh pr merge --repo ${repo.ghRepo} dev --merge`, repo.dir);
+      run('git fetch origin master:master', repo.dir, true);
+      console.log(`✅ [${repo.name}] Đã merge dev -> master thành công!`);
+    } catch (err) {
+      console.error(`❌ [${repo.name}] Lỗi khi merge PR dev -> master:`, err.message);
+    }
+  }
+
+  resumeFeatureBranch();
+}
+
 // CLI entry point
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename);
 if (isMain) {
@@ -398,6 +437,11 @@ if (isMain) {
       case 'resume': {
         const explicitBranch = args[1] || '';
         resumeFeatureBranch(explicitBranch);
+        break;
+      }
+      case 'promote-master': {
+        const note = args.slice(1).join(' ') || 'promote dev to production master';
+        await promoteDevToMaster(note);
         break;
       }
       case 'status': {
