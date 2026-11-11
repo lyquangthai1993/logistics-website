@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 11/11/2026 | `feedbacks/feedback_11_11_task_118_outbound_draft_pending_inbound` | 🚨 Sự vụ & Chuẩn hóa: Cho Phép Lưu Nháp Xuất Kho Cho Đơn Trong Chuyến Nhập Nháp & Khóa Cứng Xác Nhận Xuất | 5/5 | ✅ DONE (100%) | [INCIDENT_REPORT.md](../feedbacks/feedback_11_11_task_118_outbound_draft_pending_inbound/INCIDENT_REPORT.md) |
 | 07/11/2026 | `docs/SUPER_ADMIN_OPERATIONAL_REPORTS_AND_CRONJOB.md` | 📊 Báo Cáo Vận Hành Hub (Slide 2 & 3), Theo Dõi Mã TRIP Theo Ngày & Quản Trị Cronjob (18:00 D-1 → 18:00 D) | 6/6 | ✅ DONE (100%) | [SUPER_ADMIN_OPERATIONAL_REPORTS_AND_CRONJOB.md](SUPER_ADMIN_OPERATIONAL_REPORTS_AND_CRONJOB.md) |
 | 03/11/2026 | `feedbacks/feedback_03_11_task_112_railway_hub_name_log` | 📋 TODO: Ghi Rõ Tên Chi Nhánh Kho (Hub Name) Trong L... | 5/5 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_03_11_task_112_railway_hub_name_log/RESOLUTION.md) |
 | 01/11/2026 | `feedbacks/feedback_01_11_task_111_super_admin_login_as` | 📋 TODO: Tính Năng Super Admin "Login As" — Đóng Vai... | 10/10 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_01_11_task_111_super_admin_login_as/RESOLUTION.md) |
@@ -87,6 +88,22 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚨 [INCIDENT_TASK_118] — Cho Phép Tạo Đơn Nháp Xuất Cho Vận Đơn Thuộc Trip Nhập Nháp & Khóa Cứng Xác Nhận Xuất (11/11/2026)
+- **Mã sự vụ**: `INC-2026-11-11-TASK-118-OUTBOUND-DRAFT-BLOCK`
+- **Trạng thái**: ✅ Khắc phục triệt để 100% & Released Production
+- **Bản chất sự vụ & Nguyên nhân gốc rễ (RCA)**:
+  * Khi tạo đơn mới trên chuyến nhập nháp (`status = 'DRAFT'`), hệ thống bắt buộc lưu tồn vật lý `remainingQuantity = 0` (để tránh hiển thị ảo tồn kho).
+  * Trong `saveOutboundDraft`, toán tử `order.remainingQuantity ?? order.totalQuantity ?? 0` đã nuốt số kiện của đơn (`0 ?? 1` trả về `0`), khiến người dùng bấm *Lưu nháp (Chờ xử lý)* bị lỗi đỏ từ chối `0/0 kiện`.
+  * Đội ngũ trước đó chưa phân định rõ: **Tồn kho vật lý (Physical On-hand Stock)** dùng để *Xác nhận xuất kho* vs **Hạn mức lập kế hoạch (Planning Allowance)** dùng để *Lưu nháp xuất kho*.
+- **Kiến trúc & Giải pháp mới**:
+  * **Triết lý "Mở Lưu Nháp, Khóa Xác Nhận" (Permissive Draft, Strict Confirm)**: Cho phép lưu nháp kế hoạch xe xuất cho cả đơn nháp hoặc đơn về nhiều đợt dựa trên `pendingInboundQuantity` (trừ phần đã gán ở các chuyến nháp xuất khác).
+  * Khóa chặt nút `Xác nhận xuất kho` trên UI và bổ sung chốt chặn `BadRequestException` ở Backend `confirmOutbound` để chống gian lận/xuất âm kho.
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E (`frontend/e2e/118-outbound-draft-from-pending-inbound-trip.spec.ts`): `2/2 tests PASS 100%` trên cả Local và Cloud Dev/Prod.
+  * E2E Code Auditor (`scripts/e2e-auditor.mjs`): `50/50 điểm (🟢 PASS)`.
+  * Ảnh minh chứng: `screenshot_01_outbound_draft_ready_verified.png`, `screenshot_02_outbound_draft_saved_verified.png`.
+- **Tài liệu tham chiếu**: [INCIDENT_REPORT.md](../feedbacks/feedback_11_11_task_118_outbound_draft_pending_inbound/INCIDENT_REPORT.md)
 
 ### 🚀 [SUPER_ADMIN_OPERATIONAL_REPORTS_CRONJOB] — 📊 Hệ Thống Báo Cáo Vận Hành Hub (Slide 2 & Slide 3), Theo Dõi Chi Tiết Mã TRIP Theo Ngày & Quản Trị Cronjob (`18:00 D-1 → 18:00 D`) (07/11/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (6/6 hạng mục)
