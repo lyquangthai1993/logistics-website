@@ -54,7 +54,8 @@
     "lint:tw": "node scripts/lint-tailwind-rules.mjs frontend/src",
     "test:tw": "node scripts/lint-tailwind-rules.mjs frontend/src",
     "railway": "node scripts/railway-cli.mjs",
-    "usage": "node scripts/check-usage.mjs"
+    "usage": "node scripts/check-usage.mjs",
+    "md:docx": "node .agents/skills/md-to-docx/scripts/md-to-docx.mjs"
   },
   "dependencies": {
     "dotenv": "^16.4.7",
