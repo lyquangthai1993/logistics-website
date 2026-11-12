@@ -359,15 +359,9 @@ export async function createAndMergePr(taskId, slugOrModule = 'work', action = '
 }
 
 function gitFallbackMerge(cwd, branchName) {
-  run('git checkout dev', cwd);
-  run('git pull origin dev', cwd);
-  run(`git merge --no-ff ${branchName} -m "merge(task): merge ${branchName} into dev"`, cwd);
-  // Pass --allow-protected-push as comment so pre-command-guard allows it and git doesn't reject it
-  run('git push origin dev ; # --allow-protected-push', cwd);
-  // Luôn quay về nhánh feature sau khi merge xong
-  run(`git checkout ${branchName}`, cwd);
-  run('git merge --ff-only dev', cwd);
-  console.log(`✅ Đã merge ${branchName} vào dev và quay về nhánh feature '${branchName}'!`);
+  throw new Error(
+    `Cannot merge '${branchName}' in '${cwd}': a GitHub pull request merge is required. Direct commits and pushes to dev are forbidden. Check GitHub authentication and retry the PR workflow.`,
+  );
 }
 
 export async function promoteDevToMaster(note = 'promote dev to production master') {

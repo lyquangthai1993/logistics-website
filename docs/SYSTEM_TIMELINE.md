@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 12/11/2026 | `feedbacks/feedback_12_11_task_119_chart_status` | Task 119 follow-up: Regional chart order status filters | 5/5 | Verified locally | [RESOLUTION.md](../feedbacks/feedback_12_11_task_119_chart_status/RESOLUTION.md) |
 | 11/11/2026 | `task_119_regional_dispatch_report_and_rollback_guard` | 🛡️ Báo Cáo Cân Đối Đội Xe Theo Miền (Bắc - Trung - Nam), Cronjob 17:00 & Chốt Chặn Bảo Toàn Tồn Kho Sổ Cái Khi Rollback Chuyến Xe | 8/8 | ✅ DONE (100%) | [SYSTEM_TIMELINE.md](SYSTEM_TIMELINE.md) |
 | 11/11/2026 | `feedbacks/feedback_11_11_task_118_outbound_draft_pending_inbound` | 🚨 Sự vụ & Chuẩn hóa: Cho Phép Lưu Nháp Xuất Kho Cho Đơn Trong Chuyến Nhập Nháp & Khóa Cứng Xác Nhận Xuất | 5/5 | ✅ DONE (100%) | [INCIDENT_REPORT.md](../feedbacks/feedback_11_11_task_118_outbound_draft_pending_inbound/INCIDENT_REPORT.md) |
 | 07/11/2026 | `docs/SUPER_ADMIN_OPERATIONAL_REPORTS_AND_CRONJOB.md` | 📊 Báo Cáo Vận Hành Hub (Slide 2 & 3), Theo Dõi Mã TRIP Theo Ngày & Quản Trị Cronjob (18:00 D-1 → 18:00 D) | 6/6 | ✅ DONE (100%) | [SUPER_ADMIN_OPERATIONAL_REPORTS_AND_CRONJOB.md](SUPER_ADMIN_OPERATIONAL_REPORTS_AND_CRONJOB.md) |
@@ -89,6 +90,13 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### [FEEDBACK_12_11_TASK_119_CHART_STATUS] Regional chart status filters (12/11/2026)
+- Local implementation: always show kg and m3 charts, replacing the metric selector with stored / draft / combined status buttons; combined is the default.
+- Backend: add Hub-scoped DRAFT order regional totals to the existing report response. The regional detail table, total row and table-only drilldown were removed per follow-up request. Cronjob behavior remains unchanged.
+- Verification: frontend and backend builds PASS, local Playwright 1/1 PASS, E2E audit 50/50. No deployment or cloud verification performed.
+- [Verified screenshot](../frontend/e2e/screenshots/screenshot_regional_status_charts_verified.png).
+- [Resolution](../feedbacks/feedback_12_11_task_119_chart_status/RESOLUTION.md) and [acceptance criteria](../feedbacks/feedback_12_11_task_119_chart_status/TODO.md).
 
 ### 🛡️ [TASK_119_REGIONAL_DISPATCH_AND_ROLLBACK_GUARD] — 📊 Báo Cáo Cân Đối Đội Xe Theo Miền (Bắc - Trung - Nam), Cronjob Chốt Sổ 17:00 & Chốt Chặn Bảo Toàn Sổ Cái Tồn Kho Khi Rollback Chuyến Xe (11/11/2026)
 - **Mã công việc**: `TASK-119-REGIONAL-DISPATCH-REPORT-AND-ROLLBACK-GUARD`

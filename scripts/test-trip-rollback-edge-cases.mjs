@@ -16,6 +16,10 @@
 
 const API_BASE = process.env.API_BASE_URL || 'http://localhost:4001/api/v1';
 
+function request(url, options = {}) {
+  return fetch(url, { ...options, signal: AbortSignal.timeout(15000) });
+}
+
 async function main() {
   console.log('========================================================================');
   console.log('🧪 BẮT ĐẦU KIỂM THỬ: CHỐT CHẶN ROLLBACK TRIP & BẢO TOÀN SỔ CÁI TỒN KHO');
@@ -24,7 +28,7 @@ async function main() {
 
   // 1. Đăng nhập tài khoản SUPER_ADMIN
   console.log('1. Đăng nhập tài khoản SUPER_ADMIN...');
-  const loginRes = await fetch(`${API_BASE}/auth/email/login`, {
+  const loginRes = await request(`${API_BASE}/auth/email/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: 'lyquangthai1993+1@gmail.com', password: 'secret' }),
@@ -54,7 +58,7 @@ async function main() {
     const code = `ORD-DUC-${ts}-${i}`;
     orderCodes.push(code);
 
-    const orderRes = await fetch(`${API_BASE}/orders`, {
+    const orderRes = await request(`${API_BASE}/orders`, {
       method: 'POST',
       headers: authHeaders,
       body: JSON.stringify({
@@ -104,7 +108,7 @@ async function main() {
     })),
   };
 
-  const confirmInboundRes = await fetch(`${API_BASE}/warehouse/inbound/confirm`, {
+  const confirmInboundRes = await request(`${API_BASE}/warehouse/inbound/confirm`, {
     method: 'POST',
     headers: authHeaders,
     body: JSON.stringify(inboundPayload),
@@ -116,7 +120,7 @@ async function main() {
 
   // Kiểm tra trạng thái 10 đơn: Đều phải có remainingQuantity = 10, inboundQuantity = 10, outboundQuantity = 0
   for (const o of createdOrders) {
-    const chk = await fetch(`${API_BASE}/orders/${o.id}`, { headers: authHeaders });
+    const chk = await request(`${API_BASE}/orders/${o.id}`, { headers: authHeaders });
     const ord = (await chk.json()).data;
     if (ord.inboundQuantity !== 10 || ord.remainingQuantity !== 10 || ord.outboundQuantity !== 0) {
       throw new Error(`Trạng thái đơn ${ord.orderCode} sau nhập kho không chuẩn: in=${ord.inboundQuantity}, rem=${ord.remainingQuantity}, out=${ord.outboundQuantity}`);
@@ -149,7 +153,7 @@ async function main() {
     })),
   };
 
-  const confirmOutboundRes = await fetch(`${API_BASE}/warehouse/outbound/confirm`, {
+  const confirmOutboundRes = await request(`${API_BASE}/warehouse/outbound/confirm`, {
     method: 'POST',
     headers: authHeaders,
     body: JSON.stringify(outboundPayload),
@@ -161,7 +165,7 @@ async function main() {
 
   // Kiểm tra 8 đơn đã xuất: remainingQuantity = 0, outboundQuantity = 10
   for (const o of exportedOrders) {
-    const chk = await fetch(`${API_BASE}/orders/${o.id}`, { headers: authHeaders });
+    const chk = await request(`${API_BASE}/orders/${o.id}`, { headers: authHeaders });
     const ord = (await chk.json()).data;
     if (ord.remainingQuantity !== 0 || ord.outboundQuantity !== 10) {
       throw new Error(`Đơn xuất kho ${ord.orderCode} sai: rem=${ord.remainingQuantity}, out=${ord.outboundQuantity}`);
@@ -172,7 +176,7 @@ async function main() {
 
   // 5. THỰC THI KỊCH BẢN NGUY HIỂM: Super Admin Mở Lại Chuyến Xe Nhập Ban Đầu (Rollback Trip)
   console.log(`5. 🚨 THỰC HIỆN ROLLBACK MỞ LẠI CHUYẾN XE NHẬP KHO ${tripCode} (Super Admin)...`);
-  const rollbackRes = await fetch(`${API_BASE}/warehouse/trips/${tripCode}/rollback`, {
+  const rollbackRes = await request(`${API_BASE}/warehouse/trips/${tripCode}/rollback`, {
     method: 'POST',
     headers: authHeaders,
     body: JSON.stringify({ reason: 'Admin mở lại để sửa thông tin 2 đơn chưa xuất kho' }),
@@ -186,7 +190,7 @@ async function main() {
   // 6. KIỂM TOÁN CHỐT CHẶN BẢO VỆ 8 ĐƠN ĐÃ XUẤT KHO
   console.log('\n6. 🛡️ KIỂM TOÁN CHỐT CHẶN BẢO TOÀN TỒN KHO & SỔ CÁI (INVARIANTS AUDIT):');
   for (const o of exportedOrders) {
-    const chk = await fetch(`${API_BASE}/orders/${o.id}`, { headers: authHeaders });
+    const chk = await request(`${API_BASE}/orders/${o.id}`, { headers: authHeaders });
     const ord = (await chk.json()).data;
 
     // INVARIANT 1: Đơn đã xuất kho TUYỆT ĐỐI KHÔNG bị kéo ngược về kho làm tồn kho ảo!
@@ -210,7 +214,7 @@ async function main() {
 
   // Kiểm tra 2 đơn còn lại: Phải được hoàn tác về WAITING để thủ kho chỉnh sửa
   for (const o of remainingInWarehouseOrders) {
-    const chk = await fetch(`${API_BASE}/orders/${o.id}`, { headers: authHeaders });
+    const chk = await request(`${API_BASE}/orders/${o.id}`, { headers: authHeaders });
     const ord = (await chk.json()).data;
     if (ord.remainingQuantity !== 0 || ord.status !== 'WAITING') {
       throw new Error(`2 đơn chưa xuất kho phải về WAITING nhưng hiện tại là ${ord.status}, rem=${ord.remainingQuantity}`);
@@ -258,7 +262,7 @@ async function main() {
     ],
   };
 
-  const reconfirmRes = await fetch(`${API_BASE}/warehouse/inbound/confirm`, {
+  const reconfirmRes = await request(`${API_BASE}/warehouse/inbound/confirm`, {
     method: 'POST',
     headers: authHeaders,
     body: JSON.stringify(reconfirmPayload),
@@ -271,7 +275,7 @@ async function main() {
   // 8. KIỂM TOÁN CHỐT CHẶN CUỐI CÙNG SAU KHI NHẬP LẠI
   console.log('\n8. 🛡️ KIỂM TOÁN CHỐT CHẶN CUỐI CÙNG SAU KHI NHẬP LẠI (POST-RECONFIRM AUDIT):');
   for (const o of exportedOrders) {
-    const chk = await fetch(`${API_BASE}/orders/${o.id}`, { headers: authHeaders });
+    const chk = await request(`${API_BASE}/orders/${o.id}`, { headers: authHeaders });
     const ord = (await chk.json()).data;
     if (ord.remainingQuantity !== 0 || ord.outboundQuantity !== 10) {
       throw new Error(`❌ VI PHẠM SỔ CÁI: Sau khi nhập lại, đơn ${ord.orderCode} bị sai tồn: rem=${ord.remainingQuantity}, out=${ord.outboundQuantity}`);
@@ -279,7 +283,7 @@ async function main() {
   }
   console.log('   ✅ [POST-RECONFIRM 1 PASS]: 8 đơn đã xuất kho VẪN KHÔNG BỊ TỒN ẢO (tồn = 0, xuất = 10)!');
 
-  const chk9 = await (await fetch(`${API_BASE}/orders/${remainingInWarehouseOrders[0].id}`, { headers: authHeaders })).json();
+  const chk9 = await (await request(`${API_BASE}/orders/${remainingInWarehouseOrders[0].id}`, { headers: authHeaders })).json();
   const ord9 = chk9.data;
   if (ord9.orderCode !== newCode1 || ord9.remainingQuantity !== 10 || ord9.totalWeight !== 120) {
     throw new Error(`Đơn 9 sửa thông tin không khớp: code=${ord9.orderCode}, rem=${ord9.remainingQuantity}, wt=${ord9.totalWeight}`);
@@ -289,7 +293,7 @@ async function main() {
   // 9. TEST CASE BỔ SUNG: Sửa trực tiếp 1 đơn lẻ KHÔNG cần mở lại cả chuyến xe
   console.log('\n9. 💡 TEST CASE: Chỉnh sửa mã vận đơn của 1 đơn lẻ trực tiếp mà KHÔNG ĐỤNG TỚI TRIP (admin-override)...');
   const directEditCode = `ORD-DUC-${ts}-DIRECT-EDIT`;
-  const patchRes = await fetch(`${API_BASE}/orders/${remainingInWarehouseOrders[1].id}/admin-override`, {
+  const patchRes = await request(`${API_BASE}/orders/${remainingInWarehouseOrders[1].id}/admin-override`, {
     method: 'PATCH',
     headers: authHeaders,
     body: JSON.stringify({
