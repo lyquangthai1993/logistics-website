@@ -162,7 +162,7 @@ const DEV_HEALTH_URL =
   process.env.DEV_HEALTH_URL ||
   "https://backend-tms-core-dev.up.railway.app/api/v1/health";
 
-// Toàn bộ 15 bảng theo thứ tự quan hệ khóa ngoại (Forward Order)
+// Toàn bộ 20 bảng theo thứ tự quan hệ khóa ngoại (Forward Order)
 const ALL_TABLES = [
   "role",
   "status",
@@ -179,6 +179,7 @@ const ALL_TABLES = [
   "order_inventory_transaction",
   "order_activity_log",
   "daily_hub_operational_report",
+  // This row syncs every column, including the daily draft metrics added by migration 1789140000000.
   "daily_regional_dispatch_report",
   "cron_job_config",
   "cron_job_execution_log",
@@ -186,7 +187,7 @@ const ALL_TABLES = [
   "migrations",
 ];
 
-// Danh mục 13 sequences PostgreSQL cần đồng bộ
+// Danh mục 18 sequences PostgreSQL cần đồng bộ
 const SEQUENCE_NAMES = [
   "migrations_id_seq",
   "user_id_seq",

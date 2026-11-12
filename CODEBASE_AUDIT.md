@@ -9,14 +9,20 @@
 
 | Trường | Giá trị |
 |---|---|
-| **Phiên bản** | v1.1.0 |
-| **Ngày audit** | 2026-11-07 |
+| **Phiên bản** | v1.1.1 |
+| **Ngày audit** | 2026-11-12 |
 | **Người thực hiện** | Antigravity Multi-Agent Teamwork System |
 | **Môi trường** | Development / Staging / Production (Railway Cloud Primary + Vercel/Render) |
 
 ---
 
 ## 🗂️ CHANGELOG PHIÊN BẢN
+
+### v1.1.1 — 2026-11-12 (Regional Dispatch Date Series & Warehouse Status Parity)
+- **Backend**: `GET /v1/admin/reports/regional-dispatch` accepts `fromDate`, `toDate`, and `hubId`, returns persisted daily series, and refreshes only today's live snapshot so future dates are not labeled with current inventory.
+- **Snapshot data**: Regional snapshots record draft weight, volume, distinct order count, and the order codes counted for stored and draft buckets. Stored stock is evaluated from the hub inventory ledger; draft visibility follows the warehouse hub context and draft status bucket.
+- **Frontend**: The regional dispatch view uses the shared report header date and hub filters, shows the daily series and the stored/draft order codes for the selected snapshot.
+- **Verification**: Backend build, frontend typecheck, and regional dispatch Playwright E2E passed locally. The Railway endpoint returned 401 without an authenticated session. Migration `1789140000000` is defined for deployment; it is not listed as an executed migration.
 
 ### v1.1.0 — 2026-11-07 (Super Admin Operational Reports, Daily TRIP Tracker & Cronjob Administration)
 - ✅ **Báo Cáo Kết Quả Hoạt Động Vận Hành Hub & Cronjob Chốt Sổ (`18:00 D-1 → 18:00 D`)**:
