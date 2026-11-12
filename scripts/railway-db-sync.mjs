@@ -179,6 +179,7 @@ const ALL_TABLES = [
   "order_inventory_transaction",
   "order_activity_log",
   "daily_hub_operational_report",
+  "daily_regional_dispatch_report",
   "cron_job_config",
   "cron_job_execution_log",
   "notification",
@@ -200,6 +201,7 @@ const SEQUENCE_NAMES = [
   "order_inventory_transaction_id_seq",
   "order_activity_log_id_seq",
   "daily_hub_operational_report_id_seq",
+  "daily_regional_dispatch_report_id_seq",
   "cron_job_config_id_seq",
   "cron_job_execution_log_id_seq",
   "trip_stop_id_seq",
@@ -209,6 +211,7 @@ const SEQUENCE_NAMES = [
 // Các bảng cấu hình/báo cáo Cronjob cần bảo toàn dữ liệu trên Dev nếu Prod chưa có bảng hoặc đang trống (0 bản ghi)
 const CRON_PRESERVE_TABLES = [
   "daily_hub_operational_report",
+  "daily_regional_dispatch_report",
   "cron_job_config",
   "cron_job_execution_log",
 ];

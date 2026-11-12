@@ -14,6 +14,8 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 12/11/2026 | `feedbacks/feedback_12_11_task_119_chart_status` | Task 119 follow-up: Regional chart order status filters | 5/5 | Verified locally | [RESOLUTION.md](../feedbacks/feedback_12_11_task_119_chart_status/RESOLUTION.md) |
+| 11/11/2026 | `task_119_regional_dispatch_report_and_rollback_guard` | 🛡️ Báo Cáo Cân Đối Đội Xe Theo Miền (Bắc - Trung - Nam), Cronjob 17:00 & Chốt Chặn Bảo Toàn Tồn Kho Sổ Cái Khi Rollback Chuyến Xe | 8/8 | ✅ DONE (100%) | [SYSTEM_TIMELINE.md](SYSTEM_TIMELINE.md) |
 | 11/11/2026 | `feedbacks/feedback_11_11_task_118_outbound_draft_pending_inbound` | 🚨 Sự vụ & Chuẩn hóa: Cho Phép Lưu Nháp Xuất Kho Cho Đơn Trong Chuyến Nhập Nháp & Khóa Cứng Xác Nhận Xuất | 5/5 | ✅ DONE (100%) | [INCIDENT_REPORT.md](../feedbacks/feedback_11_11_task_118_outbound_draft_pending_inbound/INCIDENT_REPORT.md) |
 | 07/11/2026 | `docs/SUPER_ADMIN_OPERATIONAL_REPORTS_AND_CRONJOB.md` | 📊 Báo Cáo Vận Hành Hub (Slide 2 & 3), Theo Dõi Mã TRIP Theo Ngày & Quản Trị Cronjob (18:00 D-1 → 18:00 D) | 6/6 | ✅ DONE (100%) | [SUPER_ADMIN_OPERATIONAL_REPORTS_AND_CRONJOB.md](SUPER_ADMIN_OPERATIONAL_REPORTS_AND_CRONJOB.md) |
 | 03/11/2026 | `feedbacks/feedback_03_11_task_112_railway_hub_name_log` | 📋 TODO: Ghi Rõ Tên Chi Nhánh Kho (Hub Name) Trong L... | 5/5 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_03_11_task_112_railway_hub_name_log/RESOLUTION.md) |
@@ -88,6 +90,48 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### [FEEDBACK_12_11_TASK_119_CHART_STATUS] Regional chart status filters (12/11/2026)
+- Local implementation: always show kg and m3 charts, replacing the metric selector with stored / draft / combined status buttons; combined is the default.
+- Backend: add Hub-scoped DRAFT order regional totals to the existing report response. The regional detail table, total row and table-only drilldown were removed per follow-up request. Cronjob behavior remains unchanged.
+- Verification: frontend and backend builds PASS, local Playwright 1/1 PASS, E2E audit 50/50. No deployment or cloud verification performed.
+- [Verified screenshot](../frontend/e2e/screenshots/screenshot_regional_status_charts_verified.png).
+- [Resolution](../feedbacks/feedback_12_11_task_119_chart_status/RESOLUTION.md) and [acceptance criteria](../feedbacks/feedback_12_11_task_119_chart_status/TODO.md).
+
+### 🛡️ [TASK_119_REGIONAL_DISPATCH_AND_ROLLBACK_GUARD] — 📊 Báo Cáo Cân Đối Đội Xe Theo Miền (Bắc - Trung - Nam), Cronjob Chốt Sổ 17:00 & Chốt Chặn Bảo Toàn Sổ Cái Tồn Kho Khi Rollback Chuyến Xe (11/11/2026)
+- **Mã công việc**: `TASK-119-REGIONAL-DISPATCH-REPORT-AND-ROLLBACK-GUARD`
+- **Trạng thái**: ✅ Hoàn thành 100% (Kiểm thử thực chiến Pass 100%)
+- **Bối cảnh & Vấn đề thực tế (Business Context & Root Cause Analysis)**:
+  1. **Báo cáo Cân đối Đội xe theo Miền (Regional Dispatch Capacity Report)**:
+     - Nhu cầu điều hành lúc 17:00 hàng ngày: Điều phối cần biết tổng tải trọng (Tấn) và thể tích (m³) hàng hóa hướng về 3 miền (Miền Bắc, Miền Trung, Miền Nam - trong đó 13 tỉnh ĐBSCL/Miền Tây gộp chung vào Miền Nam) để ra quyết định điều xe (Container 40ft, xe tải nặng...).
+     - Tuyến đường: `/dashboard/admin/reports/regional-dispatch` chỉ dành riêng cho `SUPER_ADMIN`.
+     - Lỗi ban đầu: Khi mở trang trên cloud dev, frontend crash "Something went wrong" (`TypeError: Cannot read properties of undefined (reading 'north')`) do chưa bóc tách phong bì ApiResponse của NestJS (`raw?.data ?? raw`) và cảnh báo N/A hiển thị "0 đơn hàng (14741.29 kg)" do gom nhầm số kiện tồn với trọng lượng xe sắp về chưa có tỉnh.
+  2. **Bài toán Nghiệp vụ Rollback & Re-inbound (Nghi vấn & Lo ngại của anh Mai Công Đức)**:
+     - Kịch bản: Ngày 10/11 nhập chuyến 10 đơn. Sau đó xuất đi 8 đơn. Ngày 11/11 mở lại chuyến nhập kho (Rollback) để sửa thông tin 2 đơn còn lại, sau đó bấm xác nhận nhập kho lại.
+     - Lỗ hổng tiềm ẩn: Hệ thống cũ khi xác nhận nhập kho lại chuyến xe không kiểm tra tình trạng đã xuất của các đơn trước đó, dẫn đến việc cộng dồn tiếp số kiện vào `inboundQuantity` (từ 10 lên 20 kiện), làm `remainingQuantity = 20 - 10 = 10` $\rightarrow$ 8 đơn đã xuất bị kéo ngược về kho, sinh ra 80 kiện tồn kho ảo ("đội mồ sống lại") và làm lệch sổ cái kho bãi!
+- **Giải pháp Kiến trúc & Chốt Chặn Kỹ Thuật (Defensive Engineering)**:
+  1. **Chốt chặn 1 — Rollback Trip (`backend/src/orders/warehouse.service.ts`)**:
+     - Bổ sung Guard `if (outQty > 0) continue;`: Nếu đơn hàng đã có số lượng xuất kho (`outboundQuantity > 0`), hệ thống bảo lưu 100% giao dịch INBOUND gốc và trạng thái xuất kho (`OUTBOUND`), KHÔNG xóa giao dịch, KHÔNG lùi đơn về `WAITING/DRAFT`. Chỉ mở khóa các đơn chưa xuất kho (`outboundQuantity == 0`) để thủ kho sửa.
+  2. **Chốt chặn 2 — Xác nhận Nhập Kho Lại (`confirmInbound`)**:
+     - Khắc phục điều kiện query giao dịch `txRepo.findOne` (không phụ thuộc `hubId != null` của Super Admin).
+     - Khi phát hiện đơn đã có giao dịch nhập kho hoặc đã xuất kho: Tuyệt đối không cộng dồn thêm kiện mới, giữ nguyên `outboundQuantity`, tính tồn khả dụng `remainingQuantity = Math.max(0, inboundQuantity - outboundQuantity)`.
+     - Nếu `remainingQuantity === 0` và `outQty > 0`, bảo toàn trạng thái đã xuất kho, triệt tiêu hoàn toàn nguy cơ sinh tồn kho ảo!
+  3. **Giải pháp Độc Lập — Super Admin Override Đơn Lẻ (`PATCH /orders/:id/admin-override`)**:
+     - Mở rộng DTO `AdminOverrideOrderDto` cho phép sửa trực tiếp `orderCode` (mã vận đơn), số kiện, trọng lượng, thể tích, ghi chú... của riêng 1 đơn đơn lẻ kèm lý do kiểm toán (`auditReason`).
+     - Thủ kho/Admin có thể sửa đơn sai sót ngay lập tức mà không cần phải mở lại (rollback) cả chuyến xe.
+  4. **Frontend & Báo cáo Cân đối Đội xe (`frontend/src/features/admin-reports/`)**:
+     - Chuẩn hóa unwrap dữ liệu `(raw as any)?.data ?? raw` an toàn.
+     - Phân định rõ thông báo: đơn tồn kho chưa phân miền vs xe đang về chưa phân miền.
+     - Tách route `/dashboard/admin/reports/regional-dispatch` độc lập với layout biểu đồ báo cáo vận hành.
+- **Bằng chứng Nghiệm thu & Kiểm thử Tự động (Verification Proofs)**:
+  * **Test Suite Rollback & Bảo vệ Sổ Cái Tồn Kho (`scripts/test-trip-rollback-edge-cases.mjs`)**: `9/9 steps PASS 100%`:
+    - Invariant 1: 8 đơn đã xuất kho không bị đội mồ sống lại, tồn = 0.
+    - Invariant 2: 8 đơn đã xuất kho giữ nguyên `outboundQuantity = 10`.
+    - Invariant 3: 8 đơn đã xuất kho không bị lùi về `WAITING/DRAFT`.
+    - Invariant 4: 2 đơn chưa xuất kho được mở khóa về `WAITING` để thủ kho sửa.
+    - Post-Reconfirm: Sau khi sửa và nhập lại, sổ cái tồn kho chính xác tuyệt đối, 8 đơn đã xuất vẫn tồn = 0.
+    - Direct Edit: Sửa mã đơn trực tiếp qua `admin-override` thành công, tự sinh phiếu kiểm toán `ADJUSTMENT`.
+  * **Test Suite Báo Cáo Cân Đối Đội Xe (`scripts/test-regional-dispatch.mjs`)**: `PASS 100%` (GET report, POST sync cronjob, RBAC 403 blocking cho non-SuperAdmin).
 
 ### 🚨 [INCIDENT_TASK_118] — Cho Phép Tạo Đơn Nháp Xuất Cho Vận Đơn Thuộc Trip Nhập Nháp & Khóa Cứng Xác Nhận Xuất (11/11/2026)
 - **Mã sự vụ**: `INC-2026-11-11-TASK-118-OUTBOUND-DRAFT-BLOCK`
