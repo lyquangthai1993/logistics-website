@@ -3,7 +3,7 @@ name: db-sync-prod-to-dev
 description: >-
   Specialized skill for zero-lock PostgreSQL database dumping and synchronization from Production to Dev on Railway Cloud.
   Guarantees zero write blocking on Production via REPEATABLE READ snapshot isolation, lock timeouts, statement timeouts,
-  foreign-key safe reverse-clean & forward-chunked restore, sequence realignment, and 15-table parity auditing.
+  foreign-key safe reverse-clean & forward-chunked restore, sequence realignment, and 20-table parity auditing.
   Triggers on: "dump db", "sync db", "đồng bộ database", "dump db production về dev", "không lock db", "db sync",
   "sao lưu dữ liệu prod", "db:sync:prod-to-dev", "dump prod".
 version: 1.0.0
@@ -110,7 +110,7 @@ Before any target data is touched on Dev:
 ### Phase 3: Zero-Lock Production Dump
 - Connects to Production DB.
 - Sets `lock_timeout = 4000` and starts `REPEATABLE READ READ ONLY` transaction.
-- Reads 19 core domain tables in topological order:
+- Reads 20 core domain tables in topological order:
   1. `role`
   2. `status`
   3. `file`
@@ -126,11 +126,12 @@ Before any target data is touched on Dev:
   13. `order_inventory_transaction`
   14. `order_activity_log`
   15. `daily_hub_operational_report`
-  16. `cron_job_config`
-  17. `cron_job_execution_log`
-  18. `notification`
-  19. `migrations`
-- Reads 17 PostgreSQL sequence states (`last_value`, `is_called`).
+  16. `daily_regional_dispatch_report` (including per-day stored and draft metrics)
+  17. `cron_job_config`
+  18. `cron_job_execution_log`
+  19. `notification`
+  20. `migrations`
+- Reads 18 PostgreSQL sequence states (`last_value`, `is_called`).
 - Commits and releases production connection immediately (`COMMIT`).
 
 ### Phase 4: Atomic Restoration & Cronjob Reconciliation on Dev
@@ -151,7 +152,7 @@ To prevent foreign key constraint violations, circular cascade deadlocks, and lo
 11. `COMMIT;` (Transaction rolls back completely if any table chunk fails).
 
 ### Phase 5: Verification & Parity Audit
-- Performs instant row count parity checks between Prod and Dev across all 19 tables (`PASS ✅` for synced tables, `KEEP 🛡️` for preserved Dev-only/Cronjob tables).
+- Performs instant row count parity checks between Prod and Dev across all 20 tables (`PASS ✅` for synced tables, `KEEP 🛡️` for preserved Dev-only/Cronjob tables).
 - Issues bounded HTTP health probe to Dev Backend API (`https://backend-tms-core-dev.up.railway.app/api/v1/health`).
 - Produces a tabular scorecard with `PASS ✅`, `KEEP 🛡️`, or `FAIL ❌`.
 
@@ -228,6 +229,7 @@ This generates the full snapshot in `backups/` and exits without establishing an
    - The restore engine dynamically inspects `pg_indexes` to drop and recreate all non-primary secondary indexes (B-Tree deduplication & GIN) during restore. No manual index list updates are required.
 
 4. **Audit & Verification**:
+   - `daily_regional_dispatch_report` stays at its existing topological position and has no new sequence; its new draft metric columns are included automatically because the sync engine reads and restores all columns (`SELECT *`).
    - Update table count and list in this skill (`.agents/skills/db-sync-prod-to-dev/SKILL.md`).
    - Run verification sync:
      ```powershell
