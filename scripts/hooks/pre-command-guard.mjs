@@ -9,7 +9,7 @@
  *    - Khi phát hiện thao tác commit/push lên `dev`/`master` (hoặc khi repo đang đứng ở `dev`/`master`),
  *      tự động truy ngược Git History (`traceLastFeatureBranch`) và yêu cầu quay về branch feature chính (`npm run repo:resume`).
  * 3. Chốt chặn Cưỡng chế Local-First (Tier-1 Gate): Chặn mọi lệnh git push submodule (backend/frontend),
- *    gh pr create, hoặc task:pr nếu máy chủ Local (port 4000 & 4001) chưa được bật!
+ *    task:pr nếu máy chủ Local (port 4000 & 4001) chưa được bật!
  * 4. Chốt chặn Cưỡng chế Railway Build & Cutover (Tier-2 Gate): Chặn mọi lệnh chạy Playwright E2E
  *    nhắm vào Railway Cloud (`*.up.railway.app`) nếu bản deployment mới nhất trên Railway đang
  *    BUILDING / DEPLOYING / QUEUED, chưa khớp Commit SHA với nhánh git, chưa cutover sang active container,
@@ -191,7 +191,6 @@ function requiresLocalServersGate(commandLine) {
   if (/--skip-local-gate\b/i.test(commandLine)) return false;
 
   // Chặn nếu tạo PR hoặc chạy workflow PR
-  if (/\bgh\s+pr\s+(create|merge)\b/i.test(commandLine)) return true;
   if (/\bgit-task-workflow\.mjs\s+pr\b/i.test(commandLine)) return true;
   if (/\bnpm\s+run\s+task:pr\b/i.test(commandLine)) return true;
 

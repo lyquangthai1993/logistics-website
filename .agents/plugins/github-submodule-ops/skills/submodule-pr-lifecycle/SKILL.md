@@ -41,7 +41,7 @@ After Gate 1 Local E2E verification passes 100%:
 
 1. Verify all repositories are on the active feature branch (`npm run repo:resume` if needed).
 2. Commit inside `backend/` and/or `frontend/` first using Conventional Commits (`feat(scope): ...` or `fix(scope): ...`).
-3. Push the feature branch, create GitHub PR into `dev` (`gh pr create --base dev`), merge (`gh pr merge --merge`), and automatically switch the local working tree back to the feature branch:
+3. Push the feature branch, create and merge the GitHub PR into `dev` through the connected GitHub integration, and automatically switch the local working tree back to the feature branch:
 
 ```powershell
 $env:GIT_TERMINAL_PROMPT=0
@@ -56,6 +56,5 @@ Use `gh` CLI with bounded output:
 
 ```powershell
 $env:GIT_TERMINAL_PROMPT=0
-gh pr list --state all --limit 5
-gh run list --limit 5
+Use the connected GitHub integration to inspect PRs and workflow runs.
 ```
