@@ -9,14 +9,20 @@
 
 | Trường | Giá trị |
 |---|---|
-| **Phiên bản** | v1.1.1 |
-| **Ngày audit** | 2026-11-12 |
+| **Phiên bản** | v1.1.2 |
+| **Ngày audit** | 2026-11-13 |
 | **Người thực hiện** | Antigravity Multi-Agent Teamwork System |
 | **Môi trường** | Development / Staging / Production (Railway Cloud Primary + Vercel/Render) |
 
 ---
 
 ## 🗂️ CHANGELOG PHIÊN BẢN
+
+### v1.1.2 — 2026-11-13 (Stored Inventory Region & HCM Report Scope)
+- **Backend**: Recognize the inbound province value `LƯU KHO` as a first-class report region and include it in live/snapshot aggregation totals and detail payloads.
+- **Frontend**: Add the `LƯU KHO` row below `MIỀN NAM` in the weight/volume charts, hide secondary report actions while preserving `Đồng bộ báo cáo`, and remove the direction suffix from the operational chart heading.
+- **Hub scope**: The operational report now shows only the three level-1 hubs; Andromeda Hub - HCM is selected by default, while Magellan Hub - Đà Nẵng and Polaris Hub - Hưng Yên remain visible but disabled until activated.
+- **Verification**: Backend build and region unit tests passed; frontend build and typecheck passed.
 
 ### v1.1.1 — 2026-11-12 (Regional Dispatch Date Series & Warehouse Status Parity)
 - **Backend**: `GET /v1/admin/reports/regional-dispatch` accepts `fromDate`, `toDate`, and `hubId`, returns persisted daily series, and refreshes only today's live snapshot so future dates are not labeled with current inventory.
