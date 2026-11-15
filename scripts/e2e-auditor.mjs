@@ -141,6 +141,25 @@ export function auditE2eFile(filePath) {
   }
 
   // D3: Network & Anti-Hang Protocol Compliance (10 pts)
+  if (/localhost:(?:3000|3001)/i.test(content)) {
+    d3Score -= 5;
+    autoFail = true;
+    findings.push({
+      dim: "D3",
+      severity: "FAIL",
+      msg: "Phát hiện port local cũ 3000/3001 trong E2E spec. Phải dùng PLAYWRIGHT_BASE_URL/API_URL với chuẩn local 4000/4001 hoặc Railway Dev.",
+    });
+  }
+
+  if (/(?:NEXT_PUBLIC_API_URL|API_BASE)[^\n]{0,120}\/api\/v1[^\n]{0,120}\/api\/v1/i.test(content)) {
+    d3Score -= 3;
+    findings.push({
+      dim: "D3",
+      severity: "WARN",
+      msg: "Có nguy cơ nối lặp /api/v1 trong API base URL. Chuẩn hóa API_URL thành một giá trị duy nhất kết thúc tại /api/v1.",
+    });
+  }
+
   if (/curl\s+-s\s+http/.test(content) && !/curl\.exe/.test(content)) {
     d3Score -= 5;
     autoFail = true;
