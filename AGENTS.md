@@ -28,18 +28,12 @@ Whenever the user refers to, asks for, or mentions **"domain dev"** (hoặc "dom
 - **Frontend Dev Domain (Primary - Railway)**: `https://frontend-tms-core-dev.up.railway.app` (Branch `dev`)
 - **Backend Dev Domain (Primary - Railway)**: `https://backend-tms-core-dev.up.railway.app` (Branch `dev`)
 - **Backend Swagger API Docs (Dev - Railway)**: `https://backend-tms-core-dev.up.railway.app/docs`
-- *Secondary / Fallback (Vercel & Render)*:
-  - Frontend Dev: `https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app`
-  - Backend Dev: `https://logistics-website-backend-1jho.onrender.com`
 
 Whenever the user refers to, asks for, or mentions **"domain pro"** (hoặc "domain prod", "môi trường pro", "môi trường production"), all agents MUST immediately recognize and prioritize:
 - **Frontend Pro Domain (Primary - Railway)**: `https://frontend-tms-core-production.up.railway.app` (Branch `master`)
 - **Backend Pro Domain (Primary - Railway)**: `https://backend-tms-core-production.up.railway.app` (Branch `master`)
 - **Backend Swagger API Docs (Pro - Railway)**: `https://backend-tms-core-production.up.railway.app/docs`
 - **Cloud Automation / Worker (Railway)**: `https://n8n-automation-production-d298.up.railway.app` (Daily RBAC Audit Workflow ID: `M1IVf9rAsyFD5TYq` @ 22:00 PM)
-- *Secondary / Fallback (Vercel & Render)*:
-  - Frontend Pro: `https://logistics-website-frontend-kappa.vercel.app`
-  - Backend Pro: `https://logistics-website-backend-1.onrender.com`
 
 ## Safety & Governance Rules (STRICT)
 - **Language Policy**: Skill and agent guideline documentation MUST be written in English to minimize token consumption and maximize context efficiency.
@@ -79,7 +73,7 @@ Whenever the user refers to, asks for, or mentions **"domain pro"** (hoặc "dom
   - Detailed spec & banned class table: See [`.agents/rules/ui-compact-density.md`](file:///d:/Projects/logistics-website/.agents/rules/ui-compact-density.md).
 - **RBAC Compliance**: Before adding/modifying any endpoint or menu, MUST reference [`rbac-matrix.md`](file:///d:/Projects/logistics-website/.agents/rules/rbac-matrix.md) — the system's authoritative permission matrix. Ensure all 3 layers are updated: Sidebar UI, Route Guard, API Guard.
 - **Network & Health Check Execution Protocol (Anti-Hang / Anti-Stuck Mandate)**:
-  - When inspecting, pinging, or health-checking remote services (`domain dev`, `domain pro`, Render, Vercel, external APIs) from CLI, scripts, or agent commands, **NEVER run bare `curl` without a timeout or without `.exe`** in PowerShell. In Windows PowerShell, `curl` aliases to `Invoke-WebRequest` without default timeouts, causing the terminal process to hang indefinitely when a cloud backend (e.g. Render Free Tier) is sleeping (cold start 45-60s) or rebuilding/deploying.
+  - When inspecting, pinging, or health-checking remote services (`domain dev`, `domain pro`, Railway Cloud, external APIs) from CLI, scripts, or agent commands, **NEVER run bare `curl` without a timeout or without `.exe`** in PowerShell. In Windows PowerShell, `curl` aliases to `Invoke-WebRequest` without default timeouts, causing the terminal process to hang indefinitely when a cloud backend is sleeping or rebuilding/deploying.
   - **Strict CLI Mandates**:
     - Always use explicit `curl.exe` with a bounded timeout (`-m 15` or `--max-time 15`) and visible status header (`-i` or `-sS -i`): `curl.exe -m 15 -i https://<domain>/api/v1/health`. NEVER use bare `curl -s <url>`.
     - In native PowerShell, always set `-TimeoutSec`: `(Invoke-WebRequest -Uri "https://<domain>/api/v1/health" -TimeoutSec 15).Content`.
