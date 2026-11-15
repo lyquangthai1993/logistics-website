@@ -164,6 +164,25 @@
     - Direct Edit: Sửa mã đơn trực tiếp qua `admin-override` thành công, tự sinh phiếu kiểm toán `ADJUSTMENT`.
   * **Test Suite Báo Cáo Cân Đối Đội Xe (`scripts/test-regional-dispatch.mjs`)**: `PASS 100%` (GET report, POST sync cronjob, RBAC 403 blocking cho non-SuperAdmin).
 
+### 🚀 [PROVINCE_REFERENCE_AUTOCOMPLETE] — Gợi ý Tỉnh/Thành theo thư viện chuẩn trong luồng nhập/xuất kho (15/11/2026)
+- **Trạng thái**: ✅ Hoàn tất mã nguồn; chờ migration deployment vào database môi trường đích.
+- **Năng lực & Tính năng mới**:
+  * Thêm endpoint JWT-only `GET /api/v1/province-references` trả về 63 canonical records và aliases từ bảng `province_reference`.
+  * Tích hợp autocomplete vào `WarehouseEditableGrid` và `WarehouseAppendOrderModal`; alias hợp lệ được đổi về tên canonical khi blur.
+  * Không thay đổi các dòng outbound hiện hữu đang bị khóa theo invariant nghiệp vụ.
+- **Kiểm chứng**:
+  * Backend build: PASS; frontend typecheck: PASS; lint các file autocomplete mới: PASS.
+  * Local runtime/E2E chưa chạy được vì tiến trình dev server không giữ được cổng 4000/4001 trong môi trường hiện tại.
+
+### 🚀 [PROVINCE_REFERENCE_LIBRARY] — Tạo bảng thư viện Tỉnh/Thành chuẩn cho hệ thống Logistics TMS (15/11/2026)
+- **Trạng thái**: ✅ Hoàn tất mã nguồn; chờ migration deployment vào database môi trường đích.
+- **Năng lực & Tính năng mới**:
+  * Tạo entity/migration `province_reference` với 63 địa danh canonical, tên không dấu, miền và danh sách alias.
+  * Chuẩn hóa Miền Tây vào `MIỀN NAM`; giữ nguyên `order.province`, không backfill và không tạo API/CRUD.
+  * Bổ sung seed idempotent và đưa bảng mới vào Railway database sync cùng sequence `province_reference_id_seq`.
+- **Kiểm chứng**:
+  * Region normalizer: 5/5 tests PASS; backend build: exit code 0; lint các file thay đổi: PASS.
+
 ### 🚨 [INCIDENT_TASK_118] — Cho Phép Tạo Đơn Nháp Xuất Cho Vận Đơn Thuộc Trip Nhập Nháp & Khóa Cứng Xác Nhận Xuất (11/11/2026)
 - **Mã sự vụ**: `INC-2026-11-11-TASK-118-OUTBOUND-DRAFT-BLOCK`
 - **Trạng thái**: ✅ Khắc phục triệt để 100% & Released Production

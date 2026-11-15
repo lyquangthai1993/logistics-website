@@ -6,7 +6,7 @@ description: >-
   mandatory session-start Git history trace and feature branch recovery (npm run repo:resume), PR creation and audit trail, 2-tier quality gates (local E2E -> cloud dev E2E),
   GitHub Actions pipelines (telegram-agy-worker.yml, railway-deploy.yml, daily-rbac-audit.yml), repository_dispatch events, and concurrency governance.
   Triggers on: "github workflow", "github actions", "ci/cd", "pull request", "pr", "branching", "git workflow",
-  "gh pr", "workflow_dispatch", "repository_dispatch", "gh actions", "pipeline".
+  "pull request", "workflow_dispatch", "repository_dispatch", "pipeline".
 ---
 
 # GitHub Workflow & CI/CD Orchestration — Logistics TMS
@@ -54,7 +54,7 @@ flowchart TD
     A["Stage 1: Session Start & Feature Branch<br>Resume previous feature branch (npm run repo:resume)<br>OR branch from dev for new task"] --> B["Stage 2: Tier-1 Quality Gate<br>Local E2E Playwright (:4000 & :4001)"]
     B -->|Autonomous Self-Healing up to 3x| C{"Tier-1 PASS?"}
     C -->|Yes| AUD["Mandatory /e2e-code-auditor Gate<br>node scripts/e2e-auditor.mjs<br>(Score >= 40/50, 0 Auto-FAILs)"]
-    AUD -->|Auditor PASS| D["Stage 3: GitHub PR, Auto-Merge & Return to Feature Branch<br>gh pr create -> gh pr merge -> npm run repo:resume"]
+    AUD -->|Auditor PASS| D["Stage 3: GitHub PR, Auto-Merge & Return to Feature Branch<br>GitHub integration -> npm run repo:resume"]
     AUD -->|Auditor FAIL / Shallow Test| B
     C -->|No| B
     D --> E["Cloud Deployment (Railway)<br>Wait for HTTP 200 Health & Cutover"]
@@ -145,8 +145,7 @@ node scripts/git-task-workflow.mjs pr 89 warehouse outbound-tally
 
 #### Auto-Merge Command (Keep Feature Branch & Return to It):
 ```bash
-gh pr create --base dev --title "feat(warehouse): task #89 outbound tally confirmation" --body-file pr_body.md
-gh pr merge --merge --auto --delete-branch=false
+Create and merge the PR through the connected GitHub integration, targeting `dev`.
 ```
 
 ---
@@ -178,7 +177,7 @@ gh pr merge --merge --auto --delete-branch=false
 | **Resume Active Feature Branch** | `npm run repo:resume` | Traces Git history (`reflog`/`refs`) and switches from `dev`/`master` back to active feature branch |
 | **Synchronize Submodules** | `npm run repo:sync` | Pulls latest `origin/dev` and returns to active feature branch |
 | **Start Feature Branch** | `npm run task:branch -- <id> <module> <action>` | Creates `<type>/task-<id>-<module>-<action>` in target submodules |
-| **Create PR & Auto-Merge** | `npm run task:pr -- <id> <module> <action>` | Pushes feature branch, creates PR to `dev`, auto-merges, and returns to feature branch |
+| **Create PR & Auto-Merge** | Connected GitHub integration | Pushes feature branch, creates PR to `dev`, auto-merges, and returns to feature branch |
 | **Trigger Daily RBAC Audit** | `gh workflow run daily-rbac-audit.yml` | Manually triggers the 22:00 PM security audit |
 | **Monitor Workflow Run** | `gh run list --limit 5` | Lists recent GitHub Actions workflow runs |
 | **Watch Live Run Logs** | `gh run watch <run_id>` | Streams live console logs from GitHub runner |
