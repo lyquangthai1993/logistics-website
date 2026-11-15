@@ -51,5 +51,6 @@
   "tailwindCSS.lint.invalidVariant": "error",
   "tailwindCSS.lint.invalidConfigPath": "error",
   "tailwindCSS.lint.invalidTailwindDirective": "error",
-  "tailwindCSS.lint.recommendedVariantOrder": "warning"
+  "tailwindCSS.lint.recommendedVariantOrder": "warning",
+  "postman.settings.dotenv-detection-notification-visibility": false
 }

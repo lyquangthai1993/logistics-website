@@ -29,6 +29,18 @@
 - ✅ Bổ sung relational seed idempotent và cập nhật công cụ đồng bộ Railway Database.
 - ℹ️ Chưa có API/CRUD/frontend; migration sẽ được áp dụng qua pipeline deployment.
 
+### v1.1.2 — 2026-11-13 (Stored Inventory Region & HCM Report Scope)
+- **Backend**: Recognize the inbound province value `LƯU KHO` as a first-class report region and include it in live/snapshot aggregation totals and detail payloads.
+- **Frontend**: Add the `LƯU KHO` row below `MIỀN NAM` in the weight/volume charts, hide secondary report actions while preserving `Đồng bộ báo cáo`, and remove the direction suffix from the operational chart heading.
+- **Hub scope**: The operational report now shows only the three level-1 hubs; Andromeda Hub - HCM is selected by default, while Magellan Hub - Đà Nẵng and Polaris Hub - Hưng Yên remain visible but disabled until activated.
+- **Verification**: Backend build and region unit tests passed; frontend build and typecheck passed.
+
+### v1.1.1 — 2026-11-12 (Regional Dispatch Date Series & Warehouse Status Parity)
+- **Backend**: `GET /v1/admin/reports/regional-dispatch` accepts `fromDate`, `toDate`, and `hubId`, returns persisted daily series, and refreshes only today's live snapshot so future dates are not labeled with current inventory.
+- **Snapshot data**: Regional snapshots record draft weight, volume, distinct order count, and the order codes counted for stored and draft buckets. Stored stock is evaluated from the hub inventory ledger; draft visibility follows the warehouse hub context and draft status bucket.
+- **Frontend**: The regional dispatch view uses the shared report header date and hub filters, shows the daily series and the stored/draft order codes for the selected snapshot.
+- **Verification**: Backend build, frontend typecheck, and regional dispatch Playwright E2E passed locally. The Railway endpoint returned 401 without an authenticated session. Migration `1789140000000` is defined for deployment; it is not listed as an executed migration.
+
 ### v1.1.0 — 2026-11-07 (Super Admin Operational Reports, Daily TRIP Tracker & Cronjob Administration)
 - ✅ **Báo Cáo Kết Quả Hoạt Động Vận Hành Hub & Cronjob Chốt Sổ (`18:00 D-1 → 18:00 D`)**:
   - **Database & Migration (`1779200000000-CreateDailyHubOperationalReport`)**: Bổ sung 3 bảng `daily_hub_operational_report`, `cron_job_config`, `cron_job_execution_log` và cập nhật đồng bộ Zero-Lock DB Sync (`scripts/railway-db-sync.mjs` — 19 bảng).

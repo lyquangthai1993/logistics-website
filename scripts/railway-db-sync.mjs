@@ -179,6 +179,7 @@ const ALL_TABLES = [
   "order_inventory_transaction",
   "order_activity_log",
   "daily_hub_operational_report",
+  // This row syncs every column, including the daily draft metrics added by migration 1789140000000.
   "daily_regional_dispatch_report",
   "province_reference",
   "cron_job_config",
