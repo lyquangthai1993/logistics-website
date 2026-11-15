@@ -14,6 +14,8 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 15/11/2026 | `feedbacks/feedback_15_11_local_backend_i18n_assets` | Local Backend Asset Build Fix | 5/5 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_11_local_backend_i18n_assets/RESOLUTION.md) |
+| 15/11/2026 | `feedbacks/feedback_15_11_regional_dispatch_future_sync` | Regional Dispatch Future Snapshot Guard | 7/7 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_11_regional_dispatch_future_sync/RESOLUTION.md) |
 | 12/11/2026 | `feedbacks/feedback_12_11_regional_dispatch_range_and_warehouse_status` | Regional Dispatch Date Range and Warehouse Status Pa... | 10/10 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_12_11_regional_dispatch_range_and_warehouse_status/RESOLUTION.md) |
 | 12/11/2026 | `feedbacks/feedback_12_11_task_119_chart_status` | Task 119 follow-up: Regional chart order status filters | 5/5 | Verified locally | [RESOLUTION.md](../feedbacks/feedback_12_11_task_119_chart_status/RESOLUTION.md) |
 | 11/11/2026 | `task_119_regional_dispatch_report_and_rollback_guard` | 🛡️ Báo Cáo Cân Đối Đội Xe Theo Miền (Bắc - Trung - Nam), Cronjob 17:00 & Chốt Chặn Bảo Toàn Tồn Kho Sổ Cái Khi Rollback Chuyến Xe | 8/8 | ✅ DONE (100%) | [SYSTEM_TIMELINE.md](SYSTEM_TIMELINE.md) |
@@ -92,6 +94,24 @@
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
 
+### 🚀 [FEEDBACK_15_11_LOCAL_BACKEND_I18N_ASSETS] — Local Backend Asset Build Fix (15/11/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (5/5 việc)
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Ensure i18n translation files are copied to `dist/i18n` during build.; Ensure mail templates are copied to `dist/mail/mail-templates` during build.; Confirm the backend starts and responds on `/api/v1/health`.
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: Có lưu trữ trong thư mục
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_15_11_local_backend_i18n_assets/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_15_11_local_backend_i18n_assets/TODO.md)
+
+### 🚀 [FEEDBACK_15_11_REGIONAL_DISPATCH_FUTURE_SYNC] — Regional Dispatch Future Snapshot Guard (15/11/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (7/7 việc)
+- **Năng lực & Tính năng mới**:
+  * **Backend**: Reject manual regional-dispatch snapshot dates after the current Vietnam operational date.; Keep report range reads independent from the manual snapshot execution date while excluding stale future snapshots from live mode.; Bound orders, inventory transactions, drafts, and incoming trips by the snapshot date....
+  * **Frontend**: Keep the report filter range separate from the manual snapshot date.
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: Có lưu trữ trong thư mục
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_15_11_regional_dispatch_future_sync/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_15_11_regional_dispatch_future_sync/TODO.md)
 ### 🚀 [FEEDBACK_12_11_REGIONAL_DISPATCH_RANGE_AND_WAREHOUSE_STATUS] — Regional Dispatch Date Range and Warehouse Status Parity (12/11/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (10/10 việc)
 - **Năng lực & Tính năng mới**:
