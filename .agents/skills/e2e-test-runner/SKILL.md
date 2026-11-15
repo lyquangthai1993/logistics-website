@@ -318,7 +318,6 @@ Default password: `secret` (configured in `.env.local`).
 5. **Dev Domain & Cloud Endpoint Anti-Hang Rule (Primary: Railway Cloud)**:
    - Primary Dev Backend: `https://backend-tms-core-dev.up.railway.app`
    - Primary Dev Frontend: `https://frontend-tms-core-dev.up.railway.app`
-   - Secondary / Fallback: `https://logistics-website-backend-1jho.onrender.com`
    - NEVER ping or check health using bare `curl -s` without timeout.
    - Always use `curl.exe -m 15 -i <url>` or pass `{ signal: AbortSignal.timeout(15000) }` in Node/Playwright.
    - Polling capped at max 5 attempts (15-20s backoff). NEVER loop indefinitely.
