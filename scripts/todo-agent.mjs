@@ -487,7 +487,7 @@ export function generateExecutionPlan(parsed) {
     "| **4. TEST (2 Tầng)** *(Kiểm thử 2 Tầng)* | **QA** | `/e2e-test-runner` + `/e2e-code-auditor` | **Bắt buộc 2 Tầng Test**: (1) **Tầng 1 - Test Local** (`localhost:4000` & `4001`, Self-Healing <= 3 lần) + `e2e-auditor.mjs` (`>= 40/50`); (2) **Tầng 2 - Test lại trên Môi trường Development** (`frontend-tms-core-dev.up.railway.app`) sau khi deploy để chụp ảnh thực tế & bàn giao đúng chuẩn. |",
   );
   output.push(
-    "| **5. DEPLOY** *(Triển khai lên Dev)* | **Release** | `/git-commit-reviewer` + `/github-workflow` | Khi Tầng 1 Local Test PASS ➔ Push submodule, tạo PR vào `dev` (`gh pr create`), auto-merge, đợi Railway Cloud Dev HTTP 200 để bàn giao cho QA chạy **Test Tầng 2 trên môi trường Development**. |",
+    "| **5. DEPLOY** *(Triển khai lên Dev)* | **Release** | `/git-commit-reviewer` + `/github-workflow` | Khi Tầng 1 Local Test PASS ➔ Push submodule, tạo và auto-merge PR vào `dev` qua GitHub integration, đợi Railway Cloud Dev HTTP 200 để bàn giao cho QA chạy **Test Tầng 2 trên môi trường Development**. |",
   );
   output.push(
     `| **6. MAINTAIN** *(Bàn giao & Vận hành)* | **Vận hành** | \`/tms-ops-maintainer\` + \`/codebase-auditor\` + \`/telegram-task-responder\` | Chỉ nhận bàn giao khi **CẢ 2 TẦNG TEST (Local + Development) ĐỀU PASS 100%**: Kiểm tra sức khỏe sau deploy, check \`[x]\` \`TODO.md\`, chạy \`npm run todo:record ${folderName}\` (\`RESOLUTION.md\` + \`SYSTEM_TIMELINE.md\`), báo cáo Telegram. |`,

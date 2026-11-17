@@ -10,8 +10,8 @@
 
 | Trường | Giá trị |
 |---|---|
-| **Phiên bản** | v1.9 |
-| **Cập nhật lần cuối** | 2026-11-01 |
+| **Phiên bản** | v1.10 |
+| **Cập nhật lần cuối** | 2026-11-15 |
 | **Cập nhật bởi** | Antigravity (Daily RBAC Audit Auto-Sync) |
 
 ---
@@ -179,6 +179,14 @@
 | `/v1/notifications/unread-count` | GET | JWT only |
 | `/v1/notifications/:id/read` | PATCH | JWT only |
 | `/v1/notifications/read-all` | PATCH | JWT only |
+
+### Province Reference Controller
+> **File**: `backend/src/provinces/province-reference.controller.ts`
+> Nghiệp vụ: Tra cứu 63 địa danh canonical và alias cho các form nhập/xuất kho.
+
+| Endpoint | Method | SUPER_ADMIN | DISPATCHER | FLEET_MANAGER | WAREHOUSE_MANAGER |
+|---|---|:---:|:---:|:---:|:---:|
+| `/v1/province-references` | GET | ✅ | ✅ | ✅ | ✅ |
 
 ---
 

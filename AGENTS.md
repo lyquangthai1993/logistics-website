@@ -18,7 +18,7 @@
   - **Strict Standard 4-Stage GitHub Pipeline**:
     1. **Task Intake & Feature Branch**: Trace history (`npm run repo:resume`) if continuing an existing task, or pull latest `dev` and create `feat/task-<id>-<name>` directly inside target submodule (`backend/` and/or `frontend/`).
     2. **Local E2E Verification (Gate 1)**: Build, typecheck, and execute Playwright E2E suite locally (`http://localhost:4000` & `4001`) with autonomous self-healing (up to 3 retries) until 100% PASS.
-    3. **GitHub PR Audit Evidence & Auto-Merge**: Push feature branch, create PR into `dev` (`gh pr create`) containing task checklist & test pass proof as immutable audit evidence, auto-merge PR into `dev` (`gh pr merge --merge`), and **immediately switch local working trees back to the feature branch** (`npm run repo:resume`) so subsequent edits never happen directly on `dev`.
+    3. **GitHub PR Audit Evidence & Auto-Merge**: Push feature branch, create PR into `dev` through the connected GitHub integration containing task checklist & test pass proof as immutable audit evidence, auto-merge PR into `dev`, and **immediately switch local working trees back to the feature branch** (`npm run repo:resume`) so subsequent edits never happen directly on `dev`.
     4. **Cloud Dev E2E Verification (Gate 2)**: Wait for Railway Cloud Dev deployment READY (Health Check HTTP 200), execute Playwright E2E suite against Cloud Dev domain, run `scripts/e2e-auditor.mjs`, capture visual evidence screenshot, record `RESOLUTION.md`, and report via Telegram.
 
 ## Canonical Environments & Deployment Domains ("domain dev" & "domain pro" Mandate)
@@ -28,18 +28,12 @@ Whenever the user refers to, asks for, or mentions **"domain dev"** (hoặc "dom
 - **Frontend Dev Domain (Primary - Railway)**: `https://frontend-tms-core-dev.up.railway.app` (Branch `dev`)
 - **Backend Dev Domain (Primary - Railway)**: `https://backend-tms-core-dev.up.railway.app` (Branch `dev`)
 - **Backend Swagger API Docs (Dev - Railway)**: `https://backend-tms-core-dev.up.railway.app/docs`
-- *Secondary / Fallback (Vercel & Render)*:
-  - Frontend Dev: `https://logistics-website-frontend-git-dev-thai-lys-projects.vercel.app`
-  - Backend Dev: `https://logistics-website-backend-1jho.onrender.com`
 
 Whenever the user refers to, asks for, or mentions **"domain pro"** (hoặc "domain prod", "môi trường pro", "môi trường production"), all agents MUST immediately recognize and prioritize:
 - **Frontend Pro Domain (Primary - Railway)**: `https://frontend-tms-core-production.up.railway.app` (Branch `master`)
 - **Backend Pro Domain (Primary - Railway)**: `https://backend-tms-core-production.up.railway.app` (Branch `master`)
 - **Backend Swagger API Docs (Pro - Railway)**: `https://backend-tms-core-production.up.railway.app/docs`
 - **Cloud Automation / Worker (Railway)**: `https://n8n-automation-production-d298.up.railway.app` (Daily RBAC Audit Workflow ID: `M1IVf9rAsyFD5TYq` @ 22:00 PM)
-- *Secondary / Fallback (Vercel & Render)*:
-  - Frontend Pro: `https://logistics-website-frontend-kappa.vercel.app`
-  - Backend Pro: `https://logistics-website-backend-1.onrender.com`
 
 ## Safety & Governance Rules (STRICT)
 - **Language Policy**: Skill and agent guideline documentation MUST be written in English to minimize token consumption and maximize context efficiency.
@@ -79,7 +73,7 @@ Whenever the user refers to, asks for, or mentions **"domain pro"** (hoặc "dom
   - Detailed spec & banned class table: See [`.agents/rules/ui-compact-density.md`](file:///d:/Projects/logistics-website/.agents/rules/ui-compact-density.md).
 - **RBAC Compliance**: Before adding/modifying any endpoint or menu, MUST reference [`rbac-matrix.md`](file:///d:/Projects/logistics-website/.agents/rules/rbac-matrix.md) — the system's authoritative permission matrix. Ensure all 3 layers are updated: Sidebar UI, Route Guard, API Guard.
 - **Network & Health Check Execution Protocol (Anti-Hang / Anti-Stuck Mandate)**:
-  - When inspecting, pinging, or health-checking remote services (`domain dev`, `domain pro`, Render, Vercel, external APIs) from CLI, scripts, or agent commands, **NEVER run bare `curl` without a timeout or without `.exe`** in PowerShell. In Windows PowerShell, `curl` aliases to `Invoke-WebRequest` without default timeouts, causing the terminal process to hang indefinitely when a cloud backend (e.g. Render Free Tier) is sleeping (cold start 45-60s) or rebuilding/deploying.
+  - When inspecting, pinging, or health-checking remote services (`domain dev`, `domain pro`, Railway Cloud, external APIs) from CLI, scripts, or agent commands, **NEVER run bare `curl` without a timeout or without `.exe`** in PowerShell. In Windows PowerShell, `curl` aliases to `Invoke-WebRequest` without default timeouts, causing the terminal process to hang indefinitely when a cloud backend is sleeping or rebuilding/deploying.
   - **Strict CLI Mandates**:
     - Always use explicit `curl.exe` with a bounded timeout (`-m 15` or `--max-time 15`) and visible status header (`-i` or `-sS -i`): `curl.exe -m 15 -i https://<domain>/api/v1/health`. NEVER use bare `curl -s <url>`.
     - In native PowerShell, always set `-TimeoutSec`: `(Invoke-WebRequest -Uri "https://<domain>/api/v1/health" -TimeoutSec 15).Content`.
@@ -97,7 +91,7 @@ Whenever the user refers to, asks for, or mentions **"domain pro"** (hoặc "dom
   - A completion notification is ONLY permitted after fulfilling the closed 2-Tier Verification Pipeline:
     1. **Tầng 1: Mandatory Local-First Auto-Start & E2E Gate (Chốt chặn máy trạm bắt buộc — NGHIÊM CẤM BỎ QUA)**:
        - **Bắt buộc bật Local Servers (`port 4000` & `4001`)**: Trước khi chạy test (hoặc ngay khi bắt đầu task), BẮT BUỘC chạy `npm run dev:ensure` (`node scripts/ensure-local-servers.mjs`) để tự động kiểm tra và khởi chạy ngầm cả Backend (`http://localhost:4001`) lẫn Frontend (`http://localhost:4000`). **TUYỆT ĐỐI CẤM** lấy lý do "local servers offline" để bỏ qua Tầng 1.
-       - **Chốt chặn Hook kỹ thuật (`scripts/hooks/pre-command-guard.mjs`)**: Hệ thống tự động **BLOCK (`deny`)** mọi lệnh `git push` trong submodule (`backend`/`frontend`), `gh pr create`, hoặc `npm run task:pr` nếu phát hiện port `4000` hoặc `4001` chưa được bật (`DOWN`), hoặc nếu đang đứng ở nhánh bảo vệ `dev`/`master`.
+       - **Chốt chặn Hook kỹ thuật (`scripts/hooks/pre-command-guard.mjs`)**: Hệ thống tự động **BLOCK (`deny`)** mọi lệnh `git push` trong submodule (`backend`/`frontend`) hoặc `npm run task:pr` nếu phát hiện port `4000` hoặc `4001` chưa được bật (`DOWN`), hoặc nếu đang đứng ở nhánh bảo vệ `dev`/`master`.
        - Bắt buộc kích hoạt Playwright E2E chạy trên Local trước (`PLAYWRIGHT_BASE_URL=http://localhost:4000`, `API_URL=http://localhost:4001/api/v1`).
        - Cơ chế **Autonomous Local Self-Healing (Tối đa 3 lần retry)**: Khi test local thất bại, AI tự động phân tích root cause (RCA) và sửa code tại chỗ mà KHÔNG push git hoặc tốn thời gian chờ cloud deploy.
        - Nếu sau 3 lần retry local vẫn thất bại: Dừng toàn bộ pipeline, KHÔNG commit/push code lỗi lên cloud, gửi cảnh báo `LOCAL_E2E_FAILED` về Telegram.

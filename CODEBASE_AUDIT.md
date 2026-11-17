@@ -10,13 +10,24 @@
 | Trường | Giá trị |
 |---|---|
 | **Phiên bản** | v1.1.2 |
-| **Ngày audit** | 2026-11-13 |
+| **Ngày audit** | 2026-11-15 |
 | **Người thực hiện** | Antigravity Multi-Agent Teamwork System |
 | **Môi trường** | Development / Staging / Production (Railway Cloud Primary + Vercel/Render) |
 
 ---
 
 ## 🗂️ CHANGELOG PHIÊN BẢN
+
+### v1.1.2 — 2026-11-15 (Province Lookup Autocomplete)
+- ✅ Bổ sung endpoint JWT-only `GET /api/v1/province-references` phục vụ tra cứu tỉnh/thành canonical và alias.
+- ✅ Tích hợp gợi ý tỉnh/thành theo dữ liệu database vào bảng nhập kho và modal thêm đơn dùng chung cho inbound/outbound.
+- ✅ Alias khớp được chuẩn hóa về tên canonical khi rời ô; giá trị không khớp vẫn được bảo toàn.
+- ℹ️ Không thay đổi luồng khóa dữ liệu tỉnh/thành của đơn hàng outbound đã tồn tại.
+
+### v1.1.1 — 2026-11-15 (Province Reference Library)
+- ✅ Bổ sung entity và migration `province_reference` cho 63 địa danh canonical, chuẩn hóa alias và gộp Miền Tây vào Miền Nam.
+- ✅ Bổ sung relational seed idempotent và cập nhật công cụ đồng bộ Railway Database.
+- ℹ️ Chưa có API/CRUD/frontend; migration sẽ được áp dụng qua pipeline deployment.
 
 ### v1.1.2 — 2026-11-13 (Stored Inventory Region & HCM Report Scope)
 - **Backend**: Recognize the inbound province value `LƯU KHO` as a first-class report region and include it in live/snapshot aggregation totals and detail payloads.
@@ -258,6 +269,7 @@
 | `session` | `session` | Internal (auth only) | — |
 | `roles` | `role` | DB Seed only | — |
 | `statuses` | `status` | DB Seed only | — |
+| `province-reference` | `province_reference` | `GET /api/v1/province-references` + DB Seed | JWT (All roles) |
 | `mail`/`mailer` | — | 4 REST endpoints (`/api/v1/mail/send/*`) | `SUPER_ADMIN`, `DISPATCHER`, `FLEET_MANAGER`, `WAREHOUSE_MANAGER` |
 | `home` | — | `GET /` app info | Public |
 

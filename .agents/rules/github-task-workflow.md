@@ -178,7 +178,7 @@ flowchart TD
    ```
 3. **Kích hoạt kiểm thử Playwright E2E trên Local (Tầng 1 — BẮT BUỘC BẬT PORT 4000 & 4001)**:
    - **Bắt buộc khởi động Local Dev Servers**: Chạy lệnh `npm run dev:ensure` (tự động kiểm tra và bật ngầm Backend port `4001` + Frontend port `4000` không gây treo phiên). **Nghiêm cấm** bỏ qua bước test Local với lý do server đang tắt.
-   - **Chốt chặn Hook (`pre-command-guard.mjs`)**: Nếu port `4000` hoặc `4001` chưa bật (`DOWN`), hệ thống sẽ tự động chặn (`BLOCK`) mọi lệnh `git push` submodule và `gh pr create`.
+   - **Chốt chặn Hook (`pre-command-guard.mjs`)**: Nếu port `4000` hoặc `4001` chưa bật (`DOWN`), hệ thống sẽ tự động chặn (`BLOCK`) mọi lệnh `git push` submodule và workflow tạo PR.
    - Chạy test suite tương ứng của task:
      ```powershell
      npm run dev:ensure
@@ -223,10 +223,8 @@ flowchart TD
      ```powershell
      node scripts/git-task-workflow.mjs pr 81 warehouse outbound-pallet feat fullstack
      ```
-   - Hoặc dùng GitHub CLI (`gh pr create` & `gh pr merge` **KHÔNG dùng `--delete-branch`** để giữ nhánh feature làm việc tiếp):
+   - Hoặc dùng connected GitHub integration để tạo và merge PR (**KHÔNG xóa branch**) để giữ nhánh feature làm việc tiếp:
      ```powershell
-     gh pr create --repo lyquangthai1993/logistics-website-backend --base dev --head feat/task-81-warehouse-outbound-pallet --title "feat(task-81): outbound pallet management" --body "..."
-     gh pr merge --repo lyquangthai1993/logistics-website-backend feat/task-81-warehouse-outbound-pallet --merge
      npm run repo:resume
      ```
 
