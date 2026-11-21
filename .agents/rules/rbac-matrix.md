@@ -85,7 +85,7 @@
 | `/v1/orders` | POST | ✅ | ✅ | ❌ | ❌ |
 | `/v1/orders/:id` | PATCH | ✅ | ✅ *(Chỉ sửa hợp đồng khi DRAFT)* | ❌ | ❌ |
 | `/v1/orders/:id/ledger` | GET | ✅ | ✅ | ✅ | ✅ |
-| `/v1/orders/:id/admin-override` | PATCH | ✅ *(Bắt buộc `auditReason`, ghi phiếu DCH)* | ❌ | ❌ | ❌ |
+| `/v1/orders/:id/admin-override` | PATCH | ✅ *(Bắt buộc `auditReason`, ghi phiếu DCH; chỉ đơn `Lưu kho` và phải truyền đúng một `warehouseHubId` đang giữ đơn)* | ❌ | ❌ | ❌ |
 | `/v1/orders/:id/submit` | PATCH | ✅ | ✅ | ❌ | ❌ |
 | `/v1/orders/:id/no-vehicle` | PATCH | ✅ | ❌ | ✅ | ❌ |
 | `/v1/orders/refresh-metrics` | POST | ✅ | ✅ | ❌ | ✅ |
