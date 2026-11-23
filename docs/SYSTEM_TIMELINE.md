@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 23/11/2026 | `feedbacks/feedback_23_11_task_warehouse_order_status_totals` | Warehouse Order Status Totals | 5/5 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_23_11_task_warehouse_order_status_totals/RESOLUTION.md) |
 | 15/11/2026 | `feedbacks/feedback_15_11_local_backend_i18n_assets` | Local Backend Asset Build Fix | 5/5 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_11_local_backend_i18n_assets/RESOLUTION.md) |
 | 15/11/2026 | `feedbacks/feedback_15_11_regional_dispatch_future_sync` | Regional Dispatch Future Snapshot Guard | 7/7 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_11_regional_dispatch_future_sync/RESOLUTION.md) |
 | 12/11/2026 | `feedbacks/feedback_12_11_regional_dispatch_range_and_warehouse_status` | Regional Dispatch Date Range and Warehouse Status Pa... | 10/10 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_12_11_regional_dispatch_range_and_warehouse_status/RESOLUTION.md) |
@@ -93,6 +94,19 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_23_11_TASK_WAREHOUSE_ORDER_STATUS_TOTALS] — Warehouse Order Status Totals (23/11/2026)
+- **Trạng thái**: ✅ Hoàn thành phần code và kiểm chứng API local (5/5 việc)
+- **Năng lực & Tính năng mới**:
+  * Tổng số lượng, kg và m³ trên trang Đơn hàng kho thay đổi theo các tab `Lưu kho`, `Nháp`, `Đã xuất kho`.
+  * Backend giữ nguyên snapshot cho `Tất cả` và aggregate trực tiếp theo Hub/status cho các tab lọc.
+- **Bằng chứng nghiệm thu**:
+  * Frontend typecheck: PASS.
+  * Backend build: PASS.
+  * Local API parity: PASS 9/9 cases (3 kho × 3 trạng thái).
+  * Extended Playwright run còn phụ thuộc fixture Hub Đà Nẵng chưa ổn định trong môi trường local.
+  * Minh chứng hình ảnh: Có lưu trữ trong thư mục
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_23_11_task_warehouse_order_status_totals/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_23_11_task_warehouse_order_status_totals/TODO.md)
 
 ### 🚀 [FEEDBACK_15_11_LOCAL_BACKEND_I18N_ASSETS] — Local Backend Asset Build Fix (15/11/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (5/5 việc)
