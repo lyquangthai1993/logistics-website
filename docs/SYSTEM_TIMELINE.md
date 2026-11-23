@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 23/11/2026 | `feedback_23_11_task_119_regional_report_tooltip` | Sửa bộ lọc và tooltip báo cáo tình hình hàng hóa | 7/7 | Code/Dev verified; Cloud E2E blocked | [RESOLUTION.md](../feedback_23_11_task_119_regional_report_tooltip/RESOLUTION.md) |
 | 23/11/2026 | `feedbacks/feedback_23_11_task_warehouse_order_status_totals` | Warehouse Order Status Totals | 5/5 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_23_11_task_warehouse_order_status_totals/RESOLUTION.md) |
 | 15/11/2026 | `feedbacks/feedback_15_11_local_backend_i18n_assets` | Local Backend Asset Build Fix | 5/5 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_11_local_backend_i18n_assets/RESOLUTION.md) |
 | 15/11/2026 | `feedbacks/feedback_15_11_regional_dispatch_future_sync` | Regional Dispatch Future Snapshot Guard | 7/7 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_11_regional_dispatch_future_sync/RESOLUTION.md) |
@@ -94,6 +95,18 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_23_11_TASK_119_REGIONAL_REPORT_TOOLTIP] — Sửa bộ lọc và tooltip báo cáo tình hình hàng hóa (23/11/2026)
+- **Trạng thái**: Code đã merge và deploy Dev; Cloud E2E bị chặn tại đăng nhập API (7/7 đầu việc trong phạm vi hoàn tất)
+- **Báo cáo bởi**: Super Admin report
+- **Phạm vi**: `/dashboard/admin/reports` — biểu đồ tình hình hàng hóa
+- **Thay đổi**: Bỏ tab “Đã xuất kho”; giữ series trong “Tất cả”; ẩn mục này khỏi tooltip Tấn và m³.
+- **Bằng chứng nghiệm thu**:
+  * Local Playwright: 2/2 pass; E2E code audit: 50/50.
+  * Railway Dev backend/frontend: build SUCCESS, latest đã active; health 200/307.
+  * Phiên Super Admin Dev xác nhận tab không còn và tooltip không có “Đã xuất kho”.
+  * Cloud Playwright chưa chạy qua login: backend `/api/v1/auth/email/login` trả 500 do duplicate primary key trong `AuthService.validateLogin`.
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_23_11_task_119_regional_report_tooltip/RESOLUTION.md) • [`TODO.md`](../feedback_23_11_task_119_regional_report_tooltip/TODO.md)
 
 ### 🚀 [FEEDBACK_23_11_TASK_WAREHOUSE_ORDER_STATUS_TOTALS] — Warehouse Order Status Totals (23/11/2026)
 - **Trạng thái**: ✅ Hoàn thành phần code và kiểm chứng API local (5/5 việc)
