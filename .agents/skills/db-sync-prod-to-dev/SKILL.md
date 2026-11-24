@@ -147,7 +147,7 @@ To prevent foreign key constraint violations, circular cascade deadlocks, and lo
 5. Deletes existing data in **reverse topological order** for overwritten tables only.
 6. Inserts new rows in **forward topological order** using parameterized chunks (`chunkSize = 100`).
 7. **Automatic Cronjob Report Reconciliation (`reconcileCronReportsOnDev`)**: Immediately recalculates `daily_hub_operational_report` and `cron_job_execution_log` daily aggregates on Dev against the newly synced `order_inventory_transaction` rows (`18:00 D-1 -> 18:00 D GMT+7` cutoff) so Admin Operational Reports and Cronjob logs stay 100% consistent with Production transactions.
-8. Realigns all sequences using `SELECT setval('seq_name', last_value, is_called)`.
+8. Realigns all sequences using `SELECT setval('seq_name', last_value, is_called)`. The backend migration `RepairSerialSequences1789180000000` additionally repairs each public `*_id_seq` from the restored table's `MAX(id)` before new sessions, reports, or operational rows are inserted.
 9. **Secondary Index Auto-Recreation**: Rebuilds all saved secondary indexes across all tables in a single optimized pass.
 10. Re-enables standard trigger validation: `SET session_replication_role = 'origin';`.
 11. `COMMIT;` (Transaction rolls back completely if any table chunk fails).
