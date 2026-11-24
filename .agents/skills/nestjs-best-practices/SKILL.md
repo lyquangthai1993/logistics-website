@@ -21,7 +21,7 @@ This skill provides guidelines and patterns for developing high-quality, maintai
    - Use Passport JWT strategy with Guard decorators (`@UseGuards(AuthGuard('jwt'))`).
    - Support Refresh Token rotation and Role-Based Access Control (RBAC) via `@Roles()` decorator.
 6. **API Listing & Pagination Policy**:
-   - **Zero-Assumption Rule**: For all collection endpoints (`GET /<resources>`), agents **MUST prompt/confirm with the user** whether pagination is required. Never assume a flat list.
+   - Check the existing API conventions and expected collection size/use before choosing pagination. Follow the established `PaginatedResult<T>` contract for user-facing or potentially large collections; use a bounded lookup response for small selector/search endpoints. Ask the user only when the product behavior or response contract is materially ambiguous.
    - For `PaginatedResult<T>` schema and lookup separation guidelines: 👉 [`references/api-pagination-guidelines.md`](file:///d:/Projects/logistics-website/.agents/skills/nestjs-best-practices/references/api-pagination-guidelines.md).
 7. **AI Model Selection & Fallback Policy**:
    - **Primary Model**: Prefer **Claude** (Claude Sonnet / Opus) for all NestJS backend feature coding, refactoring, entity design, and complex business logic.
