@@ -76,7 +76,7 @@ The Spider Express Logistics TMS monorepo consists of 3 independent Git reposito
 ### Immediate Next Steps
 
 1. Run `npm run repo:status` and `npm run repo:tracking` at the start of the next session to verify all 3 repositories (`root`, `backend/`, `frontend/`) remain on `dev` and in sync with `origin/dev`.
-2. Check if there are any new incoming operational tasks via `npm run task:pending` or new `feedbacks/feedback_DD_MM*` directories via `npm run todo:scan`.
+2. Check if there are any new incoming operational tasks via `npm run task:pending` or new `feedbacks/feedback_MM_DD*` directories via `npm run todo:scan`.
 3. If the user requests promoting `dev` to `master` (Production release), create PRs from `dev` -> `master` in `backend/`, `frontend/`, and `root` in submodule-first order and verify Railway Production (`https://frontend-tms-core-production.up.railway.app` & `https://backend-tms-core-production.up.railway.app`).
 
 ### Blockers/Open Questions

@@ -65,7 +65,7 @@ The `e2e-code-auditor` is triggered **TWICE** during the task lifecycle by `/tod
 - **Trigger**: Called after PR is merged into `dev`, Railway Cloud deployment completes (HTTP 200), and `/e2e-test-runner` finishes testing against `https://frontend-tms-core-dev.up.railway.app`.
 - **Action**:
   - Re-verifies AST compliance.
-  - Audits captured visual screenshot evidence in `feedbacks/feedback_DD_MM*/screenshot_*_verified.png`.
+  - Audits captured visual screenshot evidence in `feedbacks/feedback_MM_DD*/screenshot_*_verified.png`.
   - **Non-Empty Table Gate**: Asserts screenshot contains real rows (not an empty table / 0-row fallback).
 - **Handoff**: Delivers final certification scorecard to `/todo-agent` to embed directly into `RESOLUTION.md` and authorize Telegram reporting.
 
@@ -147,7 +147,7 @@ Every E2E test file is evaluated across 5 objective dimensions:
 | **Broken Runner / Local Absolute File Links**: Emitting `file:////home/runner/work/...` or broken `file:///docs/SYSTEM_TIMELINE.md` inside `RESOLUTION.md` instead of portable relative markdown links (`./TODO.md`, `./screenshot_...`, `../../docs/SYSTEM_TIMELINE.md`) | -5 | **YES** |
 | **Zero Visual Evidence**: Test verifies complex modals/steppers but saves 0 screenshot artifacts | -4 | No |
 | **Fake Visual Evidence (Empty Table Fallback Screenshot)**: Using `if (count > 0) ... else { save screenshot of empty table }` without asserting target element presence, silencing failures and generating misleading 0-row screenshots for row-level features | -6 | **YES** |
-| Screenshots saved outside the designated evidence directories (`frontend/evidence/` or `feedbacks/feedback_DD_MM*/`) | -2 | No |
+| Screenshots saved outside the designated evidence directories (`frontend/evidence/` or `feedbacks/feedback_MM_DD*/`) | -2 | No |
 | Asserts obsolete Radix data attributes (`data-radix-scroll-area-viewport`) instead of Base UI 2026 (`data-slot="scroll-area-viewport"`) | -3 | No |
 | Verifies button presence but does not check for Zero Redundant Icons (e.g. `<Button>+ Tạo đơn</Button>`) | -2 | No |
 | Missing verification of sticky action toolbars or compact typography | -2 | No |

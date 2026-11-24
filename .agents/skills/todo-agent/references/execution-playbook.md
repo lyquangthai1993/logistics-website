@@ -1,6 +1,6 @@
 # Todo Agent — Operational Feedback Execution Playbook
 
-This reference document provides in-depth technical guidance for developers and autonomous agents executing tasks from `feedback_DD_MM*` directories in the Logistics TMS (Spider Express) workspace.
+This reference document provides in-depth technical guidance for developers and autonomous agents executing tasks from `feedback_MM_DD*` directories in the Logistics TMS (Spider Express) workspace.
 
 ---
 

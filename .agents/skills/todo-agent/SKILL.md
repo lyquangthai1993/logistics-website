@@ -3,7 +3,7 @@ name: todo-agent
 description: >-
   Full-lifecycle 6-Stage SDLC Orchestrator (PLAN -> DESIGN -> BUILD -> TEST -> DEPLOY -> MAINTAIN)
   for scanning, comprehending, architecting, building, testing, deploying, and maintaining tasks
-  from feedback directories (feedback_DD_MM*) across backend, frontend, and database submodules
+  from feedback directories (feedback_MM_DD*) across backend, frontend, and database submodules
   in the Spider Express Logistics TMS. Coordinates PM (/leader), Architect (/leader, /ui-ux-flow-designer),
   Engineer, QA (/e2e-test-runner, /e2e-code-auditor), Release (/github-workflow), and Operations
   (/tms-ops-maintainer). Triggers on 'todo-agent', 'feedback', 'feedback_', 'quét feedback',
@@ -45,7 +45,7 @@ flowchart LR
 
 | Stage | Role | Coordinated Skills / Subagents | Primary Action & Gate Deliverable |
 | :--- | :--- | :--- | :--- |
-| **1. PLAN**<br>*(Lên kế hoạch)* | **PM** | `/todo-agent` + [`/leader`](../leader/SKILL.md) | Scan `feedbacks/feedback_DD_MM*`, run Multimodal OCR (extract Hub & map test account), perform RCA, and output **`📄 Tài liệu` (`TODO.md`)** with Step-by-Step E2E Spec & 10 Edge Cases Matrix. |
+| **1. PLAN**<br>*(Lên kế hoạch)* | **PM** | `/todo-agent` + [`/leader`](../leader/SKILL.md) | Scan `feedbacks/feedback_MM_DD*`, run Multimodal OCR (extract Hub & map test account), perform RCA, and output **`📄 Tài liệu` (`TODO.md`)** with Step-by-Step E2E Spec & 10 Edge Cases Matrix. |
 | **2. DESIGN**<br>*(Thiết kế)* | **Architect** | [`/leader`](../leader/SKILL.md) + [`/ui-ux-flow-designer`](../ui-ux-flow-designer/SKILL.md) + [`/pencil-ui-designer`](../pencil-ui-designer/SKILL.md) + [`/nestjs-best-practices`](../nestjs-best-practices/SKILL.md) + [`/nextjs-best-practices`](../nextjs-best-practices/SKILL.md) | Consume `TODO.md`, verify [`rbac-matrix.md`](../../rules/rbac-matrix.md) (3 layers), validate DB/Entity safety, define API contracts, enforce 5-Level Modal Width Taxonomy & Compact Density (`p-1`, `p-2`, `text-[10px]`). |
 | **3. BUILD**<br>*(Xây dựng)* | **Engineer** | `/todo-agent` + [`/feature-branch-advisor`](../feature-branch-advisor/SKILL.md) + [`/ui-spacing-guard`](../ui-spacing-guard/SKILL.md) | Run `npm run repo:status` & `npm run repo:tracking`, branch `<type>/task-<id>-<module>-<action>` off `dev` inside target submodules (`backend/`, `frontend/`), implement code, pass `tsc --noEmit` & `npm run build`. |
 | **4. TEST (2 Tầng)**<br>*(Kiểm thử 2 Tầng)* | **QA** | [`/e2e-test-runner`](../e2e-test-runner/SKILL.md) + [`/e2e-code-auditor`](../e2e-code-auditor/SKILL.md) | **Bắt buộc 2 Tầng Test**:<br>• **Tầng 1 (Test Local)**: Chạy Playwright E2E trên Local (`localhost:4000` & `4001`, Self-Healing $\le 3$ lần) + `e2e-auditor.mjs` ($\ge 40/50$). Pass 100% mới được đưa lên Dev.<br>• **Tầng 2 (Test trên Môi trường Development)**: Sau khi code lên môi trường Dev (`frontend-tms-core-dev.up.railway.app`), **chạy lại E2E + Auditor lần 2 trên Dev**, chụp ảnh thực tế (`screenshot_*_verified.png`) để **bàn giao chuẩn xác**. |
@@ -92,10 +92,10 @@ All operations performed by `todo-agent` MUST strictly adhere to [`AGENTS.md`](f
 
 ## 3. Feedback Directory Structure & CLI Engine
 
-Feedback folders live inside `feedbacks/feedback_DD_MM*` (legacy root `feedback_DD_MM*` remains supported):
+Feedback folders live inside `feedbacks/feedback_MM_DD*` (legacy root `feedback_MM_DD*` remains supported):
 
 ```text
-feedbacks/feedback_DD_MM[suffix]/
+feedbacks/feedback_MM_DD[suffix]/
 ├── TODO.md                         # [Stage 1 Output - 📄 Tài liệu] Task checklist, OCR, RCA, E2E & Edge Case Spec
 ├── RESOLUTION.md                   # [Stage 6 Output] 6-section post-execution technical acceptance certificate
 ├── screenshot_01.png / .jpg        # Original user feedback image from Telegram
@@ -150,7 +150,7 @@ When given a feedback task, Stage 1 acts as the **Technical Product Manager (`PM
    - Extract sample trip codes (`SD49`, `SD62`), waybill codes (`NMT2610-328`), and red-highlighted UI regions.
 3. **Root Cause Analysis (RCA)**:
    - Run `node scripts/todo-agent.mjs inspect <folder>` to locate exact backend/frontend source files and pinpoint the root cause.
-4. **Produce Mandatory Deliverable (`📄 Tài liệu`: `feedbacks/feedback_DD_MM*/TODO.md`)**:
+4. **Produce Mandatory Deliverable (`📄 Tài liệu`: `feedbacks/feedback_MM_DD*/TODO.md`)**:
    - Every `TODO.md` MUST contain:
      1. Operational Context & User Quotes
      2. Multimodal OCR & Hub Test Account Mapping
@@ -261,7 +261,7 @@ Sau khi `Stage 5: DEPLOY` đã merge PR vào `dev`, **BẮT BUỘC xác nhận b
    npx --prefix frontend playwright test e2e/<spec_file>.spec.ts
    ```
 2. **Thu thập bằng chứng bàn giao & Thẩm định chéo Lần 2 ([`/e2e-code-auditor`](../e2e-code-auditor/SKILL.md))**:
-   - Bắt buộc chụp ảnh màn hình thực tế từ môi trường Development (`feedbacks/feedback_DD_MM*/screenshot_*_verified.png`) với dữ liệu thật trên DB.
+   - Bắt buộc chụp ảnh màn hình thực tế từ môi trường Development (`feedbacks/feedback_MM_DD*/screenshot_*_verified.png`) với dữ liệu thật trên DB.
    - Chạy xác nhận lại `node scripts/e2e-auditor.mjs frontend/e2e/<spec_file>.spec.ts` ($\ge 40/50$).
    - **Chốt chặn Bàn giao**: Chỉ khi Tầng 2 trên môi trường Development PASS 100% mới được phép ký nghiệm thu bàn giao sang `Stage 6: MAINTAIN`.
 
@@ -303,7 +303,7 @@ Once Stage 5 passes 100%, `/todo-agent` transitions to **Stage 6 (`MAINTAIN`)** 
 1. **Post-Deploy Live Health & Queue Verification**:
    - Confirm `/api/v1/health` HTTP 200 and zero runtime 500/console errors on Railway Cloud Dev.
 2. **Checklist Completion**:
-   - Mark all items in `feedbacks/feedback_DD_MM*/TODO.md` as `- [x]` via `node scripts/todo-agent.mjs toggle <folder> <line> done`.
+   - Mark all items in `feedbacks/feedback_MM_DD*/TODO.md` as `- [x]` via `node scripts/todo-agent.mjs toggle <folder> <line> done`.
 3. **Generate `RESOLUTION.md` & Sync `docs/SYSTEM_TIMELINE.md`**:
    - Run `npm run todo:record <folder_name>`.
    - Ensure all 6 mandatory sections of `RESOLUTION.md` (RCA, New Capabilities, Core System Invariants, E2E Evidence + 50-Point Scorecard, Impacted Files, AI Session Continuity Guidance) are recorded and linked in [`docs/SYSTEM_TIMELINE.md`](file:///d:/Projects/logistics-website/docs/SYSTEM_TIMELINE.md).
@@ -317,7 +317,7 @@ Once Stage 5 passes 100%, `/todo-agent` transitions to **Stage 6 (`MAINTAIN`)** 
 🟢 THÔNG BÁO: ĐÃ TEST DEV XONG (6-STAGE PIPELINE & E2E AUDIT PASS)
 
 📋 Hạng mục triển khai: [Tiêu đề Feedback / Task #<id>]
-• Thư mục mục tiêu: feedbacks/feedback_DD_MM*
+• Thư mục mục tiêu: feedbacks/feedback_MM_DD*
 • Pipeline 6 bước: PLAN (PM) ➔ DESIGN (Architect) ➔ BUILD (Engineer) ➔ TEST (QA) ➔ DEPLOY (Release) ➔ MAINTAIN (Vận hành) [100% PASS]
 
 🌐 Môi trường kiểm thử (Domain Dev - Railway Cloud):
@@ -330,11 +330,11 @@ Once Stage 5 passes 100%, `/todo-agent` transitions to **Stage 6 (`MAINTAIN`)** 
 • GitHub PR Audit Trail: [Link PR vào nhánh dev]
 
 📜 Hồ sơ Nghiệm thu & Vận hành Hệ thống:
-• Biên bản kỹ thuật: feedbacks/feedback_DD_MM*/RESOLUTION.md
+• Biên bản kỹ thuật: feedbacks/feedback_MM_DD*/RESOLUTION.md
 • Biên niên sử phát triển: docs/SYSTEM_TIMELINE.md
 
 🛠️ Các tệp tin đã cập nhật:
 • [Backend]: backend/src/...
 • [Frontend]: frontend/src/...
-• [Tài liệu]: feedbacks/feedback_DD_MM*/TODO.md [x]
+• [Tài liệu]: feedbacks/feedback_MM_DD*/TODO.md [x]
 ```
