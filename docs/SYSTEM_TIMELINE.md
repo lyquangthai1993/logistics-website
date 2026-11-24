@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 24/11/2026 | `feedback_24_11_task_120_report_trip_count_number` | Bỏ đơn vị “chuyến” khỏi số tổng báo cáo vận hành | 2/2 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_24_11_task_120_report_trip_count_number/RESOLUTION.md) |
 | 23/11/2026 | `feedback_23_11_task_119_regional_report_tooltip` | Sửa bộ lọc và tooltip báo cáo tình hình hàng hóa | 7/7 | Code/Dev verified; Cloud E2E blocked | [RESOLUTION.md](../feedback_23_11_task_119_regional_report_tooltip/RESOLUTION.md) |
 | 23/11/2026 | `feedbacks/feedback_23_11_task_warehouse_order_status_totals` | Warehouse Order Status Totals | 5/5 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_23_11_task_warehouse_order_status_totals/RESOLUTION.md) |
 | 15/11/2026 | `feedbacks/feedback_15_11_local_backend_i18n_assets` | Local Backend Asset Build Fix | 5/5 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_11_local_backend_i18n_assets/RESOLUTION.md) |
@@ -95,6 +96,15 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_24_11_TASK_120_REPORT_TRIP_COUNT_NUMBER] — Bỏ đơn vị “chuyến” khỏi số tổng báo cáo vận hành (24/11/2026)
+- **Trạng thái**: Đã sửa giao diện; test không chạy theo yêu cầu người dùng
+- **Phạm vi**: `/dashboard/admin/reports` — KPI tổng số chuyến xe
+- **Năng lực & Tính năng mới**:
+  * **Frontend**: Chỉ hiển thị giá trị số ở KPI tổng, bỏ hậu tố “chuyến”; cập nhật assertion E2E hiện có tương ứng.
+- **Bằng chứng nghiệm thu**:
+  * Không chạy test theo yêu cầu người dùng; assertion E2E đã cập nhật nhưng chưa chạy.
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_24_11_task_120_report_trip_count_number/RESOLUTION.md) • [`TODO.md`](../feedback_24_11_task_120_report_trip_count_number/TODO.md)
 
 ### 🚀 [FEEDBACK_23_11_TASK_119_REGIONAL_REPORT_TOOLTIP] — Sửa bộ lọc và tooltip báo cáo tình hình hàng hóa (23/11/2026)
 - **Trạng thái**: Code đã merge và deploy Dev; Cloud E2E bị chặn tại đăng nhập API (7/7 đầu việc trong phạm vi hoàn tất)
