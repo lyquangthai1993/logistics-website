@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 25/11/2026 | `feedbacks/feedback_25_11_task_130_warehouse_onhand_cbm` | Task 130 — Tổng hợp CBM còn lưu kho sau xuất | 7/7 | Backend build + Dev browser/API smoke PASS; parity E2E có lỗi lệch số kiện ngoài phạm vi | [RESOLUTION.md](../feedbacks/feedback_25_11_task_130_warehouse_onhand_cbm/RESOLUTION.md) |
 | 25/11/2026 | `feedbacks/feedback_11_25_task_127` | TODO: Tam suất khi Super Admin điều chỉnh giao dịch kho | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_11_25_task_127/RESOLUTION.md) |
 | 24/11/2026 | `feedback_24_11_task_120_report_trip_count_number` | Bỏ đơn vị “chuyến” khỏi số tổng báo cáo vận hành | 2/2 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_24_11_task_120_report_trip_count_number/RESOLUTION.md) |
 | 23/11/2026 | `feedback_23_11_task_119_regional_report_tooltip` | Sửa bộ lọc và tooltip báo cáo tình hình hàng hóa | 7/7 | Code/Dev verified; Cloud E2E blocked | [RESOLUTION.md](../feedback_23_11_task_119_regional_report_tooltip/RESOLUTION.md) |
@@ -97,6 +98,14 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_25_11_TASK_130_WAREHOUSE_ONHAND_CBM] — Cộng CBM hàng còn lưu kho sau xuất (25/11/2026)
+- **Trạng thái**: Backend fix đã merge và deploy Dev; smoke browser/API đúng 12,72 m³.
+- **Nguyên nhân**: Nhóm đơn lưu kho cộng CBM hợp đồng gốc thay vì phần còn lại sau các giao dịch xuất.
+- **Thay đổi**: `ALL` / `INBOUND` dùng `remainingWeight` / `remainingVolume`; đơn nháp và đã xuất giữ số liệu gốc. Không đổi schema hoặc dữ liệu giao dịch.
+- **Kiểm tra**: Backend build PASS; DB chỉ đọc xác nhận 114,88 − 102,16 = 12,72 m³; Dev backend commit `6d56425` SUCCESS/cutover và health 200; browser/API đúng 12,72. Spec parity FAIL ở assertion số kiện của `DTD2611-0067` (UI `0 / 1`, API `2`), không tới assertion m³. Frontend typecheck còn lỗi có sẵn tại `e2e/119-regional-dispatch-report.spec.ts:112`.
+
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_25_11_task_130_warehouse_onhand_cbm/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_25_11_task_130_warehouse_onhand_cbm/TODO.md)
 
 ### 🚀 [FEEDBACK_11_25_TASK_127] — TODO: Tam suất khi Super Admin điều chỉnh giao dịch kho (25/11/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (12/12 việc)
