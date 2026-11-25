@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 25/11/2026 | `feedbacks/feedback_25_11_task_131_regional_chart_total_label` | Task 131 — Gộp nhãn tổng trên biểu đồ theo miền | 5/5 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_25_11_task_131_regional_chart_total_label/RESOLUTION.md) |
 | 25/11/2026 | `feedbacks/feedback_25_11_task_130_warehouse_onhand_cbm` | Task 130 — Tổng hợp CBM còn lưu kho sau xuất | 7/7 | Backend build + Dev browser/API smoke PASS; parity E2E có lỗi lệch số kiện ngoài phạm vi | [RESOLUTION.md](../feedbacks/feedback_25_11_task_130_warehouse_onhand_cbm/RESOLUTION.md) |
 | 25/11/2026 | `feedbacks/feedback_11_25_task_127` | TODO: Tam suất khi Super Admin điều chỉnh giao dịch kho | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_11_25_task_127/RESOLUTION.md) |
 | 24/11/2026 | `feedback_24_11_task_120_report_trip_count_number` | Bỏ đơn vị “chuyến” khỏi số tổng báo cáo vận hành | 2/2 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_24_11_task_120_report_trip_count_number/RESOLUTION.md) |
@@ -98,6 +99,13 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### [Task 131] — Gộp nhãn tổng trên biểu đồ theo miền (25/11/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (5/5 việc)
+- **Năng lực & Tính năng mới**: Tab “Tất cả” chỉ hiển thị một nhãn tổng trên mỗi cột khối lượng/thể tích; các tab riêng giữ nhãn hiện tại.
+- **Bằng chứng nghiệm thu**: Typecheck PASS; đã kiểm tra trực tiếp browser local. Playwright không chạy.
+- **PR frontend**: [#140](https://github.com/lyquangthai1993/logistics-website-frontend/pull/140) — merge SHA `5f304a96b3848ab7a4ae6b228f6ca7cd03d0553d`.
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_25_11_task_131_regional_chart_total_label/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_25_11_task_131_regional_chart_total_label/TODO.md)
 
 ### 🚀 [FEEDBACK_25_11_TASK_130_WAREHOUSE_ONHAND_CBM] — Cộng CBM hàng còn lưu kho sau xuất (25/11/2026)
 - **Trạng thái**: Backend fix đã merge và deploy Dev; smoke browser/API đúng 12,72 m³.
