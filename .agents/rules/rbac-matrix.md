@@ -24,6 +24,7 @@
 | `DISPATCHER` | Điều phối viên — quản lý lệnh điều vận (orders) | 2 |
 | `FLEET_MANAGER` | Quản lý đội xe — phân công xe, tài xế, chuyến (trips) | 3 |
 | `WAREHOUSE_MANAGER` | Quản lý kho — nhận hàng inbound | 4 |
+| `REPORT_VIEWER` | Chỉ xem báo cáo vận hành | 5 |
 
 ---
 
@@ -31,20 +32,20 @@
 
 > **File**: `frontend/src/config/nav-config.ts`
 
-| Nhóm | Menu | URL | SUPER_ADMIN | DISPATCHER | FLEET_MANAGER | WAREHOUSE_MANAGER |
-|---|---|---|:-----------:|:----------:|:-------------:|:-----------------:|
-| *(không nhãn – top-level)* | Dashboard | `/dashboard/overview` | ✅ | ✅ | ✅ | ❌ |
-| **Vận hành TMS** | Lệnh điều vận | `/dashboard/orders` | ✅ | ✅ | ❌ | ❌ |
-| **Vận hành TMS** | Phân công xe | `/dashboard/trips` | ✅ | ❌ | ✅ | ❌ |
-| **Vận hành TMS** | Quản lý đội xe | `/dashboard/fleet` | ✅ | ❌ | ✅ | ❌ |
-| **Vận hành TMS** | Nhập kho | `/dashboard/warehouse/inbound` | ✅ | ❌ | ❌ | ✅ |
-| **Vận hành TMS** | Xuất kho | `/dashboard/warehouse/outbound` | ✅ | ❌ | ❌ | ✅ |
-| **Vận hành TMS** | Đơn hàng kho | `/dashboard/warehouse/orders` | ✅ | ❌ | ❌ | ✅ |
-| **Quản trị hệ thống** | Báo cáo vận hành | `/dashboard/admin/reports` | ✅ | ❌ | ❌ | ❌ |
-| **Quản trị hệ thống** | Theo dõi TRIP theo ngày | `/dashboard/admin/reports/trips` | ✅ | ❌ | ❌ | ❌ |
-| **Quản trị hệ thống** | Quản trị Cronjob | `/dashboard/admin/cronjobs` | ✅ | ❌ | ❌ | ❌ |
-| **Quản trị hệ thống** | Chi Nhánh Kho (Hubs) | `/dashboard/admin/hubs` | ✅ | ❌ | ❌ | ❌ |
-| **Quản trị hệ thống** | Người dùng | `/dashboard/users` | ✅ | ❌ | ❌ | ❌ |
+| Nhóm | Menu | URL | SUPER_ADMIN | DISPATCHER | FLEET_MANAGER | WAREHOUSE_MANAGER | REPORT_VIEWER |
+|---|---|---|:-----------:|:----------:|:-------------:|:-----------------:|:------------:|
+| *(không nhãn – top-level)* | Dashboard | `/dashboard/overview` | ✅ | ✅ | ✅ | ❌ | ❌ |
+| **Vận hành TMS** | Lệnh điều vận | `/dashboard/orders` | ✅ | ✅ | ❌ | ❌ | ❌ |
+| **Vận hành TMS** | Phân công xe | `/dashboard/trips` | ✅ | ❌ | ✅ | ❌ | ❌ |
+| **Vận hành TMS** | Quản lý đội xe | `/dashboard/fleet` | ✅ | ❌ | ✅ | ❌ | ❌ |
+| **Vận hành TMS** | Nhập kho | `/dashboard/warehouse/inbound` | ✅ | ❌ | ❌ | ✅ | ❌ |
+| **Vận hành TMS** | Xuất kho | `/dashboard/warehouse/outbound` | ✅ | ❌ | ❌ | ✅ | ❌ |
+| **Vận hành TMS** | Đơn hàng kho | `/dashboard/warehouse/orders` | ✅ | ❌ | ❌ | ✅ | ❌ |
+| **Quản trị hệ thống** | Báo cáo vận hành | `/dashboard/admin/reports` | ✅ | ❌ | ❌ | ❌ | ✅ |
+| **Quản trị hệ thống** | Theo dõi TRIP theo ngày | `/dashboard/admin/reports/trips` | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Quản trị hệ thống** | Quản trị Cronjob | `/dashboard/admin/cronjobs` | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Quản trị hệ thống** | Chi Nhánh Kho (Hubs) | `/dashboard/admin/hubs` | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Quản trị hệ thống** | Người dùng | `/dashboard/users` | ✅ | ❌ | ❌ | ❌ | ❌ |
 
 > `WAREHOUSE_MANAGER` chỉ thấy đúng 3 trang kho (hard filter trong `frontend/src/hooks/use-nav.ts`).
 > Nhóm demo "Không gian làm việc" (Kanban, Chat, AI Chat) và "Elements" đã bị gỡ khỏi sidebar (04/10); route mẫu vẫn còn trong source để tham khảo.
@@ -56,15 +57,16 @@
 > **File**: `frontend/src/proxy.ts`
 > Nếu role không hợp lệ → redirect về `/dashboard/overview`.
 
-| Route Prefix | SUPER_ADMIN | DISPATCHER | FLEET_MANAGER | WAREHOUSE_MANAGER |
-|---|:-----------:|:----------:|:-------------:|:-----------------:|
-| `/dashboard/admin` | ✅ | ❌ | ❌ | ❌ |
-| `/dashboard/users` | ✅ | ❌ | ❌ | ❌ |
-| `/dashboard/orders` | ✅ | ✅ | ✅ *(Read-Only)* | ✅ *(Read-Only)* |
-| `/dashboard/trips` | ✅ | ❌ | ✅ | ❌ |
-| `/dashboard/fleet` | ✅ | ❌ | ✅ | ❌ |
-| `/dashboard/warehouse` | ✅ | ❌ | ❌ | ✅ |
-| Các route khác | ✅ | ✅ | ✅ | ✅ |
+| Route Prefix | SUPER_ADMIN | DISPATCHER | FLEET_MANAGER | WAREHOUSE_MANAGER | REPORT_VIEWER |
+|---|:-----------:|:----------:|:-------------:|:-----------------:|:------------:|
+| `/dashboard/admin` | ✅ | ❌ | ❌ | ❌ | ❌ |
+| `/dashboard/admin/reports` | ✅ | ❌ | ❌ | ❌ | ✅ |
+| `/dashboard/users` | ✅ | ❌ | ❌ | ❌ | ❌ |
+| `/dashboard/orders` | ✅ | ✅ | ✅ *(Read-Only)* | ✅ *(Read-Only)* | ❌ |
+| `/dashboard/trips` | ✅ | ❌ | ✅ | ❌ | ❌ |
+| `/dashboard/fleet` | ✅ | ❌ | ✅ | ❌ | ❌ |
+| `/dashboard/warehouse` | ✅ | ❌ | ❌ | ✅ | ❌ |
+| Các route khác | ✅ | ✅ | ✅ | ✅ | ❌ |
 
 > **Lưu ý**: 
 > - Route guard dùng prefix matching (`startsWith`). Thêm route mới phải cập nhật `roleRouteMap` trong `proxy.ts`.
@@ -217,16 +219,16 @@
 
 ### Admin Reports Controller
 > **File**: `backend/src/orders/admin-reports.controller.ts`
-> Nghiệp vụ: Báo cáo kết quả hoạt động vận hành Hub theo ngày (Cronjob 18:00 D-1 → 18:00 D) và xu hướng tháng dành riêng cho SUPER_ADMIN.
+> Nghiệp vụ: REPORT_VIEWER chỉ đọc báo cáo vận hành; cấu hình cronjob và thao tác đồng bộ vẫn dành riêng cho SUPER_ADMIN.
 
-| Endpoint | Method | SUPER_ADMIN | DISPATCHER | FLEET_MANAGER | WAREHOUSE_MANAGER |
-|---|---|:-----------:|:----------:|:-------------:|:-----------------:|
-| `/v1/admin/reports/operational` | GET | ✅ | ❌ | ❌ | ❌ |
-| `/v1/admin/reports/operational/sync` | POST | ✅ | ❌ | ❌ | ❌ |
-| `/v1/admin/reports/operational/daily-trips` | GET | ✅ | ❌ | ❌ | ❌ |
-| `/v1/admin/reports/cronjobs` | GET | ✅ | ❌ | ❌ | ❌ |
-| `/v1/admin/reports/cronjobs/config` | PATCH | ✅ | ❌ | ❌ | ❌ |
-| `/v1/admin/reports/cronjobs/rerun` | POST | ✅ | ❌ | ❌ | ❌ |
+| Endpoint | Method | SUPER_ADMIN | DISPATCHER | FLEET_MANAGER | WAREHOUSE_MANAGER | REPORT_VIEWER |
+|---|---|:-----------:|:----------:|:-------------:|:-----------------:|:------------:|
+| `/v1/admin/reports/operational` | GET | ✅ | ❌ | ❌ | ❌ | ✅ |
+| `/v1/admin/reports/operational/sync` | POST | ✅ | ❌ | ❌ | ❌ | ❌ |
+| `/v1/admin/reports/operational/daily-trips` | GET | ✅ | ❌ | ❌ | ❌ | ✅ |
+| `/v1/admin/reports/cronjobs` | GET | ✅ | ❌ | ❌ | ❌ | ❌ |
+| `/v1/admin/reports/cronjobs/config` | PATCH | ✅ | ❌ | ❌ | ❌ | ❌ |
+| `/v1/admin/reports/cronjobs/rerun` | POST | ✅ | ❌ | ❌ | ❌ | ❌ |
 
 ---
 
@@ -234,15 +236,15 @@
 > **File**: `backend/src/hubs/hubs.controller.ts`
 > Nghiệp vụ: Quản lý Chi Nhánh Kho chỉ dành cho SUPER_ADMIN. Các role khác có quyền Đọc để chọn kho.
 
-| Endpoint | Method | SUPER_ADMIN | DISPATCHER | FLEET_MANAGER | WAREHOUSE_MANAGER |
-|---|---|:-----------:|:----------:|:-------------:|:-----------------:|
-| `/v1/hubs` | GET | ✅ | ✅ | ✅ | ✅ |
-| `/v1/hubs/active` | GET | ✅ | ✅ | ✅ | ✅ |
-| `/v1/hubs/:id` | GET | ✅ | ✅ | ✅ | ✅ |
-| `/v1/hubs` | POST | ✅ | ❌ | ❌ | ❌ |
-| `/v1/hubs/:id` | PATCH | ✅ | ❌ | ❌ | ❌ |
-| `/v1/hubs/:id/toggle-active` | PATCH | ✅ | ❌ | ❌ | ❌ |
-| `/v1/hubs/:id` | DELETE | ✅ | ❌ | ❌ | ❌ |
+| Endpoint | Method | SUPER_ADMIN | DISPATCHER | FLEET_MANAGER | WAREHOUSE_MANAGER | REPORT_VIEWER |
+|---|---|:-----------:|:----------:|:-------------:|:-----------------:|:------------:|
+| `/v1/hubs` | GET | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `/v1/hubs/active` | GET | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `/v1/hubs/:id` | GET | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `/v1/hubs` | POST | ✅ | ❌ | ❌ | ❌ | ❌ |
+| `/v1/hubs/:id` | PATCH | ✅ | ❌ | ❌ | ❌ | ❌ |
+| `/v1/hubs/:id/toggle-active` | PATCH | ✅ | ❌ | ❌ | ❌ | ❌ |
+| `/v1/hubs/:id` | DELETE | ✅ | ❌ | ❌ | ❌ | ❌ |
 
 ---
 
