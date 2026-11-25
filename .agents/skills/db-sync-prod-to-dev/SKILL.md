@@ -41,7 +41,7 @@ Dumping a live production database while warehouse operators and drivers are act
      BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY;
      ```
    - **PostgreSQL MVCC (Multi-Version Concurrency Control)** ensures that `SELECT` reads from a frozen transaction snapshot. Production transactions continuing to perform `INSERT`, `UPDATE`, and `DELETE` write new tuple versions without being blocked or delayed.
-   - All 15 relational tables share an exact identical point-in-time snapshot, preventing cross-table orphan records or transient foreign key drift.
+   - All 21 relational tables share an exact identical point-in-time snapshot, preventing cross-table orphan records or transient foreign key drift.
 
 2. **Anti-Lock Queue Cascading (`lock_timeout = 4000`)**:
    - In PostgreSQL, if an exclusive lock is requested (e.g., during migration or heavy index rebuild) and a long-running reader holds an `ACCESS SHARE` lock, subsequent write queries can get queued behind the exclusive lock request.
@@ -91,7 +91,7 @@ flowchart TD
     P1["Phase 1: Pre-flight & Auth Resolution<br>(.env.railway & backend/.env)"] --> P2["Phase 2: Dev Safety Rollback Snapshot<br>(backups/dev_backup_*.json & .sql)"]
     P2 --> P3["Phase 3: Zero-Lock Prod Extraction<br>(REPEATABLE READ READ ONLY, lock_timeout=4s)"]
     P3 --> P4["Phase 4: Dev Atomic Clean & Restore<br>(session_replication_role=replica, reverse DELETE, forward INSERT)"]
-    P4 --> P5["Phase 5: Sequence Alignment & Parity Audit<br>(setval across 13 seqs, row count comparison, Dev Health HTTP 200)"]
+    P4 --> P5["Phase 5: Sequence Alignment & Parity Audit<br>(setval across 19 seqs, row count comparison, Dev Health HTTP 200)"]
 ```
 
 ### Phase 1: Environment & Token Pre-flight Check
@@ -110,7 +110,7 @@ Before any target data is touched on Dev:
 ### Phase 3: Zero-Lock Production Dump
 - Connects to Production DB.
 - Sets `lock_timeout = 4000` and starts `REPEATABLE READ READ ONLY` transaction.
-- Reads 20 core domain tables in topological order:
+- Reads 21 core domain tables in topological order:
   1. `role`
   2. `status`
   3. `file`
@@ -127,11 +127,12 @@ Before any target data is touched on Dev:
   14. `order_activity_log`
   15. `daily_hub_operational_report`
   16. `daily_regional_dispatch_report` (including per-day stored and draft metrics)
-  17. `cron_job_config`
-  18. `cron_job_execution_log`
-  19. `notification`
-  20. `migrations`
-- Reads 18 PostgreSQL sequence states (`last_value`, `is_called`).
+  17. `province_reference`
+  18. `cron_job_config`
+  19. `cron_job_execution_log`
+  20. `notification`
+  21. `migrations`
+- Reads 19 PostgreSQL sequence states (`last_value`, `is_called`).
 - Commits and releases production connection immediately (`COMMIT`).
 
 ### Phase 4: Atomic Restoration & Cronjob Reconciliation on Dev
@@ -146,13 +147,17 @@ To prevent foreign key constraint violations, circular cascade deadlocks, and lo
 5. Deletes existing data in **reverse topological order** for overwritten tables only.
 6. Inserts new rows in **forward topological order** using parameterized chunks (`chunkSize = 100`).
 7. **Automatic Cronjob Report Reconciliation (`reconcileCronReportsOnDev`)**: Immediately recalculates `daily_hub_operational_report` and `cron_job_execution_log` daily aggregates on Dev against the newly synced `order_inventory_transaction` rows (`18:00 D-1 -> 18:00 D GMT+7` cutoff) so Admin Operational Reports and Cronjob logs stay 100% consistent with Production transactions.
-8. Realigns all sequences using `SELECT setval('seq_name', last_value, is_called)`.
+8. Realigns all sequences using `SELECT setval('seq_name', last_value, is_called)`. The backend migration `RepairSerialSequences1789180000000` additionally repairs each public `*_id_seq` from the restored table's `MAX(id)` before new sessions, reports, or operational rows are inserted.
 9. **Secondary Index Auto-Recreation**: Rebuilds all saved secondary indexes across all tables in a single optimized pass.
 10. Re-enables standard trigger validation: `SET session_replication_role = 'origin';`.
 11. `COMMIT;` (Transaction rolls back completely if any table chunk fails).
 
 ### Phase 5: Verification & Parity Audit
+<<<<<<< HEAD
+- Performs instant row count parity checks between Prod and Dev across all 21 tables (`PASS ✅` for synced tables, `KEEP 🛡️` for preserved Dev-only/Cronjob tables).
+=======
 - Performs instant row count parity checks between Prod and Dev across all 20 tables (`PASS ✅` for synced tables, `KEEP 🛡️` for preserved Dev-only/Cronjob tables).
+>>>>>>> origin/dev
 - Issues bounded HTTP health probe to Dev Backend API (`https://backend-tms-core-dev.up.railway.app/api/v1/health`).
 - Produces a tabular scorecard with `PASS ✅`, `KEEP 🛡️`, or `FAIL ❌`.
 

@@ -10,8 +10,8 @@
 
 | Trường | Giá trị |
 |---|---|
-| **Phiên bản** | v1.9 |
-| **Cập nhật lần cuối** | 2026-11-01 |
+| **Phiên bản** | v1.10 |
+| **Cập nhật lần cuối** | 2026-11-15 |
 | **Cập nhật bởi** | Antigravity (Daily RBAC Audit Auto-Sync) |
 
 ---
@@ -85,7 +85,7 @@
 | `/v1/orders` | POST | ✅ | ✅ | ❌ | ❌ |
 | `/v1/orders/:id` | PATCH | ✅ | ✅ *(Chỉ sửa hợp đồng khi DRAFT)* | ❌ | ❌ |
 | `/v1/orders/:id/ledger` | GET | ✅ | ✅ | ✅ | ✅ |
-| `/v1/orders/:id/admin-override` | PATCH | ✅ *(Bắt buộc `auditReason`, ghi phiếu DCH)* | ❌ | ❌ | ❌ |
+| `/v1/orders/:id/admin-override` | PATCH | ✅ *(Bắt buộc `auditReason`, ghi phiếu DCH; chỉ đơn `Lưu kho` và phải truyền đúng một `warehouseHubId` đang giữ đơn)* | ❌ | ❌ | ❌ |
 | `/v1/orders/:id/submit` | PATCH | ✅ | ✅ | ❌ | ❌ |
 | `/v1/orders/:id/no-vehicle` | PATCH | ✅ | ❌ | ✅ | ❌ |
 | `/v1/orders/refresh-metrics` | POST | ✅ | ✅ | ❌ | ✅ |
@@ -179,6 +179,14 @@
 | `/v1/notifications/unread-count` | GET | JWT only |
 | `/v1/notifications/:id/read` | PATCH | JWT only |
 | `/v1/notifications/read-all` | PATCH | JWT only |
+
+### Province Reference Controller
+> **File**: `backend/src/provinces/province-reference.controller.ts`
+> Nghiệp vụ: Tra cứu 63 địa danh canonical và alias cho các form nhập/xuất kho.
+
+| Endpoint | Method | SUPER_ADMIN | DISPATCHER | FLEET_MANAGER | WAREHOUSE_MANAGER |
+|---|---|:---:|:---:|:---:|:---:|
+| `/v1/province-references` | GET | ✅ | ✅ | ✅ | ✅ |
 
 ---
 

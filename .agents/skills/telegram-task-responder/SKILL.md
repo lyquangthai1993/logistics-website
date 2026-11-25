@@ -72,7 +72,7 @@ Every response must open with a direct status badge and a 1-sentence verdict on 
 
 ### Rule 6: Task Intent Handling (/feedback vs /fix vs /task vs /continue)
 - **`/feedback` hoặc Lập Kế Hoạch (Analysis & TODO.md Generation - Pha 1)**:
-  - Khảo sát mã nguồn, phân tích ảnh chụp màn hình feedback, bóc tách nguyên nhân gốc (RCA), và sinh file `feedbacks/feedback_DD_MM_task_<id>/TODO.md`.
+  - Khảo sát mã nguồn, phân tích ảnh chụp màn hình feedback, bóc tách nguyên nhân gốc (RCA), và sinh file `feedbacks/feedback_MM_DD_task_<id>/TODO.md`.
   - **Trạng thái hệ thống (DB)**: `TODO_CREATED` (hoặc `PLANNED`).
   - **Quy tắc nghiêm ngặt**: TUYỆT ĐỐI KHÔNG dùng `COMPLETED` hoặc `🟢 HOÀN THÀNH` vì mã nguồn chưa được chỉnh sửa và chưa qua kiểm thử.
   - Verdict format: `📋 KẾ HOẠCH (TODO.MD SẴN SÀNG): <mục tiêu và phạm vi đã lập checklist>`.
@@ -104,7 +104,7 @@ Every response must open with a direct status badge and a 1-sentence verdict on 
 - **`telegram_tasks.task_id` Specification**:
   - `task_id` is a sequential operational counter assigned exclusively to actual feedback/work tasks.
   - Rows with `raw_prompt` containing `/force` (e.g. `/force@please_choose_auto_bot`, `/force feedback_...`) are execution control triggers, NOT new tasks. Their `task_id` is strictly `NULL`.
-  - In Telegram reports, progress summaries, and folder names, always reference tasks via `task_id` (`#<task_id>`, `feedbacks/feedback_DD_MM_task_<task_id>`), NEVER the internal database auto-increment `id`.
+  - In Telegram reports, progress summaries, and folder names, always reference tasks via `task_id` (`#<task_id>`, `feedbacks/feedback_MM_DD_task_<task_id>`), NEVER the internal database auto-increment `id`.
   - All `/report-today`, queue metrics, and summary cards filter `WHERE task_id IS NOT NULL`, preventing `/force` triggers from polluting task lists or inflating task counters.
 
 ### Rule 9: Strict Image Provenance & OCR Context Citation (Trích dẫn Đúng Ảnh Thật & Ngữ Cảnh OCR)
@@ -131,7 +131,7 @@ Every response must open with a direct status badge and a 1-sentence verdict on 
 • Kiểm thử: [Kịch bản Playwright E2E cần bổ sung]
 
 ### 3. Tài liệu & Bằng chứng
-▫️ Checklist TODO: [TODO.md](file:///d:/Projects/logistics-website/feedbacks/feedback_DD_MM_task_id/TODO.md)
+▫️ Checklist TODO: [TODO.md](file:///d:/Projects/logistics-website/feedbacks/feedback_MM_DD_task_id/TODO.md)
 ▫️ Trạng thái: Sẵn sàng thực thi qua /force hoặc lịch trình tự động
 ```
 
@@ -154,6 +154,6 @@ Every response must open with a direct status badge and a 1-sentence verdict on 
 • [File/Component 2]: [Mô tả ngắn thay đổi]
 
 ### 4. Hồ Sơ Kỹ Thuật & Biên Niên Sử
-▫️ Biên bản kỹ thuật: feedbacks/feedback_DD_MM_task_<id>/RESOLUTION.md
+▫️ Biên bản kỹ thuật: feedbacks/feedback_MM_DD_task_<id>/RESOLUTION.md
 ▫️ Biên niên sử hệ thống: docs/SYSTEM_TIMELINE.md
 ```

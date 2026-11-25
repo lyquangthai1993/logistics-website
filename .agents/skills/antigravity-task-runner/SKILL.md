@@ -46,14 +46,21 @@ Test-Path -LiteralPath $agyPath
 
 If no executable is available, report the blocker. Do not install or update software unless the user explicitly asks.
 
-## Required Model
+## Prompt-Driven Model Routing
 
-Use **Gemini 3.6 Flash (High)** for every fresh, continued, retry, and refactor invocation. Confirm the exact label when availability is uncertain:
+Codex chooses the executor and model from the user's prompt for each task. There is no globally preferred model:
+
+- Handle directly in Codex when the request is a small edit, focused diagnosis, explanation, review, or other task whose scope and verification are local and clear.
+- Delegate to Antigravity when the user requests delegation or the task is complex enough to benefit from a long-horizon implementation agent: cross-file feature work, multi-step debugging, broad refactoring, or substantial frontend/backend changes.
+- For a complex delegated task, use **Gemini Neon** when it is available. Select the current CLI model identifier and reasoning level from `agy models`; do not hardcode an obsolete display label.
+- If the user explicitly names a model, follow that request when available. If the requested model is unavailable, stop and report the exact availability blocker instead of silently switching models.
+
+Example invocation after confirming the live model list:
 
 ```powershell
 & $agyPath models
-& $agyPath --model 'Gemini 3.6 Flash (High)' --dangerously-skip-permissions --print '<prompt>' --print-timeout 20m
-& $agyPath --continue --model 'Gemini 3.6 Flash (High)' --dangerously-skip-permissions --print '<follow-up>' --print-timeout 20m
+& $agyPath --model 'gemini-4-neon-xhigh' --dangerously-skip-permissions --print '<prompt>' --print-timeout 20m
+& $agyPath --continue --model 'gemini-4-neon-xhigh' --dangerously-skip-permissions --print '<follow-up>' --print-timeout 20m
 ```
 
 The permission-skipping CLI flag does not widen the user's authorization or the prompt's write scope.
@@ -288,7 +295,7 @@ Keep a compact record when the task is complex, batched, blocked, or explicitly 
 ```markdown
 | Task | Repository | Model | Loops | Result | Files | Blocker |
 | --- | --- | --- | --- | --- | --- | --- |
-| KPI accessibility | frontend | Gemini 3.6 Flash (High) | 1 | pass | `orders-kpi-cards.tsx` | none |
+| KPI accessibility | frontend | selected from user prompt | 1 | pass | `orders-kpi-cards.tsx` | none |
 ```
 
 If `agy --print` is empty, inspect repository changes and verification first. Locate and read only narrow transcript excerpts when those sources cannot explain the result.

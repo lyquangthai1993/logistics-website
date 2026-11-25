@@ -1,8 +1,14 @@
 # Zero Cross-Task Image Borrowing & Strict Image Provenance Invariant
 # (Quy chuẩn Tuyệt đối Không Mượn Ảnh và Bắt buộc Đối soát Nguồn gốc Hình ảnh)
 
-> **Mục tiêu**: Loại bỏ triệt để tình trạng AI Worker hoặc Sub-agents tự ý sao chép (mượn) ảnh từ các thư mục feedback cũ (`feedback_DD_MM*`) hoặc tự bịa ra ảnh giả lập khi lập kế hoạch `TODO.md` và kiểm thử.
+> **Mục tiêu**: Loại bỏ triệt để tình trạng AI Worker hoặc Sub-agents tự ý sao chép (mượn) ảnh từ các thư mục feedback cũ (`feedback_MM_DD*`) hoặc tự bịa ra ảnh giả lập khi lập kế hoạch `TODO.md` và kiểm thử.
 > **Phạm vi áp dụng**: Toàn bộ hệ sinh thái (`/leader`, `/todo-agent`, `/telegram-task-responder`, GitHub Actions `telegram-agy-worker.yml`, Local Neon Worker `neon-worker.mjs`).
+
+---
+
+## Feedback Folder Location
+
+All new feedback/task folders and related artifacts (`TODO.md`, `RESOLUTION.md`, screenshots, downloaded attachments, and evidence) MUST be saved under the repository root's `feedbacks/` directory. Use `feedbacks/feedback_MM_DD_task_<id>/` for task-specific files. This rule applies to agents, sub-agents, scripts, and task runners.
 
 ---
 
@@ -14,7 +20,7 @@
 - Mọi hành vi tự động copy file ảnh cũ sẽ bị coi là **CRITICAL FAILURE (ĐÁNH RỚT TOÀN BỘ TASK)**.
 
 ### Invariant 2: Nguồn Gốc Ảnh Duy Nhất & Độc Lập (Strict Image Provenance)
-- Ảnh minh chứng thực tế trong thư mục `feedbacks/feedback_DD_MM_task_<id>/` **CHỈ ĐƯỢC PHÉP ĐẾN TỪ DUY NHẤT MỘT NGUỒN**:
+- Ảnh minh chứng thực tế trong thư mục `feedbacks/feedback_MM_DD_task_<id>/` **CHỈ ĐƯỢC PHÉP ĐẾN TỪ DUY NHẤT MỘT NGUỒN**:
   - Tải trực tiếp từ Telegram Bot API thông qua danh sách `image_file_ids` lưu trong bảng `telegram_tasks` (PostgreSQL) tương ứng với đúng `task_id` đó.
 - Nếu người dùng gửi yêu cầu văn bản thuần túy (không đính kèm ảnh trên Telegram, tức `image_file_ids` rỗng `[]`):
   - Thư mục task **TUYỆT ĐỐI KHÔNG ĐƯỢC CHỨA BẤT KỲ ẢNH CHỤP GIAO DIỆN NÀO** trước khi bắt đầu code.
@@ -53,7 +59,7 @@ flowchart TD
     subgraph S1 ["BẮT BUỘC TRƯỚC KHI CHẠY AGY / AI"]
         D --> E{"Task có image_file_ids không?"}
         E -- "CÓ" --> F["Tải ảnh từ Telegram API bằng getFile"]
-        F --> G["Lưu đúng tên: screenshot_01.jpg vào feedback_DD_MM_task_id"]
+        F --> G["Lưu đúng tên: screenshot_01.jpg vào feedback_MM_DD_task_id"]
         F --> H["Gắn path ảnh vào tham số agy --add-file"]
         E -- "KHÔNG" --> I["Đảm bảo thư mục KHÔNG có file screenshot_*.jpg cũ"]
     end
@@ -68,7 +74,7 @@ flowchart TD
 ### Chi tiết bước tải ảnh bắt buộc trên GitHub Actions (`telegram-agy-worker.yml`):
 1. **Trước khi khởi chạy Antigravity CLI**:
    - Truy vấn trường `image_file_ids` từ DB.
-   - Nếu mảng có phần tử, gọi Telegram Bot API `getFile` và tải nhị phân ảnh lưu trực tiếp vào thư mục `feedbacks/feedback_DD_MM_task_<id>/screenshot_<index>.jpg`.
+   - Nếu mảng có phần tử, gọi Telegram Bot API `getFile` và tải nhị phân ảnh lưu trực tiếp vào thư mục `feedbacks/feedback_MM_DD_task_<id>/screenshot_<index>.jpg`.
 2. **Truyền context chuẩn cho Antigravity CLI**:
    - Truyền rõ đường dẫn file ảnh đã tải vào câu lệnh `agy` hoặc đưa vào system prompt.
    - Kèm chỉ thị nghiêm cấm: `Tuyệt đối không copy ảnh từ các thư mục khác`.

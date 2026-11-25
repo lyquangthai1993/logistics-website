@@ -54,7 +54,7 @@ Every completed task in `/todo-agent` MUST execute these 5 operational steps bef
 - If email/notification logic was touched, verify BullMQ queue health via `GET /api/v1/mail/queue-status` (`SUPER_ADMIN`).
 
 ### Step 6.2: Living Task Checklist Synchronization
-- Toggle all verified items in `feedbacks/feedback_DD_MM*/TODO.md` from `- [ ]` to `- [x]`:
+- Toggle all verified items in `feedbacks/feedback_MM_DD*/TODO.md` from `- [ ]` to `- [x]`:
   ```bash
   node scripts/todo-agent.mjs toggle <folder_name> <line_or_query> done
   ```
@@ -65,7 +65,7 @@ Every completed task in `/todo-agent` MUST execute these 5 operational steps bef
   ```bash
   npm run todo:record <folder_name>
   ```
-- Verify that `feedbacks/feedback_DD_MM*/RESOLUTION.md` contains all 6 mandatory sections:
+- Verify that `feedbacks/feedback_MM_DD*/RESOLUTION.md` contains all 6 mandatory sections:
   1. Operational Context & Root Cause Analysis (RCA)
   2. Newly Introduced Capabilities (Backend, Frontend, DB, E2E)
   3. Newly Established Core System Invariants

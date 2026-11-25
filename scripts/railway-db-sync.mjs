@@ -162,7 +162,7 @@ const DEV_HEALTH_URL =
   process.env.DEV_HEALTH_URL ||
   "https://backend-tms-core-dev.up.railway.app/api/v1/health";
 
-// Toàn bộ 20 bảng theo thứ tự quan hệ khóa ngoại (Forward Order)
+// Toàn bộ 21 bảng theo thứ tự quan hệ khóa ngoại (Forward Order)
 const ALL_TABLES = [
   "role",
   "status",
@@ -181,13 +181,16 @@ const ALL_TABLES = [
   "daily_hub_operational_report",
   // This row syncs every column, including the daily draft metrics added by migration 1789140000000.
   "daily_regional_dispatch_report",
+  "province_reference",
   "cron_job_config",
   "cron_job_execution_log",
   "notification",
   "migrations",
 ];
 
-// Danh mục 18 sequences PostgreSQL cần đồng bộ
+// Danh mục 19 sequences PostgreSQL cần đồng bộ. Backend migration
+// RepairSerialSequences1789180000000 also realigns serial sequences from
+// table MAX(id) after any restore, preventing duplicate primary keys.
 const SEQUENCE_NAMES = [
   "migrations_id_seq",
   "user_id_seq",
@@ -203,6 +206,7 @@ const SEQUENCE_NAMES = [
   "order_activity_log_id_seq",
   "daily_hub_operational_report_id_seq",
   "daily_regional_dispatch_report_id_seq",
+  "province_reference_id_seq",
   "cron_job_config_id_seq",
   "cron_job_execution_log_id_seq",
   "trip_stop_id_seq",
@@ -291,6 +295,28 @@ async function fetchSequences(client) {
     seqs[seq] = res.rows[0];
   }
   return seqs;
+}
+
+async function realignSequencesToTableMax(client) {
+  for (const sequenceName of SEQUENCE_NAMES) {
+    if (!sequenceName.endsWith("_id_seq")) continue;
+    if (!(await relationExists(client, sequenceName))) continue;
+
+    const tableName = sequenceName.replace(/_id_seq$/, "");
+    if (!(await relationExists(client, tableName))) continue;
+
+    const result = await client.query(
+      `SELECT MAX("id") AS max_id FROM "${tableName}"`,
+    );
+    const maxId = result.rows[0]?.max_id;
+    const sequenceValue = maxId === null || maxId === undefined ? 1 : maxId;
+    const isCalled = maxId !== null && maxId !== undefined;
+
+    await client.query(
+      `SELECT setval($1::regclass, $2::bigint, $3::boolean)`,
+      [sequenceName, sequenceValue, isCalled],
+    );
+  }
 }
 
 function escapeSqlValue(val) {
@@ -668,6 +694,11 @@ async function main() {
         );
       }
     }
+
+    // Source sequence values can be lower than preserved Dev rows. Always
+    // make the target sequence safe for the rows that actually remain.
+    await realignSequencesToTableMax(devClient);
+
     if (
       devAheadMigrations.length > 0 &&
       (await relationExists(devClient, "migrations_id_seq"))

@@ -1,11 +1,11 @@
 ---
 name: grilling
-description: Grill the user relentlessly about a plan, decision, or idea. Use when the user wants to stress-test their thinking, or uses any 'grill' trigger phrases.
+description: Stress-test a plan or design when the user explicitly asks for grilling or a thorough challenge. Use focused questions only for decisions that materially affect the result.
 ---
 
-Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it.
+Use this skill only when the user asks to stress-test an idea or plan. For ordinary implementation requests, proceed from the request and available project context; do not turn this skill into a default intake interview.
 
-Work the tree in **rounds**. The **frontier** is every decision whose prerequisites are already settled: the questions you can ask _now_ without guessing at answers you haven't heard yet. Ask the whole frontier in one round: number each question and give your recommended answer. Then wait for the user's answers before the next round.
+Identify only decisions whose answers could materially change the plan. Inspect the repository and use available evidence to resolve factual unknowns. Batch the important unresolved choices into one concise round, include a recommended default, and avoid asking about implementation details that can be safely inferred. Ask another round only if the user's answer reveals a consequential new branch.
 
 Format a round like so:
 
@@ -23,8 +23,8 @@ Format a round like so:
 
 Word each question so "yes" accepts your recommended answer.
 
-Each round the user answers reshapes the tree: settled decisions push the frontier outward and unblock questions that depended on them. Recompute the frontier and ask the next round. A question whose answer depends on another question still open in this round belongs to a _later_ round, not this one.
+When useful, group dependent choices and ask the upstream question first. Once the goal, scope, and acceptance criteria are clear enough to act, stop interviewing and summarize the agreed brief. Do not require every theoretical branch to be settled.
 
 Finding _facts_ is your job, never the user's. When a frontier question needs a fact from the environment (filesystem, tools, etc.), dispatch a sub-agent with a fresh context window to find it; don't ask the user for anything you could look up yourself. Don't block on it: a running exploration is an unsettled prerequisite, so only the questions downstream of it wait for the sub-agent to report; ask the rest of the frontier now. The _decisions_ are the user's: put each to them and wait.
 
-The session is done when the frontier is empty: every branch of the design tree visited, nothing left silently assumed. Do not act on it until the user confirms you have reached a shared understanding.
+The session is done when the consequential uncertainties are resolved. Proceed with the requested work after the brief is clear; require an extra confirmation only when the user explicitly asked for a plan approval checkpoint or an unresolved choice would materially change the outcome.

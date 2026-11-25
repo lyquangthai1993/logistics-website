@@ -41,7 +41,7 @@ Hệ thống Logistics TMS gồm **3 Git repository độc lập**:
 
 Khi vận hành hệ thống Logistics TMS với nhiều phân hệ song song (Kho bãi, Điều phối, Đội xe, Đơn hàng) và hàng trăm tác vụ feedback được giao qua Telegram Bot, tên branch cần giải quyết đồng thời **4 bài toán cốt lõi**:
 
-1. **Khả năng truy vết tức thì (Instant Traceability)**: Tên branch phải liên kết 1:1 với `task_id` trong cơ sở dữ liệu `telegram_tasks`, thư mục `feedbacks/feedback_DD_MM_task_<id>`, và biên bản `RESOLUTION.md`.
+1. **Khả năng truy vết tức thì (Instant Traceability)**: Tên branch phải liên kết 1:1 với `task_id` trong cơ sở dữ liệu `telegram_tasks`, thư mục `feedbacks/feedback_MM_DD_task_<id>`, và biên bản `RESOLUTION.md`.
 2. **Khớp nối chuẩn Conventional Commits**: Tiền tố của branch phải đồng bộ với chuẩn commit (`feat(...)`, `fix(...)`, `refactor(...)`), giúp tự động hóa tạo PR title và changelog.
 3. **Phân vùng nghiệp vụ rõ ràng (Domain Scoping)**: Nhìn vào danh sách branch trên GitHub hoặc Git CLI là nhận biết ngay phân hệ bị tác động mà không cần mở code.
 4. **An toàn Git Ref (Zero Ref Conflict)**: Tránh sử dụng quá nhiều cấp phân tầng thư mục `/` (như `feat/warehouse/task-81/...`) vì Git có cơ chế ref lock dạng file hệ thống, sẽ báo lỗi `cannot lock ref` nếu có nhánh trùng tên thư mục cha.
@@ -157,7 +157,7 @@ flowchart TD
      ```bash
      node scripts/git-task-workflow.mjs start <task_id> <module> <action> <type> fullstack
      ```
-4. **Ghi nhận thông tin nhánh vào `feedbacks/feedback_DD_MM_task_<id>/TODO.md`**:
+4. **Ghi nhận thông tin nhánh vào `feedbacks/feedback_MM_DD_task_<id>/TODO.md`**:
    - Ghi rõ branch name ở đầu file `TODO.md` để mọi agent đều nhận biết.
 
 ---
@@ -178,7 +178,7 @@ flowchart TD
    ```
 3. **Kích hoạt kiểm thử Playwright E2E trên Local (Tầng 1 — BẮT BUỘC BẬT PORT 4000 & 4001)**:
    - **Bắt buộc khởi động Local Dev Servers**: Chạy lệnh `npm run dev:ensure` (tự động kiểm tra và bật ngầm Backend port `4001` + Frontend port `4000` không gây treo phiên). **Nghiêm cấm** bỏ qua bước test Local với lý do server đang tắt.
-   - **Chốt chặn Hook (`pre-command-guard.mjs`)**: Nếu port `4000` hoặc `4001` chưa bật (`DOWN`), hệ thống sẽ tự động chặn (`BLOCK`) mọi lệnh `git push` submodule và `gh pr create`.
+   - **Chốt chặn Hook (`pre-command-guard.mjs`)**: Nếu port `4000` hoặc `4001` chưa bật (`DOWN`), hệ thống sẽ tự động chặn (`BLOCK`) mọi lệnh `git push` submodule và workflow tạo PR.
    - Chạy test suite tương ứng của task:
      ```powershell
      npm run dev:ensure
@@ -223,10 +223,8 @@ flowchart TD
      ```powershell
      node scripts/git-task-workflow.mjs pr 81 warehouse outbound-pallet feat fullstack
      ```
-   - Hoặc dùng GitHub CLI (`gh pr create` & `gh pr merge` **KHÔNG dùng `--delete-branch`** để giữ nhánh feature làm việc tiếp):
+   - Hoặc dùng connected GitHub integration để tạo và merge PR (**KHÔNG xóa branch**) để giữ nhánh feature làm việc tiếp:
      ```powershell
-     gh pr create --repo lyquangthai1993/logistics-website-backend --base dev --head feat/task-81-warehouse-outbound-pallet --title "feat(task-81): outbound pallet management" --body "..."
-     gh pr merge --repo lyquangthai1993/logistics-website-backend feat/task-81-warehouse-outbound-pallet --merge
      npm run repo:resume
      ```
 
@@ -248,7 +246,7 @@ flowchart TD
    npx --prefix frontend playwright test e2e/<test_spec>.spec.ts
    ```
    - Hỗ trợ tối đa 3 lần retry nếu gặp sự cố kết nối mạng tạm thời.
-   - Bắt buộc chụp ảnh màn hình bằng chứng thực tế: `feedbacks/feedback_DD_MM_task_<id>/screenshot_*_verified.png`.
+   - Bắt buộc chụp ảnh màn hình bằng chứng thực tế: `feedbacks/feedback_MM_DD_task_<id>/screenshot_*_verified.png`.
 3. **Đánh giá chéo chất lượng kiểm thử (Cross-Evaluation Audit)**:
    ```bash
    node scripts/e2e-auditor.mjs frontend/e2e/<test_spec>.spec.ts
@@ -262,7 +260,7 @@ flowchart TD
 1. **Đồng bộ toàn bộ Checklist trong `TODO.md` thành `- [x]`**.
 2. **Ghi nhận Biên bản Nghiệm thu Kỹ thuật & Đồng bộ Biên niên sử**:
    ```bash
-   npm run todo:record feedbacks/feedback_DD_MM_task_<id>
+   npm run todo:record feedbacks/feedback_MM_DD_task_<id>
    ```
    - Sinh file `RESOLUTION.md` với đầy đủ 6 cấu phần bắt buộc.
    - Tự động ghi chép mốc son mới vào đỉnh file [`docs/SYSTEM_TIMELINE.md`](file:///d:/Projects/logistics-website/docs/SYSTEM_TIMELINE.md).
@@ -319,5 +317,5 @@ $env:API_URL="https://backend-tms-core-dev.up.railway.app/api/v1"
 npx --prefix frontend playwright test e2e/<test_spec>.spec.ts
 
 # 5. Ghi nhận biên niên sử:
-npm run todo:record feedbacks/feedback_DD_MM_task_<ID>
+npm run todo:record feedbacks/feedback_MM_DD_task_<ID>
 ```

@@ -243,7 +243,7 @@ $env:API_URL="https://backend-tms-core-dev.up.railway.app/api/v1"
 npx playwright test e2e/<task_spec>.spec.ts
 
 # Capture non-empty visual evidence:
-# Must save to feedbacks/feedback_DD_MM*/screenshot_*_verified.png
+# Must save to feedbacks/feedback_MM_DD*/screenshot_*_verified.png
 
 # Hand off to /e2e-code-auditor for Round 2 evidence certification:
 node ../scripts/e2e-auditor.mjs e2e/<task_spec>.spec.ts
@@ -300,12 +300,12 @@ Default password: `secret` (configured in `.env.local`).
    - **Verify server status**: Run `npm run e2e:check` inside `frontend/` (or `node scripts/check-servers.mjs`).
    - If **either server is offline**:
      1. Navigate to root directory: `d:\Projects\logistics-website`.
-     2. Run `npm run dev` (spawns `scripts/start-dev.js` which boots NestJS on 3001, waits for healthy state, then boots Next.js on 3000).
+     2. Run `npm run dev` (spawns `scripts/start-dev.js` which boots NestJS on 4001, waits for healthy state, then boots Next.js on 4000).
      3. Verify `npm run e2e:check` passes before launching test runner.
    - If a port is occupied by a zombie process on Windows:
      ```powershell
-     netstat -ano | findstr :3000
-     netstat -ano | findstr :3001
+     netstat -ano | findstr :4000
+     netstat -ano | findstr :4001
      taskkill /PID <PID> /F
      ```
 2. **Infra Gate**:
@@ -314,11 +314,10 @@ Default password: `secret` (configured in `.env.local`).
    - Verify `body.scrollWidth <= viewport.width` (no global page overflow).
    - Verify table renders cleanly without truncated text or clipped action buttons.
    - Verify horizontal scrolling is enabled within the table container when content exceeds width.
-4. **Capture Visual Evidence**: Always save screenshots at each breakpoint (`playwright-report/<page>-<width>px-sidebar-<state>.png` or `feedbacks/feedback_DD_MM*/screenshot_*_verified.png`) for visual verification.
+4. **Capture Visual Evidence**: Always save screenshots at each breakpoint (`playwright-report/<page>-<width>px-sidebar-<state>.png` or `feedbacks/feedback_MM_DD*/screenshot_*_verified.png`) for visual verification.
 5. **Dev Domain & Cloud Endpoint Anti-Hang Rule (Primary: Railway Cloud)**:
    - Primary Dev Backend: `https://backend-tms-core-dev.up.railway.app`
    - Primary Dev Frontend: `https://frontend-tms-core-dev.up.railway.app`
-   - Secondary / Fallback: `https://logistics-website-backend-1jho.onrender.com`
    - NEVER ping or check health using bare `curl -s` without timeout.
    - Always use `curl.exe -m 15 -i <url>` or pass `{ signal: AbortSignal.timeout(15000) }` in Node/Playwright.
    - Polling capped at max 5 attempts (15-20s backoff). NEVER loop indefinitely.

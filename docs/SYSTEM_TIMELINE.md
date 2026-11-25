@@ -14,6 +14,12 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 25/11/2026 | `feedbacks/feedback_25_11_task_131_regional_chart_total_label` | Task 131 — Gộp nhãn tổng trên biểu đồ theo miền | 5/5 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_25_11_task_131_regional_chart_total_label/RESOLUTION.md) |
+| 25/11/2026 | `feedbacks/feedback_25_11_task_130_warehouse_onhand_cbm` | Task 130 — Tổng hợp CBM còn lưu kho sau xuất | 7/7 | Backend build + Dev browser/API smoke PASS; parity E2E có lỗi lệch số kiện ngoài phạm vi | [RESOLUTION.md](../feedbacks/feedback_25_11_task_130_warehouse_onhand_cbm/RESOLUTION.md) |
+| 25/11/2026 | `feedbacks/feedback_11_25_task_127` | TODO: Tam suất khi Super Admin điều chỉnh giao dịch kho | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_11_25_task_127/RESOLUTION.md) |
+| 24/11/2026 | `feedback_24_11_task_120_report_trip_count_number` | Bỏ đơn vị “chuyến” khỏi số tổng báo cáo vận hành | 2/2 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_24_11_task_120_report_trip_count_number/RESOLUTION.md) |
+| 23/11/2026 | `feedback_23_11_task_119_regional_report_tooltip` | Sửa bộ lọc và tooltip báo cáo tình hình hàng hóa | 7/7 | Code/Dev verified; Cloud E2E blocked | [RESOLUTION.md](../feedback_23_11_task_119_regional_report_tooltip/RESOLUTION.md) |
+| 23/11/2026 | `feedbacks/feedback_23_11_task_warehouse_order_status_totals` | Warehouse Order Status Totals | 5/5 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_23_11_task_warehouse_order_status_totals/RESOLUTION.md) |
 | 15/11/2026 | `feedbacks/feedback_15_11_local_backend_i18n_assets` | Local Backend Asset Build Fix | 5/5 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_11_local_backend_i18n_assets/RESOLUTION.md) |
 | 15/11/2026 | `feedbacks/feedback_15_11_regional_dispatch_future_sync` | Regional Dispatch Future Snapshot Guard | 7/7 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_15_11_regional_dispatch_future_sync/RESOLUTION.md) |
 | 12/11/2026 | `feedbacks/feedback_12_11_regional_dispatch_range_and_warehouse_status` | Regional Dispatch Date Range and Warehouse Status Pa... | 10/10 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_12_11_regional_dispatch_range_and_warehouse_status/RESOLUTION.md) |
@@ -94,6 +100,64 @@
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
 
+### [Task 131] — Gộp nhãn tổng trên biểu đồ theo miền (25/11/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (5/5 việc)
+- **Năng lực & Tính năng mới**: Tab “Tất cả” chỉ hiển thị một nhãn tổng trên mỗi cột khối lượng/thể tích; các tab riêng giữ nhãn hiện tại.
+- **Bằng chứng nghiệm thu**: Typecheck và browser local PASS; Railway Dev READY, frontend SHA đúng `5f304a9` (HTTP 307), backend SHA đúng `6d56425` (health HTTP 200). Playwright không chạy.
+- **PR frontend**: [#140](https://github.com/lyquangthai1993/logistics-website-frontend/pull/140) — merge SHA `5f304a96b3848ab7a4ae6b228f6ca7cd03d0553d`.
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_25_11_task_131_regional_chart_total_label/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_25_11_task_131_regional_chart_total_label/TODO.md)
+
+### 🚀 [FEEDBACK_25_11_TASK_130_WAREHOUSE_ONHAND_CBM] — Cộng CBM hàng còn lưu kho sau xuất (25/11/2026)
+- **Trạng thái**: Backend fix đã merge và deploy Dev; smoke browser/API đúng 12,72 m³.
+- **Nguyên nhân**: Nhóm đơn lưu kho cộng CBM hợp đồng gốc thay vì phần còn lại sau các giao dịch xuất.
+- **Thay đổi**: `ALL` / `INBOUND` dùng `remainingWeight` / `remainingVolume`; đơn nháp và đã xuất giữ số liệu gốc. Không đổi schema hoặc dữ liệu giao dịch.
+- **Kiểm tra**: Backend build PASS; DB chỉ đọc xác nhận 114,88 − 102,16 = 12,72 m³; Dev backend commit `6d56425` SUCCESS/cutover và health 200; browser/API đúng 12,72. Spec parity FAIL ở assertion số kiện của `DTD2611-0067` (UI `0 / 1`, API `2`), không tới assertion m³. Frontend typecheck còn lỗi có sẵn tại `e2e/119-regional-dispatch-report.spec.ts:112`.
+
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_25_11_task_130_warehouse_onhand_cbm/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_25_11_task_130_warehouse_onhand_cbm/TODO.md)
+
+### 🚀 [FEEDBACK_11_25_TASK_127] — TODO: Tam suất khi Super Admin điều chỉnh giao dịch kho (25/11/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (12/12 việc)
+- **Năng lực & Tính năng mới**:
+  * **Backend**: API Super Admin lưu kiện, kg và m³ trong cùng transaction; giữ kiểm tra tồn kho hiện hữu.; Đồng bộ tổng kg/m³ của đơn nhập, phân bổ chuyến xe và nhật ký số liệu cũ/mới.; Không đổi schema hoặc migration.
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01_superadmin_pencil_icon_visible.png, screenshot_02_inline_quantity_editor_open.png, screenshot_03_quantity_updated_and_audit_logged.png, screenshot_04_rbac_warehouse_manager_no_pencil_verified.png, screenshot_05_delete_modal_reason_textarea_verified.png, screenshot_06_outbound_invalid_base_blocks_save.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_11_25_task_127/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_11_25_task_127/TODO.md)
+
+### 🚀 [FEEDBACK_24_11_TASK_120_REPORT_TRIP_COUNT_NUMBER] — Bỏ đơn vị “chuyến” khỏi số tổng báo cáo vận hành (24/11/2026)
+- **Trạng thái**: Đã sửa giao diện; test không chạy theo yêu cầu người dùng
+- **Phạm vi**: `/dashboard/admin/reports` — KPI tổng số chuyến xe
+- **Năng lực & Tính năng mới**:
+  * **Frontend**: Chỉ hiển thị giá trị số ở KPI tổng, bỏ hậu tố “chuyến”; cập nhật assertion E2E hiện có tương ứng.
+- **Bằng chứng nghiệm thu**:
+  * Không chạy test theo yêu cầu người dùng; assertion E2E đã cập nhật nhưng chưa chạy.
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_24_11_task_120_report_trip_count_number/RESOLUTION.md) • [`TODO.md`](../feedback_24_11_task_120_report_trip_count_number/TODO.md)
+
+### 🚀 [FEEDBACK_23_11_TASK_119_REGIONAL_REPORT_TOOLTIP] — Sửa bộ lọc và tooltip báo cáo tình hình hàng hóa (23/11/2026)
+- **Trạng thái**: Code đã merge và deploy Dev; Cloud E2E bị chặn tại đăng nhập API (7/7 đầu việc trong phạm vi hoàn tất)
+- **Báo cáo bởi**: Super Admin report
+- **Phạm vi**: `/dashboard/admin/reports` — biểu đồ tình hình hàng hóa
+- **Thay đổi**: Bỏ tab “Đã xuất kho”; giữ series trong “Tất cả”; ẩn mục này khỏi tooltip Tấn và m³.
+- **Bằng chứng nghiệm thu**:
+  * Local Playwright: 2/2 pass; E2E code audit: 50/50.
+  * Railway Dev backend/frontend: build SUCCESS, latest đã active; health 200/307.
+  * Phiên Super Admin Dev xác nhận tab không còn và tooltip không có “Đã xuất kho”.
+  * Cloud Playwright chưa chạy qua login: backend `/api/v1/auth/email/login` trả 500 do duplicate primary key trong `AuthService.validateLogin`.
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedback_23_11_task_119_regional_report_tooltip/RESOLUTION.md) • [`TODO.md`](../feedback_23_11_task_119_regional_report_tooltip/TODO.md)
+
+### 🚀 [FEEDBACK_23_11_TASK_WAREHOUSE_ORDER_STATUS_TOTALS] — Warehouse Order Status Totals (23/11/2026)
+- **Trạng thái**: ✅ Hoàn thành phần code và kiểm chứng API local (5/5 việc)
+- **Năng lực & Tính năng mới**:
+  * Tổng số lượng, kg và m³ trên trang Đơn hàng kho thay đổi theo các tab `Lưu kho`, `Nháp`, `Đã xuất kho`.
+  * Backend giữ nguyên snapshot cho `Tất cả` và aggregate trực tiếp theo Hub/status cho các tab lọc.
+- **Bằng chứng nghiệm thu**:
+  * Frontend typecheck: PASS.
+  * Backend build: PASS.
+  * Local API parity: PASS 9/9 cases (3 kho × 3 trạng thái).
+  * Extended Playwright run còn phụ thuộc fixture Hub Đà Nẵng chưa ổn định trong môi trường local.
+  * Minh chứng hình ảnh: Có lưu trữ trong thư mục
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_23_11_task_warehouse_order_status_totals/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_23_11_task_warehouse_order_status_totals/TODO.md)
+
 ### 🚀 [FEEDBACK_15_11_LOCAL_BACKEND_I18N_ASSETS] — Local Backend Asset Build Fix (15/11/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (5/5 việc)
 - **Năng lực & Tính năng mới**:
@@ -163,6 +227,25 @@
     - Post-Reconfirm: Sau khi sửa và nhập lại, sổ cái tồn kho chính xác tuyệt đối, 8 đơn đã xuất vẫn tồn = 0.
     - Direct Edit: Sửa mã đơn trực tiếp qua `admin-override` thành công, tự sinh phiếu kiểm toán `ADJUSTMENT`.
   * **Test Suite Báo Cáo Cân Đối Đội Xe (`scripts/test-regional-dispatch.mjs`)**: `PASS 100%` (GET report, POST sync cronjob, RBAC 403 blocking cho non-SuperAdmin).
+
+### 🚀 [PROVINCE_REFERENCE_AUTOCOMPLETE] — Gợi ý Tỉnh/Thành theo thư viện chuẩn trong luồng nhập/xuất kho (15/11/2026)
+- **Trạng thái**: ✅ Hoàn tất mã nguồn; chờ migration deployment vào database môi trường đích.
+- **Năng lực & Tính năng mới**:
+  * Thêm endpoint JWT-only `GET /api/v1/province-references` trả về 63 canonical records và aliases từ bảng `province_reference`.
+  * Tích hợp autocomplete vào `WarehouseEditableGrid` và `WarehouseAppendOrderModal`; alias hợp lệ được đổi về tên canonical khi blur.
+  * Không thay đổi các dòng outbound hiện hữu đang bị khóa theo invariant nghiệp vụ.
+- **Kiểm chứng**:
+  * Backend build: PASS; frontend typecheck: PASS; lint các file autocomplete mới: PASS.
+  * Local runtime/E2E chưa chạy được vì tiến trình dev server không giữ được cổng 4000/4001 trong môi trường hiện tại.
+
+### 🚀 [PROVINCE_REFERENCE_LIBRARY] — Tạo bảng thư viện Tỉnh/Thành chuẩn cho hệ thống Logistics TMS (15/11/2026)
+- **Trạng thái**: ✅ Hoàn tất mã nguồn; chờ migration deployment vào database môi trường đích.
+- **Năng lực & Tính năng mới**:
+  * Tạo entity/migration `province_reference` với 63 địa danh canonical, tên không dấu, miền và danh sách alias.
+  * Chuẩn hóa Miền Tây vào `MIỀN NAM`; giữ nguyên `order.province`, không backfill và không tạo API/CRUD.
+  * Bổ sung seed idempotent và đưa bảng mới vào Railway database sync cùng sequence `province_reference_id_seq`.
+- **Kiểm chứng**:
+  * Region normalizer: 5/5 tests PASS; backend build: exit code 0; lint các file thay đổi: PASS.
 
 ### 🚨 [INCIDENT_TASK_118] — Cho Phép Tạo Đơn Nháp Xuất Cho Vận Đơn Thuộc Trip Nhập Nháp & Khóa Cứng Xác Nhận Xuất (11/11/2026)
 - **Mã sự vụ**: `INC-2026-11-11-TASK-118-OUTBOUND-DRAFT-BLOCK`
