@@ -103,7 +103,7 @@
 ### [Task 131] — Gộp nhãn tổng trên biểu đồ theo miền (25/11/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (5/5 việc)
 - **Năng lực & Tính năng mới**: Tab “Tất cả” chỉ hiển thị một nhãn tổng trên mỗi cột khối lượng/thể tích; các tab riêng giữ nhãn hiện tại.
-- **Bằng chứng nghiệm thu**: Typecheck PASS; đã kiểm tra trực tiếp browser local. Playwright không chạy.
+- **Bằng chứng nghiệm thu**: Typecheck và browser local PASS; Railway Dev READY, frontend SHA đúng `5f304a9` (HTTP 307), backend SHA đúng `6d56425` (health HTTP 200). Playwright không chạy.
 - **PR frontend**: [#140](https://github.com/lyquangthai1993/logistics-website-frontend/pull/140) — merge SHA `5f304a96b3848ab7a4ae6b228f6ca7cd03d0553d`.
 - **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_25_11_task_131_regional_chart_total_label/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_25_11_task_131_regional_chart_total_label/TODO.md)
 

@@ -30,7 +30,9 @@ Không phát sinh quy tắc nghiệp vụ hoặc thay đổi API/DB. Chỉ thay 
 - **Frontend typecheck**: PASS (`npm run typecheck`).
 - **Kiểm tra browser local**: PASS tại `http://localhost:4000/dashboard/admin/reports`; mỗi cột trong tab tổng có một nhãn tổng.
 - **Playwright**: Không chạy trong task này.
-- **Railway Dev deployment**: Đang chờ xác minh sau merge root.
+- **Railway Dev**: READY (`npm run railway:verify -- --json`, 25/11/2026).
+  * Frontend `frontend-tms-core`: expected/latest/active SHA `5f304a96b3848ab7a4ae6b228f6ca7cd03d0553d`; build `SUCCESS`; latest và active deployment `0c1a9662-92c3-471f-a14c-e8fdc404c1d6`; HTTP 307.
+  * Backend `backend-tms-core`: expected/latest/active SHA `6d56425a95215430ffec58fda8b73f959e9e18b0`; build `SUCCESS`; latest và active deployment `acec879c-40a7-4136-bbbf-b67435af03e1`; health HTTP 200.
 
 ---
 
