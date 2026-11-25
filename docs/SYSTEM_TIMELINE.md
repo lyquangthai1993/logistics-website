@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 25/11/2026 | `feedbacks/feedback_11_25_task_127` | TODO: Tam suất khi Super Admin điều chỉnh giao dịch kho | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_11_25_task_127/RESOLUTION.md) |
 | 24/11/2026 | `feedback_24_11_task_120_report_trip_count_number` | Bỏ đơn vị “chuyến” khỏi số tổng báo cáo vận hành | 2/2 | ✅ DONE (100%) | [RESOLUTION.md](../feedback_24_11_task_120_report_trip_count_number/RESOLUTION.md) |
 | 23/11/2026 | `feedback_23_11_task_119_regional_report_tooltip` | Sửa bộ lọc và tooltip báo cáo tình hình hàng hóa | 7/7 | Code/Dev verified; Cloud E2E blocked | [RESOLUTION.md](../feedback_23_11_task_119_regional_report_tooltip/RESOLUTION.md) |
 | 23/11/2026 | `feedbacks/feedback_23_11_task_warehouse_order_status_totals` | Warehouse Order Status Totals | 5/5 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_23_11_task_warehouse_order_status_totals/RESOLUTION.md) |
@@ -96,6 +97,15 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_11_25_TASK_127] — TODO: Tam suất khi Super Admin điều chỉnh giao dịch kho (25/11/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (12/12 việc)
+- **Năng lực & Tính năng mới**:
+  * **Backend**: API Super Admin lưu kiện, kg và m³ trong cùng transaction; giữ kiểm tra tồn kho hiện hữu.; Đồng bộ tổng kg/m³ của đơn nhập, phân bổ chuyến xe và nhật ký số liệu cũ/mới.; Không đổi schema hoặc migration.
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01_superadmin_pencil_icon_visible.png, screenshot_02_inline_quantity_editor_open.png, screenshot_03_quantity_updated_and_audit_logged.png, screenshot_04_rbac_warehouse_manager_no_pencil_verified.png, screenshot_05_delete_modal_reason_textarea_verified.png, screenshot_06_outbound_invalid_base_blocks_save.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_11_25_task_127/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_11_25_task_127/TODO.md)
 
 ### 🚀 [FEEDBACK_24_11_TASK_120_REPORT_TRIP_COUNT_NUMBER] — Bỏ đơn vị “chuyến” khỏi số tổng báo cáo vận hành (24/11/2026)
 - **Trạng thái**: Đã sửa giao diện; test không chạy theo yêu cầu người dùng
