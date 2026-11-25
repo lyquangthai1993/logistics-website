@@ -38,7 +38,7 @@ The **Todo Agent** is the end-to-end SDLC Orchestrator for the Spider Express Lo
 flowchart LR
     S1["1. PLAN<br>(Lên kế hoạch)<br>👤 PM"] -- "📄 Tài liệu<br>(TODO.md)" --> S2["2. DESIGN<br>(Thiết kế)<br>👤 Architect"]
     S2 --> S3["3. BUILD<br>(Xây dựng)<br>👤 Engineer"]
-    S3 --> S4["4. TEST (2 TẦNG)<br>• Tầng 1: Test Local<br>• Tầng 2: Test Môi trường Dev<br>👤 QA"]
+    S3 --> S4["4. TEST (RISK-BASED)<br>• Affected specs<br>• Cloud smoke khi cần<br>👤 QA"]
     S4 <-->|"Đưa lên Dev &<br>Test lại trước bàn giao"| S5["5. DEPLOY<br>(Triển khai lên Dev)<br>👤 Release"]
     S5 --> S6["6. MAINTAIN<br>(Bàn giao & Vận hành)<br>👤 Vận hành"]
 ```
@@ -48,9 +48,9 @@ flowchart LR
 | **1. PLAN**<br>*(Lên kế hoạch)* | **PM** | `/todo-agent` + [`/leader`](../leader/SKILL.md) | Scan `feedbacks/feedback_MM_DD*`, run Multimodal OCR (extract Hub & map test account), perform RCA, and output **`📄 Tài liệu` (`TODO.md`)** with Step-by-Step E2E Spec & 10 Edge Cases Matrix. |
 | **2. DESIGN**<br>*(Thiết kế)* | **Architect** | [`/leader`](../leader/SKILL.md) + [`/ui-ux-flow-designer`](../ui-ux-flow-designer/SKILL.md) + [`/pencil-ui-designer`](../pencil-ui-designer/SKILL.md) + [`/nestjs-best-practices`](../nestjs-best-practices/SKILL.md) + [`/nextjs-best-practices`](../nextjs-best-practices/SKILL.md) | Consume `TODO.md`, verify [`rbac-matrix.md`](../../rules/rbac-matrix.md) (3 layers), validate DB/Entity safety, define API contracts, enforce 5-Level Modal Width Taxonomy & Compact Density (`p-1`, `p-2`, `text-[10px]`). |
 | **3. BUILD**<br>*(Xây dựng)* | **Engineer** | `/todo-agent` + [`/feature-branch-advisor`](../feature-branch-advisor/SKILL.md) + [`/ui-spacing-guard`](../ui-spacing-guard/SKILL.md) | Run `npm run repo:status` & `npm run repo:tracking`, branch `<type>/task-<id>-<module>-<action>` off `dev` inside target submodules (`backend/`, `frontend/`), implement code, pass `tsc --noEmit` & `npm run build`. |
-| **4. TEST (2 Tầng)**<br>*(Kiểm thử 2 Tầng)* | **QA** | [`/e2e-test-runner`](../e2e-test-runner/SKILL.md) + [`/e2e-code-auditor`](../e2e-code-auditor/SKILL.md) | **Bắt buộc 2 Tầng Test**:<br>• **Tầng 1 (Test Local)**: Chạy Playwright E2E trên Local (`localhost:4000` & `4001`, Self-Healing $\le 3$ lần) + `e2e-auditor.mjs` ($\ge 40/50$). Pass 100% mới được đưa lên Dev.<br>• **Tầng 2 (Test trên Môi trường Development)**: Sau khi code lên môi trường Dev (`frontend-tms-core-dev.up.railway.app`), **chạy lại E2E + Auditor lần 2 trên Dev**, chụp ảnh thực tế (`screenshot_*_verified.png`) để **bàn giao chuẩn xác**. |
-| **5. DEPLOY**<br>*(Triển khai)* | **Release** | [`/git-commit-reviewer`](../git-commit-reviewer/SKILL.md) + [`/github-workflow`](../github-workflow/SKILL.md) | Khi Tầng 1 Local Test PASS ➔ Commit & push nhánh submodule, tạo GitHub PR vào `dev` (`gh pr create`), auto-merge (`gh pr merge --merge`), chờ Railway Cloud Dev deploy hoàn tất (`HTTP 200`) để bàn giao cho QA chạy **Test Tầng 2 trên môi trường Development**. |
-| **6. MAINTAIN**<br>*(Vận hành)* | **Vận hành** | [`/tms-ops-maintainer`](../tms-ops-maintainer/SKILL.md) + [`/codebase-auditor`](../codebase-auditor/SKILL.md) + [`/telegram-task-responder`](../telegram-task-responder/SKILL.md) | Chỉ nhận bàn giao khi **CẢ 2 TẦNG TEST (Local + Development) ĐỀU PASS 100%**: Kiểm tra sức khỏe vận hành, check `[x]` `TODO.md`, chạy `npm run todo:record <folder>` (`RESOLUTION.md` + `docs/SYSTEM_TIMELINE.md`), đồng bộ `CODEBASE_AUDIT.md` & `rbac-matrix.md`, gửi báo cáo bàn giao qua Telegram. |
+| **4. TEST (Risk-Based)**<br>*(Kiểm thử theo phạm vi ảnh hưởng)* | **QA** | [`/e2e-test-runner`](../e2e-test-runner/SKILL.md) + [`/e2e-code-auditor`](../e2e-code-auditor/SKILL.md) | Build/typecheck/lint phù hợp + E2E chỉ cho spec bao phủ thay đổi và hồi quy trực tiếp; mở rộng cho auth/RBAC, shared UI, API contract, migration, cross-module. Cloud Dev smoke khi cần xác nhận live. Full suite định kỳ/trước release, không phải gate mỗi task. Audit chỉ spec mới/sửa. |
+| **5. DEPLOY**<br>*(Triển khai)* | **Release** | [`/git-commit-reviewer`](../git-commit-reviewer/SKILL.md) + [`/github-workflow`](../github-workflow/SKILL.md) | Khi build và các check liên quan PASS ➔ Commit & push nhánh submodule, tạo GitHub PR vào `dev`, auto-merge và xác nhận Railway deploy; chỉ chạy Cloud Dev smoke khi task cần live verification. |
+| **6. MAINTAIN**<br>*(Vận hành)* | **Vận hành** | [`/tms-ops-maintainer`](../tms-ops-maintainer/SKILL.md) + [`/codebase-auditor`](../codebase-auditor/SKILL.md) + [`/telegram-task-responder`](../telegram-task-responder/SKILL.md) | Chỉ nhận bàn giao khi **các check phù hợp đã PASS và được ghi rõ**: Kiểm tra sức khỏe vận hành, check `[x]` `TODO.md`, chạy `npm run todo:record <folder>` (`RESOLUTION.md` + `docs/SYSTEM_TIMELINE.md`), đồng bộ `CODEBASE_AUDIT.md` & `rbac-matrix.md`, gửi báo cáo bàn giao qua Telegram. |
 
 ---
 
@@ -211,65 +211,34 @@ Before writing code, Stage 2 consumes `TODO.md` (`📄 Tài liệu`) and activat
 
 ---
 
-## 7. Stage 4: `TEST` (Kiểm thử 2 Tầng Bắt Buộc — Vai trò `QA`)
+## 7. Stage 4: `TEST` (Risk-Based Verification — QA)
 
-> ⚠️ **QUY TẮC BẤT BIẾN VỀ KIỂM THỬ 2 TẦNG (2-TIER QA HANDOFF MANDATE)**:
-> Khâu `TEST` của QA **BẮT BUỘC phải thực hiện đủ 2 tầng kiểm thử**:
-> 1. **Tầng 1 — Test Local (`localhost:4000` & `4001`)**: Kiểm thử và tự chữa lỗi tại máy trạm cho đến khi PASS 100% + đạt điểm `e2e-auditor.mjs >= 40/50` **trước khi** được phép đưa code lên nhánh `dev`.
-> 2. **Tầng 2 — Test trên Môi trường Development (`frontend-tms-core-dev.up.railway.app`)**: Sau khi Release (`Stage 5: DEPLOY`) đẩy code lên môi trường Development thành công, **QA BẮT BUỘC quay lại test lần thứ 2 trực tiếp trên môi trường Development**, chụp ảnh bằng chứng nghiệm thu thực tế (`screenshot_*_verified.png`) để **bàn giao đúng chuẩn**. Tuyệt đối cấm chỉ test ở Local rồi báo cáo hoàn thành mà bỏ qua bước test lại trên môi trường Development!
+Choose verification by the behavior and risk of the change. The full Playwright suite is a periodic regression run (recommended nightly when CI is configured) and a pre-release check; it is not a per-task or merge prerequisite.
 
-```mermaid
-flowchart TD
-    T1["🔹 TẦNG 1: TEST LOCAL (Pre-Deploy Gate)<br>Chạy Playwright trên http://localhost:4000 & 4001"] --> T1A{"Pass 100% &<br>Auditor >= 40/50?"}
-    T1A -- "Fail" --> FIX["Autonomous Local Self-Healing<br>(Sửa code tại chỗ, tối đa 3 lần retry)"]
-    FIX --> T1
-    T1A -- "PASS 100%" --> DEP["🚀 CHUYỂN SANG STAGE 5 (DEPLOY)<br>Tạo PR vào dev -> Merge -> Deploy lên Môi trường Development"]
-    DEP --> T2["🔸 TẦNG 2: TEST MÔI TRƯỜNG DEVELOPMENT (Pre-Handover Gate)<br>Chạy lại Playwright trên https://frontend-tms-core-dev.up.railway.app"]
-    T2 --> T2A{"Pass 100% trên Dev &<br>Có ảnh bằng chứng thật?"}
-    T2A -- "Fail" --> FIX2["Sửa lỗi tương thích môi trường Dev<br>(Tối đa 3 lần retry)"]
-    FIX2 --> T1
-    T2A -- "PASS 100%" --> HANDOFF["✅ ĐỦ ĐIỀU KIỆN BÀN GIAO<br>Chuyển sang Stage 6 (MAINTAIN & Báo cáo)"]
-```
+### Local checks before PR
 
-### 🔹 Tầng 1: Kiểm thử trên Local (Local E2E & Code Audit Gate — Trước khi đưa lên Dev)
-1. **Chạy Playwright E2E trên Localhost ([`/e2e-test-runner`](../e2e-test-runner/SKILL.md))**:
-   ```bash
+1. Run applicable lint, typecheck, and build commands for changed packages.
+2. For behavior changes, run the smallest spec set that covers the changed flow and direct regressions:
+   ```powershell
+   npm run dev:ensure
    $env:PLAYWRIGHT_BASE_URL="http://localhost:4000"
    $env:API_URL="http://localhost:4001/api/v1"
-   npx --prefix frontend playwright test e2e/<spec_file>.spec.ts
+   npx --prefix frontend playwright test e2e/<affected_spec>.spec.ts
    ```
-   - **Autonomous Local Self-Healing (Tối đa 3 lần retry)**: Nếu test Local fail, tự động phân tích RCA và sửa code ngay tại máy trạm, tuyệt đối chưa push lên Git.
-2. **Thẩm định chéo mã test Lần 1 ([`/e2e-code-auditor`](../e2e-code-auditor/SKILL.md))**:
-   ```bash
-   node scripts/e2e-auditor.mjs frontend/e2e/<spec_file>.spec.ts
-   ```
-   - Điểm bắt buộc **$\ge 40/50$**, **0 lỗi Auto-FAIL**, nghiêm cấm test giả (`fs.readFileSync`) hoặc chụp bảng trống (`expect(count).toBeGreaterThan(0)`).
-   - **Chốt chặn**: Chỉ khi Tầng 1 Local PASS 100% mới chuyển sang `Stage 5: DEPLOY` để đưa code lên môi trường Development.
+3. Expand coverage for shared auth/RBAC, shared UI, API contracts, database migrations, or cross-module behavior. Record the selected specs and rationale in the task checklist. For docs-only or non-behavioral changes, record E2E as N/A with a reason.
+4. If a selected check fails, investigate and repair before publishing; use up to 3 focused retries. Audit only new or modified E2E specs with `node scripts/e2e-auditor.mjs frontend/e2e/<spec>.spec.ts` (>= 40/50, 0 Auto-FAILs).
 
-### 🔸 Tầng 2: Kiểm thử lại trên Môi trường Development (Cloud Dev E2E Gate — Trước khi bàn giao)
-Sau khi `Stage 5: DEPLOY` đã merge PR vào `dev`, **BẮT BUỘC xác nhận bản deployment mới trên Railway Cloud đã build xong (`SUCCESS`), khớp Commit SHA với `origin/dev` và đã cutover sang `activeDeployments`** (tuyệt đối không chỉ check `HTTP 200 OK` vì container cũ vẫn trả về 200 trong lúc container mới đang `BUILDING`):
-0. **Xác nhận Build & Cutover Deployment mới trên Railway (`verify-railway-deployment.mjs`)**:
-   ```bash
-   npm run railway:wait
-   # hoặc kiểm tra nhanh: npm run railway:verify
-   ```
-   - Chốt chặn kỹ thuật (`scripts/hooks/pre-command-guard.mjs`) sẽ **TỰ ĐỘNG CHẶN (`deny`)** lệnh `playwright test` trên Railway nếu bản build mới đang `BUILDING`/`DEPLOYING`/`QUEUED`, chưa khớp Commit SHA, hoặc bị `FAILED`.
-1. **Chạy lại Playwright E2E trực tiếp trên Môi trường Development ([`/e2e-test-runner`](../e2e-test-runner/SKILL.md))**:
-   ```bash
-   $env:PLAYWRIGHT_BASE_URL="https://frontend-tms-core-dev.up.railway.app"
-   $env:API_URL="https://backend-tms-core-dev.up.railway.app/api/v1"
-   npx --prefix frontend playwright test e2e/<spec_file>.spec.ts
-   ```
-2. **Thu thập bằng chứng bàn giao & Thẩm định chéo Lần 2 ([`/e2e-code-auditor`](../e2e-code-auditor/SKILL.md))**:
-   - Bắt buộc chụp ảnh màn hình thực tế từ môi trường Development (`feedbacks/feedback_MM_DD*/screenshot_*_verified.png`) với dữ liệu thật trên DB.
-   - Chạy xác nhận lại `node scripts/e2e-auditor.mjs frontend/e2e/<spec_file>.spec.ts` ($\ge 40/50$).
-   - **Chốt chặn Bàn giao**: Chỉ khi Tầng 2 trên môi trường Development PASS 100% mới được phép ký nghiệm thu bàn giao sang `Stage 6: MAINTAIN`.
+### Cloud Dev checks after merge
+
+1. Wait for Railway build SUCCESS, matching commit SHA, and cutover with `npm run railway:wait` when checking the deployed change.
+2. Run only a smoke check or affected spec when the task needs live-environment or visual verification. Otherwise record N/A. Capture a non-empty screenshot only when visual acceptance is part of the task.
+3. Report the exact specs and environments tested. Do not describe a targeted run as a full-suite pass.
 
 ---
 
 ## 8. Stage 5: `DEPLOY` (Triển khai lên Môi trường Development — Vai trò `Release`)
 
-Stage 5 đóng vai trò cầu nối đưa code đã vượt qua **Test Tầng 1 (Local)** lên **Môi trường Development** để QA thực hiện **Test Tầng 2 (Development)** trước khi bàn giao:
+Stage 5 đưa code đã vượt qua các check liên quan lên **Môi trường Development**; QA chạy Cloud Dev smoke nếu task cần xác nhận live trước bàn giao:
 
 1. **Pre-Commit Audit & Submodule Push ([`/git-commit-reviewer`](../git-commit-reviewer/SKILL.md))**:
    - Kiểm tra không có `.env`, secrets hoặc MCP config files bị stage.
@@ -278,27 +247,27 @@ Stage 5 đóng vai trò cầu nối đưa code đã vượt qua **Test Tầng 1 
      git -C <submodule> push -u origin <type>/task-<id>-<module>-<action>
      ```
 2. **Tạo GitHub PR vào `dev` & Auto-Merge ([`/github-workflow`](../github-workflow/SKILL.md))**:
-   - Tạo Pull Request vào nhánh `dev` đính kèm kết quả **Test Tầng 1 (Local E2E & Auditor PASS)**:
+   - Tạo Pull Request vào nhánh `dev` đính kèm build/static checks, affected E2E specs hoặc lý do N/A, và audit nếu có spec mới/sửa:
      ```bash
-     gh pr create --repo <submodule_repo> --base dev --head <branch> --title "feat(task-<id>): ..." --body "## Task #<id>`n- Checklist: feedbacks/.../TODO.md`n- Tier-1 Local E2E: PASS 100%`n- E2E Auditor Score: PASS (>= 40/50)"
+     gh pr create --repo <submodule_repo> --base dev --head <branch> --title "feat(task-<id>): ..." --body "## Task #<id>`n- Checklist: feedbacks/.../TODO.md`n- Affected Local E2E: <specs and result>`n- E2E Auditor Score: PASS (>= 40/50)"
      ```
    - Tự động merge PR vào `dev`:
      ```bash
      gh pr merge --repo <submodule_repo> <branch> --merge --delete-branch
      ```
-3. **Chờ Môi trường Development Build & Cutover hoàn tất (4 Strict Invariants) & Kích hoạt Test Tầng 2**:
+3. **Khi cần Cloud Dev verification, chờ Build & Cutover (4 Strict Invariants)**:
    - Kiểm tra trạng thái Build (`latestDeployment.status === 'SUCCESS'`), khớp Git Commit SHA (`origin/dev`), Active Container Cutover (`activeDeployments[0].id === latestDeployment.id`) và HTTP Health 200 OK trên Railway Cloud:
      ```bash
      npm run railway:wait
      # hoặc: node scripts/verify-railway-deployment.mjs --wait
      ```
-   - Chỉ khi `npm run railway:verify` báo `VERDICT: READY FOR TIER-2 E2E TESTING!` (exit code 0), mới bàn giao cho **QA (`Stage 4 - Tầng 2`)** chạy lại toàn bộ bộ test E2E trên `https://frontend-tms-core-dev.up.railway.app`.
+   - Khi task yêu cầu Cloud Dev verification, chỉ chạy smoke/affected spec sau khi `npm run railway:verify` xác nhận SUCCESS + cutover. Full suite là regression định kỳ (khuyến nghị nightly) và pre-release, không phải gate mỗi task.
 
 ---
 
 ## 9. Stage 6: `MAINTAIN` (Vận hành — Vai trò `Vận hành` via [`/tms-ops-maintainer`](../tms-ops-maintainer/SKILL.md))
 
-Once Stage 5 passes 100%, `/todo-agent` transitions to **Stage 6 (`MAINTAIN`)** governed by [`/tms-ops-maintainer`](../tms-ops-maintainer/SKILL.md):
+Once the applicable Stage 5 checks pass, `/todo-agent` transitions to **Stage 6 (`MAINTAIN`)** governed by [`/tms-ops-maintainer`](../tms-ops-maintainer/SKILL.md):
 
 1. **Post-Deploy Live Health & Queue Verification**:
    - Confirm `/api/v1/health` HTTP 200 and zero runtime 500/console errors on Railway Cloud Dev.
@@ -318,14 +287,14 @@ Once Stage 5 passes 100%, `/todo-agent` transitions to **Stage 6 (`MAINTAIN`)** 
 
 📋 Hạng mục triển khai: [Tiêu đề Feedback / Task #<id>]
 • Thư mục mục tiêu: feedbacks/feedback_MM_DD*
-• Pipeline 6 bước: PLAN (PM) ➔ DESIGN (Architect) ➔ BUILD (Engineer) ➔ TEST (QA) ➔ DEPLOY (Release) ➔ MAINTAIN (Vận hành) [100% PASS]
+• Pipeline 6 bước: PLAN ➔ DESIGN ➔ BUILD ➔ TEST theo phạm vi ảnh hưởng ➔ DEPLOY ➔ MAINTAIN
 
 🌐 Môi trường kiểm thử (Domain Dev - Railway Cloud):
 • Frontend Dev: https://frontend-tms-core-dev.up.railway.app
 • Backend Dev: https://backend-tms-core-dev.up.railway.app
 
-🧪 Kết quả Kiểm thử E2E 2 Tầng & Đánh giá chéo:
-• Tier-1 Local E2E & Tier-2 Cloud Dev E2E: PASS (100% passed, 0 failed)
+🧪 Kết quả Kiểm thử theo Phạm vi Ảnh hưởng:
+• E2E: report affected specs and local/cloud result; full suite only when the scheduled/pre-release run was performed
 • E2E Cross-Evaluation Audit: PASS (>= 40/50 điểm — Real DB, 0 Mock, Non-Empty Visual Evidence)
 • GitHub PR Audit Trail: [Link PR vào nhánh dev]
 

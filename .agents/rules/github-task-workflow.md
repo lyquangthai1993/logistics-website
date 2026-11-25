@@ -13,9 +13,10 @@ Quy trình này thiết lập **chuẩn mực bất biến** cho toàn bộ vòn
    - Mọi task và mọi chỉnh sửa trong các phiên chat đều phải thực hiện trên **Feature/Fix Branch** (`feat/...`, `feature/...`, `fix/...`).
    - **Điều kiện bắt buộc ở MỖI phiên session chat với Antigravity**: Khi bắt đầu phiên chat hoặc trước khi thao tác với Git, `/leader` và Default Agent BẮT BUỘC chạy `npm run repo:status` và `npm run repo:tracking`. Nếu phát hiện bất kỳ repo nào (`root`, `backend/`, `frontend/`) đang đứng ở `dev` hoặc `master`, BẮT BUỘC truy ngược Git History (`git reflog`, `git for-each-ref --sort=-committerdate`) để tìm ra branch feature chính trước đó đã push/làm việc và **quay về branch feature đó ngay lập tức** bằng lệnh `npm run repo:resume` (`node scripts/git-task-workflow.mjs resume`).
    - Chốt chặn kỹ thuật [`scripts/hooks/pre-command-guard.mjs`](file:///d:/Projects/logistics-website/scripts/hooks/pre-command-guard.mjs) tự động **BLOCK (`deny`)** mọi lệnh `git commit` hoặc `git push` trực tiếp trên `dev` và `master`.
-2. **Quy trình Kiểm định 2 Tầng (2-Tier Quality Gate)**:
-   - **Tầng 1 (Local Gate)**: Kiểm thử E2E Playwright trên Local trước khi tạo PR.
-   - **Tầng 2 (Cloud Dev Gate)**: Sau khi merge PR vào `dev` và deploy lên Cloud, kiểm thử E2E Playwright lần thứ 2 trực tiếp trên Domain Dev.
+2. **Kiểm định theo phạm vi ảnh hưởng (Risk-Based Quality Gate)**:
+   - **Trước PR**: Build, typecheck/lint phù hợp và chỉ chạy các Playwright spec bao phủ hành vi thay đổi cùng hồi quy trực tiếp trên Local. Không chạy toàn bộ suite cho mỗi task.
+   - **Sau merge**: Xác nhận Railway deploy/cutover; chạy smoke/spec Cloud Dev khi task cần xác nhận môi trường live hoặc nghiệm thu hình ảnh.
+   - **Toàn bộ suite**: Chạy định kỳ (khuyến nghị nightly) và trước release. Repo hiện chưa có workflow nightly E2E; lỗi suite được phân loại theo khu vực bị ảnh hưởng và chỉ chặn PR nếu có bằng chứng lỗi liên quan tới thay đổi.
 3. **Bằng Chứng Pháp Lý & Minh Bạch (PR Audit Trail)**: Mỗi task hoàn thành bắt buộc phải có một Pull Request / Merge Request (PR/MR) trỏ vào `dev` trên GitHub để lưu vết lịch sử, danh sách thay đổi và biên bản kiểm thử, sau đó tự động merge vào `dev` và **chuyển workspace quay lại branch feature chính** (`npm run repo:resume`).
 4. **Biên Niên Sử & Báo Cáo**: Tự động ghi chép `RESOLUTION.md`, cập nhật `docs/SYSTEM_TIMELINE.md` và gửi báo cáo chuẩn mobile-first qua Telegram kèm link PR và ảnh bằng chứng.
 
@@ -113,9 +114,9 @@ flowchart TD
         A1 -->|Task mới hoàn toàn| A2["Đồng bộ Dev & Tạo nhánh feat/task-ID-...<br>(npm run task:branch)"]
     end
 
-    subgraph S2["Giai đoạn 2: Code & Local E2E Gate"]
+    subgraph S2["Giai đoạn 2: Build & Affected E2E Gate"]
         B1["Thực thi Code trên Feature Branch<br>(Compact density, no mock data)"] --> B2["Build & TypeCheck Local<br>(tsc --noEmit, npm run build)"]
-        B2 --> B3["Playwright E2E Test Local (Tầng 1)<br>(Autonomous Self-Healing max 3 retries)"]
+        B2 --> B3["Playwright E2E specs bị ảnh hưởng<br>(Autonomous Self-Healing max 3 retries)"]
     end
 
     subgraph S3["Giai đoạn 3: Tạo PR, Merge vào Dev & Quay về Feature Branch"]
@@ -123,8 +124,8 @@ flowchart TD
         C2 --> C3["Tự Động Merge PR vào dev &<br>Quay lại Feature Branch (npm run repo:resume)"]
     end
 
-    subgraph S4["Giai đoạn 4: Chờ Deploy & Cloud Dev E2E Gate"]
-        D1["Chờ Cloud Railway Deploy Dev<br>(npm run railway:wait)"] --> D2["Playwright E2E Test Dev (Tầng 2)<br>(Nghiệm thu thực tế trên Cloud)"]
+    subgraph S4["Giai đoạn 4: Deploy & Cloud Dev Smoke khi cần"]
+        D1["Chờ Cloud Railway Deploy Dev<br>(npm run railway:wait)"] --> D2["Smoke/spec bị ảnh hưởng khi cần<br>(Nghiệm thu trên Cloud)"]
         D2 --> D3["Đánh giá chéo E2E Auditor<br>(scripts/e2e-auditor.mjs >= 40/50)"]
     end
 
@@ -162,42 +163,20 @@ flowchart TD
 
 ---
 
-### Giai Đoạn 2: Triển Khai Code & Nghiệm Thu Tầng 1 (Local E2E Gate)
+### Giai Đoạn 2: Build & Kiểm Thử Theo Phạm Vi Ảnh Hưởng
 
-1. **Lập trình tuân thủ nghiêm ngặt chuẩn hệ thống**:
-   - Giao diện siêu gọn (Compact Density): Card padding `p-1`, Modal body `p-2`, cấm tuyệt đối `p-4`, `gap-4`.
-   - Kết nối cơ sở dữ liệu thật (Zero Mock Data), không dùng mảng tĩnh giả lập.
-   - Thuật ngữ vận hành thực tế tiếng Việt, không chứa jargon kỹ thuật.
-2. **Kiểm tra biên dịch & kiểu dữ liệu tĩnh (Local Compile & Lint)**:
+1. Chạy lint, typecheck và build phù hợp với package bị thay đổi.
+2. Với thay đổi hành vi, bật local servers và chạy spec nhỏ nhất bao phủ luồng mới cùng hồi quy trực tiếp:
    ```powershell
-   # Backend typecheck & build:
-   npm run build --prefix backend
-
-   # Frontend typecheck & build:
-   npx --prefix frontend tsc --noEmit
+   npm run dev:ensure
+   $env:PLAYWRIGHT_BASE_URL="http://localhost:4000"
+   $env:API_URL="http://localhost:4001/api/v1"
+   npx --prefix frontend playwright test e2e/<affected_spec>.spec.ts
    ```
-3. **Kích hoạt kiểm thử Playwright E2E trên Local (Tầng 1 — BẮT BUỘC BẬT PORT 4000 & 4001)**:
-   - **Bắt buộc khởi động Local Dev Servers**: Chạy lệnh `npm run dev:ensure` (tự động kiểm tra và bật ngầm Backend port `4001` + Frontend port `4000` không gây treo phiên). **Nghiêm cấm** bỏ qua bước test Local với lý do server đang tắt.
-   - **Chốt chặn Hook (`pre-command-guard.mjs`)**: Nếu port `4000` hoặc `4001` chưa bật (`DOWN`), hệ thống sẽ tự động chặn (`BLOCK`) mọi lệnh `git push` submodule và workflow tạo PR.
-   - Chạy test suite tương ứng của task:
-     ```powershell
-     npm run dev:ensure
-     $env:PLAYWRIGHT_BASE_URL="http://localhost:4000"
-     $env:API_URL="http://localhost:4001/api/v1"
-     npx --prefix frontend playwright test e2e/<test_spec>.spec.ts
-     ```
-   - **Cơ chế Autonomous Local Self-Healing (Tối đa 3 lần retry)**:
-     - Nếu test fail, phân tích lỗi tại chỗ, chỉnh sửa code và chạy lại test.
-     - **CHỐT CHẶN BẮT BUỘC**: 100% test case Local PHẢI PASS thì mới được phép sang Giai đoạn 3. Tuyệt đối không commit code lỗi lên remote.
-4. **Kiểm định mã nguồn test độc lập qua `/e2e-code-auditor` (BẮT BUỘC TRƯỚC KHI TẠO PR)**:
-   - Chạy công cụ kiểm toán test AST/Static analysis:
-     ```bash
-     node scripts/e2e-auditor.mjs frontend/e2e/<test_spec>.spec.ts
-     ```
-   - **Tiêu chuẩn nghiệm thu E2E Auditor Gate**:
-     * Điểm đánh giá $\ge 40/50$, **0 lỗi Auto-FAIL**.
-     * **Nghiêm cấm Shallow Tests**: Bị loại bỏ lập tức nếu test chỉ đọc chuỗi file tĩnh (`fs.readFileSync`), chỉ mở URL mà không thao tác click/fill (Look-only test), hoặc rẽ nhánh nuốt lỗi `if (isVisible) ... else { screenshot }`.
-     * Nếu không đạt $\ge 40/50$ hoặc dính cảnh báo test hời hợt: **CẤM TẠO PR, CẤM AUTO-MERGE**. AI phải tái cấu trúc test spec tương tác thực tế với UI và API trước khi chuyển giai đoạn.
+3. Mở rộng spec cho auth/RBAC, shared UI, API contract, migration hoặc thay đổi xuyên phân hệ. Ghi danh sách spec và lý do chọn vào TODO/PR. Thay đổi docs/comments hoặc không ảnh hưởng hành vi được ghi E2E: N/A kèm lý do.
+4. Nếu spec liên quan fail, phân tích và tự sửa tối đa 3 lần; không publish thay đổi vẫn còn lỗi trong check bắt buộc.
+5. Chạy `node scripts/e2e-auditor.mjs frontend/e2e/<spec>.spec.ts` khi có spec mới/sửa; yêu cầu >= 40/50 và 0 Auto-FAIL. Không audit spec không liên quan.
+6. Toàn bộ E2E chạy định kỳ (khuyến nghị nightly) và trước release; suite fail chỉ chặn PR khi được xác nhận có liên quan tới thay đổi.
 
 ---
 
@@ -230,28 +209,11 @@ flowchart TD
 
 ---
 
-### Giai Đoạn 4: Chờ Deploy & Nghiệm Thu Lần 2 Trên Cloud Dev (Cloud Dev Gate)
+### Giai Đoạn 4: Xác Nhận Deploy & Cloud Dev Smoke Khi Cần
 
-1. **Theo dõi trạng thái triển khai của Cloud Dev (Railway Cloud)**:
-   - Frontend Dev: `https://frontend-tms-core-dev.up.railway.app`
-   - Backend Dev: `https://backend-tms-core-dev.up.railway.app`
-   - Xác nhận bản build mới đạt `SUCCESS` & cutover:
-     ```powershell
-     npm run railway:wait
-     ```
-2. **Kích hoạt Playwright E2E nghiệm thu lần thứ 2 trên Cloud Dev**:
-   ```powershell
-   $env:PLAYWRIGHT_BASE_URL="https://frontend-tms-core-dev.up.railway.app"
-   $env:API_URL="https://backend-tms-core-dev.up.railway.app/api/v1"
-   npx --prefix frontend playwright test e2e/<test_spec>.spec.ts
-   ```
-   - Hỗ trợ tối đa 3 lần retry nếu gặp sự cố kết nối mạng tạm thời.
-   - Bắt buộc chụp ảnh màn hình bằng chứng thực tế: `feedbacks/feedback_MM_DD_task_<id>/screenshot_*_verified.png`.
-3. **Đánh giá chéo chất lượng kiểm thử (Cross-Evaluation Audit)**:
-   ```bash
-   node scripts/e2e-auditor.mjs frontend/e2e/<test_spec>.spec.ts
-   ```
-   - Điểm đánh giá bắt buộc đạt $\ge 40/50$, 0 lỗi Auto-FAIL.
+1. Khi task cần xác nhận môi trường live, chờ Railway build SUCCESS, đúng commit và cutover bằng `npm run railway:wait`.
+2. Chạy smoke hoặc affected spec trên Cloud Dev; không chạy toàn bộ E2E suite cho mỗi task. Ghi N/A nếu task không cần kiểm chứng live.
+3. Chạy auditor chỉ cho spec mới/sửa. Chụp ảnh evidence khi task yêu cầu nghiệm thu trực quan; ảnh phải có dữ liệu thật.
 
 ---
 
@@ -279,12 +241,12 @@ Bảng này là danh mục bắt buộc kiểm tra. Agent KHÔNG ĐƯỢC BÁO H
 | 1 | **Tách nhánh từ `dev` mới nhất** | Đã `git pull origin dev` và làm việc trên `feat/task-<id>-*` trong submodule. | `[ ]` |
 | 2 | **Quy chuẩn mã nguồn** | Compact density (`p-1`, `p-2`), 0 jargon tiếng Anh trong UI, 0 mock data. | `[ ]` |
 | 3 | **Local Build & TypeCheck** | `npm run build --prefix backend` & `tsc --noEmit` pass 0 lỗi. | `[ ]` |
-| 4 | **Nghiệm thu Tầng 1 (Local E2E)** | Playwright E2E chạy trên Local pass 100%. | `[ ]` |
+| 4 | **Local E2E theo phạm vi ảnh hưởng** | Spec liên quan PASS; ghi `N/A` kèm lý do nếu không đổi hành vi. | `[ ]` |
 | 5 | **Tạo PR làm bằng chứng** | Đã push feature branch (KHÔNG push thẳng `dev`/`master`) và tạo PR trỏ vào `dev`. | `[ ]` |
 | 6 | **Merge PR & Quay về Feature Branch** | Đã merge PR vào `dev` và chạy `npm run repo:resume` để giữ workspace ở nhánh feature. | `[ ]` |
 | 7 | **Cloud Dev Deploy Ready** | Domain Dev Railway build xong (`npm run railway:wait`), Health Check HTTP 200. | `[ ]` |
-| 8 | **Nghiệm thu Tầng 2 (Cloud Dev E2E)**| Playwright E2E chạy trên Cloud Dev domain pass 100%. | `[ ]` |
-| 9 | **Ảnh bằng chứng không rỗng** | Đã chụp `screenshot_*_verified.png` (bảng có dữ liệu, không chụp trắng). | `[ ]` |
+| 8 | **Cloud Dev smoke (khi cần)**| Smoke/spec liên quan PASS sau khi deployment SUCCESS & cutover; nếu không cần ghi `N/A`. | `[ ]` |
+| 9 | **Ảnh bằng chứng (khi cần)** | Với nghiệm thu trực quan, chụp `screenshot_*_verified.png` có dữ liệu thật. | `[ ]` |
 | 10| **Biên niên sử kỹ thuật** | Đã chạy `npm run todo:record` cập nhật `RESOLUTION.md` & `SYSTEM_TIMELINE.md`. | `[ ]` |
 | 11| **Báo cáo Telegram đúng quy chuẩn**| Dẫn chứng PR link, mobile-first, gửi ảnh qua `sendPhoto`. | `[ ]` |
 

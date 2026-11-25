@@ -54,5 +54,5 @@
 - [ ] **Kiểm tra biên dịch & Linting**:
   - Backend: `npm run lint --prefix backend` & `npm run build --prefix backend` PASS (0 errors).
   - Frontend: `npx --prefix frontend tsc --noEmit` & `npm run build --prefix frontend` PASS (0 errors).
-- [ ] **Kiểm thử hồi quy E2E Playwright**: [Chạy test suite và xác nhận pass 100%].
+- [ ] **Kiểm thử hồi quy E2E Playwright**: [Affected spec(s) và kết quả; ghi N/A + lý do nếu không đổi behavior].
 - [ ] **Cập nhật trạng thái**: Đánh dấu toàn bộ checklist thành `[x]`.

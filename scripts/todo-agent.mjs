@@ -3,7 +3,7 @@
 /**
  * Todo Agent CLI & Scanner for Logistics TMS (Spider Express)
  *
- * Scans, analyzes, and plans execution for `feedback_DD_MM*` task folders.
+ * Scans, analyzes, and plans execution for `feedback_MM_DD*` task folders.
  * Adheres to AGENTS.md, /leader domain rules, and UI compact density standards.
  */
 
@@ -484,13 +484,13 @@ export function generateExecutionPlan(parsed) {
     `| **3. BUILD** *(Xây dựng)* | **Engineer** | \`/todo-agent\` + \`/feature-branch-advisor\` + \`/ui-spacing-guard\` | Chạy \`repo:status\` & \`repo:tracking\`, tạo nhánh \`${branchName}\` từ \`dev\` trong submodule, code & pass \`tsc --noEmit\` + \`npm run build\`. |`,
   );
   output.push(
-    "| **4. TEST (2 Tầng)** *(Kiểm thử 2 Tầng)* | **QA** | `/e2e-test-runner` + `/e2e-code-auditor` | **Bắt buộc 2 Tầng Test**: (1) **Tầng 1 - Test Local** (`localhost:4000` & `4001`, Self-Healing <= 3 lần) + `e2e-auditor.mjs` (`>= 40/50`); (2) **Tầng 2 - Test lại trên Môi trường Development** (`frontend-tms-core-dev.up.railway.app`) sau khi deploy để chụp ảnh thực tế & bàn giao đúng chuẩn. |",
+    "| **4. TEST (Risk-Based)** *(Kiểm thử theo phạm vi ảnh hưởng)* | **QA** | `/e2e-test-runner` + `/e2e-code-auditor` | Build/typecheck/lint phù hợp + E2E chỉ cho spec bao phủ thay đổi và hồi quy trực tiếp; mở rộng cho auth/RBAC, shared UI, API contract, migration, cross-module. Cloud Dev smoke khi cần. Full suite định kỳ/trước release, không phải gate mỗi task. Audit chỉ spec mới/sửa. |",
   );
   output.push(
-    "| **5. DEPLOY** *(Triển khai lên Dev)* | **Release** | `/git-commit-reviewer` + `/github-workflow` | Khi Tầng 1 Local Test PASS ➔ Push submodule, tạo và auto-merge PR vào `dev` qua GitHub integration, đợi Railway Cloud Dev HTTP 200 để bàn giao cho QA chạy **Test Tầng 2 trên môi trường Development**. |",
+    "| **5. DEPLOY** *(Triển khai lên Dev)* | **Release** | `/git-commit-reviewer` + `/github-workflow` | Khi build và các check liên quan PASS ➔ Push submodule, tạo/merge PR vào `dev`, xác nhận Railway deploy; chỉ chạy Cloud Dev smoke khi task cần live verification. |",
   );
   output.push(
-    `| **6. MAINTAIN** *(Bàn giao & Vận hành)* | **Vận hành** | \`/tms-ops-maintainer\` + \`/codebase-auditor\` + \`/telegram-task-responder\` | Chỉ nhận bàn giao khi **CẢ 2 TẦNG TEST (Local + Development) ĐỀU PASS 100%**: Kiểm tra sức khỏe sau deploy, check \`[x]\` \`TODO.md\`, chạy \`npm run todo:record ${folderName}\` (\`RESOLUTION.md\` + \`SYSTEM_TIMELINE.md\`), báo cáo Telegram. |`,
+**các check phù hợp đã PASS và được ghi rõ**
   );
   output.push("");
 
@@ -618,9 +618,9 @@ export function generateExecutionPlan(parsed) {
     output.push("");
   }
 
-  // Testing & DoD (Mandatory 2-Tier Testing Gate)
+  // Testing & DoD (Risk-Based Verification)
   output.push(
-    "### 🧪 Tiêu chí Nghiệm thu & Kiểm thử 2 Tầng Bắt buộc (2-Tier QA Gate & DoD)",
+    "### 🧪 Tiêu chí Nghiệm thu & Kiểm thử Theo Phạm Vi Ảnh Hưởng",
   );
   if (testingPending.length > 0) {
     testingPending.forEach((t) => {
@@ -631,13 +631,13 @@ export function generateExecutionPlan(parsed) {
     "- [ ] **[Build Gate]**: Kiểm tra biên dịch Backend (`npm run lint --prefix backend` & `npm run build --prefix backend`) và Frontend (`npx --prefix frontend tsc --noEmit` & `npm run build --prefix frontend`) PASS 0 lỗi.",
   );
   output.push(
-    "- [ ] **[Test Tầng 1 - Local]**: Chạy Playwright E2E trên Local (`http://localhost:4000` & `4001`) đạt PASS 100% + `node scripts/e2e-auditor.mjs` đạt >= 40/50 điểm trước khi đẩy code lên nhánh `dev`.",
+    "- [ ] **[Local E2E theo phạm vi ảnh hưởng]**: Chạy affected spec(s) trên Local khi thay đổi behavior; ghi N/A + lý do nếu không đổi behavior. Audit chỉ spec mới/sửa.",
   );
   output.push(
     "- [ ] **[Deploy lên Development]**: Tạo PR vào `dev`, auto-merge và đợi môi trường Development (`https://backend-tms-core-dev.up.railway.app/api/v1/health`) trả về HTTP 200 OK.",
   );
   output.push(
-    "- [ ] **[Test Tầng 2 - Môi trường Development (Trước bàn giao)]**: Chạy lại toàn bộ Playwright E2E trực tiếp trên môi trường Development (`https://frontend-tms-core-dev.up.railway.app`), chụp ảnh bằng chứng nghiệm thu thực tế (`screenshot_*_verified.png`) và xác nhận PASS 100% rồi mới bàn giao.",
+    "- [ ] **[Cloud Dev smoke khi cần]**: Sau deployment SUCCESS/cutover, chạy smoke/affected spec nếu cần xác nhận live; ghi N/A + lý do nếu không cần.",
   );
   output.push(
     `- [ ] **[Maintain & Bàn giao]**: Cập nhật \`[x]\` trong \`${folderName}/TODO.md\`, chạy \`npm run todo:record ${folderName}\` sinh \`RESOLUTION.md\` & đồng bộ \`docs/SYSTEM_TIMELINE.md\`.`,
@@ -646,10 +646,10 @@ export function generateExecutionPlan(parsed) {
 
   // 4. Kịch bản Kiểm thử E2E & Ma trận Edge Cases
   output.push(
-    "## 4. 🧪 KỊCH BẢN KIỂM THỬ E2E CHUẨN XÁC (CHẠY ĐỦ CẢ 2 TẦNG: LOCAL & DEVELOPMENT) & MA TRẬN EDGE CASES",
+    "## 4. 🧪 KỊCH BẢN KIỂM THỬ THEO PHẠM VI ẢNH HƯỞNG & MA TRẬN EDGE CASES",
   );
   output.push(
-    "Mọi thay đổi mã nguồn bắt buộc phải chạy kịch bản E2E này qua **2 tầng kiểm thử (Tầng 1: Local -> Tầng 2: Môi trường Development)** trước khi bàn giao:",
+    "Chọn spec bao phủ hành vi thay đổi và hồi quy trực tiếp; mở rộng cho auth/RBAC, shared UI, API contract, migrations và thay đổi xuyên phân hệ. Cloud Dev smoke chỉ khi cần xác nhận live. Full suite chạy định kỳ/trước release, không phải gate cho mỗi task:",
   );
   output.push("");
   output.push("### 🔄 Quy trình Thao tác Tuần tự (Step-by-Step E2E Workflow):");
@@ -706,7 +706,7 @@ export function generateExecutionPlan(parsed) {
   }
   output.push(`  + ${folderName}/TODO.md`);
   output.push(
-    `- Tiêu chí hoàn thành (Bắt buộc 2 Tầng Test): (1) Thực hiện 100% các task [ ], build pass; (2) Test Tầng 1 trên Local PASS 100% + e2e-auditor >= 40/50; (3) Đưa lên môi trường Development (PR -> merge dev -> Railway Dev HTTP 200) và chạy lại Test Tầng 2 trên môi trường Development PASS 100% kèm ảnh bằng chứng trước khi check [x] ${folderName}/TODO.md và bàn giao.`,
+    `- Tiêu chí hoàn thành: (1) Tất cả task [ ] hoàn tất, build pass; (2) affected E2E specs PASS hoặc N/A có lý do và audit chỉ spec mới/sửa; (3) Cloud Dev smoke PASS hoặc N/A có lý do; ghi rõ bằng chứng trước khi check [x] ${folderName}/TODO.md và bàn giao.`,
   );
   output.push("```");
   output.push("");
@@ -1379,7 +1379,7 @@ export function generateResolutionDocument(parsed, rootDir = ROOT_DIR) {
   );
   lines.push("");
   lines.push(
-    `- **Trạng thái E2E Test**: PASS 100% (Không phát hiện hồi quy lỗi).`,
+    `- **Trạng thái E2E Test**: Ghi affected spec(s), môi trường và kết quả thực tế (PASS/FAIL/N/A + lý do).`,
   );
   lines.push(`- **Môi trường Dev Live (Primary - Railway Cloud)**:`);
   lines.push(`  * Frontend: \`https://frontend-tms-core-dev.up.railway.app\``);
@@ -1555,7 +1555,7 @@ export function syncSystemTimeline(
     );
   }
   blockLines.push(`- **Bằng chứng nghiệm thu**:`);
-  blockLines.push(`  * Playwright E2E: PASS 100%`);
+  blockLines.push(`  * Playwright E2E: ghi affected spec(s), môi trường và kết quả thực tế`);
   blockLines.push(
     `  * Minh chứng hình ảnh: ${images.length > 0 ? images.join(", ") : "Có lưu trữ trong thư mục"}`,
   );

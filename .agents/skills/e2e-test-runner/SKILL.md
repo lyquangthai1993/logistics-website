@@ -173,11 +173,9 @@ Step 4: Review Reports & Teardown (frontend/: npm run e2e:report)
 
 ---
 
-### Step 1: Dev Servers & Environment Selection (2-Round Testing Architecture)
+### Step 1: Dev Servers & Environment Selection (Targeted Testing)
 
-Logistics TMS enforces a mandatory **2-Tier Quality Gate (2-Round Testing Protocol)**:
-- **Round 1 (Local Gate)**: Executed against local dev servers (`http://localhost:4000` & `http://localhost:4001`) before code is committed to GitHub.
-- **Round 2 (Cloud Dev Gate)**: Executed against live Railway Cloud Dev (`https://frontend-tms-core-dev.up.railway.app` & `https://backend-tms-core-dev.up.railway.app`) after PR is merged into `dev`.
+Choose the smallest spec set that covers changed behavior and direct regressions. Run broader coverage for shared auth/RBAC, UI, API contracts, migrations, or cross-module changes. Cloud Dev tests are targeted smoke/spec checks when live verification is needed. The complete suite is a periodic regression run (recommended nightly) and a pre-release check, not a per-task merge gate.
 
 #### Local Dev Servers at Root Folder (`npm run dev`)
 E2E tests in Round 1 require **BOTH** the NestJS Backend (`http://localhost:4001`) and the Next.js Frontend (`http://localhost:4000`) to be running.
@@ -216,9 +214,9 @@ npm run e2e:check
 
 ---
 
-### Step 3: Run Playwright Test Suites (Dual-Round Execution)
+### Step 3: Run Targeted Playwright Specs (Risk-Based Execution)
 
-#### 🔄 ROUND 1: Local E2E Gate (Pre-PR Verification)
+#### 🔄 Local Verification (Pre-PR, Affected Specs Only)
 ```bash
 # In frontend folder: d:\Projects\logistics-website\frontend
 $env:PLAYWRIGHT_BASE_URL="http://localhost:4000"
@@ -232,8 +230,8 @@ npx playwright test e2e/<task_spec>.spec.ts
 node ../scripts/e2e-auditor.mjs e2e/<task_spec>.spec.ts
 ```
 
-#### 🌐 ROUND 2: Cloud Dev Gate (Post-PR Merge & Railway Deploy)
-Triggered once PR is merged into `dev` and Railway Cloud Dev is healthy (HTTP 200):
+#### 🌐 Cloud Dev Smoke (Post-Merge, Only When Needed)
+Use only when live-environment verification or visual acceptance is needed, after the deployment is confirmed ready:
 ```bash
 # In frontend folder: d:\Projects\logistics-website\frontend
 $env:PLAYWRIGHT_BASE_URL="https://frontend-tms-core-dev.up.railway.app"
@@ -326,11 +324,11 @@ Default password: `secret` (configured in `.env.local`).
      - `/todo-agent` completes code changes -> calls `/e2e-test-runner` with local params.
      - Runs Playwright tests against `http://localhost:4000` & `http://localhost:4001/api/v1`.
      - Autonomous Self-Healing loop runs up to 3 times if errors occur.
-     - Upon 100% PASS, notifies `/e2e-code-auditor` to audit test code (`node scripts/e2e-auditor.mjs`).
+     - After affected specs pass, audit only new or modified specs with (`node scripts/e2e-auditor.mjs`).
    - **Hand-off From `/todo-agent` (Round 2 - Cloud Dev Gate)**:
      - PR is auto-merged into `dev` and Railway deployment is ready (HTTP 200).
      - `/todo-agent` calls `/e2e-test-runner` with Cloud Dev domains.
-     - Executes Playwright test suite against live Railway Cloud.
+     - Executes only the affected spec or smoke check against live Railway Cloud.
      - Saves non-empty verified screenshot `screenshot_*_verified.png`.
      - Hands off to `/e2e-code-auditor` for final audit score & evidence validation before `/todo-agent` generates `RESOLUTION.md`.
 7. **Model Role Allocation in Test Execution & Autonomous Self-Healing**:

@@ -3,7 +3,7 @@ name: github-workflow
 description: >-
   Expert GitHub Actions & CI/CD workflow automation engineer for the Spider Express Logistics TMS monorepo.
   Governs the 4-stage GitHub Task Lifecycle (RULE-GIT-TASK-WORKFLOW-01 & RULE-GIT-HISTORY-RESUME-01), submodule feature branching (<type>/task-<id>-<module>-<action>),
-  mandatory session-start Git history trace and feature branch recovery (npm run repo:resume), PR creation and audit trail, 2-tier quality gates (local E2E -> cloud dev E2E),
+  mandatory session-start Git history trace and feature branch recovery (npm run repo:resume), PR creation and audit trail, risk-based E2E gates (affected local specs -> optional cloud smoke),
   GitHub Actions pipelines (telegram-agy-worker.yml, railway-deploy.yml, daily-rbac-audit.yml), repository_dispatch events, and concurrency governance.
   Triggers on: "github workflow", "github actions", "ci/cd", "pull request", "pr", "branching", "git workflow",
   "pull request", "workflow_dispatch", "repository_dispatch", "pipeline".
@@ -51,15 +51,14 @@ Every task received (from Telegram Bot, user prompts, or feature requests) MUST 
 
 ```mermaid
 flowchart TD
-    A["Stage 1: Session Start & Feature Branch<br>Resume previous feature branch (npm run repo:resume)<br>OR branch from dev for new task"] --> B["Stage 2: Tier-1 Quality Gate<br>Local E2E Playwright (:4000 & :4001)"]
-    B -->|Autonomous Self-Healing up to 3x| C{"Tier-1 PASS?"}
-    C -->|Yes| AUD["Mandatory /e2e-code-auditor Gate<br>node scripts/e2e-auditor.mjs<br>(Score >= 40/50, 0 Auto-FAILs)"]
-    AUD -->|Auditor PASS| D["Stage 3: GitHub PR, Auto-Merge & Return to Feature Branch<br>GitHub integration -> npm run repo:resume"]
-    AUD -->|Auditor FAIL / Shallow Test| B
+    A["Stage 1: Session Start & Feature Branch<br>Resume previous feature branch (npm run repo:resume)<br>OR branch from dev for new task"] --> B["Stage 2: Targeted Quality Gate<br>Build/typecheck + affected E2E specs"]
+    B -->|Affected checks pass| C["Audit only new/changed E2E specs<br>(Score >= 40/50, 0 Auto-FAILs)"]
+    C --> D["Stage 3: GitHub PR, Auto-Merge & Return to Feature Branch<br>GitHub integration -> npm run repo:resume"]
+    C -->|Changed spec audit fails| B
     C -->|No| B
     D --> E["Cloud Deployment (Railway)<br>Wait for HTTP 200 Health & Cutover"]
-    E --> F["Stage 4: Tier-2 Quality Gate<br>Cloud Dev E2E Playwright against Railway"]
-    F --> G["Visual Evidence Screenshot & RESOLUTION.md<br>Report via Telegram"]
+    E --> F["Stage 4: Cloud Dev Smoke<br>Targeted live verification when needed"]
+    F --> G["Task-specific evidence & RESOLUTION.md<br>Report checks actually run"]
 ```
 
 ---
@@ -102,21 +101,19 @@ node scripts/git-task-workflow.mjs start 89 warehouse outbound-tally feat
 
 ---
 
-### Stage 2: Tier-1 Quality Gate (Local E2E Verification & Mandatory /e2e-code-auditor)
-1. **Local Playwright E2E Suite**:
-   - Run tests on workstation (`http://localhost:4000` & `http://localhost:4001/api/v1`).
-   - Autonomous self-healing loop: Analyze failure, fix code locally, re-verify (up to 3 retries).
-   - **Never push failing code to GitHub**. Code must achieve 100% PASS before leaving the local workstation.
-2. **Mandatory E2E Code Auditor Evaluation (`/e2e-code-auditor`)**:
-   - Run static & structural audit: `node scripts/e2e-auditor.mjs frontend/e2e/<spec_file>.spec.ts`.
-   - The test code MUST clear the 50-point rubric with **Score >= 40/50 and 0 Auto-FAILs**.
-   - **Zero Shallow Tests Mandate**: Tests that only check static code (`fs.readFileSync`), "look-only" tests with zero user click/fill actions, or soft fallback `if (isVisible) ... else { screenshot }` branches will be **STRICTLY REJECTED**.
-   - If auditor reports `FAIL` or `WARN` (< 40/50), PR creation is blocked until the test is remediated.
+### Stage 2: Targeted Quality Gate (Local Verification)
+1. Run applicable lint, typecheck and build commands for changed packages.
+2. For behavior changes, run the smallest Playwright spec set covering the changed flow and direct regressions on Local. Expand coverage for shared auth/RBAC, shared UI, API contracts, migrations, or cross-module behavior. Docs-only/non-behavioral changes do not require E2E.
+   ```bash
+   npx --prefix frontend playwright test e2e/<affected-spec>.spec.ts
+   ```
+3. Audit only new or modified specs with `node scripts/e2e-auditor.mjs frontend/e2e/<spec>.spec.ts` (>= 40/50, 0 Auto-FAILs).
+4. Do not run the complete suite as a default merge prerequisite. Run the full suite periodically (recommended nightly) and before releases. No nightly E2E workflow is currently configured; triage failures and block a PR only when a failure is relevant to its changes.
 
 ---
 
 ### Stage 3: GitHub PR Creation, Audit Evidence, Auto-Merge & Return to Feature Branch
-Once local tests and `/e2e-code-auditor` pass, publish the feature branch, create an immutable audit trail on GitHub, merge into `dev`, and return local working trees to the feature branch:
+Once applicable static checks and affected E2E specs pass, publish the feature branch, create an immutable audit trail on GitHub, merge into `dev`, and return local working trees to the feature branch:
 
 ```bash
 # Using helper CLI (automatically pushes feature branch, creates/merges PR to dev, and checks out back to feature branch):
@@ -132,11 +129,12 @@ node scripts/git-task-workflow.mjs pr 89 warehouse outbound-tally
 - **Module**: `warehouse`
 - **Description**: Add outbound tally sheet confirmation
 
-## 🛡️ Pre-Merge Verification (Tier-1 Local Gate & E2E Auditor)
+## 🛡️ Pre-Merge Verification (Affected Scope)
 - [x] Compilation: `npm run build` PASS
 - [x] Typecheck: `tsc --noEmit` PASS
-- [x] Local Playwright E2E: 100% PASS (0 failures)
-- [x] E2E Code Auditor Review: Score >= 40/50 (0 Auto-FAILs, zero shallow tests)
+- [x] Affected Playwright specs: `<specs or N/A with reason>` PASS
+- [x] E2E Code Auditor: `<score or N/A when no spec changed>`
+- [x] Regression scope rationale recorded in task checklist
 - [x] Submodule-first push sequence verified
 
 ## 🚀 Target Branch
@@ -150,21 +148,15 @@ Create and merge the PR through the connected GitHub integration, targeting `dev
 
 ---
 
-### Stage 4: Tier-2 Quality Gate (Cloud Dev Verification)
-1. Monitor Railway Cloud Dev deployment until status is READY (`npm run railway:wait`):
-   - Frontend: `https://frontend-tms-core-dev.up.railway.app`
-   - Backend: `https://backend-tms-core-dev.up.railway.app`
-   - Health check: `curl.exe -m 15 -i https://backend-tms-core-dev.up.railway.app/api/v1/health`
-2. Run Playwright E2E suite against Cloud Dev domain:
+### Stage 4: Cloud Dev Verification (Targeted Smoke, When Needed)
+1. When live-environment verification is required, wait for Railway build SUCCESS and cutover using `npm run railway:wait`.
+2. Run only an affected spec or smoke check against Cloud Dev; do not run the full suite per task.
    ```bash
    PLAYWRIGHT_BASE_URL=https://frontend-tms-core-dev.up.railway.app \
    API_URL=https://backend-tms-core-dev.up.railway.app/api/v1 \
-   npm run test:e2e
+   npx --prefix frontend playwright test e2e/<affected-spec>.spec.ts
    ```
-3. Run cross-evaluation auditor: `node scripts/e2e-auditor.mjs frontend/e2e/<spec_file>.spec.ts` (Score >= 40/50, 0 Auto-FAILs).
-4. Capture visual screenshot evidence (`screenshot_*_verified.png`).
-5. Update technical documentation: `npm run todo:record <folder>` to generate `RESOLUTION.md` and append to `docs/SYSTEM_TIMELINE.md`.
-6. Dispatch mobile-first completion report to Telegram channel.
+3. Audit a spec only when it is new or modified. Capture visual evidence only when the task requires visual acceptance. Report the checks actually run.
 
 ---
 

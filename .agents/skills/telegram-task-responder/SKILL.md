@@ -20,7 +20,7 @@ This skill enforces **high-signal, compact, mobile-first reporting**.
 ### Rule 1: Executive Verdict First (Badge + Outcome)
 Every response must open with a direct status badge and a 1-sentence verdict on line 1:
 - `📋 KẾ HOẠCH (TODO.MD SẴN SÀNG): <mục tiêu & checklist>` (Dành riêng cho Pha 1: Khảo sát, bóc tách RCA và tạo `TODO.md`. NGHIÊM CẤM dùng `🟢 HOÀN THÀNH / COMPLETED` ở pha này vì code chưa được sửa và chưa qua kiểm thử).
-- `🟢 HOÀN THÀNH (DEV VERIFIED): <hành động & nghiệm thu>` (CHỈ DÙNG cho Pha 2: Đã sửa code, vượt qua 2-Tier Quality Gate và E2E pass 100% trên Dev).
+- `🟢 HOÀN THÀNH (DEV VERIFIED): <hành động & nghiệm thu>` (CHỈ DÙNG cho Pha 2: Đã sửa code, vượt qua các check liên quan và xác nhận Cloud Dev khi task cần).
 - `🔴 THẤT BẠI: <root cause>` (e.g. `🔴 THẤT BẠI: Endpoint /auth trả về 401 Unauthorized do thiếu Bearer token`)
 - `🟡 CẢNH BÁO: <partial status>` (e.g. `🟡 CẢNH BÁO: Đã sửa code nhưng Playwright E2E test 3/4 pass`)
 - `ℹ️ TRẠNG THÁI: <informational outcome>` (e.g. `ℹ️ TRẠNG THÁI: Các service Dev trên Render và Vercel đều đang LIVE`)
@@ -79,11 +79,11 @@ Every response must open with a direct status badge and a 1-sentence verdict on 
 - **`/fix` (Bug Fix & Error Repair - Đã chạy nhưng lỗi - Pha 2)**:
   - Dedicated mode for existing features that crash, throw errors, display incorrect data, or break layout.
   - **Strict Constraint**: Surgical fix only. Identify the root cause, repair the broken code, and verify. **NEVER** rewrite unaffected architectures, change overall business rules, or introduce unsolicited features.
-  - **Trạng thái hệ thống (DB)**: `COMPLETED` (sau khi E2E Dev Pass 100%).
+  - **Trạng thái hệ thống (DB)**: `COMPLETED` (sau khi các check bắt buộc theo phạm vi thay đổi PASS).
   - Verdict format: `🟢 HOÀN THÀNH (SỬA LỖI): <tóm tắt lỗi và nguyên nhân đã fix>`.
 - **`/task` hoặc `/force` (General Tasks / New Features / Thực thi Checklist - Pha 2)**:
   - Standard mode for implementing new features, creating new modules, adding endpoints, or implementing an existing `TODO.md` checklist.
-  - **Trạng thái hệ thống (DB)**: `COMPLETED` (sau khi E2E Dev Pass 100%).
+  - **Trạng thái hệ thống (DB)**: `COMPLETED` sau khi các check bắt buộc theo phạm vi thay đổi PASS.
   - Verdict format: `🟢 HOÀN THÀNH (DEV VERIFIED): <tóm tắt tính năng/checklist đã hoàn tất>`.
 - **`/continue` (Session Iteration)**:
   - Resumes the previous context to adjust, refine, or add incremental details.
@@ -144,9 +144,9 @@ Every response must open with a direct status badge and a 1-sentence verdict on 
 • Pull Request đã merge: [Backend PR #...](https://github.com/lyquangthai1993/logistics-website-backend/pull/...) | [Frontend PR #...](https://github.com/lyquangthai1993/logistics-website-frontend/pull/...)
 • Nhánh đích: dev (Đã merge tự động)
 
-### 2. Nghiệm Thu 2 Tầng (2-Tier Quality Gate)
-▫️ Tầng 1 (Local E2E Gate): PASS 100% (Local Build & Playwright OK)
-▫️ Tầng 2 (Cloud Dev Gate): PASS 100% (Railway Cloud Dev Verified)
+### 2. Kết Quả Kiểm Thử Theo Phạm Vi Ảnh Hưởng
+▫️ Local checks: [build/typecheck/lint + affected spec(s) and result]
+▫️ Cloud Dev: [smoke/spec result or N/A with reason]
 ▫️ E2E Cross-Audit: [XX]/50 điểm (Tuân thủ Real DB, 0 Mock)
 
 ### 3. Thay đổi chính
