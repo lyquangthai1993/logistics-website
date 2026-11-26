@@ -128,7 +128,7 @@ Before any target data is touched on Dev:
   15. `daily_hub_operational_report`
   16. `daily_regional_dispatch_report` (including per-day stored and draft metrics)
   17. `province_reference`
-  18. `cron_job_config`
+  18. `cron_job_config` (including the persisted `cronExpression` schedule column)
   19. `cron_job_execution_log`
   20. `notification`
   21. `migrations`
