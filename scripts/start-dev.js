@@ -12,7 +12,7 @@
 
 'use strict';
 
-const { spawn } = require('child_process');
+const { spawn, spawnSync } = require('child_process');
 const path      = require('path');
 const http      = require('http');
 const https     = require('https');
@@ -45,6 +45,7 @@ const WAIT_INTERVAL_MS   = parseInt(process.env.WAIT_INTERVAL_MS || '2000',   10
 
 // On Windows we need shell:true for .cmd scripts
 const NPM = 'npm';
+const LOCAL_COMPOSE_FILE = path.join(BACKEND_DIR, 'docker-compose.yaml');
 
 // ─── ANSI helpers ─────────────────────────────────────────────────────────────
 
@@ -115,6 +116,29 @@ async function waitForBackend() {
   process.exit(1);
 }
 
+function startLocalDependencies() {
+  log.info('DOCKER', 'Starting local PostgreSQL and Redis containers...\n');
+
+  const result = spawnSync(
+    `docker compose -f "${LOCAL_COMPOSE_FILE}" up -d postgres redis`,
+    {
+      cwd: ROOT,
+      stdio: 'inherit',
+      shell: true,
+    },
+  );
+
+  if (result.error) {
+    throw new Error(`Docker Compose could not start: ${result.error.message}`);
+  }
+
+  if (result.status !== 0) {
+    throw new Error(`Docker Compose exited with code ${result.status}`);
+  }
+
+  log.success('DOCKER', 'Local PostgreSQL and Redis are ready to use.\n');
+}
+
 // ─── Process spawner ──────────────────────────────────────────────────────────
 
 function spawnProcess(name, cmd, cwd) {
@@ -163,21 +187,24 @@ async function main() {
   console.log(c.bold + c.cyan + '  🚀  Logistics TMS – Dev Startup Orchestrator' + c.reset);
   console.log(c.bold + c.cyan + '═'.repeat(56) + c.reset + '\n');
 
-  // 1. Start backend
+  // 1. Start local PostgreSQL and Redis
+  startLocalDependencies();
+
+  // 2. Start backend
   log.info('BACKEND', 'Starting NestJS backend (npm run start:dev)...\n');
   const backend = spawnProcess('BACKEND', `${NPM} run start:dev`, BACKEND_DIR);
 
-  // 2. Wait until backend is healthy
+  // 3. Wait until backend is healthy
   process.stdout.write('\n');
   await waitForBackend();
 
   let frontend = null;
 
-  // 3. Start frontend
+  // 4. Start frontend
   log.info('FRONTEND', 'Starting Next.js frontend (npm run dev)...\n');
   frontend = spawnProcess('FRONTEND', `${NPM} run dev`, FRONTEND_DIR);
 
-  // 4. Graceful shutdown
+  // 5. Graceful shutdown
   const shutdown = (signal) => {
     console.log('\n');
     log.warn('ORCHESTRATOR', `Received ${signal} – shutting down both processes...`);
