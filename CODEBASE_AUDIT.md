@@ -9,14 +9,19 @@
 
 | Trường | Giá trị |
 |---|---|
-| **Phiên bản** | v1.1.2 |
-| **Ngày audit** | 2026-11-15 |
+| **Phiên bản** | v1.1.3 |
+| **Ngày audit** | 2026-11-26 |
 | **Người thực hiện** | Antigravity Multi-Agent Teamwork System |
 | **Môi trường** | Development / Staging / Production (Railway Cloud Primary + Vercel/Render) |
 
 ---
 
 ## 🗂️ CHANGELOG PHIÊN BẢN
+
+### v1.1.3 — 2026-11-26 (Configurable Warehouse Snapshot Schedule)
+- ✅ Snapshot Tổng đơn theo Hub now persists a validated five-field cron expression, defaulting to `*/5 * * * *`.
+- ✅ Super Admin cronjob detail UI provides friendly schedule controls for minute, hourly, daily, weekly, and monthly schedules and previews the generated cron expression.
+- ℹ️ Migration `1789190000000` is defined for deployment and is not listed as executed until the target environment runs it.
 
 ### v1.1.2 — 2026-11-15 (Province Lookup Autocomplete)
 - ✅ Bổ sung endpoint JWT-only `GET /api/v1/province-references` phục vụ tra cứu tỉnh/thành canonical và alias.
