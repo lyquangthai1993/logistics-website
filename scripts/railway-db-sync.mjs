@@ -182,6 +182,7 @@ const ALL_TABLES = [
   // This row syncs every column, including the daily draft metrics added by migration 1789140000000.
   "daily_regional_dispatch_report",
   "province_reference",
+  // Includes the persisted five-field cronExpression column for configurable snapshot schedules.
   "cron_job_config",
   "cron_job_execution_log",
   "notification",
