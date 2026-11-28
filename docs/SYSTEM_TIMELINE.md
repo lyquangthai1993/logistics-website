@@ -14,6 +14,7 @@
 
 | Mốc Thời Gian | Thư Mục Feedback | Tiêu Đề / Tính Năng Trọng Tâm | Tác Vụ | Trạng Thái | Bằng Chứng Nghiệm Thu |
 |---|---|---|---|---|---|
+| 28/11/2026 | `feedbacks/feedback_11_28_task_128_interhub_draft_visibility` | Task 128 — Hub nhận chỉ thấy trip sau khi Hub nguồn ... | 7/7 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_11_28_task_128_interhub_draft_visibility/RESOLUTION.md) |
 | 25/11/2026 | `feedbacks/feedback_25_11_task_131_regional_chart_total_label` | Task 131 — Gộp nhãn tổng trên biểu đồ theo miền | 5/5 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_25_11_task_131_regional_chart_total_label/RESOLUTION.md) |
 | 25/11/2026 | `feedbacks/feedback_25_11_task_130_warehouse_onhand_cbm` | Task 130 — Tổng hợp CBM còn lưu kho sau xuất | 7/7 | Backend build + Dev browser/API smoke PASS; parity E2E có lỗi lệch số kiện ngoài phạm vi | [RESOLUTION.md](../feedbacks/feedback_25_11_task_130_warehouse_onhand_cbm/RESOLUTION.md) |
 | 25/11/2026 | `feedbacks/feedback_11_25_task_127` | TODO: Tam suất khi Super Admin điều chỉnh giao dịch kho | 12/12 | ✅ DONE (100%) | [RESOLUTION.md](../feedbacks/feedback_11_25_task_127/RESOLUTION.md) |
@@ -99,6 +100,14 @@
 ---
 
 ## 🕒 BIÊN NIÊN SỬ CHI TIẾT THEO DÒNG THỜI GIAN (REVERSE CHRONOLOGICAL)
+
+### 🚀 [FEEDBACK_11_28_TASK_128_INTERHUB_DRAFT_VISIBILITY] — Task 128 — Hub nhận chỉ thấy trip sau khi Hub nguồn xác nhận (28/11/2026)
+- **Trạng thái**: ✅ Hoàn thành 100% (7/7 việc)
+- **Năng lực & Tính năng mới**: Trip luân chuyển đang nháp không lộ ở màn Nhập kho Hub nhận; sau khi Hub nguồn xác nhận xuất, các Hub đích mới thấy trip.
+- **Bằng chứng nghiệm thu**:
+  * Playwright E2E: PASS 100%
+  * Minh chứng hình ảnh: screenshot_01_hyn_sees_confirmed_transfer_verified.png
+- **Tài liệu tham chiếu**: [`RESOLUTION.md`](../feedbacks/feedback_11_28_task_128_interhub_draft_visibility/RESOLUTION.md) • [`TODO.md`](../feedbacks/feedback_11_28_task_128_interhub_draft_visibility/TODO.md)
 
 ### [Task 131] — Gộp nhãn tổng trên biểu đồ theo miền (25/11/2026)
 - **Trạng thái**: ✅ Hoàn thành 100% (5/5 việc)
